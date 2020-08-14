@@ -72,11 +72,6 @@ allInOne() {
 }
 
 createStandard() {
-  createKind
-
-  timeout 60 kubectl get nodes -o wide -w
-  timeout 60 kubectl get pods -A -o wide -w
-
   kubectl apply -f limitrange-limits.yaml -n default
 
   kubectl create namespace standard
@@ -86,6 +81,7 @@ createStandard() {
 }
 
 internalAllInOne() {
+  createKind
   createStandard
   createSecret
   appFirst
@@ -118,6 +114,9 @@ createKind() {
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
   kind create cluster --name $KINDNAME --config $KINDCONFIG
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
+
+  timeout 60 kubectl get nodes -o wide -w
+  timeout 60 kubectl get pods -A -o wide -w
 }
 
 cronJob() {
@@ -235,6 +234,7 @@ deployNode() {
 }
 
 deployNginx() {
+  exposedDeployment nginx nginx 80 80 3
   exposedDeployment anywaychat jobscale/anywaychat 80 80 3
   exposedDeployment ramen-timer jobscale/ramen-timer 80 80 3
 }
@@ -246,6 +246,10 @@ deployPhp() {
   exposedDeployment dokuwiki jobscale/dokuwiki 80 80 3
   exposedDeployment wordpress jobscale/wordpress 80 8000 0
   exposedDeployment ec-cube jobscale/ec-cube:4.0 80 80 3
+}
+
+deployApache() {
+  exposedDeployment apache httpd 80 80 3
 }
 
 deployPython() {
@@ -263,6 +267,7 @@ deployApps() {
   deployPhp
   deployGitlab
   deployPython
+  deployApache
   deployEcho
 }
 

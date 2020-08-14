@@ -19,3 +19,5 @@ nodes:
     hostPath: /k8s/mnt/extra
   - containerPath: /mnt/var
     hostPath: /k8s/mnt/var
+- role: worker
+- role: worker
