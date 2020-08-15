@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -u
+
+SWITCH=${1:-on}
+DEVICE=${2:-enp4s0}
+RATE=${3:-200Kbit}
+
+main() {
+  [[ $SWITCH != on && $SWITCH != off ]] && echo "Usage: $0 <on|off> <interface> <rate>" && return 1
+  echo "initialize.."
+  sudo tc qdisc del dev $DEVICE root
+  [[ $SWITCH != on ]] && return 0
+  sleep 2
+  echo "qdisc add.."
+  sudo tc qdisc add dev $DEVICE root tbf limit 1MB burst 20Kb rate $RATE
+}
+
+main
