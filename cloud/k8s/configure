@@ -54,7 +54,7 @@ initializeDatabase() {
   sql="CREATE DATABASE wordpress;
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 FLUSH PRIVILEGES;"
-  kubectl exec -it $(
+  kubectl exec -i $(
     kubectl get all | grep pod | grep mariadb | awk '{print $1}'
   ) -- bash -c "echo \"$sql\" | mysql -p$1"
 }
@@ -63,7 +63,7 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  LOGFILE=/home/log/k8s-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
+  LOGFILE=/k8s/log/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time internalAllInOne 2>&1 | tee $LOGFILE
 
   kubectl -n kube-system describe secret $(
@@ -82,6 +82,7 @@ createStandard() {
 
 internalAllInOne() {
   createKind
+  pullImages
   createStandard
   createSecret
   appFirst
@@ -90,7 +91,7 @@ internalAllInOne() {
   ingressForward
 
   timeout 20 kubectl get pods -A -o wide -w
-  docker exec -it $KINDNAME-control-plane crictl images
+  docker exec -i $KINDNAME-control-plane crictl images
   echo -e '\n\nk8s creation finished.\n\n'
 
   TTY_PASSWD="$(makePasswd)"
@@ -158,10 +159,10 @@ makePasswd() {
 genPasswd() {
   [[ "$GEN_PASSWD" == "" ]] && GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
-  kubectl exec -it $(kubectl get pods | grep ^gke- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
-  kubectl exec -it $(kubectl get pods | grep ^eks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
-  kubectl exec -it $(kubectl get pods | grep ^aks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
-  kubectl exec -it $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
+  kubectl exec -i $(kubectl get pods | grep ^gke- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
+  kubectl exec -i $(kubectl get pods | grep ^eks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
+  kubectl exec -i $(kubectl get pods | grep ^aks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
+  kubectl exec -i $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
 }
 
 exposedDeployment() {
@@ -223,6 +224,13 @@ deployGitlab() {
   kubectl config set-context $(kubectl config current-context) --namespace standard
 }
 
+deployMysql() {
+  kubectl create namespace mysql
+  kubectl config set-context $(kubectl config current-context) --namespace mysql
+  kubectl apply -f mysql && waitFor mysql
+  kubectl config set-context $(kubectl config current-context) --namespace standard
+}
+
 deployNode() {
   exposedDeployment wetty jobscale/wetty 443 3000 0
   exposedDeployment gke jobscale/cloud-terminal 443 3000 0
@@ -265,6 +273,7 @@ deployApps() {
   deployNode
   deployNginx
   deployPhp
+  deployMysql
   deployGitlab
   deployPython
   deployApache
@@ -284,4 +293,48 @@ token() {
   kubectl -n kube-system describe secret $(
     kubectl -n kube-system get secret | grep admin-user | awk '{print $1}'
   )
+}
+
+pullImages() {
+  IMAGELIST=(
+    node
+    nginx
+    mysql:8.0
+    httpd
+    mariadb
+    mongo
+    postgres
+    redis
+    jobscale/cloud-terminal
+    jobscale/wetty
+    jobscale/anywaychat
+    jobscale/django
+    jobscale/dokuwiki
+    jobscale/ec-cube:4.0
+    jobscale/gitlab
+    jobscale/jsxjp
+    jobscale/laravel
+    jobscale/lumen
+    jobscale/mongo-blog
+    jobscale/profile
+    jobscale/ramen-timer
+    jobscale/room-chat
+    jobscale/simple-chat
+    jobscale/value-domain
+    jobscale/web
+    jobscale/wordpress
+    kubernetesui/dashboard:v2.0.0-beta8
+    kubernetesui/metrics-scraper:v1.0.2
+    metallb/controller:v0.9.3
+    metallb/speaker:v0.9.3
+    inanimate/echo-server
+  )
+  for image in ${IMAGELIST[@]}
+  do
+    echo pull image $image
+    time docker exec -i $KINDNAME-control-plane crictl pull $image &
+    UNIT=$(echo "(${UNIT:-0} + 1) % 1" | bc)
+    [[ $UNIT == 0 ]] && wait
+  done
+  wait
 }
