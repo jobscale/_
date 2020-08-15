@@ -11,8 +11,8 @@ spec:
   hostPath:
     path: "/mnt/var/lib/mysql"
 ---
-apiVersion: v1
 kind: PersistentVolumeClaim
+apiVersion: v1
 metadata:
   name: mysql-pv-claim
 spec:
