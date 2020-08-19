@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ##
-## with EC2
+## with Linux
 ##
+
+eval $(cat /etc/*release)
 
 web() {
   sudo apt install -y $(apt search php | grep "^php7" | grep -v snmp | awk -F'/' '{print $1}' | xargs) nginx nginx-extras
@@ -47,11 +49,11 @@ iNodejs() {
 }
 
 iAws() {
-  pip3 install awscli
+  python3 -m pip install --user awscli
 }
 
 iAz() {
-  pip3 install azure-cli
+  python3 -m pip install --user azure-cli
 }
 
 iGcloud() {
@@ -83,22 +85,12 @@ iKind() {
   sudo mv kind /usr/local/bin
 }
 
-iChrome() {
-  curl https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-  sudo add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
-  sudo apt install -y google-chrome-stable
-}
-
 useFunction() {
   user=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
   name=$1
   type $name | tail -$(echo $(type $name | wc -l)-1 | bc) > /tmp/$name
   sudo -u $user bash -c ". /tmp/$name && $name"
   rm /tmp/$name
-}
-
-java() {
-  sudo apt install -y openjdk-8-jdk-headless openjdk-8-jre-headless
 }
 
 account() {
@@ -110,7 +102,7 @@ account() {
 }
 
 system() {
-  sudo dd if=/dev/zero of=/var/swapfile bs=1M count=4K
+  sudo dd if=/dev/zero of=/var/swapfile bs=16M count=4K
   sudo chmod 0600 /var/swapfile
   sudo mkswap /var/swapfile
   sudo swapon /var/swapfile
@@ -120,22 +112,38 @@ system() {
 
 minimum() {
   export DEBIAN_FRONTEND=noninteractive
-  apt update && apt install -y git vim tmux curl net-tools dnsutils procps iputils-ping
+  apt update && apt install -y git vim tmux curl zip unzip net-tools dnsutils procps iputils-ping
+}
+
+db() {
+  apt install -y mariadb-server
+}
+
+cli() {
+  apt install -y \
+    curl whois nmap traceroute net-tools \
+    nfs-common cifs-utils exfat-utils sshfs \
+    git subversion vim tmux dstat peco \
+    at expect zip unzip colordiff speedtest-cli \
+    mariadb-client libpng-dev nasm
+}
+
+account() {
+  user=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
+  echo "$user ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
+}
+
+system() {
+  dd if=/dev/zero of=/mnt/swap bs=2M count=512
+  chmod 0600 /mnt/swap
+  mkswap /mnt/swap
+  swapon /mnt/swap
+  echo '/mnt/swap none swap sw 0 0' | tee -a /etc/fstab
 }
 
 main() {
   date +'START    my-init %Y-%m-%d %H:%M:%S'
   [[ $(id -u) == 0 ]] && alias sudo=''
-# web
-# account
-# system
-# cli
-# iNodejs
-# iDocker
-# iKubectl
-# iKind
- date +'FINISHED my-init %Y-%m-%d %H:%M:%S'
+  echo installing...
+  date +'FINISHED my-init %Y-%m-%d %H:%M:%S'
 }
-
-main | sudo tee -a /var/log/cloud-admin-init.log
-

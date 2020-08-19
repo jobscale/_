@@ -1,11 +1,9 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: mysql-pv-volume
-  labels:
-    type: local
+  name: mysql-pv
 spec:
-  storageClassName: manual
+  storageClassName: mysql
   capacity:
     storage: 20Gi
   accessModes:
@@ -13,12 +11,12 @@ spec:
   hostPath:
     path: "/mnt/var/lib/mysql"
 ---
-apiVersion: v1
 kind: PersistentVolumeClaim
+apiVersion: v1
 metadata:
   name: mysql-pv-claim
 spec:
-  storageClassName: manual
+  storageClassName: mysql
   accessModes:
     - ReadWriteOnce
   resources:

@@ -1,0 +1,21 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  apiServerAddress: 0.0.0.0
+nodes:
+# the control plane node config
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30443
+    hostPort: 443
+    listenAddress: 0.0.0.0
+  - containerPort: 30080
+    hostPort: 80
+    listenAddress: 0.0.0.0
+  extraMounts:
+  - containerPath: /var/log
+    hostPath: /k8s/system/var/log
+  - containerPath: /mnt/extra
+    hostPath: /k8s/mnt/extra
+  - containerPath: /mnt/var
+    hostPath: /k8s/mnt/var

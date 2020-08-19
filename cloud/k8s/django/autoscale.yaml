@@ -2,11 +2,18 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: django
+  managedFields:
+  - apiVersion: autoscaling/v1
+    manager: kubectl
+    operation: Update
+  - apiVersion: autoscaling/v1
+    manager: kube-controller-manager
+    operation: Update
 spec:
-  maxReplicas: 20
-  minReplicas: 3
   scaleTargetRef:
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: django
-  targetCPUUtilizationPercentage: 70
+  maxReplicas: 20
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50

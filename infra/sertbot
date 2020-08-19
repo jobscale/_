@@ -1,0 +1,16 @@
+#!/usr/bin/env bash -eu
+
+install() {
+  curl -Ls -o /usr/local/bin/certbot-auto https://raw.githubusercontent.com/certbot/certbot/master/certbot-auto
+  chmod +x /usr/local/bin/certbot-auto
+  certbot-auto --os-packages-only --non-interactive
+  alias certbot='/usr/local/bin/certbot-auto --no-bootstrap'
+  certbot --version
+}
+
+certonly() {
+  certbot certonly --manual --manual-public-ip-logging-ok -d *.in.jsx.jp -d *.jsx.jp -d jsx.jp --preferred-challenges dns --agree-tos --register-unsafely-without-email
+  cd /etc/letsencrypt/live
+  rm $(find . -name README)
+  zip -r /etc/nginx/tls *
+}

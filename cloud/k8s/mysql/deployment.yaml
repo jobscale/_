@@ -6,8 +6,6 @@ spec:
   selector:
     matchLabels:
       app: mysql
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
@@ -19,7 +17,6 @@ spec:
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "my-secret-pw"
-#       args: ["--default-authentication-plugin=mysql_native_password", "--sql-mode="]
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql

@@ -1,27 +1,20 @@
-KINDIMAGE=kindest/node:v1.15.7
 production() {
   export KINDNAME=production
-  export KINDHTTP=80
-  export KINDHTTPS=443
-  export KINDCONFIG=multinode.yaml
+  export KINDCONFIG=kind/production.yaml
 }
 staging() {
   export KINDNAME=staging
-  export KINDHTTP=3080
-  export KINDHTTPS=3443
-  export KINDCONFIG=singlenode.yaml
+  export KINDCONFIG=kind/staging.yaml
 }
 development() {
   export KINDNAME=development
-  export KINDHTTP=4080
-  export KINDHTTPS=4443
-  export KINDCONFIG=singlenode.yaml
+  export KINDCONFIG=kind/development.yaml
 }
 
 staging
 
 svc() {
-  [[ $(nc -v localhost 8001 -w 1 < /dev/null |& grep succeeded | wc -l) != 1 ]] && kubectl proxy &
+  [[ $(nc -v localhost 8001 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) != 1 ]] && kubectl proxy &
   KUBE_NAMESPACE=$1
   KUBE_SERVICE=$1
   KUBE_HOST=http://127.0.0.1:8001
@@ -43,15 +36,15 @@ waitFor() {
   delay
   while [[ "$1" != "" ]]
   do
-    [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok" && return
+    [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
     echo " $1 - ng"
     echo -ne "just a moment please 11.."
     for i in {10..0}
     do
       delay
-      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok" && return
+      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
       delay
-      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok" && return
+      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
       echo -n " $i.."
     done
   done
@@ -70,23 +63,15 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  LOGFILE=/tmp/k8s-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
+  LOGFILE=/home/log/k8s-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time internalAllInOne 2>&1 | tee $LOGFILE
 
   kubectl -n kube-system describe secret $(
     kubectl -n kube-system get secrets | grep admin-user | awk '{print $1}'
   ) | grep ^token
-
-  portForward
 }
 
 createStandard() {
-  kubeConfig
-  createKind
-
-  timeout 60 kubectl get nodes -o wide -w
-  timeout 60 kubectl get pods -A -o wide -w
-
   kubectl apply -f limitrange-limits.yaml -n default
 
   kubectl create namespace standard
@@ -96,6 +81,7 @@ createStandard() {
 }
 
 internalAllInOne() {
+  createKind
   createStandard
   createSecret
   appFirst
@@ -104,6 +90,7 @@ internalAllInOne() {
   ingressForward
 
   timeout 20 kubectl get pods -A -o wide -w
+  docker exec -it $KINDNAME-control-plane crictl images
   echo -e '\n\nk8s creation finished.\n\n'
 
   TTY_PASSWD="$(makePasswd)"
@@ -124,17 +111,17 @@ jsxSite() {
 }
 
 createKind() {
-  # kind create cluster --name $KINDNAME --image $KINDIMAGE --config $KINDCONFIG
+  [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
   kind create cluster --name $KINDNAME --config $KINDCONFIG
-}
+  cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
-kubeConfig() {
-  ln -sfn kind-config-$KINDNAME $HOME/.kube/config
+  timeout 60 kubectl get nodes -o wide -w
+  timeout 60 kubectl get pods -A -o wide -w
 }
 
 cronJob() {
   [[ "$KINDNAME" != production ]] && return
-  [[ "$(hostname)" != bionic ]] && return
+  [[ "$(hostname)" != focal ]] && return
   kubectl create cronjob value-domain --image=jobscale/value-domain --schedule='0/7 * * * *'
 }
 
@@ -178,9 +165,11 @@ genPasswd() {
 }
 
 exposedDeployment() {
+  MIN_REPLICA=$5
+  MIN_REPLICA=1 # minimum up
   kubectl create deployment $1 --image $2
   kubectl expose deployment $1 --name $1 --type LoadBalancer --port $3 --target-port $4
-  [[ "$5" != "0" ]] && kubectl autoscale deployment $1 --cpu-percent 50 --min $5 --max 20
+  [[ "$5" != "0" ]] && kubectl autoscale deployment $1 --cpu-percent 50 --min $MIN_REPLICA --max 20
   waitFor $1
 }
 
@@ -222,46 +211,64 @@ appFirst() {
 }
 
 loadImage() {
-  docker pull $2
-  kind load docker-image $2 --name $KINDNAME
+  docker pull $1
+  kind load docker-image $1 --name $KINDNAME
   delay
 }
 
-ecoDeploy() {
-  [[ "$(hostname)" == damemurimuda ]] && loadImage $@
-  exposedDeployment $@
-}
-
-deployNode() {
-  ecoDeploy wetty jobscale/wetty 443 3000 0
-  ecoDeploy gke jobscale/cloud-terminal 443 3000 0
-  ecoDeploy eks jobscale/cloud-terminal 443 3000 0
-  ecoDeploy aks jobscale/cloud-terminal 443 3000 0
-  ecoDeploy mongo-blog jobscale/mongo-blog 80 3344 3
-  ecoDeploy anywaychat jobscale/anywaychat 80 80 3
-  ecoDeploy room-chat jobscale/room-chat 80 3033 0
-  ecoDeploy simple-chat jobscale/simple-chat 80 3000 0
-  ecoDeploy ramen-timer jobscale/ramen-timer 80 80 3
+deployGitlab() {
   kubectl create namespace gitlab
   kubectl config set-context $(kubectl config current-context) --namespace gitlab
-  ecoDeploy gitlab jobscale/gitlab 443 443 0
+  exposedDeployment gitlab jobscale/gitlab 443 443 0
   kubectl config set-context $(kubectl config current-context) --namespace standard
 }
 
+deployNode() {
+  exposedDeployment wetty jobscale/wetty 443 3000 0
+  exposedDeployment gke jobscale/cloud-terminal 443 3000 0
+  exposedDeployment eks jobscale/cloud-terminal 443 3000 0
+  exposedDeployment aks jobscale/cloud-terminal 443 3000 0
+  exposedDeployment mongo-blog jobscale/mongo-blog 80 3000 3
+  exposedDeployment room-chat jobscale/room-chat 80 3000 0
+  exposedDeployment simple-chat jobscale/simple-chat 80 3000 0
+}
+
+deployNginx() {
+  exposedDeployment nginx nginx 80 80 3
+  exposedDeployment anywaychat jobscale/anywaychat 80 80 3
+  exposedDeployment ramen-timer jobscale/ramen-timer 80 80 3
+}
+
 deployPhp() {
-  ecoDeploy profile jobscale/profile 80 80 3
-  ecoDeploy laravel jobscale/laravel 80 80 3
-  ecoDeploy lumen jobscale/lumen 80 80 3
-  ecoDeploy dokuwiki jobscale/dokuwiki 80 80 3
-  ecoDeploy wordpress jobscale/wordpress 80 8000 0
-  ecoDeploy ec-cube jobscale/ec-cube:4.0 80 80 3
+  exposedDeployment profile jobscale/profile 80 80 3
+  exposedDeployment laravel jobscale/laravel 80 80 3
+  exposedDeployment lumen jobscale/lumen 80 80 3
+  exposedDeployment dokuwiki jobscale/dokuwiki 80 80 3
+  exposedDeployment wordpress jobscale/wordpress 80 8000 0
+  exposedDeployment ec-cube jobscale/ec-cube:4.0 80 80 3
+}
+
+deployApache() {
+  exposedDeployment apache httpd 80 80 3
+}
+
+deployPython() {
+  kubectl apply -f django
+  waitFor django
+}
+
+deployEcho() {
+  exposedDeployment echo-server inanimate/echo-server 80 8080 3
 }
 
 deployApps() {
   deployNode
+  deployNginx
   deployPhp
-  ecoDeploy echo-server inanimate/echo-server 80 8080 3
-  kubectl apply -f django && waitFor django
+  deployGitlab
+  deployPython
+  deployApache
+  deployEcho
 }
 
 delAll() {
@@ -277,18 +284,4 @@ token() {
   kubectl -n kube-system describe secret $(
     kubectl -n kube-system get secret | grep admin-user | awk '{print $1}'
   )
-}
-
-portForward() {
-  [[ $(nc -v localhost $KINDHTTPS -w 1 < /dev/null |& grep succeeded | wc -l) != 1 ]] \
-  && sudo -E kubectl port-forward --address 0.0.0.0 svc/web $KINDHTTPS:443 $KINDHTTP:80 &
-  sleep 2
-  while [[ true ]]
-  do
-    echo -e "$(date +'%F %T') - keep alive port forward connection."
-    delay
-    nc -v 127.0.0.1 $KINDHTTPS -w 1 < /dev/null
-    delay
-    nc -v 127.0.0.1 $KINDHTTP -w 1 < /dev/null
-  done
 }
