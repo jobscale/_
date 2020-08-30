@@ -3,7 +3,7 @@ set -u
 
 SWITCH=${1:-on}
 DEVICE=${2:-enp4s0}
-RATE=${3:-1500k}
+RATE=${3:-5000k}
 
 tryOff() {
    echo "--- Initialize $DEVICE and ifb0 ---"
