@@ -114,7 +114,7 @@ jsxSite() {
 createKind() {
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
   # kind create cluster --name $KINDNAME --config $KINDCONFIG
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image v1.19.0
+  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.19.0
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
   timeout 60 kubectl get nodes -o wide -w
