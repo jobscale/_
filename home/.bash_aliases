@@ -1,7 +1,8 @@
 HISTSIZE=500000
 HISTFILESIZE=5000000
 
-umask u=rwx,g=,o=
+[[ $(uname -s) == "Darwin" ]] && umask u=rwx,g=rx,o=rx
+[[ $(uname -s) == "Linux" ]] && umask u=rwx,g=,o=
 export PROMPT_DIRTRIM=3
 export DEBIAN_FRONTEND=noninteractive
 
@@ -19,7 +20,7 @@ alias diff='colordiff'
 alias netstat='netstat -anptu'
 alias rsync='rsync -tlrHhv --delete'
 alias lsof='sudo lsof -Pan -i tcp -i udp'
-alias df='df -x"squashfs"'
+[[ $(uname -s) == "Linux" ]] && alias df='df -x"squashfs"'
 
 PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 
