@@ -9,30 +9,38 @@
 // ==/UserScript==
 
 (() => {
-  const scale = '170%';
-  const top = '-132px';
-  const style = `body {
+  const setup = (scale, top) => {
+    const style = `body {
 transform: scale(${scale}, ${scale});
 transform-origin: top;
 margin-top: ${top};
 }`;
-  const main = () => {
     const element = document.createElement('style');
     element.textContent = style;
     document.head.appendChild(element);
   };
+
+  const genList = [];
+  const generateAction = (scale, top, text) => {
+    const element = document.createElement('span');
+    const style = 'font-size: 2em; cursor: pointer; text-align: right;';
+    element.setAttribute('style', style);
+    element.textContent = text;
+    genList.push(element);
+    document.querySelector('#cx_player').style.textAlign = 'center';
+    document.querySelector('#cx_player').append(element);
+    element.addEventListener('click', () => {
+      genList.forEach(el => el.setAttribute('style', 'color: dimgray;'));
+      setup(scale, top);
+    });
+  };
+
   const action = () => {
     const check = () => document.querySelector('iframe[src^="https://i.fod"]');
     if (!check()) return;
-    const element = document.createElement('div');
-    const style = 'font-size: 3em; cursor: pointer; text-align: right;';
-    element.setAttribute('style', style);
-    element.textContent = '>>> WIDE SIZE <<<';
-    document.querySelector('#cx_player').append(element);
-    element.addEventListener('click', () => {
-      element.setAttribute('style', 'color: dimgray;');
-      main();
-    });
+    generateAction('170%', '-135px', ' >>> WIDE SIZE <<< ');
+    generateAction('130%', '-103px', ' >>> MIDINUM SIZE <<< ');
   };
   setTimeout(action, 3000);
 })();
+
