@@ -111,6 +111,11 @@ jsxSite() {
   waitFor jsxjp
 }
 
+nodeAws() {
+  kubectl apply -f node-aws
+  waitFor node-aws
+}
+
 createKind() {
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
   # kind create cluster --name $KINDNAME --config $KINDCONFIG
@@ -212,6 +217,7 @@ appFirst() {
   delay && adminDashboard
   delay && deployBackend
   delay && jsxSite
+  delay && nodeAws
 }
 
 loadImage() {

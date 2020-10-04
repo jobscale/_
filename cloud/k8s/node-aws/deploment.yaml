@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: node-aws
+  name: node-aws
+spec:
+  selector:
+    matchLabels:
+      app: node-aws
+  template:
+    metadata:
+      labels:
+        app: node-aws
+    spec:
+      containers:
+      - image: jobscale/node-aws:slim
+        name: node-aws
+        volumeMounts:
+        - name: node-aws-persistent-storage
+          mountPath: /home/store
+      volumes:
+      - name: node-aws-persistent-storage
+        persistentVolumeClaim:
+          claimName: node-aws-pv-claim
