@@ -1,8 +1,19 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+set -eu
 
-main() {
-  echo "172.16.6.22 focal.local" | tee -a /etc/hosts
-  kubectl get svc
+forward() {
+  echo "172.16.6.22 kubernetes" | tee -a /etc/hosts
   kubectl port-forward svc/jsxjp --address 0.0.0.0 80:80 443:443
 }
+
+main() {
+  forward &
+  while true
+  do
+    sleep 8
+    [[ $(nc -v -w 1 127.0.0.1 80 < /dev/null 2>&1 | grep -e 'succeeded' -e 'open' | wc -l) != 1 ]] && break
+    [[ $(nc -v -w 1 127.0.0.1 443 < /dev/null 2>&1 | grep -e 'succeeded' -e 'open' | wc -l) != 1 ]] && break
+  done
+}
+
 main
