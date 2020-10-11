@@ -8,8 +8,19 @@ install() {
 }
 
 certonly() {
-  certbot-auto --no-bootstrap certonly --manual --manual-public-ip-logging-ok -d *.in.jsx.jp -d *.jsx.jp -d jsx.jp --preferred-challenges dns --agree-tos --register-unsafely-without-email
+  certbot-auto --no-bootstrap certonly --manual --manual-public-ip-logging-ok -d jsx.jp -d *.jsx.jp -d *.in.jsx.jp --preferred-challenges dns --agree-tos --register-unsafely-without-email
   cd /etc/letsencrypt/live
   rm $(find . -name README)
   zip -r /etc/nginx/tls *
 }
+
+testing() {
+  docker network create standard
+  docker pull jobscale/partner
+  docker run --rm --name partner --network standard -d jobscale/partner
+  docker pull jobscale/web
+  docker run --rm --name web --network standard -it jobscale/web
+  docker stop partner
+  docker network rm standard
+}
+
