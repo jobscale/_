@@ -32,6 +32,7 @@ gui() {
   sudo apt install -y terminator conky polari buntu-restricted-extras \
     gnome-clocks $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}')
   [[ $(lsb_release -cs) == 'bionic' ]] && sudo apt install -y gimp alarm-clock-applet
+  gsettings set org.freedesktop.ibus.panel xkb-icon-rgba '#f57900'
 }
 
 iNodejs() {
