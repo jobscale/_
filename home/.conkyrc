@@ -76,7 +76,8 @@ ${template0 /media/jobscale/e657358c-0471-4cb6-87db-a24a055f2031 sdf SD}\
 ${template0 /media/jobscale/8f387411-a7dd-4144-ae04-7aa7075b275c sdb ext4}\
 ${template0 /media/jobscale/Central sdc Central}\
 
-${color5}Network         $stippled_hr ${template1 enp4s0}${template1 ens9}${template1 wlp3s0}
+${color5}Network         $stippled_hr\
+${template1 enp4s0}${template1 ens9}${template1 wlp3s0}${template1 enp0s3}
 ${color5}Date         $stippled_hr$color3
 ${alignc}${font Regular:size=26}${time %H:%M:%S}${font}${alignr}$color2${time %B %e日 %A}  ${voffset 12}
 ${color5}Process         $stippled_hr $color3
