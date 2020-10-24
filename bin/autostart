@@ -8,7 +8,7 @@ tmux new-session -d
 conky-daemon
 ibus-daemon -rxd
 [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
-[[ $(lsb_release -sc) != focal ]] && [[ -s "$HOME/bin/mouse-scroll" ]] && "$HOME/bin/mouse-scroll"
+# [[ $(lsb_release -sc) != focal ]] && [[ -s "$HOME/bin/mouse-scroll" ]] && "$HOME/bin/mouse-scroll"
 
 [[ -s "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
 
