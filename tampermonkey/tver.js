@@ -38,8 +38,9 @@ margin-top: ${top};
   const action = () => {
     const check = () => document.querySelector('iframe[src^="https://i.fod"]');
     if (!check()) return;
-    generateAction('170%', '-135px', ' >>> WIDE SIZE <<< ');
-    generateAction('130%', '-103px', ' >>> MIDINUM SIZE <<< ');
+    generateAction('210%', '-167px', ' >>> BIG SIZE <<< ');
+    generateAction('170%', '-135px', ' >>> WIDE <<< ');
+    generateAction('130%', '-103px', ' >>> MIDINUM <<< ');
   };
   setTimeout(action, 3000);
 })();

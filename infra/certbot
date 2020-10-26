@@ -23,4 +23,3 @@ testing() {
   docker stop partner
   docker network rm standard
 }
-
