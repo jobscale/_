@@ -270,6 +270,7 @@ deployApache() {
 }
 
 deployPython() {
+  exposedDeployment tutorial docker/getting-started 80 80 3
   kubectl apply -f django
   waitFor django
 }
