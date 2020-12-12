@@ -2,7 +2,7 @@
 
 ## https://jsx.jp
 
-Kubernetes v1.19.0
+Kubernetes v1.20.0
 
 ### install docker
 
