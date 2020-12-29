@@ -14,8 +14,8 @@ nodes:
     listenAddress: 0.0.0.0
   extraMounts:
   - containerPath: /var/log
-    hostPath: /k8s/system/var/log
+    hostPath: /home/k8s/system/var/log
   - containerPath: /mnt/extra
-    hostPath: /k8s/mnt/extra
+    hostPath: /home/k8s/mnt/extra
   - containerPath: /mnt/var
-    hostPath: /k8s/mnt/var
+    hostPath: /home/k8s/mnt/var

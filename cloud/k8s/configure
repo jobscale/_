@@ -63,7 +63,7 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  LOGFILE=/k8s/log/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
+  LOGFILE=/home/k8s/log/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time internalAllInOne 2>&1 | tee $LOGFILE
 
   kubectl -n kube-system describe secret $(
@@ -315,6 +315,12 @@ pullImages() {
     mongo
     postgres
     redis
+    kubernetesui/dashboard:v2.1.0
+    kubernetesui/metrics-scraper:v1.0.6
+    metallb/controller:v0.9.5
+    metallb/speaker:v0.9.5
+    inanimate/echo-server
+    docker/getting-started
     jobscale/cloud-terminal
     jobscale/wetty
     jobscale/anywaychat
@@ -333,11 +339,6 @@ pullImages() {
     jobscale/value-domain
     jobscale/web
     jobscale/wordpress
-    kubernetesui/dashboard:v2.0.0-beta8
-    kubernetesui/metrics-scraper:v1.0.2
-    metallb/controller:v0.9.3
-    metallb/speaker:v0.9.3
-    inanimate/echo-server
   )
   for image in ${IMAGELIST[@]}
   do
