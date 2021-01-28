@@ -1,14 +1,9 @@
-#!/usr/bin/env bash -eu
-
-install() {
-  curl -Ls -o /usr/local/bin/certbot-auto https://raw.githubusercontent.com/certbot/certbot/master/certbot-auto
-  chmod +x /usr/local/bin/certbot-auto
-  certbot-auto --os-packages-only --non-interactive
-  certbot-auto --no-bootstrap --version
-}
+#!/usr/bin/env bash
+set -eu
 
 certonly() {
-  certbot-auto --rsa-key-size 4096 --no-bootstrap certonly --manual --manual-public-ip-logging-ok -d jsx.jp -d *.jsx.jp -d *.in.jsx.jp --preferred-challenges dns --agree-tos --register-unsafely-without-email
+  apt update && apt install -y certbot
+  certbot certonly --rsa-key-size 4096 --no-bootstrap --manual --manual-public-ip-logging-ok -d jsx.jp -d *.jsx.jp -d *.in.jsx.jp --preferred-challenges dns --agree-tos --register-unsafely-without-email
   cd /etc/letsencrypt/live
   rm $(find . -name README)
   zip -r /etc/nginx/tls *
