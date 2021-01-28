@@ -66,9 +66,8 @@ ${template2 cpu7 cpu8}
 $endif\
   Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
 ${color5}Storage         $stippled_hr \
-${template0 / /dev/sda1 /}\
+${template0 / /dev/sda2 SSD}\
 ${template0 /mnt/sdb2 /dev/sdb2 SSD}\
-${template0 /media/jobscale/7A2012EB2012ADDF /dev/sdc1 HDD}\
 ${template0 /media/jobscale/d9fb763b-4004-4d37-8982-d05faef4ad5a /dev/sdd1 SSD}\
 ${template0 /media/jobscale/b1ed86b0-511e-4eaa-85d8-5c145ae8af44 /dev/sde1 SD}\
 ${template0 /media/jobscale/7b2fc0f8-0a3b-47b5-9dc4-75075f935c09 sdd SSD}\
