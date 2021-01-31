@@ -64,7 +64,7 @@ allInOne() {
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
   LOGFILE=/home/k8s/log/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
-  time internalAllInOne 2>&1 | tee $LOGFILE
+  time inAllInOne 2>&1 | tee $LOGFILE
 
   kubectl -n kube-system describe secret $(
     kubectl -n kube-system get secrets | grep admin-user | awk '{print $1}'
@@ -80,7 +80,7 @@ createStandard() {
   kubectl describe nodes
 }
 
-internalAllInOne() {
+inAllInOne() {
   createKind
   pullImages
   createStandard
@@ -104,6 +104,13 @@ internalAllInOne() {
 createSecret() {
   FILE=$HOME/.docker/config.json
   kubectl create secret generic regcred --from-file=.dockerconfigjson=$FILE --type=kubernetes.io/dockerconfigjson
+}
+
+internalService() {
+  kubectl apply -f squid
+  waitFor squid
+  kubectl apply -f bind9
+  waitFor bind9
 }
 
 jsxSite() {
@@ -216,6 +223,7 @@ appFirst() {
   delay && metalLB
   delay && adminDashboard
   delay && deployBackend
+  delay && internalService
   delay && jsxSite
   delay && nodeAws
 }
@@ -337,6 +345,8 @@ pullImages() {
     jobscale/room-chat
     jobscale/simple-chat
     jobscale/value-domain
+    jobscale/squid
+    jobscale/bind9
     jobscale/web
     jobscale/wordpress
   )
