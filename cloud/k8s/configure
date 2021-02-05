@@ -63,7 +63,9 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  LOGFILE=/home/k8s/log/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
+  mkdir -p /home/k8s/logs
+  [[ ! -d /home/k8s/logs ]] && echo mkdir /home/k8s/logs && return 1
+  LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time inAllInOne 2>&1 | tee $LOGFILE
 
   kubectl -n kube-system describe secret $(
@@ -125,8 +127,8 @@ nodeAws() {
 
 createKind() {
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
-  # kind create cluster --name $KINDNAME --config $KINDCONFIG
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.0
+  kind create cluster --name $KINDNAME --config $KINDCONFIG
+  # kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.2
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
   timeout 60 kubectl get nodes -o wide -w
