@@ -1,14 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: partner
   name: partner
 spec:
+  selector:
+    app: partner
+  type: ClusterIP
   ports:
   - port: 443
     protocol: TCP
     targetPort: 443
-  selector:
-    app: partner
-  type: ClusterIP

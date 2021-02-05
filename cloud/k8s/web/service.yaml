@@ -2,11 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web
-  labels:
-    app: web
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 spec:
+  selector:
+    app: web
   type: LoadBalancer
   ports:
   - name: https
@@ -19,5 +17,3 @@ spec:
     port: 80
     targetPort: 80
     protocol: TCP
-  selector:
-    app: web

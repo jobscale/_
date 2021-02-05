@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: jsxjp
 spec:
+  selector:
+    app: jsxjp
+  type: LoadBalancer
   ports:
   - name: https
     port: 443
@@ -12,6 +15,3 @@ spec:
     port: 80
     protocol: TCP
     targetPort: 80
-  selector:
-    app: jsxjp
-  type: LoadBalancer
