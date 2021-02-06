@@ -51,7 +51,7 @@ waitFor() {
 }
 
 initializeDatabase() {
-  sql="CREATE DATABASE wordpress;
+  sql="CREATE DATABASE IF NOT EXISTS wordpress;
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 FLUSH PRIVILEGES;"
   kubectl exec -i $(
