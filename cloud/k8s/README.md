@@ -101,7 +101,7 @@ kubectl apply -f https://git.io/km-config.yaml
 DASHBOARD_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes/dashboard.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
 kubectl apply -f admin-user-service-account.yaml
-kubectl describe secrets | grep ^token | awk '{print $2}'
+kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token
 ```
 
 ### kubectl proxy with Dashboard
