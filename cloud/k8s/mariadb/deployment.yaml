@@ -17,3 +17,10 @@ spec:
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "false"
+        volumeMounts:
+        - name: mariadb-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pv-claim
