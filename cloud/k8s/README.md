@@ -107,9 +107,9 @@ kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token
 ### kubectl proxy with Dashboard
 
 ```
-kubectl proxy
+kubectl proxy &
 [[ -s "$(which xdg-open)" ]] && alias open='xdg-open'
-open http://127.0.0.1:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 ```
 
 ### run deployment
