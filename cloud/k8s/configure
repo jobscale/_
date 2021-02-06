@@ -221,8 +221,8 @@ deployBackend() {
   deployCluster mongo mongo 27017 27017
   kubectl apply -f mariadb && waitFor mariadb
   kubectl apply -f postgres && waitFor postgres
-  kubectl apply -f mysql && waitFor mysql
   [[ $KINDNAME == production ]] && partnerEnvironment
+  kubectl apply -f mysql && waitFor mysql
 }
 
 metricsServer() {
