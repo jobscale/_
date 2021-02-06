@@ -11,6 +11,13 @@ iKubectl() {
   chmod +x kubectl
   sudo mv kubectl /usr/local/bin
 }
+iStern() {
+  curl -sLo stern https://github.com/wercker/stern/releases/download/$(
+    git ls-remote --refs --tags https://github.com/wercker/stern.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
+  )/stern_linux_amd64
+  chmod ugo+x stern
+  sudo mv stern /usr/local/bin
+}
 iKind() {
   curl -sLo kind https://github.com/kubernetes-sigs/kind/releases/download/$(
     git ls-remote --tags --refs https://github.com/kubernetes-sigs/kind.git | tail -1 | awk -F/ '{print $3}'
@@ -31,15 +38,23 @@ iNodejs() {
   npm --version
   id
 }
+iDevelop() {
+  sudo apt update
+  sudo apt install -y net-tools dnsutils netcat whois curl vim tmux git
+}
 iAll() {
   iDocker
-  iKind
   iKubectl
+  iStern
+  iKind
   iNodejs
+  iDevelop
 }
 echo Usage:
 echo "  iAll"
 echo "  iDocker"
-echo "  iKind"
 echo "  iKubectl"
+echo "  iStern"
+echo "  iKind"
 echo "  iNodejs"
+echo "  iDevelop"

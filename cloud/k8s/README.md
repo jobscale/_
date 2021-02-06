@@ -15,7 +15,6 @@ iDocker() {
   sudo apt install -y docker-ce apt-transport-https
   sudo usermod -aG docker $(whoami)
 } && iDocker
-$SHELL -l
 ```
 
 ### install kubectl
@@ -74,9 +73,8 @@ iNodejs() {
 ### create cluster
 
 ```
-KINDNAME=staging
-kind create cluster --name $KINDNAME --config multinode.yaml
-ln -sfn kind-config-$KINDNAME $HOME/.kube/config
+kind create cluster --name multinode --config multinode.yaml
+cp $HOME/.kube/config $HOME/.kube/multinode-config
 kubectl get nodes -w
 kubectl get pods -A -w
 ```
@@ -84,32 +82,34 @@ kubectl get pods -A -w
 ### kubectl config
 
 ```
-kubectl config current-context
-kubectl config set-context $(kubectl config current-context) --namespace default
+kubectl create namespace standard
+kubectl config set-context $(kubectl config current-context) --namespace standard
+kubectl apply -f limitrange-limits.yaml
 ```
 
 ### setup metallb system
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/google/metallb/${
-  git ls-remote --refs --tags https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
-}/manifests/metallb.yaml
+METAL_VERSION=$(git ls-remote --refs --tags https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
+kubectl apply -f https://raw.githubusercontent.com/google/metallb/${METAL_VERSION}/manifests/metallb.yaml
 kubectl apply -f https://git.io/km-config.yaml
 ```
 
 ### deployment Dashboard
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+DASHBOARD_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes/dashboard.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
 kubectl apply -f admin-user-service-account.yaml
-kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+kubectl describe secrets | grep ^token | awk '{print $2}'
 ```
 
 ### kubectl proxy with Dashboard
 
 ```
 kubectl proxy
-xdg-open http://127.0.0.1:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+[[ -s "$(which xdg-open)" ]] && alias open='xdg-open'
+open http://127.0.0.1:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 ```
 
 ### run deployment
@@ -165,7 +165,10 @@ kubectl rollout undo deployment web --to-revision 2
 kubectl get pods --watch
 ```
 
-### install debug tools
+### install develop tools
 ```
-apt update && apt install -y net-tools dnsutils curl vim tmux git
+iDevelop() {
+  sudo apt update
+  sudo apt install -y net-tools dnsutils netcat whois curl vim tmux git
+} && iDevelop
 ```
