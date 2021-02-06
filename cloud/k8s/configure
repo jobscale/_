@@ -318,6 +318,9 @@ token() {
 
 pullImages() {
   IMAGELIST=(
+    debian:buster-slim
+    debian:buster
+    alpine
     node
     nginx
     mysql:8.0
