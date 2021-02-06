@@ -11,7 +11,7 @@ development() {
   export KINDCONFIG=kindest/development.yaml
 }
 
-dedvelopment
+development
 
 svc() {
   [[ $(nc -v localhost 8001 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) != 1 ]] && kubectl proxy &
@@ -67,8 +67,6 @@ allInOne() {
   [[ ! -d /home/k8s/logs ]] && echo mkdir /home/k8s/logs && return 1
   LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time inAllInOne 2>&1 | tee $LOGFILE
-
-  token
 }
 
 createStandard() {
@@ -82,23 +80,27 @@ createStandard() {
 
 inAllInOne() {
   createKind
-  pullImages
+  [[ $KINDNAME == production ]] && createSecret
+  [[ $KINDNAME == production ]] && pullImages
   createStandard
-  createSecret
   appFirst
-  cronJob
-  deployApps
-  ingressForward
+  [[ $KINDNAME == production ]] && cronJob
+  [[ $KINDNAME == production ]] && deployApps
+  [[ $KINDNAME == production ]] && ingressForward
 
   timeout 20 kubectl get pods -A -o wide -w
   docker exec -i $KINDNAME-control-plane crictl images
   echo -e '\n\nk8s creation finished.\n\n'
 
+  [[ $KINDNAME == production ]] && initWetty
+  initializeDatabase false
+  token
+}
+
+initWetty() {
   TTY_PASSWD="$(makePasswd)"
   genPasswd "$TTY_PASSWD"
   echo "Initialized password: '$TTY_PASSWD'"
-
-  initializeDatabase false
 }
 
 createSecret() {
@@ -125,8 +127,8 @@ nodeAws() {
 
 createKind() {
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
-  kind create cluster --name $KINDNAME --config $KINDCONFIG
-  # kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.2
+  # kind create cluster --name $KINDNAME --config $KINDCONFIG
+  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.2
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
   timeout 60 kubectl get nodes -o wide -w
@@ -213,6 +215,7 @@ deployBackend() {
   deployCluster mongo mongo 27017 27017
   kubectl apply -f mariadb && waitFor mariadb
   kubectl apply -f postgres && waitFor postgres
+  kubectl apply -f mysql && waitFor mysql
   partnerEnvironment
 }
 
@@ -309,6 +312,7 @@ delAll() {
 }
 
 token() {
+  [[ "$(kubectl get namespaces | grep kubernetes-dashboard)" == "" ]] && echo 'no token' && return
   kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token | awk '{print $2}'
 }
 
