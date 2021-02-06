@@ -1,8 +1,12 @@
 #!/bin/bash -eu
 
 netInit() {
+  [[ "$(lsb_release -is)" != Ubuntu ]] && return 1
   rm /etc/resolv.conf
-  ln -sfn /run/systemd/resolve/resolv.conf /etc/resolv.conf
+  # with auto
+  # ln -sfn /run/systemd/resolve/resolv.conf /etc/resolv.conf
+  # with manual
+  ln -sfn /usr/systemd/resolve/resolv.conf /etc/resolv.conf
 }
 account() {
   user=jobscale
