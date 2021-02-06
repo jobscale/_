@@ -216,7 +216,7 @@ deployBackend() {
   kubectl apply -f mariadb && waitFor mariadb
   kubectl apply -f postgres && waitFor postgres
   kubectl apply -f mysql && waitFor mysql
-  partnerEnvironment
+  [[ $KINDNAME == production ]] && partnerEnvironment
 }
 
 metricsServer() {
@@ -224,13 +224,13 @@ metricsServer() {
 }
 
 appFirst() {
-  delay && metricsServer
-  delay && metalLB
-  delay && adminDashboard
-  delay && deployBackend
-  delay && internalService
-  delay && jsxSite
-  delay && nodeAws
+  metricsServer
+  metalLB
+  adminDashboard
+  deployBackend
+  internalService
+  jsxSite
+  nodeAws
 }
 
 loadImage() {
