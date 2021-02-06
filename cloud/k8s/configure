@@ -88,8 +88,8 @@ inAllInOne() {
   [[ $KINDNAME == production ]] && deployApps
   [[ $KINDNAME == production ]] && ingressForward
 
-  timeout 20 kubectl get pods -A -o wide -w
-  docker exec -i $KINDNAME-control-plane crictl images
+  echo -n $(timeout 20 kubectl get pods -A -o wide -w)
+  docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
   [[ $KINDNAME == production ]] && initWetty
@@ -131,8 +131,8 @@ createKind() {
   kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.2
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
-  timeout 60 kubectl get nodes -o wide -w
-  timeout 60 kubectl get pods -A -o wide -w
+  echo -n $(timeout 60 kubectl get nodes -o wide -w)
+  echo -n $(timeout 60 kubectl get pods -A -o wide -w)
 }
 
 cronJob() {
