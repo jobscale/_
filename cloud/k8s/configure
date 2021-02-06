@@ -1,17 +1,17 @@
 production() {
   export KINDNAME=production
-  export KINDCONFIG=kind/production.yaml
+  export KINDCONFIG=kindest/production.yaml
 }
 staging() {
   export KINDNAME=staging
-  export KINDCONFIG=kind/staging.yaml
+  export KINDCONFIG=kindest/staging.yaml
 }
 development() {
   export KINDNAME=development
-  export KINDCONFIG=kind/development.yaml
+  export KINDCONFIG=kindest/development.yaml
 }
 
-staging
+dedvelopment
 
 svc() {
   [[ $(nc -v localhost 8001 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) != 1 ]] && kubectl proxy &
