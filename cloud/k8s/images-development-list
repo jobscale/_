@@ -1,6 +1,5 @@
 IMAGE                                      TAG                  IMAGE ID            SIZE
 docker.io/jobscale/bind9                   latest               f3ebf9c1f85d5       75.8MB
-docker.io/jobscale/gitlab                  latest               f1d480d4f826c       847MB
 docker.io/jobscale/jsxjp                   latest               bffa7dc8a5e8a       69.2MB
 docker.io/jobscale/node-aws                slim                 57df69a1d2233       411MB
 docker.io/jobscale/squid                   latest               e7e6e06d1fff1       92.5MB
