@@ -127,6 +127,29 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/mast
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
 ```
 
+### kubectl port-forward
+
+```
+sudo -E kubectl port-forward -n ingress-nginx --address 0.0.0.0 svc/ingress-nginx 443:443 80:80
+```
+
+### manual address loadbalancer
+```
+svc() {
+  [[ $(nc -v localhost 8001 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) != 1 ]] && kubectl proxy &
+  KUBE_NAMESPACE=$1
+  KUBE_SERVICE=$1
+  KUBE_HOST=http://127.0.0.1:8001
+  KUBE_TOKEN=$(kubectl describe secrets | grep ^token | awk '{print $2}')
+  kubectl config view --raw
+  echo "token $KUBE_TOKEN"
+  # open ${KUBE_HOST}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
+  kubectl -n $KUBE_NAMESPACE -ojson get service $KUBE_SERVICE > ../loadbalancer.json
+  vi ../loadbalancer.json
+  https_proxy= http_proxy= curl -k --header "Authorization: Bearer $KUBE_TOKEN" ${KUBE_HOST}/api/v1/namespaces/${KUBE_NAMESPACE}/services/${KUBE_SERVICE}/status -X PUT -d @../loadbalancer.json -H 'content-type:application/json'
+}
+```
+
 ### tls termination
 
 ```
@@ -140,12 +163,6 @@ spec:
     serviceName: nginx
     servicePort: 80' > ingress.yaml
 kubectl apply -f ingress.yaml
-```
-
-### kubectl port-forward
-
-```
-sudo -E kubectl port-forward -n ingress-nginx --address 0.0.0.0 svc/ingress-nginx 443:443 80:80
 ```
 
 ### rollout deployment

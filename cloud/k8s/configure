@@ -13,20 +13,6 @@ development() {
 
 development
 
-svc() {
-  [[ $(nc -v localhost 8001 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) != 1 ]] && kubectl proxy &
-  KUBE_NAMESPACE=$1
-  KUBE_SERVICE=$1
-  KUBE_HOST=http://127.0.0.1:8001
-  KUBE_TOKEN=$(kubectl describe secrets | grep ^token | awk '{print $2}')
-  kubectl config view --raw
-  echo "token $KUBE_TOKEN"
-  # open ${KUBE_HOST}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
-  kubectl -n $KUBE_NAMESPACE -ojson get service $KUBE_SERVICE > ../loadbalancer.json
-  vi ../loadbalancer.json
-  https_proxy= http_proxy= curl -k --header "Authorization: Bearer $KUBE_TOKEN" ${KUBE_HOST}/api/v1/namespaces/${KUBE_NAMESPACE}/services/${KUBE_SERVICE}/status -X PUT -d @../loadbalancer.json -H 'content-type:application/json'
-}
-
 delay() {
   sleep 8
 }
@@ -80,9 +66,9 @@ createStandard() {
 
 inAllInOne() {
   createKind
+  createStandard
   [[ $KINDNAME == production ]] && createSecret
   [[ $KINDNAME == production ]] && pullImages
-  createStandard
   appFirst
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployApps
@@ -226,7 +212,11 @@ deployBackend() {
 }
 
 metricsServer() {
-  kubectl apply -f 1.8+
+  METRICS_SERVER_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes-sigs/metrics-server.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
+  echo "kubernetes-sigs metrics-server $METRICS_SERVER_VERSION"
+  METRICS_SERVER_VERSION=v0.4.1
+  curl -sLo metrics-server/components.yaml https://github.com/kubernetes-sigs/metrics-server/releases/download/${METRICS_SERVER_VERSION}/components.yaml
+  kubectl apply -f metrics-server
 }
 
 appFirst() {
@@ -374,9 +364,6 @@ pullImages() {
   for image in ${IMAGELIST[@]}
   do
     echo pull image $image
-    time docker exec -i $KINDNAME-control-plane crictl pull $image &
-    UNIT=$(echo "(${UNIT:-0} + 1) % 1" | bc)
-    [[ $UNIT == 0 ]] && wait
+    time docker exec -i $KINDNAME-control-plane crictl pull $image
   done
-  wait
 }
