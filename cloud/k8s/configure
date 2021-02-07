@@ -270,8 +270,8 @@ token() {
 }
 
 waitFor() {
-  delay
-  delay
+  echo -n "       waiting"
+  loop 20
   for limit in {5..1}
   do
     [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
@@ -289,8 +289,7 @@ waitFor() {
 }
 
 delay() {
-  echo -n "       waiting"
-  loop 8
+  sleep 8
 }
 
 loop() {
