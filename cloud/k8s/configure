@@ -13,29 +13,6 @@ development() {
 
 development
 
-delay() {
-  sleep 8
-}
-
-waitFor() {
-  delay
-  delay
-  for limit in {5..1}
-  do
-    [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
-    echo " $1 - ng"
-    echo -ne "just a moment please 11.."
-    for i in {10..0}
-    do
-      delay
-      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
-      delay
-      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
-      echo -n " $i.."
-    done
-  done
-}
-
 initializeDatabase() {
   sql="CREATE DATABASE IF NOT EXISTS wordpress;
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
@@ -72,7 +49,8 @@ inAllInOne() {
   appFirst
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployApps
-  [[ $KINDNAME == production ]] && ingressForward
+  kubectl apply -f gitlab && waitFor gitlab
+  ingressForward
 
   echo -n "       ending"
   loop 20
@@ -158,11 +136,6 @@ adminDashboard() {
   waitFor kubernetes-dashboard
 }
 
-partnerEnvironment() {
-  kubectl apply -f partner
-  waitFor partner
-}
-
 makePasswd() {
   head -c 8 /dev/random | mkpasswd -s -5 | sed -e 's/\$//g' | sed -e 's/^1//'
 }
@@ -207,8 +180,8 @@ deployBackend() {
   deployCluster mongo mongo 27017 27017
   kubectl apply -f mariadb && waitFor mariadb
   kubectl apply -f postgres && waitFor postgres
-  [[ $KINDNAME == production ]] && partnerEnvironment
   kubectl apply -f mysql && waitFor mysql
+  kubectl apply -f partner && waitFor partner
 }
 
 metricsServer() {
@@ -233,20 +206,6 @@ loadImage() {
   docker pull $1
   kind load docker-image $1 --name $KINDNAME
   delay
-}
-
-deployGitlab() {
-  kubectl create namespace gitlab
-  kubectl config set-context $(kubectl config current-context) --namespace gitlab
-  exposedDeployment gitlab jobscale/gitlab 443 443 0
-  kubectl config set-context $(kubectl config current-context) --namespace standard
-}
-
-deployMysql() {
-  kubectl create namespace mysql
-  kubectl config set-context $(kubectl config current-context) --namespace mysql
-  kubectl apply -f mysql && waitFor mysql
-  kubectl config set-context $(kubectl config current-context) --namespace standard
 }
 
 deployNode() {
@@ -292,8 +251,6 @@ deployApps() {
   deployNode
   deployNginx
   deployPhp
-  deployMysql
-  deployGitlab
   deployPython
   deployApache
   deployEcho
@@ -310,6 +267,30 @@ delAll() {
 token() {
   [[ "$(kubectl get namespaces | grep kubernetes-dashboard)" == "" ]] && echo 'no token' && return
   kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token | awk '{print $2}'
+}
+
+waitFor() {
+  delay
+  delay
+  for limit in {5..1}
+  do
+    [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
+    echo " $1 - ng"
+    echo -ne "just a moment please 11.."
+    for i in {10..0}
+    do
+      delay
+      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
+      delay
+      [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
+      echo -n " $i.."
+    done
+  done
+}
+
+delay() {
+  echo -n "       waiting"
+  loop 8
 }
 
 loop() {
