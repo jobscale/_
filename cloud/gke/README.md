@@ -9,3 +9,8 @@ sudo apt install -y google-cloud-sdk
 ```
 gcloud container clusters get-credentials default --zone asia-east1-c --project project
 ```
+
+### allow ssh on Cloud Shell
+```
+gcloud alpha cloud-shell ssh
+```
