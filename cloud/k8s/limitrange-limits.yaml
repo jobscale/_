@@ -8,10 +8,10 @@ spec:
       cpu: 100m
       memory: 100M
     defaultRequest:
-      cpu: 200m
+      cpu: 150m
       memory: 200M
     default:
-      cpu: 300m
+      cpu: 200m
       memory: 300M
     max:
       cpu: 1600m

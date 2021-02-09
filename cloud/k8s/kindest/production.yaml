@@ -23,6 +23,8 @@ nodes:
     hostPort: 3128
     listenAddress: 0.0.0.0
   extraMounts:
+  - containerPath: /var/lib/containerd
+    hostPath: /home/k8s/system/var/lib/containerd
   - containerPath: /var/log
     hostPath: /home/k8s/system/var/log
   - containerPath: /mnt/extra

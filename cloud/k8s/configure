@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 production() {
   export KINDNAME=production
   export KINDCONFIG=kindest/production.yaml
@@ -134,7 +136,7 @@ makePasswd() {
 }
 
 genPasswd() {
-  [[ "$GEN_PASSWD" == "" ]] && GEN_PASSWD="$1"
+  GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
   kubectl exec -i $(kubectl get pods | grep ^gke- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
   kubectl exec -i $(kubectl get pods | grep ^eks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
@@ -180,7 +182,7 @@ metricsServer() {
   METRICS_SERVER_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes-sigs/metrics-server.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
   echo "kubernetes-sigs metrics-server $METRICS_SERVER_VERSION"
   METRICS_SERVER_VERSION=v0.4.1
-  curl -sLo metrics-server/components.yaml https://github.com/kubernetes-sigs/metrics-server/releases/download/${METRICS_SERVER_VERSION}/components.yaml
+  # curl -sLo metrics-server/components.yaml https://github.com/kubernetes-sigs/metrics-server/releases/download/${METRICS_SERVER_VERSION}/components.yaml
   kubectl apply -f metrics-server
 }
 
