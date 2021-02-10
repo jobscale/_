@@ -51,10 +51,10 @@ inAllInOne() {
   appFirst
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployApps
-  kubectl apply -f gitlab && waitFor gitlab
+  # kubectl apply -f gitlab && waitFor gitlab
   ingressForward
 
-  echo -n "       ending" && loop 20
+  echo -n "        ending" && loop 20
   kubectl get pods -A -o wide
   docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
@@ -95,9 +95,9 @@ createKind() {
   kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.2
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
-  echo -n "       wait for nodes initializing" && loop 20
+  echo -n "        wait for nodes initializing" && loop 20
   kubectl get nodes -o wide
-  echo -n "       wait for pods initializing" && loop 60
+  echo -n "        wait for pods initializing" && loop 60
   kubectl get pods -A -o wide
 }
 
@@ -233,8 +233,7 @@ deployApache() {
 
 deployPython() {
   exposedDeployment tutorial docker/getting-started 80 80 3
-  kubectl apply -f django
-  waitFor django
+  # kubectl apply -f django && waitFor django
 }
 
 deployEcho() {
@@ -264,7 +263,7 @@ token() {
 }
 
 waitFor() {
-  echo -n "       waiting" && loop 10
+  echo -n "        waiting" && loop 10
   for limit in {5..1}
   do
     [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
@@ -288,7 +287,7 @@ delay() {
 loop() {
     for i in $(seq $1 -1 1)
     do
-        printf '\r%5d' $i
+        printf '\r%5d ' $i
         sleep 1
     done
     printf '\r%5d\n' 0
