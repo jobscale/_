@@ -19,8 +19,8 @@ initializeDatabase() {
   sql="CREATE DATABASE IF NOT EXISTS wordpress;
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 FLUSH PRIVILEGES;"
-  kubectl exec -i $(
-    kubectl get all | grep pod | grep mariadb | awk '{print $1}'
+  kubectl exec -n mariadb -i $(
+    kubectl get all -n mariadb | grep pod | grep mariadb | awk '{print $1}'
   ) -- bash -c "echo \"$sql\" | mysql -p$1"
 }
 
