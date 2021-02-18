@@ -11,6 +11,14 @@ nodes:
   - containerPort: 30080
     hostPort: 80
     listenAddress: 0.0.0.0
+  - containerPort: 30053
+    protocol: TCP
+    hostPort: 53
+    listenAddress: 172.16.6.22
+  - containerPort: 30053
+    protocol: UDP
+    hostPort: 53
+    listenAddress: 172.16.6.22
   - containerPort: 30312
     hostPort: 3128
     listenAddress: 0.0.0.0
