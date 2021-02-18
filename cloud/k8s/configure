@@ -46,7 +46,6 @@ createStandard() {
 inAllInOne() {
   createKind
   createStandard
-  [[ $KINDNAME == production ]] && createSecret
   # [[ $KINDNAME == production ]] && pullImages
   appFirst
   [[ $KINDNAME == production ]] && cronJob
@@ -81,18 +80,14 @@ postSlack() {
   curl -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA"
 }
 
-createSecret() {
-  FILE=$HOME/.docker/config.json
-  kubectl create secret generic regcred --from-file=.dockerconfigjson=$FILE --type=kubernetes.io/dockerconfigjson
-}
-
 internalService() {
-  kubectl apply -f squid && waitFor squid
-  kubectl apply -f bind9 && waitFor bind9
+  kubectl apply -f net-apps
+  waitFor bind9
+  waitFor squid
 }
 
 jsxSite() {
-  [[ $KINDNAME == production ]] && kubectl apply -f partner && waitFor partner
+  [[ $KINDNAME == production ]] && partner/create-secret.sh && kubectl apply -f partner && waitFor partner
   kubectl apply -f jsxjp && waitFor jsxjp
 }
 
@@ -122,10 +117,13 @@ metalLB() {
   METAL_VERSION=$(git ls-remote --tags --refs https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
   METAL_SECRET=$(openssl rand -base64 128 | xargs | sed -e 's/ //g')
   echo -e "\n MetalLB ${METAL_VERSION} \n"
-  kubectl apply -f https://raw.githubusercontent.com/google/metallb/${METAL_VERSION}/manifests/namespace.yaml
+  curl -Lso metalLB/namespace.yaml https://raw.githubusercontent.com/google/metallb/${METAL_VERSION}/manifests/namespace.yaml
+  curl -Lso metalLB/metallb.yaml https://raw.githubusercontent.com/google/metallb/${METAL_VERSION}/manifests/metallb.yaml
+  curl -Lso metalLB/km-config.yaml https://git.io/km-config.yaml
+  kubectl apply -f metalLB/namespace.yaml
   kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey=$METAL_SECRET
-  kubectl apply -f https://raw.githubusercontent.com/google/metallb/${METAL_VERSION}/manifests/metallb.yaml
-  kubectl apply -f https://git.io/km-config.yaml
+  kubectl apply -f metalLB/metallb.yaml
+  kubectl apply -f metalLB/km-config.yaml
   # kubectl apply -f layer2-config.yaml
   waitFor metallb-system
 }

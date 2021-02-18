@@ -1,9 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: partner
   name: partner
+  namespace: credentials
 spec:
   selector:
     matchLabels:
@@ -15,7 +14,21 @@ spec:
     spec:
       containers:
       - image: jobscale/partner
-        imagePullPolicy: Always
         name: partner
       imagePullSecrets:
       - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: partner
+  namespace: credentials
+spec:
+  selector:
+    app: partner
+  type: ClusterIP
+  ports:
+  - name: tls
+    port: 443
+    protocol: TCP
+    targetPort: 443
