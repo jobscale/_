@@ -51,6 +51,8 @@ inAllInOne() {
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployApps
   # kubectl apply -f gitlab && waitFor gitlab
+
+  kubectl config set-context $(kubectl config current-context) --namespace default
   ingressForward
 
   echo -n "        ending" && loop 20
