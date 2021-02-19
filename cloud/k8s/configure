@@ -52,6 +52,9 @@ inAllInOne() {
   [[ $KINDNAME == production ]] && deployApps
   # kubectl apply -f gitlab && waitFor gitlab
 
+  [[ $KINDNAME == production ]] && initWetty
+  initializeDatabase false
+
   kubectl config set-context $(kubectl config current-context) --namespace default
   ingressForward
 
@@ -60,8 +63,6 @@ inAllInOne() {
   docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
-  [[ $KINDNAME == production ]] && initWetty
-  initializeDatabase false
   token
   postSlack "$(token)"
 }
@@ -79,7 +80,7 @@ postSlack() {
     . installation > /dev/null 2>&1
     echo T$(chNote | base64 -d)TB
   }
-  curl -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA"
+  curl -s -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA"
 }
 
 internalService() {
