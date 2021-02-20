@@ -150,9 +150,7 @@ makePasswd() {
 genPasswd() {
   GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
-  kubectl exec -i $(kubectl get pods | grep ^gke- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
-  kubectl exec -i $(kubectl get pods | grep ^eks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
-  kubectl exec -i $(kubectl get pods | grep ^aks- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
+  kubectl exec -i $(kubectl get pods | grep ^terminal- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
   kubectl exec -i $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
 }
 
@@ -215,10 +213,8 @@ loadImage() {
 }
 
 deployNode() {
-  exposedDeployment wetty jobscale/wetty 80 3000 0
-  exposedDeployment gke jobscale/cloud-terminal 80 3000 0
-  exposedDeployment eks jobscale/cloud-terminal 80 3000 0
-  exposedDeployment aks jobscale/cloud-terminal 80 3000 0
+  kubectl apply -f wetty && waitFor wetty
+  exposedDeployment terminal jobscale/cloud-terminal 80 3000 0
   exposedDeployment mongo-blog jobscale/mongo-blog 80 3000 3
   exposedDeployment room-chat jobscale/room-chat 80 3000 0
   exposedDeployment simple-chat jobscale/simple-chat 80 3000 0

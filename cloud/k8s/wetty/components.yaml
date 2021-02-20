@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wetty
+  namespace: standard
+spec:
+  selector:
+    matchLabels:
+      app: wetty
+  template:
+    metadata:
+      labels:
+        app: wetty
+    spec:
+      containers:
+      - image: jobscale/wetty
+        name: wetty
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wetty
+  namespace: standard
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: wetty
+  type: ClusterIP

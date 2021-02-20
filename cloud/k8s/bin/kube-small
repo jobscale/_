@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eu
+
+kubeSmall() {
+  kind create cluster --name kube-small --config kindest/kube-small.yaml
+  kubectl apply -f metrics-server
+  . configure
+  metalLB
+  adminDashboard
+  partner/create-secret.sh
+  kubectl apply -f partner
+  kubectl apply -f wetty
+  kubectl apply -f web
+  kubectl apply -f net-apps/squid.yaml
+  kubectl get all -A | grep deploy
+  kubectl get all -A | grep service
+  kubectl describe nodes
+  token
+}
+
+kubeSmall
