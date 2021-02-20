@@ -46,12 +46,21 @@ alias qt-faststart='docker run --rm -it -v $(pwd):/work -u $(id -u):$(id -g) --e
 
 [[ -s "$HOME/.bash_aliases_local" ]] && . "$HOME/.bash_aliases_local"
 
+setFW() {
+  sudo iptables -F INPUT
+  sudo iptables -I INPUT -p icmp -i ext_if ! -s 49.135.0.0/16 -j DROP
+  sudo iptables -A INPUT -p icmp -s 49.135.0.0/16 -j ACCEPT
+  sudo iptables -A INPUT -p icmp -j DROP
+}
+[[ $(which sudo) != "" && $(which sudo iptables) != "" ]] && setFW
+
 proxyConfigure() {
   disableProxy() {
+    echo "no proxy"
     export http_proxy=
     export https_proxy=
   }
-  [[ $(nc -v 8.8.8.8 53 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) > 0 ]] && echo "no proxy" && disableProxy
+  [[ $(nc -v 8.8.8.8 53 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) > 0 ]] && disableProxy
 }
 proxyConfigure
 
