@@ -111,9 +111,11 @@ createKind() {
 }
 
 cronJob() {
+  # [6, 9, 10, 13, 14, 17, 18, 21, 22].forEach(v => Promise.resolve(v - 9 - 1).then(v => v < 0 ? v + 24 : v).then(console.info))
+  # kubectl create cronjob speedtest-slack --image jobscale/speedtest-slack --schedule '54 20,23,0,3,4,7,8,11,12 * * *'
   [[ "$KINDNAME" != production ]] && return
   [[ "$(hostname)" != focal ]] && return
-  kubectl create cronjob value-domain --image=jobscale/value-domain --schedule='0/7 * * * *'
+  kubectl create cronjob value-domain --image jobscale/value-domain --schedule='0/7 * * * *'
 }
 
 metalLB() {
