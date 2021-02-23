@@ -56,7 +56,7 @@ skip() {
 loop() {
     for i in $(seq $1 -1 1)
     do
-        printf '\r%5d' $i
+        printf '\r%5d ' $i
         sleep 1
     done
     printf '\r%5d\n' 0

@@ -52,7 +52,7 @@ setFW() {
   sudo iptables -A INPUT -p icmp -s 49.135.0.0/16 -j ACCEPT
   sudo iptables -A INPUT -p icmp -j DROP
 }
-[[ $(which sudo) != "" && $(which sudo iptables) != "" ]] && setFW
+# [[ $(which sudo) != "" && $(which sudo iptables) != "" ]] && setFW
 
 proxyConfigure() {
   disableProxy() {
