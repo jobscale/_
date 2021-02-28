@@ -28,6 +28,8 @@ metadata:
   name: squid
   namespace: net-apps
 spec:
+  loadBalancerSourceRanges:
+  - 49.135.0.0/16
   ports:
   - name: tcp
     nodePort: 30312
