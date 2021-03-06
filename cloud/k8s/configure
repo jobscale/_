@@ -17,7 +17,8 @@ development
 
 initializeDatabase() {
   sql="CREATE DATABASE IF NOT EXISTS wordpress;
-GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
+CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i $(
     kubectl get all -n mariadb | grep pod | grep mariadb | awk '{print $1}'
@@ -227,12 +228,15 @@ deployNginx() {
   exposedDeployment ramen-timer jobscale/ramen-timer 80 80 3
 }
 
+deployPhpFpm() {
+  deployCluster wordpress jobscale/wordpress 9000 9000 0
+}
+
 deployPhp() {
   exposedDeployment profile jobscale/profile 80 80 3
   exposedDeployment laravel jobscale/laravel 80 80 3
   exposedDeployment lumen jobscale/lumen 80 80 3
   exposedDeployment dokuwiki jobscale/dokuwiki 80 80 3
-  exposedDeployment wordpress jobscale/wordpress 80 8000 0
   exposedDeployment ec-cube jobscale/ec-cube:4.0 80 80 3
 }
 
@@ -252,6 +256,7 @@ deployEcho() {
 deployApps() {
   deployNode
   deployNginx
+  deployPhpFpm
   deployPhp
   deployPython
   deployApache
