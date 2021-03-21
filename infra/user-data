@@ -1,13 +1,25 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+set -eu
+
+initApt() {
+  export DEBIAN_FRONTEND=noninteractive
+  apt purge -y nano
+  apt update
+  apt upgrade -y
+  apt install -y vim git tmux net-tools dnsutils netcat ncat python3-pip
+}
 
 netInit() {
-  [[ "$(lsb_release -is)" != Ubuntu ]] && return 1
-  rm /etc/resolv.conf
+  [[ "$(lsb_release -is)" != Ubuntu ]] && return 0
+  # rm /etc/resolv.conf
   # with auto
   # ln -sfn /run/systemd/resolve/resolv.conf /etc/resolv.conf
   # with manual
-  ln -sfn /usr/systemd/resolve/resolv.conf /etc/resolv.conf
+  # ln -sfn /usr/systemd/resolve/resolv.conf /etc/resolv.conf
+  systemctl disable systemd-networkd
+  systemctl stop systemd-networkd
 }
+
 account() {
   user=jobscale
   old=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
@@ -15,10 +27,13 @@ account() {
   echo "$user ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
   systemctl restart sshd
 }
+
 main() {
   date +'BEGIN $0 user-data %Y-%m-%d %H:%M:%S'
+  initApt
   netInit
   account
   date +'END   $0 user-data %Y-%m-%d %H:%M:%S'
 }
-main
+
+main | tee /var/log/user-data-init.log
