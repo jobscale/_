@@ -77,9 +77,9 @@ ${template0 /media/jobscale/Central sdc Central}\
 
 ${color5}Network         $stippled_hr\
 ${template1 enp4s0}${template1 ens9}${template1 wlp3s0}${template1 enp0s3}
-${color5}Date         $stippled_hr$color3
-${alignc}${font Regular:size=26}${time %H:%M:%S}${font}${alignr}$color2${time %B %e日 %A}  ${voffset 12}
-${color5}Process         $stippled_hr $color3
+${color5}Date         $stippled_hr
+${voffset 7}${alignr}$color2${time %B %e日 %A} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
+${voffset -4}${color5}Process         $stippled_hr $color3
 $alignr PID   CPU%   MEM%$color2
   ${top name 1}$alignr${top pid 1} ${top cpu 1}% ${top mem 1}%
   ${top name 2}$alignr${top pid 2} ${top cpu 2}% ${top mem 2}%
