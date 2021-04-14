@@ -15,6 +15,7 @@ ibus-daemon -rxd
 sleep $wait
 [[ $(which cinnamon-screensaver-command) ]] && cinnamon-screensaver-command -l
 
+nohup terminator -l start >& /dev/null &
 google-chrome "https://time.is"
 
 main() {
@@ -25,9 +26,6 @@ main() {
   sleep $wait
 
   nohup slack >& /dev/null &
-  sleep $wait
-
-  nohup terminator -l start >& /dev/null &
   sleep $wait
 }
 main >& /dev/null
