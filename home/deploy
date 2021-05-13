@@ -1,4 +1,5 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+set -eu
 
 linkDot() {
   for i in .[a-z]*
@@ -11,19 +12,13 @@ linkDot() {
 
 cloneVim() {
   [ -s "$HOME/.vim/bundle/Vundle.vim" ] && return
-  git clone https://github.com/VundleVim/Vundle.vim.git "$HOME/.vim/bundle/Vundle.vim"
+  git clone --depth 1 https://github.com/VundleVim/Vundle.vim.git "$HOME/.vim/bundle/Vundle.vim"
   vim +PluginInstall +qall
-}
-
-cloneTSSL() {
-  [ -s "$HOME/.bin/testssl.sh" ] && return
-  git clone --depth 1 https://github.com/drwetter/testssl.sh.git "$HOME/.bin/testssl.sh"
 }
 
 main () {
   linkDot
   cloneVim
-  cloneTSSL
 }
 
 main

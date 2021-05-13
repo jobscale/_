@@ -1,19 +1,13 @@
 HISTSIZE=500000
 HISTFILESIZE=5000000
+PROMPT_DIRTRIM=3
+PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 
-[[ $(uname -s) == "Darwin" ]] && umask u=rwx,g=rx,o=rx
-[[ $(uname -s) == "Linux" ]] && umask u=rwx,g=,o=
-export PROMPT_DIRTRIM=3
 export DEBIAN_FRONTEND=noninteractive
+export TZ=Asia/Tokyo
 
-if [ "$(which sudo 2>/dev/null)" != "" ]
-then
-    alias sudo='sudo -E'
-else
-    alias sudo=''
-fi
-
-[[ "" == "${DISPLAY}" ]] && export DISPLAY='localhost:0.0'
+[[ $(uname -s) == "Linux" ]] && umask u=rwx,g=,o=
+[[ $(uname -s) == "Darwin" ]] && umask u=rwx,g=rx,o=rx
 
 alias ul='less_with_unbuffer'
 alias diff='colordiff'
@@ -21,8 +15,6 @@ alias netstat='netstat -anptu'
 alias rsync='rsync -tlrHhv --delete'
 alias lsof='sudo lsof -Pan -i tcp -i udp'
 [[ $(uname -s) == "Linux" ]] && alias df='df -x"squashfs"'
-
-PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 
 alias kube-production='ln -sfn kind-config-production $HOME/.kube/config'
 alias kube-staging='ln -sfn kind-config-staging $HOME/.kube/config'
@@ -38,13 +30,19 @@ alias ffmpeg='docker run --rm -it -v $(pwd):/work -u $(id -u):$(id -g) --entrypo
 alias ffprobe='docker run --rm -it -v $(pwd):/work -u $(id -u):$(id -g) --entrypoint /usr/local/bin/ffprobe jobscale/mp4box'
 alias qt-faststart='docker run --rm -it -v $(pwd):/work -u $(id -u):$(id -g) --entrypoint /usr/local/bin/qt-faststart jobscale/mp4box'
 
-[[ -d "$HOME/.bin/android-studio/gradle/gradle-5.1.1/bin" ]] && export GPATH="$HOME/.bin/android-studio/gradle/gradle-5.1.1/bin" && export PATH="$PATH:$GPATH"
-[[ -d "$HOME/Android/Sdk" ]] && export ANDROID_HOME="$HOME/Android/Sdk" && export PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
+[[ -d "$HOME/.bin/android-studio/gradle/gradle-5.1.1/bin" ]] && GPATH="$HOME/.bin/android-studio/gradle/gradle-5.1.1/bin" && PATH="$PATH:$GPATH"
+[[ -d "$HOME/Android/Sdk" ]] && ANDROID_HOME="$HOME/Android/Sdk" && PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
 
 [[ -s "$HOME/.bash_scripts" ]] && . "$HOME/.bash_scripts"
+[[ -s "$HOME/.bash_local" ]] && . "$HOME/.bash_local"
 [[ -s "$HOME/.nvm/nvm.sh" ]] && . "$HOME/.nvm/nvm.sh"
 
-[[ -s "$HOME/.bash_aliases_local" ]] && . "$HOME/.bash_aliases_local"
+if [ "$(which sudo 2> /dev/null)" != "" ]
+then alias sudo='sudo -E'
+else alias sudo=''
+fi
+
+[[ "${DISPLAY}" == "" ]] && DISPLAY='localhost:0.0'
 
 setFW() {
   sudo iptables -F INPUT
@@ -60,7 +58,6 @@ proxyConfigure() {
     export http_proxy=
     export https_proxy=
   }
-  [[ $(nc -v 8.8.8.8 53 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) > 0 ]] && disableProxy
+  [[ $(nc -vz -w 1 8.8.8.8 53 2>&1 | grep succeeded | wc -l) > 0 ]] && disableProxy
 }
 proxyConfigure
-
