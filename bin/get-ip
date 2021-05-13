@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eu
+
+local() {
+  which ip > /dev/null
+  if [[ $? == 0 ]]
+  then
+    ip addr | grep "inet " | grep "dynamic" | awk '{print $4}'
+  else
+    ifconfig | grep broadcast | grep -v '\.1 ' | awk '{print $2}'
+  fi
+}
+
+global() {
+  echo $(curl -s https://inet-ip.info/ip)
+}
+
+if [[ $# > 0 ]]
+then
+  $1
+else
+  local
+  global
+fi
