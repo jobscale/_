@@ -5,7 +5,7 @@ local() {
   which ip > /dev/null
   if [[ $? == 0 ]]
   then
-    ip addr | grep "inet " | grep "dynamic" | awk '{print $4}'
+    ip addr | grep "inet " | grep "dynamic" | awk -F'[ /]+' '{print $3}'
   else
     ifconfig | grep broadcast | grep -v '\.1 ' | awk '{print $2}'
   fi
