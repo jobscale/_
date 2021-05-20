@@ -2,9 +2,9 @@
 
 ## https://jsx.jp
 
-Kubernetes v1.20.2
+Kubernetes v1.21.1
 
-kind v0.10.0
+kind v0.11.0
 
 ### install docker
 

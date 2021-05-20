@@ -102,7 +102,7 @@ nodeAws() {
 createKind() {
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$(date +'%Y-%m-%d_%H:%M:%S')
   # kind create cluster --name $KINDNAME --config $KINDCONFIG
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.20.2
+  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.21.1
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME
 
   echo -n "        wait for nodes initializing" && loop 20
