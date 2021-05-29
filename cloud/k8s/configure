@@ -231,7 +231,7 @@ deployNginx() {
 }
 
 deployPhpFpm() {
-  deployCluster wordpress jobscale/wordpress 9000 9000 0
+  deployCluster wordpress jobscale/wordpress 80 80 0
 }
 
 deployPhp() {
