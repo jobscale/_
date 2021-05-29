@@ -49,12 +49,12 @@ inAllInOne() {
   createStandard
   # [[ $KINDNAME == production ]] && pullImages
   appFirst
-  [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployApps
   # kubectl apply -f gitlab && waitFor gitlab
 
   [[ $KINDNAME == production ]] && initWetty
   initializeDatabase false
+  [[ $KINDNAME == production ]] && cronJob
 
   kubectl config set-context $(kubectl config current-context) --namespace default
   ingressForward
@@ -115,7 +115,8 @@ cronJob() {
   # kubectl create cronjob speedtest-slack -n standard --image jobscale/speedtest-slack --schedule '52 20,23,0,3,4,7,8,11,12 * * *'
   [[ "$KINDNAME" != production ]] && return
   [[ "$(hostname)" != focal ]] && return
-  kubectl create cronjob value-domain -n standard --image jobscale/value-domain --schedule='0/7 * * * *'
+  kubectl create namespace health-check
+  kubectl create cronjob -n health-check value-domain --image jobscale/value-domain --schedule='0/7 * * * *'
 }
 
 metalLB() {
@@ -216,6 +217,7 @@ loadImage() {
 
 deployNode() {
   kubectl apply -f wetty && waitFor wetty
+  exposedDeployment todo jobscale/todo 80 3000 0
   exposedDeployment terminal jobscale/cloud-terminal 80 3000 0
   exposedDeployment mongo-blog jobscale/mongo-blog 80 3000 3
   exposedDeployment room-chat jobscale/room-chat 80 3000 0
