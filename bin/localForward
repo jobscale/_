@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -eu
+
+bind_addr=0.0.0.0
+bind_port=3000
+node_addr=inet-ip.info
+node_port=443
+
+localForward() {
+  echo bind=$bind_addr:$bind_port node=$node_addr:$node_port
+  docker run --name local-proxy-${bind_port} -p ${bind_addr}:${bind_port}:${bind_port} \
+    -d alpine/socat -dd tcp-listen:${bind_port},fork,reuseaddr tcp-connect:${node_addr}:${node_port}
+}
+
+localForward
+
+check() {
+  docker inspect local-proxy-${bind_port} | jp "[0].{Status:State.Status,StartedAt:State.StartedAt}"
+  echo "127.0.0.1 ${node_addr}" | sudo tee -a /etc/hosts
+  url=https://${node_addr}:${bind_port}/ip
+  echo "$(curl -s $url)"
+}
+
+sleep 0.2
+check
