@@ -230,6 +230,7 @@ loadImage() {
 
 deployNode() {
   kubectl apply -f wetty && waitFor wetty
+  kubectl apply -f exp && waitFor exp
   exposedDeployment todo jobscale/todo 80 3000 0
   exposedDeployment terminal jobscale/cloud-terminal 80 3000 0
   exposedDeployment mongo-blog jobscale/mongo-blog 80 3000 3
