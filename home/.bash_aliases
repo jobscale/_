@@ -11,9 +11,10 @@ export TZ=Asia/Tokyo
 
 alias ul='less_with_unbuffer'
 alias diff='colordiff'
-alias netstat='netstat -anptu'
 alias rsync='rsync -tlrHhv --delete'
+alias netstat='sudo netstat -anptu'
 alias lsof='sudo lsof -Pan -i tcp -i udp'
+alias ss='sudo ss -tnl'
 [[ $(uname -s) == "Linux" ]] && alias df='df -x"squashfs"'
 
 alias kube-production='ln -sfn kind-config-production $HOME/.kube/config'
