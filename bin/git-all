@@ -1,32 +1,58 @@
 #!/usr/bin/env bash
 set -eu
 
+TYPE="ssh_url"
+
 getAll() {
-  curl -s 'https://api.github.com/users/jobscale/repos?type=all&page=1' | grep clone_url
-  curl -s 'https://api.github.com/users/jobscale/repos?type=all&page=2' | grep clone_url
-  curl -s 'https://api.github.com/users/jobscale/repos?type=all&page=3' | grep clone_url
+  for i in {1..4}
+  do
+    curl -s "https://api.github.com/users/jobscale/repos?type=all&sort=updated&page=$i" | grep $TYPE | awk -F'"' '{print $4}'
+  done
 }
+
 clone() {
   git clone $1
 }
+
 setAndShow() {
   name=$1
-  cd .
   cd $name
   git pull
   git-user
   git branch -a | head
   git diff
-  cd - 2>&1 > /dev/null
+  cd - > /dev/null
 }
-main() {
-  list=($(getAll | awk -F'"' '{print $4}'))
+
+gitClone() {
+  list=($(getAll))
   for repo in ${list[@]}
   do
-    name=$(echo $repo | awk -F'[/.]' '{print $6}')
+    name=$(echo $repo | awk -F'[:/.]' '{print $4}')
     echo -e "\n# $name"
     [[ ! -d $name ]] && clone $repo
     [[ -d $name ]] && setAndShow $name
   done
 }
-main
+
+setOrigin() {
+  name=$1
+  cd $name
+  git remote set-url origin $2
+  git pull
+  git diff | cat
+  cd - > /dev/null
+}
+
+gitDiff() {
+  list=($(getAll))
+  for repo in ${list[@]}
+  do
+    name=$(echo $repo | awk -F'[:/.]' '{print $4}')
+    echo -e "\n# $name"
+    [[ ! -d $name ]] && continue
+    [[ -d $name ]] && setOrigin $name $repo
+  done
+}
+
+$1
