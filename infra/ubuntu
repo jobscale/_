@@ -6,7 +6,7 @@ main() {
   sudo apt update
   sudo apt upgrade -y
   sudo apt install -y python3 python3-pip unzip zip \
-    docker.io curl vim tmux git net-tools dnsutils
+    docker.io curl vim tmux git iproute2 dnsutils
   sudo usermod -aG docker $(whoami)
   pip3 install awscli awslogs --user
 }

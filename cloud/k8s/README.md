@@ -186,6 +186,6 @@ kubectl get pods --watch
 ```
 iDevelop() {
   sudo apt update
-  sudo apt install -y net-tools dnsutils netcat whois curl vim tmux git
+  sudo apt install -y iproute2 dnsutils netcat whois curl vim tmux git
 } && iDevelop
 ```

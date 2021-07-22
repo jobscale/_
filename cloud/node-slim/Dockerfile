@@ -2,7 +2,7 @@ FROM node:lts-buster-slim
 SHELL ["bash", "-c"]
 WORKDIR /root
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y locales vim curl git zip unzip net-tools dnsutils netcat procps
+RUN apt-get update && apt-get install -y locales vim curl git zip unzip iproute2 dnsutils netcat procps
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$( \
       curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt \
     )/bin/linux/amd64/kubectl \

@@ -19,7 +19,7 @@ cli() {
   export DEBIAN_FRONTEND=noninteractive
   sudo apt update
   sudo apt install -y \
-    curl dnsutils net-tools iputils-ping whois nmap traceroute \
+    curl dnsutils iproute2 iputils-ping whois nmap traceroute \
     git subversion vim tmux dstat procps peco \
     at expect zip unzip colordiff speedtest-cli \
     cmatrix sl \
@@ -29,7 +29,7 @@ cli() {
 gui() {
   export DEBIAN_FRONTEND=noninteractive
   sudo apt update
-  sudo apt install -y git vim curl net-tools dnsutils procps tmux sl cmatrix netcat locate openssh-server terminator conky ibus-mozc \
+  sudo apt install -y git vim curl iproute2 dnsutils procps tmux sl cmatrix netcat locate openssh-server terminator conky ibus-mozc \
     $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}')
   sudo sed -i -e 's/# ja_JP.UTF-8 UTF-8/ja_JP.UTF-8 UTF-8/' /etc/locale.gen && sudo locale-gen && sudo update-locale LANG=ja_JP.UTF-8
   # gsettings set org.freedesktop.ibus.panel xkb-icon-rgba '#f57900'
@@ -127,7 +127,7 @@ system() {
 
 minimum() {
   export DEBIAN_FRONTEND=noninteractive
-  apt update && apt install -y git vim tmux curl zip unzip net-tools dnsutils procps iputils-ping
+  apt update && apt install -y git vim tmux curl zip unzip iproute2 dnsutils procps iputils-ping
 }
 
 db() {
@@ -136,7 +136,7 @@ db() {
 
 cli() {
   apt install -y \
-    curl whois nmap traceroute net-tools \
+    curl whois nmap traceroute iproute2 \
     nfs-common cifs-utils exfat-utils sshfs \
     git subversion vim tmux dstat peco \
     at expect zip unzip colordiff speedtest-cli \
