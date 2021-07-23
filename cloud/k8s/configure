@@ -66,10 +66,13 @@ createKind() {
   kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.21.2
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
 
-  echo -n "        wait for nodes initializing" && loop 20
-  kubectl get nodes -o wide
-  echo -n "        wait for pods initializing" && loop 60
-  kubectl get pods -A -o wide
+  echo -n "        wait for nodes system pods initializing"
+  for i in {1..99}
+  do
+    loop 5
+    [[ $(kubectl get all -A | grep -e 0/1 | wc -l) == 0 ]] && break
+    kubectl get all -A | grep -e 0/1 || echo
+  done
 }
 
 metricsServer() {
@@ -262,7 +265,7 @@ postSlack() {
     . installation > /dev/null 2>&1
     echo T$(chNote | base64 -d)TB
   }
-  curl -s -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA"
+  curl -s -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA" || echo
 }
 
 waitFor() {
