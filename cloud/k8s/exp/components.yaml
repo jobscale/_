@@ -13,7 +13,7 @@ spec:
         app: exp
     spec:
       containers:
-      - image: jobscale/node-express-ejs-authorization
+      - image: ghcr.io/jobscale/node-express-ejs-authorization
         name: exp
 ---
 apiVersion: v1

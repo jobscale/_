@@ -18,7 +18,7 @@ spec:
         app: jsxjp
     spec:
       containers:
-      - image: jobscale/jsxjp
+      - image: ghcr.io/jobscale/jsxjp
         name: jsxjp
 ---
 apiVersion: v1
@@ -31,10 +31,6 @@ spec:
     app: jsxjp
   type: LoadBalancer
   ports:
-  - name: https
-    port: 443
-    protocol: TCP
-    targetPort: 443
   - name: http
     port: 80
     protocol: TCP

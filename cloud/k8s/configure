@@ -35,8 +35,16 @@ allInOne() {
   time inAllInOne 2>&1 | tee $LOGFILE
 }
 
+baseImages() {
+  time docker exec -i $KINDNAME-control-plane crictl pull nginx:alpine
+  time docker exec -i $KINDNAME-control-plane crictl pull node:buster-slim
+  time docker exec -i $KINDNAME-control-plane crictl pull ghcr.io/jobscale/nginx-net
+}
+
 inAllInOne() {
   createKind
+
+  baseImages
 
   kubectl apply -f limitrange-limits.yaml -n default
   k8sApps
@@ -187,7 +195,7 @@ cronJob() {
   [[ "$KINDNAME" != production ]] && return
   [[ "$(hostname)" != focal ]] && return
   kubectl create namespace health-check
-  kubectl create cronjob -n health-check value-domain --image jobscale/value-domain --schedule='0/7 * * * *'
+  kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='0/7 * * * *'
 }
 
 deployNode() {

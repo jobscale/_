@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: jobscale/web
+        image: ghcr.io/jobscale/web
         imagePullPolicy: Always
 ---
 apiVersion: v1
