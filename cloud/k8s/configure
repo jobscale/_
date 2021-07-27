@@ -154,7 +154,7 @@ ingressForward() {
 }
 
 ingressRestart() {
-  kubectl delete $(kubectl get all | grep replicaset | grep web | awk '{print $1}')
+  kubectl rollout restart deployment web
 }
 
 createStandard() {
