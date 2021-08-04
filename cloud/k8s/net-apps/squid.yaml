@@ -14,7 +14,7 @@ spec:
         app: squid
     spec:
       containers:
-      - image: jobscale/squid:secure
+      - image: ghcr.io/jobscale/squid:secure
         name: squid
 ---
 apiVersion: v1

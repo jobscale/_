@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: bind9
-        image: jobscale/bind9
+        image: ghcr.io/jobscale/bind9
 ---
 apiVersion: v1
 kind: Service
@@ -49,5 +49,5 @@ spec:
     kind: Deployment
     name: bind9
   maxReplicas: 20
-  minReplicas: 3
+  minReplicas: 1
   targetCPUUtilizationPercentage: 50

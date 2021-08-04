@@ -13,7 +13,7 @@ spec:
         app: partner
     spec:
       containers:
-      - image: jobscale/partner
+      - image: ghcr.io/jobscale/partner
         name: partner
       imagePullSecrets:
       - name: regcred
