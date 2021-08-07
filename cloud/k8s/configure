@@ -187,7 +187,6 @@ makePasswd() {
 genPasswd() {
   GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
-  kubectl exec -i $(kubectl get pods | grep ^terminal- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
   kubectl exec -i $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
 }
 
@@ -204,9 +203,10 @@ cronJob() {
 deployNode() {
   kubectl apply -f node-aws && waitFor node-aws
   kubectl apply -f wetty && waitFor wetty
+  kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
-  exposeLoadBalancer todo ghcr.io/jobscale/todo 80 3000 0
   exposeLoadBalancer mongo-blog jobscale/mongo-blog 80 3000 3
+  exposeLoadBalancer todo ghcr.io/jobscale/todo 80 3000 0
   exposeLoadBalancer room-chat jobscale/room-chat 80 3000 0
   exposeLoadBalancer simple-chat jobscale/simple-chat 80 3000 0
 }
@@ -214,6 +214,7 @@ deployNode() {
 deployNginx() {
   exposeLoadBalancer anywaychat ghcr.io/jobscale/anywaychat-web 80 80 3
   exposeLoadBalancer ramen-timer ghcr.io/jobscale/ramen-timer 80 80 3
+  exposeLoadBalancer tetris ghcr.io/jobscale/tetris 80 80 3
 }
 
 deployPhp() {
