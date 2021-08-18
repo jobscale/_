@@ -215,6 +215,7 @@ deployNginx() {
   exposeLoadBalancer anywaychat ghcr.io/jobscale/anywaychat-web 80 80 3
   exposeLoadBalancer ramen-timer ghcr.io/jobscale/ramen-timer 80 80 3
   exposeLoadBalancer tetris ghcr.io/jobscale/tetris 80 80 3
+  exposeLoadBalancer insecure ghcr.io/jobscale/wordpress:insecure 80 80 3
 }
 
 deployPhp() {
@@ -223,7 +224,7 @@ deployPhp() {
   exposeLoadBalancer lumen jobscale/lumen 80 80 3
   exposeLoadBalancer dokuwiki jobscale/dokuwiki 80 80 3
   exposeLoadBalancer ec-cube jobscale/ec-cube:4.0 80 80 3
-  exposeLoadBalancer wordpress jobscale/wordpress 80 80 0
+  exposeLoadBalancer wordpress ghcr.io/jobscale/wordpress 80 80 0
 }
 
 deployApache() {
