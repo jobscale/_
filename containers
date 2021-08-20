@@ -3,7 +3,7 @@ network() {
 }
 
 squid() {
-  docker pull ghcr.io/jobscale/suid:main
+  docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
   docker run --name squid --restart always -p 3128:3128 -d ghcr.io/jobscale/squid:main
 }
