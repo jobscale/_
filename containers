@@ -15,9 +15,9 @@ bind9() {
 }
 
 partner() {
-  docker pull jobscale/partner
+  docker pull ghcr.io/jobscale/partner
   docker rm -f partner.credentials.svc.cluster.local
-  docker run --name partner.credentials.svc.cluster.local --restart always --network standard -d jobscale/partner
+  docker run --name partner.credentials.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/partner
 }
 
 exp() {
