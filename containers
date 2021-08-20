@@ -1,0 +1,54 @@
+network() {
+  [[ $(docker network list | grep standard | wc -l) == 0 ]] && docker network  create standard
+}
+
+squid() {
+  docker pull ghcr.io/jobscale/suid:main
+  docker rm -f squid
+  docker run --name squid --restart always -p 3128:3128 -d ghcr.io/jobscale/squid:main
+}
+
+bind9() {
+  docker pull ghcr.io/jobscale/bind9
+  docker rm -f bind9
+  docker run --name bind9 --restart always -p 53:53 -p 53:53/udp -d ghcr.io/jobscale/bind9
+}
+
+partner() {
+  docker pull jobscale/partner
+  docker rm -f partner.credentials.svc.cluster.local
+  docker run --name partner.credentials.svc.cluster.local --restart always --network standard -d jobscale/partner
+}
+
+exp() {
+  docker pull ghcr.io/jobscale/node-express-ejs-authorization
+  docker rm -f exp.standard.svc.cluster.local
+  docker run --name exp.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/node-express-ejs-authorization
+}
+
+jsxjp() {
+  docker pull ghcr.io/jobscale/jsxjp
+  docker rm -f jsxjp.jsxjp.svc.cluster.local
+  docker run --name jsxjp.jsxjp.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/jsxjp
+}
+
+web() {
+  docker pull ghcr.io/jobscale/web
+  docker rm -f web
+  docker run --name web --restart always --network standard -p 80:80 -p 443:443 -d ghcr.io/jobscale/web
+}
+
+inet() {
+  iInfo() {
+    echo -en "$(date --rfc-3339=seconds) - "
+    https_proxy=proxy.os.jsx.jp:3128 curl -s https://inet-ip.info/ip
+  }
+  echo $(iInfo)
+  for i in {1..3}
+  do
+    sleep 2.97
+    echo $(iInfo)
+  done
+}
+
+ grep ^[a-z] containers
