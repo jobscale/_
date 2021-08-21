@@ -38,7 +38,9 @@ allInOne() {
 baseImages() {
   time docker exec -i $KINDNAME-control-plane crictl pull nginx:alpine
   time docker exec -i $KINDNAME-control-plane crictl pull debian:buster-slim
+  time docker exec -i $KINDNAME-control-plane crictl pull debian:bullseye-slim
   time docker exec -i $KINDNAME-control-plane crictl pull node:buster-slim
+  time docker exec -i $KINDNAME-control-plane crictl pull node:bullseye-slim
   time docker exec -i $KINDNAME-control-plane crictl pull ghcr.io/jobscale/nginx-net
 }
 
