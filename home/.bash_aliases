@@ -59,6 +59,6 @@ proxyConfigure() {
     export http_proxy=
     export https_proxy=
   }
-  [[ $(nc -vz -w 1 8.8.8.8 53 2>&1 | grep succeeded | wc -l) > 0 ]] && disableProxy
+  [[ $(nc -vz -w 1 8.8.8.8 53 2>&1 | grep -e succeeded -e Connected | wc -l) > 0 ]] && disableProxy
 }
 proxyConfigure
