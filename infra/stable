@@ -6,3 +6,5 @@ apt install -y curl git vim tmux \
   iproute2 dnsutils ncat netcat iputils-ping \
   procps whois nmap traceroute  \
   python3-pip unzip zip
+
+[[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
