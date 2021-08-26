@@ -1,0 +1,8 @@
+set -x
+
+https_proxy=proxy.secure.jsx.jp:3128 curl -I https://os.jsx.jp?ts=$(date +%s%3N)
+https_proxy=proxy.os.jsx.jp:3128 curl -I https://secure.jsx.jp?ts=$(date +%s%3N)
+https_proxy=proxy.secure.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+https_proxy=proxy.os.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+
+set +x
