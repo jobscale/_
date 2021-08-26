@@ -1,10 +1,53 @@
 #!/bin/bash -eu
 
-export DEBIAN_FRONTEND=noninteractive
-apt update
-apt install -y curl git vim tmux \
-  iproute2 dnsutils ncat netcat iputils-ping \
-  procps whois nmap traceroute  \
-  python3-pip unzip zip
+stable() {
+  export DEBIAN_FRONTEND=noninteractive
+  apt update
+  apt install -y curl git vim tmux \
+    iproute2 dnsutils ncat netcat iputils-ping \
+    procps whois nmap traceroute  \
+    python3-pip unzip zip
 
-[[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
+  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
+}
+
+# Debian 10
+buster() {
+  stable
+}
+
+# Debian 11
+bullseye() {
+  stable
+}
+
+# Ubuntu 14.04
+trusty() {
+  stable
+}
+
+# Ubuntu 16.04
+xenial() {
+  stable
+}
+
+# Ubuntu 18.04
+bionic() {
+  stable
+}
+
+# Ubuntu 20.04
+focal() {
+  stable
+}
+
+# Ubuntu 21.10
+impish() {
+  stable
+}
+
+{
+  which lsb_release && lsb_release -cs
+  eval $(cat /etc/*release)
+  $VERSION_CODENAME
+}
