@@ -3,6 +3,8 @@
 stable() {
   export DEBIAN_FRONTEND=noninteractive
   apt update
+  apt install -y apt-transport-https
+  apt update
   apt install -y curl git vim tmux \
     iproute2 dnsutils ncat netcat iputils-ping \
     procps whois nmap traceroute  \
