@@ -1,0 +1,17 @@
+#!/bin/bash -eu
+
+# Usage:
+#   curl -Ls git.io/yakiniku | sudo bash
+
+# Ubuntu 20.04
+focal() {
+  apt update
+  apt install -y $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}') \
+    terminator ibus-mozc
+}
+
+{
+  which lsb_release && lsb_release -cs
+  eval $(cat /etc/*release)
+  $VERSION_CODENAME
+}
