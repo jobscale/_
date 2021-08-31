@@ -28,11 +28,27 @@ account() {
   systemctl restart sshd
 }
 
+busterToBullseye() {
+  grep aws.deb /etc/apt/sources.list > /tmp/aws-deb
+  sed -e 's/buster/bullseye/g' < /tmp/aws-deb > /etc/apt/sources.list
+  echo '
+deb http://deb.debian.org/debian bullseye main
+deb http://security.debian.org/debian-security bullseye-security main
+deb http://deb.debian.org/debian bullseye-updates main
+' | tee -a /etc/apt/sources.list
+  apt purge -y nano
+  apt update
+  apt full-upgrade -y
+  apt install -y curl git
+  curl -sL git.io/ramen | bash
+  curl -sL git.io/susi | bash
+}
+
 userAdd() {
   useradd --shell $(which bash) --create-home $1
   sudo -u $1 bash -c 'ssh-keygen -q -t ed25519 -N "" -C "$(id -un)@$(hostname)" -f /home/$(id -un)/.ssh/id_ed25519 <<<y && cat /home/$(id -un)/.ssh/id_ed25519.pub > /home/$(id -un)/.ssh/authorized_keys'
   usermod -aG sudo $1
-  echo "$1 ALL=(ALL:ALL) NOPASSWD:ALL" | tee -a /etc/sudoers
+  echo "$1 ALL=(ALL:ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
   GIP=$(curl -s https://inet-ip.info/ip)
   DATA=$(cat /home/$1/.ssh/id_ed25519 | sed -z -e 's/\n/\\n/g')
   curl -is -X POST -H 'Content-Type: application/json' \
