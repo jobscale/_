@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
-wait=5
-sleep $wait
+wait() {
+  sleep 2
+}
 
 tmux new-session -d
 conky-daemon
@@ -12,22 +13,20 @@ ibus-daemon -rxd
 
 [[ -s "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
 
-sleep $wait
 [[ $(which cinnamon-screensaver-command) ]] && cinnamon-screensaver-command -l
 
 nohup terminator -l start >& /dev/null &
 google-chrome "https://time.is"
 
-main() {
+{
   nohup google-chrome "https://jsx.jp" >& /dev/null &
-  sleep $wait
+  wait
 
   nohup discord >& /dev/null &
-  sleep $wait
+  wait
 
   nohup slack >& /dev/null &
-  sleep $wait
-}
-main >& /dev/null
+  wait
+} > /dev/null 2>&1
 
 [[ -s "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra"
