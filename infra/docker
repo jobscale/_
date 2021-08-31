@@ -14,7 +14,7 @@ buster() {
   echo ${id,,} $(lsb_release -cs)
   curl -fsSL https://download.docker.com/linux/${id,,}/gpg | apt-key add -
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/${id,,} $(lsb_release -cs) stable"
-  apt install -y docker.io
+  apt install -y docker-ce docker-ce-cli containerd.io
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
@@ -29,7 +29,7 @@ bullseye() {
   echo ${id,,} $(lsb_release -cs)
   curl -fsSL https://download.docker.com/linux/${id,,}/gpg | apt-key add -
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/${id,,} $(lsb_release -cs) stable"
-  apt install -y docker-ce docker-ce-cli containerd.io
+  apt install -y docker.io
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
