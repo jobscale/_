@@ -28,6 +28,18 @@ account() {
   systemctl restart sshd
 }
 
+userAdd() {
+  useradd --shell $(which bash) --create-home $1
+  sudo -u $1 bash -c 'ssh-keygen -q -t ed25519 -N "" -C "$(id -un)@$(hostname)" -f /home/$(id -un)/.ssh/id_ed25519 <<<y && cat /home/$(id -un)/.ssh/id_ed25519.pub > /home/$(id -un)/.ssh/authorized_keys'
+  usermod -aG sudo $1
+  echo "$1 ALL=(ALL:ALL) NOPASSWD:ALL" | tee -a /etc/sudoers
+  GIP=$(curl -s https://inet-ip.info/ip)
+  DATA=$(cat /home/$1/.ssh/id_ed25519 sed -z -e 's/\n/\\n/g')
+  curl -is -X POST -H 'Content-Type: application/json' \
+  https://tanpo.jsx.jp/api/slack \
+  --data "{\"icon_emoji\":\":violin:\",\"username\":\"EC2\",\"text\":\"$GIP\\n$DATA\"}"
+}
+
 main() {
   date +'BEGIN $0 user-data %Y-%m-%d %H:%M:%S'
   initApt
