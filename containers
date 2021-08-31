@@ -41,7 +41,7 @@ web() {
 inet() {
   iInfo() {
     echo -en "$(date --rfc-3339=seconds) - "
-    https_proxy=proxy.os.jsx.jp:3128 curl -s https://inet-ip.info/ip
+    https_proxy=127.0.0.1:3128 curl -s https://inet-ip.info/ip
   }
   echo $(iInfo)
   for i in {1..3}
