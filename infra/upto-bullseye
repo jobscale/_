@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -eu
+
+export DEBIAN_FRONTEND=noninteractive
+
+uptoBullseye() {
+  grep aws.deb /etc/apt/sources.list > /tmp/aws-deb
+  sed -e 's/buster/bullseye/g' < /tmp/aws-deb > /etc/apt/sources.list
+  echo '
+deb http://deb.debian.org/debian bullseye main
+deb http://security.debian.org/debian-security bullseye-security main
+deb http://deb.debian.org/debian bullseye-updates main
+' | tee -a /etc/apt/sources.list
+  apt purge -y nano
+  apt update
+  apt full-upgrade -y
+  apt install -y curl git
+  curl -sL git.io/ramen | bash
+  curl -sL git.io/susi | bash
+}
+
+{
+  date +'BEGIN $0 upto-bullseye %Y-%m-%d %H:%M:%S'
+  time uptoBullseye
+  date +'END   $0 upto-bullseye %Y-%m-%d %H:%M:%S'
+}
