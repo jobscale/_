@@ -1,4 +1,5 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+set -eu
 
 stable() {
   export DEBIAN_FRONTEND=noninteractive
@@ -49,7 +50,9 @@ impish() {
 }
 
 {
+  date +'BEGIN $0 stable %Y-%m-%d %H:%M:%S'
   which lsb_release && lsb_release -cs
   eval $(cat /etc/*release)
   $VERSION_CODENAME
+  date +'END   $0 stable %Y-%m-%d %H:%M:%S'
 }
