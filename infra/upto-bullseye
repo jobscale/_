@@ -14,9 +14,9 @@ deb http://deb.debian.org/debian bullseye-updates main
   apt purge -y nano
   apt update
   apt full-upgrade -y
-  apt install -y curl git
-  curl -sL git.io/ramen | bash
-  curl -sL git.io/susi | bash
+  uname -a
+  arch
+  lsb_release -a
 }
 
 {
