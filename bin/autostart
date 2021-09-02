@@ -1,32 +1,38 @@
 #!/usr/bin/env bash
 set -eu
 
-wait() {
-  sleep 2
-}
-
-tmux new-session -d
-conky-daemon
-ibus-daemon -rxd
-[[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
-# [[ $(lsb_release -sc) != focal ]] && [[ -s "$HOME/bin/mouse-scroll" ]] && "$HOME/bin/mouse-scroll"
-
-[[ -s "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
-
-[[ $(which cinnamon-screensaver-command) ]] && cinnamon-screensaver-command -l
-
-nohup terminator -l start >& /dev/null &
-google-chrome "https://time.is"
-
 {
-  nohup google-chrome "https://jsx.jp" >& /dev/null &
-  wait
+  wait() {
+    date
+    sleep 2
+  }
 
-  nohup discord >& /dev/null &
-  wait
+  conky-daemon
+  tmux new-session -d
+  ibus-daemon -rxd
+  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
+  # [[ $(lsb_release -sc) != focal ]] && [[ -s "$HOME/bin/mouse-scroll" ]] && "$HOME/bin/mouse-scroll"
 
-  nohup slack >& /dev/null &
   wait
-} > /dev/null 2>&1
+  wait
+  wait
+  cinnamon-screensaver-command -l
 
-[[ -s "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra"
+  nohup terminator -l start >& /dev/null &
+  google-chrome "https://time.is"
+
+  [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
+
+  {
+    nohup google-chrome "https://jsx.jp" >& /dev/null &
+    wait
+
+    nohup discord >& /dev/null &
+    wait
+
+    nohup slack >& /dev/null &
+    wait
+  } > /dev/null 2>&1
+
+  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra"
+} | tee -a $HOME/autostart.log 2>&1

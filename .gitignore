@@ -1,6 +1,7 @@
 .idea/
 .c9/
 node_modules/
+bin/.autostart-before*
 bin/.autostart-extra*
 package-lock.json
 nohup.out
