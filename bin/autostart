@@ -18,9 +18,9 @@ screensaver() {
 {
   nohup conky-daemon >& /dev/null &
   nohup terminator -l start >& /dev/null &
-  [[ -x $HOME/bin/autostart-session ]] && $HOME/bin/autostart-session
+  $HOME/bin/autostart-session
   calm && date +'%Y-%m-%d %H:%M:%S.%3N'
-  [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
+  [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before" || echo -n
   screensaver
   [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
   ibus-daemon -rxd
@@ -30,5 +30,5 @@ screensaver() {
     nohup discord >& /dev/null &
     nohup slack >& /dev/null &
   }
-  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra"
+  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra" || echo -n
 } 2>&1 | tee -a $HOME/autostart.log
