@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -eu
 
+calm() {
+  $(find $HOME/.nvm -type f -name node | head -1) \
+  -e '(() => new Promise(cb => setTimeout(cb, Date.now() % 1000 + 1000)))()'
+}
+
 screensaver() {
-  NODE=$(find $HOME/.nvm -type f -name node | head -1)
   for i in {1..6}
   do
-    date +'%Y-%m-%d %H:%M:%S.%3N'
     [[ $(ps auxf | grep cinnamon[-]screensaver | wc -l) > 0 ]] && break
-    $NODE -e '(() => new Promise(cb => setTimeout(cb, Date.now() % 1000 + 1000)))()'
+    calm && date +'%Y-%m-%d %H:%M:%S.%3N'
   done
   cinnamon-screensaver-command -l
 }
@@ -16,15 +19,13 @@ screensaver() {
   nohup conky-daemon >& /dev/null &
   nohup terminator -l start >& /dev/null &
   [[ -x $HOME/bin/autostart-session ]] && $HOME/bin/autostart-session
+  calm && date +'%Y-%m-%d %H:%M:%S.%3N'
+  [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
   screensaver
   [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
   ibus-daemon -rxd
 
-  [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
   {
-    NODE=$(find $HOME/.nvm -type f -name node | head -1)
-    sleep $(echo "console.info(($(date +%s%3N) % 1000 + 1000) / 1000)" | $NODE)
-    date +'%Y-%m-%d %H:%M:%S.%3N'
     nohup google-chrome "https://jsx.jp" >& /dev/null &
     nohup discord >& /dev/null &
     nohup slack >& /dev/null &

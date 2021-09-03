@@ -8,7 +8,7 @@ set -eu
   tmux splitw -v -p 35
   tmux send-keys "watch date +%s%3N" C-m
   tmux selectp -t 0
-  tmux send-keys "https_proxy=proxy.us.jsx.jp:3128 curl -H 'User-Agent: bullseye' https://inet-ip.info/toml" C-m
+  tmux send-keys "https_proxy=proxy.us.jsx.jp:3128 curl-s  -H 'User-Agent: bullseye' https://inet-ip.info/toml" C-m
   tmux select-window -t 1
   [[ -x $HOME/bin/.autostart-session ]] && $HOME/bin/.autostart-session
 }
