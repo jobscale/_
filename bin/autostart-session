@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 set -eu
 
-TSN=t1
-
 {
-  tmux new-session -d -s $TSN -n rem
-  tmux new-window -t $TSN:2
-  tmux select-window -t $TSN:0
+  tmux new-session -d
+  tmux new-window
+  tmux select-window -t 0
   tmux splitw -v -p 35
   tmux send-keys "watch date +%s%3N" C-m
   tmux selectp -t 0
   tmux send-keys "https_proxy=proxy.us.jsx.jp:3128 curl -H 'User-Agent: bullseye' https://inet-ip.info/toml" C-m
-  tmux select-window -t $TSN:2
+  tmux select-window -t 1
   [[ -x $HOME/bin/.autostart-session ]] && $HOME/bin/.autostart-session
 }
