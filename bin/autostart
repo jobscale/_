@@ -1,38 +1,41 @@
 #!/usr/bin/env bash
 set -eu
 
-{
-  wait() {
-    date
-    sleep 2
-  }
+NODE=$(find $HOME/.nvm -type f -name node | head -1)
+node() {
+  $NODE $@
+}
 
-  conky-daemon
-  tmux new-session -d
-  ibus-daemon -rxd
-  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
-  # [[ $(lsb_release -sc) != focal ]] && [[ -s "$HOME/bin/mouse-scroll" ]] && "$HOME/bin/mouse-scroll"
-
-  wait
-  wait
-  wait
+screensaver() {
+  for i in {1..6}
+  do
+    date +'%Y-%m-%d %H:%M:%S.%3N'
+    [[ $(ps auxf | grep cinnamon[-]screensaver | wc -l) > 0 ]] && break
+    node -e 'new Promise(cb => setTimeout(cb, Date.now() % 1000 + 1000));'
+  done
   cinnamon-screensaver-command -l
+}
 
+{
+  nohup conky-daemon >& /dev/null &
   nohup terminator -l start >& /dev/null &
+  screensaver
+
+  [[ -x $HOME/bin/autostart-session ]] && $HOME/bin/autostart-session
+  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
+
+  ibus-daemon -rxd
   google-chrome "https://time.is"
 
   [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before"
 
+  sleep $(echo "console.info(($(date +%s%3N) % 1000 + 1000) / 1000)" | node)
+  date +'%Y-%m-%d %H:%M:%S.%3N'
   {
     nohup google-chrome "https://jsx.jp" >& /dev/null &
-    wait
-
     nohup discord >& /dev/null &
-    wait
-
     nohup slack >& /dev/null &
-    wait
   } > /dev/null 2>&1
 
   [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra"
-} | tee -a $HOME/autostart.log 2>&1
+} 2>&1 | tee -a $HOME/autostart.log
