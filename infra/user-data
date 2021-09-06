@@ -6,4 +6,6 @@ set -eu
   curl -sL git.io/ramen | bash
   curl -sL git.io/susi | bash
   curl -sL git.io/user-add | bash
+  usermod -aG docker jobscale
+  git clone https://github.com/jobscale/_.git
 }

@@ -39,6 +39,7 @@ web() {
 }
 
 inet() {
+  docker ps
   iInfo() {
     echo -en "$(date --rfc-3339=seconds) - "
     https_proxy=127.0.0.1:3128 curl -s https://inet-ip.info/ip

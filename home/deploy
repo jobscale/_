@@ -17,6 +17,7 @@ cloneVim() {
 }
 
 main () {
+  [[ $(pwd) == "$HOME" ]] && echo "can't be symbolic link" && return
   linkDot
   cloneVim
 }
