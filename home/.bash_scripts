@@ -24,7 +24,7 @@ git() {
     fi
     if [[ $@ == "branch -a" ]]
     then
-        cmd="git fetch --all --prune"
+        cmd="git fetch --all --prune --tags"
         echo "$cmd"
         command $cmd
     fi
