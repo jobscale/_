@@ -74,7 +74,7 @@ createKind() {
   DATE=$(date +'%Y-%m-%d_%H:%M:%S')
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$DATE
   # kind create cluster --name $KINDNAME --config $KINDCONFIG
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.22.0
+  kind create cluster --name $KINDNAME --config $KINDCONFIG --image kindest/node:v1.22.1
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
 
   echo -n "        wait for nodes system pods initializing"
@@ -189,7 +189,7 @@ makePasswd() {
 genPasswd() {
   GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
-  kubectl exec -i $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo buster:$GEN_PASSWD | chpasswd"
+  kubectl exec -i $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo bullseye:$GEN_PASSWD | chpasswd"
 }
 
 cronJob() {
