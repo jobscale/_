@@ -20,12 +20,6 @@ partner() {
   docker run --name partner.credentials.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/partner
 }
 
-exp() {
-  docker pull ghcr.io/jobscale/node-express-ejs-authorization
-  docker rm -f exp.standard.svc.cluster.local
-  docker run --name exp.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/node-express-ejs-authorization
-}
-
 jsxjp() {
   docker pull ghcr.io/jobscale/jsxjp
   docker rm -f jsxjp.jsxjp.svc.cluster.local
@@ -36,6 +30,12 @@ web() {
   docker pull ghcr.io/jobscale/web
   docker rm -f web
   docker run --name web --restart always --network standard -p 80:80 -p 443:443 -d ghcr.io/jobscale/web
+}
+
+wetty() {
+  docker pull ghcr.io/jobscale/wetty
+  docker rm -f wetty.standard.svc.cluster.local
+  docker run --name wetty.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/wetty
 }
 
 inet() {
