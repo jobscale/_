@@ -36,7 +36,6 @@ alias qt-faststart='docker run --rm -it -v $(pwd):/work -u $(id -u):$(id -g) --e
 
 [[ -s "$HOME/.bash_scripts" ]] && . "$HOME/.bash_scripts"
 [[ -s "$HOME/.bash_local" ]] && . "$HOME/.bash_local"
-[[ -s "$HOME/.nvm/nvm.sh" ]] && . "$HOME/.nvm/nvm.sh"
 
 if [ "$(which sudo 2> /dev/null)" != "" ]
 then alias sudo='sudo -E'
