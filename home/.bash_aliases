@@ -56,8 +56,8 @@ setFW() {
 proxyConfigure() {
   disableProxy() {
     echo "no proxy"
-    export http_proxy=
-    export https_proxy=
+    unset http_proxy
+    unset https_proxy
   }
   [[ $(nc -vz -w 1 8.8.8.8 53 2>&1 | grep -e succeeded -e Connected | wc -l) > 0 ]] && disableProxy
 }
