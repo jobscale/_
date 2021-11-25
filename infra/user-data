@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 set -eu
 
-{
+userData() {
   curl -sL git.io/upto-bullseye | bash
   curl -sL git.io/ramen | bash
   curl -sL git.io/susi | bash
+  curl -sL git.io/ja-jp | bash
   curl -sL git.io/user-add | bash
-  usermod -aG docker jobscale
-  git clone https://github.com/jobscale/_.git
+  usermod -aG docker $1
+  sudo -i -u $1 git clone https://github.com/jobscale/_.git
+}
+
+{
+  date +'BEGIN user-data %Y-%m-%d %H:%M:%S'
+  time userData jobscale
+  date +'END   user-data %Y-%m-%d %H:%M:%S'
 }

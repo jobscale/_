@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-# Usage:
-#   curl -sL git.io/susi | sudo bash
+export DEBIAN_FRONTEND=noninteractive
 
 # Debian 10
 buster() {

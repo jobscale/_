@@ -13,6 +13,13 @@ curl -Ls git.io/susi | sudo bash
 curl -Ls git.io/yakiniku | sudo bash
 ```
 
+## user data
+
+```bash
+#!/usr/bin/env bash
+curl -sL git.io/user-data | bash
+```
+
 ## shorten
 
 ```bash
@@ -22,4 +29,5 @@ curl -Ls git.io/yakiniku | sudo bash
 # curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/user-data" -F "code=user-data"
 # curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/user-add" -F "code=user-add"
 # curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/upto-bullseye" -F "code=upto-bullseye"
+# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/ja-jp" -F "code=ja-jp"
 ```

@@ -1,8 +1,14 @@
-set -x
+#!/usr/bin/env bash
 
-https_proxy=proxy.secure.jsx.jp:3128 curl -I https://os.jsx.jp?ts=$(date +%s%3N)
-https_proxy=proxy.os.jsx.jp:3128 curl -I https://secure.jsx.jp?ts=$(date +%s%3N)
-https_proxy=proxy.secure.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
-https_proxy=proxy.os.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+check() {
+  time https_proxy=proxy.secure.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+  time https_proxy=proxy.os.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+  time https_proxy=proxy.us.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+  time https_proxy=proxy.eu.jsx.jp:3128 curl -I https://jsx.jp?ts=$(date +%s%3N)
+}
 
-set +x
+{
+  set -x
+  check
+  set +x
+}

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
+export DEBIAN_FRONTEND=noninteractive
+
 initApt() {
-  export DEBIAN_FRONTEND=noninteractive
   apt purge -y nano
   apt update
   apt upgrade -y
@@ -29,11 +30,11 @@ account() {
 }
 
 main() {
-  date +'BEGIN $0 user-data %Y-%m-%d %H:%M:%S'
+  date +'BEGIN user-data %Y-%m-%d %H:%M:%S'
   initApt
   netInit
   account
-  date +'END   $0 user-data %Y-%m-%d %H:%M:%S'
+  date +'END   user-data %Y-%m-%d %H:%M:%S'
 }
 
 main | tee /var/log/user-data-init.log

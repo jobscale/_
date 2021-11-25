@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
+export DEBIAN_FRONTEND=noninteractive
+
 stable() {
-  export DEBIAN_FRONTEND=noninteractive
   apt update
   apt install -y apt-transport-https
   apt update
@@ -50,9 +51,9 @@ impish() {
 }
 
 {
-  date +'BEGIN $0 stable %Y-%m-%d %H:%M:%S'
+  date +'BEGIN stable %Y-%m-%d %H:%M:%S'
   which lsb_release && lsb_release -cs
   eval $(cat /etc/*release)
   $VERSION_CODENAME
-  date +'END   $0 stable %Y-%m-%d %H:%M:%S'
+  date +'END   stable %Y-%m-%d %H:%M:%S'
 }
