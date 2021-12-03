@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -u
+
+tonnel() {
+  show() {
+    PRINT="$(date +%s) connected"
+    echo "$PRINT" && $HOME/bin/post-slack "$PRINT"
+  }
+  ssh -f -N secure-rem && show || echo "$(date +%s) ng"
+}
+
+backdoor() {
+  [[ $(ps auxf | grep 'ss[h] -f -N secure-rem' | wc -l) == 0 ]] && tonnel || echo "$(date +%s) ok"
+}
+
+start() {
+  while true
+  do
+    sleep 60.0 && backdoor && sleep 240.0
+  done
+}
+
+start | tee -a $HOME/backdoor.log &
