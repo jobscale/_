@@ -52,4 +52,14 @@ inet() {
   done
 }
 
+proxies() {
+  connect() {
+    https_proxy=proxy.$1.jsx.jp:3128 curl -s https://inet-ip.info/ip
+  }
+  time connect secure
+  time connect os
+  time connect eu
+  time connect us
+}
+
  grep ^[a-z] containers
