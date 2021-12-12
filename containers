@@ -39,9 +39,10 @@ web() {
 }
 
 wetty() {
+  sudo mkdir -p /var/lib/wetty
   docker pull ghcr.io/jobscale/wetty:dind
   docker rm -f wetty.standard.svc.cluster.local
-  docker run --name wetty.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/wetty:dind
+  docker run --name wetty.standard.svc.cluster.local --restart always --network standard --privileged -v /var/lib/wetty:/var/lib/docker -d ghcr.io/jobscale/wetty:dind
 }
 
 inet() {
