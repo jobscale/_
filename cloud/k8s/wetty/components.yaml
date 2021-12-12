@@ -13,8 +13,10 @@ spec:
         app: wetty
     spec:
       containers:
-      - image: ghcr.io/jobscale/wetty
+      - image: ghcr.io/jobscale/wetty:dind
         name: wetty
+        securityContext:
+          privileged: true
 ---
 apiVersion: v1
 kind: Service
