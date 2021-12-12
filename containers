@@ -26,6 +26,12 @@ jsxjp() {
   docker run --name jsxjp.jsxjp.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/jsxjp
 }
 
+tanpo() {
+  docker pull ghcr.io/jobscale/tanpo
+  docker rm -f tanpo.standard.svc.cluster.local
+  docker run --name tanpo.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/tanpo
+}
+
 web() {
   docker pull ghcr.io/jobscale/web
   docker rm -f web
@@ -33,9 +39,9 @@ web() {
 }
 
 wetty() {
-  docker pull ghcr.io/jobscale/wetty
+  docker pull ghcr.io/jobscale/wetty:dind
   docker rm -f wetty.standard.svc.cluster.local
-  docker run --name wetty.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/wetty
+  docker run --name wetty.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/wetty:dind
 }
 
 inet() {
