@@ -1,3 +1,30 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wetty-pv
+  namespace: standard
+spec:
+  storageClassName: wetty
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/var/lib/wetty"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wetty-pv-claim
+  namespace: standard
+spec:
+  storageClassName: wetty
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,6 +44,13 @@ spec:
         name: wetty
         securityContext:
           privileged: true
+        volumeMounts:
+        - name: wetty-persistent-storage
+          mountPath: /var/lib/docker
+      volumes:
+      - name: wetty-persistent-storage
+        persistentVolumeClaim:
+          claimName: wetty-pv-claim
 ---
 apiVersion: v1
 kind: Service
