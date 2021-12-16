@@ -74,7 +74,7 @@ createKind() {
   DATE=$(date +'%Y-%m-%d_%H:%M:%S')
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$DATE
   # kind create cluster --name $KINDNAME --config $KINDCONFIG
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image "kindest/node:v1.22.2"
+  kind create cluster --name $KINDNAME --config $KINDCONFIG --image "kindest/node:v1.23.0"
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
 
   echo -n "        wait for nodes system pods initializing"
