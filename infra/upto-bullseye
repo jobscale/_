@@ -4,7 +4,7 @@ set -eu
 export DEBIAN_FRONTEND=noninteractive
 
 uptoBullseye() {
-  [[ $(grep buster /etc/*release) < 1 ]] && echo 'no work' && return
+  [[ $(grep buster /etc/*release | wc -l) < 1 ]] && echo 'no work' && return
   grep aws.deb /etc/apt/sources.list > /tmp/aws-deb
   sed -e 's/buster/bullseye/g' < /tmp/aws-deb > /etc/apt/sources.list
   echo '
