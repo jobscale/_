@@ -5,7 +5,7 @@ main() {
   RES=$(id $1 || echo -n)
   [[ "$RES" != "" ]] && sudo userdel --remove $1
   sudo useradd --shell $(which bash) --create-home $1
-  sudo -u $1 bash -c 'ssh-keygen -q -t ed25519 -N "" -C "$(id -un)@$(hostname)" -f /home/$(id -un)/.ssh/id_ed25519 <<<y && cat /home/$(id -un)/.ssh/id_ed25519.pub > /home/$(id -un)/.ssh/authorized_keys && cat /home/$(id -un)/.ssh/id_ed25519'
+  sudo -i -u $1 bash -c 'ssh-keygen -q -t ed25519 -N "" -C "$(id -un)@$(hostname)" -f /home/$(id -un)/.ssh/id_ed25519 <<<y && cat /home/$(id -un)/.ssh/id_ed25519.pub | tee -a /home/$(id -un)/.ssh/authorized_keys && cat /home/$(id -un)/.ssh/id_ed25519'
   echo "using sudo gropup: sudo usermod -aG sudo $1"
 }
 
