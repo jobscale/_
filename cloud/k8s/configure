@@ -57,7 +57,7 @@ inAllInOne() {
   createStandard
 
   initializeDatabase false
-  [[ $KINDNAME == production ]] && cronJob
+  # [[ $KINDNAME == production ]] && cronJob
 
   ingressRestart
 
