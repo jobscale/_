@@ -1,5 +1,0 @@
-#!/bin/bash -eu
-
-# Daemon X Window System
-run --quote /usr/bin/bash.exe -l -c "cd /tmp ; /usr/bin/Xwin.exe :0 -multiwindow -listen tcp"
-
