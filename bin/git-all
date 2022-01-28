@@ -42,9 +42,26 @@ gitDiff() {
   done
 }
 
+gitDiff() {
+  LIST=($(GetAll))
+  for repo in ${LIST[@]}
+  do
+    name=$(echo $repo | awk -F'[:/.]' '{print $4}')
+    echo -e "\n# $name"
+    [[ ! -d $name ]] && echo "$name not found" && continue
+    cd $name
+    git remote set-url origin $repo
+    git pull
+    git diff | cat
+    cd - > /dev/null
+  done
+}
+
 {
   if [[ $# == 0 ]]
   then
+    Usage: ${0##*/} command
+    echo "[command]"
     grep ^[a-z] $(which $0)
     exit 1
   fi
