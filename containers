@@ -69,4 +69,7 @@ proxies() {
   time connect us
 }
 
- grep ^[a-z] containers
+{
+  THIS=${0##*/}
+  grep ^[a-z] $([[ -s "$THIS" ]] && echo "$THIS" || echo containers)
+}
