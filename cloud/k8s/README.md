@@ -2,9 +2,11 @@
 
 ## https://jsx.jp
 
-Kubernetes v1.21.1
+Kubernetes v1.23.3
 
-kind v0.11.0
+stern version 1.11.0
+
+kind v0.11.1
 
 ### install docker
 
@@ -21,22 +23,42 @@ iDocker() {
 
 ```
 iKubectl() {
-  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(
-    curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt
-  )/bin/linux/amd64/kubectl
-  chmod +x kubectl
-  sudo mv kubectl /usr/local/bin
+  setArch() {
+    Uname=$(uname)
+    UNAME=${Uname,,}
+    ARCH=$(uname -m)
+    [[ "$ARCH" == x86_64 ]] && ARCH=amd64
+  }
+  setArch
+
+  FNAME=kubectl
+  curl -fsSLO https://storage.googleapis.com/kubernetes-release/release/$(
+    curl -fsSL https://storage.googleapis.com/kubernetes-release/release/stable.txt
+  )/bin/${UNAME}/${ARCH}/$FNAME
+  chmod ugo+x $FNAME
+  sudo mv $FNAME /usr/local/bin/kubectl
+  kubectl version
 } && iKubectl
 ```
 
 ### install stern
 ```
 iStern() {
-  curl -sLo stern https://github.com/wercker/stern/releases/download/$(
+  setArch() {
+    Uname=$(uname)
+    UNAME=${Uname,,}
+    ARCH=$(uname -m)
+    [[ "$ARCH" == x86_64 ]] && ARCH=amd64
+  }
+  setArch
+
+  FNAME=stern_${UNAME}_${ARCH}
+  curl -fsSLO https://github.com/wercker/stern/releases/download/$(
     git ls-remote --refs --tags https://github.com/wercker/stern.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
-  )/stern_linux_amd64
-  chmod ugo+x stern
-  sudo mv stern /usr/local/bin
+  )/$FNAME
+  chmod ugo+x $FNAME
+  sudo mv $FNAME /usr/local/bin/stern
+  stern --version
 } && iStern
 ```
 
@@ -44,11 +66,21 @@ iStern() {
 
 ```
 iKind() {
-  curl -sLo kind https://github.com/kubernetes-sigs/kind/releases/download/$(
+  setArch() {
+    Uname=$(uname)
+    UNAME=${Uname,,}
+    ARCH=$(uname -m)
+    [[ "$ARCH" == x86_64 ]] && ARCH=amd64
+  }
+  setArch
+
+  FNAME=kind-${UNAME}-${ARCH}
+  curl -fsSLO https://github.com/kubernetes-sigs/kind/releases/download/$(
     git ls-remote --refs --tags https://github.com/kubernetes-sigs/kind.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
-  )/kind-$(uname)-amd64
-  chmod +x kind
-  sudo mv kind /usr/local/bin
+  )/$FNAME
+  chmod ugo+x $FNAME
+  sudo mv $FNAME /usr/local/bin/kind
+  kind version
 } && iKind
 ```
 
@@ -56,7 +88,7 @@ iKind() {
 
 ```
 iNodejs() {
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/$(
+  curl -fsSLo- https://raw.githubusercontent.com/creationix/nvm/$(
     git ls-remote --refs --tags https://github.com/nvm-sh/nvm.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
   )/install.sh | bash
   . ~/.bashrc

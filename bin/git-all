@@ -3,16 +3,15 @@
 
 TYPE="ssh_url"
 
- getAll() {
+GetAll() {
   for i in {1..4}
   do
     curl -s "https://api.github.com/users/jobscale/repos?type=all&sort=updated&page=$i" | grep $TYPE | awk -F'"' '{print $4}'
   done
 }
 
-LIST=($(getAll))
-
 gitClone() {
+  LIST=($(GetAll))
   for repo in ${LIST[@]}
   do
     name=$(echo $repo | awk -F'[:/.]' '{print $4}')
@@ -29,11 +28,12 @@ gitClone() {
 }
 
 gitDiff() {
+  LIST=($(GetAll))
   for repo in ${LIST[@]}
   do
     name=$(echo $repo | awk -F'[:/.]' '{print $4}')
     echo -e "\n# $name"
-    [[ ! -d $name ]] && continue
+    [[ ! -d $name ]] && echo "$name not found" && continue
     cd $name
     git remote set-url origin $repo
     git pull
@@ -42,5 +42,14 @@ gitDiff() {
   done
 }
 
- grep ^[a-z] $(which $0)
-$1
+{
+  if [[ $# == 0 ]]
+  then
+    grep ^[a-z] $(which $0)
+    exit 1
+  fi
+
+  FILE=$(date '+/tmp/%s')
+  $1 | tee $FILE
+  echo "log file = $FILE"
+}
