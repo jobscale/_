@@ -73,8 +73,9 @@ inAllInOne() {
 createKind() {
   DATE=$(date +'%Y-%m-%d_%H:%M:%S')
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$DATE
-  # kind create cluster --name $KINDNAME --config $KINDCONFIG
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image "kindest/node:v1.23.0"
+  IMAGE="kindest/node:v1.23.3"
+  docker pull "$IMAGE"
+  kind create cluster --name $KINDNAME --config $KINDCONFIG --image "$IMAGE"
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
 
   echo -n "        wait for nodes system pods initializing"
@@ -207,7 +208,7 @@ deployNode() {
   kubectl apply -f wetty && waitFor wetty
   kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
-  exposeLoadBalancer sshwifty jobscale/sshwifty 80 8182 3
+  exposeLoadBalancer sshwifty ghcr.io/jobscale/sshwifty 80 8182 3
   exposeLoadBalancer mongo-blog jobscale/mongo-blog 80 3000 3
   exposeLoadBalancer todo ghcr.io/jobscale/todo-app 80 3000 0
   exposeLoadBalancer room-chat jobscale/room-chat 80 3000 0
