@@ -207,6 +207,7 @@ deployNode() {
   kubectl apply -f wetty && waitFor wetty
   kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
+  exposeLoadBalancer sshwifty jobscale/sshwifty 80 8182 3
   exposeLoadBalancer mongo-blog jobscale/mongo-blog 80 3000 3
   exposeLoadBalancer todo ghcr.io/jobscale/todo-app 80 3000 0
   exposeLoadBalancer room-chat jobscale/room-chat 80 3000 0
