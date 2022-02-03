@@ -77,6 +77,7 @@ createKind() {
   docker pull "$IMAGE"
   kind create cluster --name $KINDNAME --config $KINDCONFIG --image "$IMAGE"
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
+  sed -i -e 's/0\.0\.0\.0/kubernetes/' $HOME/.kube/config
 
   echo -n "        wait for nodes system pods initializing"
   for i in {1..99}
