@@ -4,7 +4,7 @@
     PRINT="$(date) connect"
     echo "$PRINT"
     $HOME/bin/post-slack "$PRINT"
-    ssh secure-watch
+    ssh us-watch
     sleep 60
   done
 }
