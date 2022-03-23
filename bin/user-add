@@ -9,7 +9,7 @@ userAdd() {
   SSH_AUTH='cat /home/$(id -un)/.ssh/id_ed25519.pub | tee -a /home/$(id -un)/.ssh/authorized_keys'
   SSH_SHOW='cat /home/$(id -un)/.ssh/id_ed25519'
   sudo -i -u $1 bash -c "$SSH_GEN && $SSH_AUTH && $SSH_SHOW"
-  echo "using sudo gropup: sudo usermod -aG sudo $1"
+  echo "using sudo group: sudo usermod -aG sudo $1"
 }
 
 {
