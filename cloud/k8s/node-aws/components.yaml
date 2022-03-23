@@ -40,8 +40,11 @@ spec:
         app: node-aws
     spec:
       containers:
-      - image: jobscale/node-aws:slim
+      - image: ghcr.io/jobscale/node-aws:dind
         name: node-aws
+        securityContext:
+          privileged: true
+        args: ["tail", "-f", "/var/log/alternatives.log"]
         volumeMounts:
         - name: node-aws-persistent-storage
           mountPath: /home/store
