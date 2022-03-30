@@ -20,9 +20,15 @@ initializeDatabase() {
 CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
-  kubectl exec -n mariadb -i $(
-    kubectl get all -n mariadb | grep pod | grep mariadb | awk '{print $1}'
-  ) -- bash -c "echo \"$sql\" | mysql -p$1"
+
+  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$sql\" | mysql -p$1"
+
+  sql="CREATE DATABASE IF NOT EXISTS redmine;
+CREATE USER IF NOT EXISTS 'redmine-user'@'%' IDENTIFIED BY 'redmine-admin';
+GRANT ALL PRIVILEGES ON redmine.* TO 'redmine-user'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;"
+
+  kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$sql\" | mysql -pmy-secret-pw"
 }
 
 allInOne() {
@@ -230,6 +236,7 @@ deployPhp() {
   exposeLoadBalancer dokuwiki jobscale/dokuwiki 80 80 3
   exposeLoadBalancer ec-cube jobscale/ec-cube:4.0 80 80 3
   exposeLoadBalancer wordpress ghcr.io/jobscale/wordpress 80 80 0
+  kubectl apply -f redmine && waitFor redmine
 }
 
 deployApache() {
@@ -238,6 +245,7 @@ deployApache() {
 
 deployPython() {
   exposeLoadBalancer tutorial docker/getting-started 80 80 3
+  exposeLoadBalancer python-fastapi jobscale/python-fastapi 80 80 3
   # kubectl apply -f django && waitFor django
 }
 
