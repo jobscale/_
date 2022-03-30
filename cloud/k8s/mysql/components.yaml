@@ -42,6 +42,14 @@ data:
     skip-name-resolve
     default_authentication_plugin=mysql_native_password
     sql-mode=
+    character-set-server=utf8mb4
+
+    [mysqldump]
+    character-set-server=utf8mb4
+
+    [mysql]
+    default-character-set=utf8mb4
+
 ---
 apiVersion: apps/v1
 kind: Deployment
