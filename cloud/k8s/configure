@@ -31,7 +31,16 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$sql\" | mysql -pmy-secret-pw"
 }
 
+k8sVolume() {
+  MNT_DIR=/home/k8s/mnt/var/lib
+  sudo mkdir -p $MNT_DIR/_empty
+  sudo chown root:adm $MNT_DIR/*
+  sudo chmod g+rX $MNT_DIR/*
+  sudo tree -h -L 2 $MNT_DIR
+}
+
 allInOne() {
+  k8sVolume
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
@@ -41,19 +50,10 @@ allInOne() {
   time inAllInOne 2>&1 | tee $LOGFILE
 }
 
-baseImages() {
-  time docker exec -i $KINDNAME-control-plane crictl pull nginx:alpine
-  time docker exec -i $KINDNAME-control-plane crictl pull debian:buster-slim
-  time docker exec -i $KINDNAME-control-plane crictl pull debian:bullseye-slim
-  time docker exec -i $KINDNAME-control-plane crictl pull node:buster-slim
-  time docker exec -i $KINDNAME-control-plane crictl pull node:bullseye-slim
-  time docker exec -i $KINDNAME-control-plane crictl pull ghcr.io/jobscale/nginx-net
-}
-
 inAllInOne() {
   createKind
 
-  baseImages
+  # pullImages
 
   kubectl apply -f limitrange-limits.yaml -n default
   k8sApps
@@ -175,6 +175,7 @@ createStandard() {
 
   exposeCluster redis redis 6379 6379
   exposeCluster mongo mongo 27017 27017
+  exposeCluster ddb amazon/dynamodb-local 80 8000 0
 
   [[ $KINDNAME == production ]] && deployApps
   [[ $KINDNAME == production ]] && initWetty
@@ -233,10 +234,14 @@ deployPhp() {
   exposeLoadBalancer laravel jobscale/laravel 80 80 3
   exposeLoadBalancer lumen jobscale/lumen 80 80 3
   exposeLoadBalancer dokuwiki jobscale/dokuwiki 80 80 3
-  exposeLoadBalancer ec-cube jobscale/ec-cube:4.0 80 80 3
+  exposeLoadBalancer ec-cube ghcr.io/jobscale/ec-cube 80 80 3
   exposeLoadBalancer wordpress wordpress:5 80 80 0
   kubectl apply -f wordpress && waitFor wordpress
   kubectl apply -f redmine && waitFor redmine
+  {
+    kubectl create namespace health-check
+    kubectl create cronjob -n health-check ec-cube-healthy --image jobscale/ec-cube --schedule='0/7 * * * *'
+  }
 }
 
 deployApache() {
@@ -246,6 +251,7 @@ deployApache() {
 deployPython() {
   exposeLoadBalancer tutorial docker/getting-started 80 80 3
   exposeLoadBalancer python-fastapi jobscale/python-fastapi 80 80 3
+  exposeLoadBalancer webssh jobscale/webssh 80 8888 3
   # kubectl apply -f django && waitFor django
 }
 
@@ -371,49 +377,15 @@ loadImage() {
   delay
 }
 
+pullCrictl() {
+  echo "docker exec -i $KINDNAME-control-plane crictl pull $1"
+  docker exec -di $KINDNAME-control-plane crictl pull $1
+}
+
 pullImages() {
-  IMAGELIST=(
-    debian:buster-slim
-    debian:buster
-    alpine
-    node
-    nginx
-    mysql:8.0
-    httpd
-    mariadb
-    mongo
-    postgres
-    redis
-    kubernetesui/dashboard:v2.1.0
-    kubernetesui/metrics-scraper:v1.0.6
-    metallb/controller:v0.9.5
-    metallb/speaker:v0.9.5
-    inanimate/echo-server
-    docker/getting-started
-    jobscale/cloud-terminal
-    jobscale/wetty
-    jobscale/anywaychat
-    jobscale/django
-    jobscale/dokuwiki
-    jobscale/ec-cube:4.0
-    jobscale/gitlab
-    jobscale/jsxjp
-    jobscale/laravel
-    jobscale/lumen
-    jobscale/mongo-blog
-    jobscale/profile
-    jobscale/ramen-timer
-    jobscale/room-chat
-    jobscale/simple-chat
-    jobscale/value-domain
-    jobscale/squid
-    jobscale/bind9
-    jobscale/web
-    jobscale/wordpress
-  )
+  IMAGELIST=($(grep ^[a-z] images-production-list | grep -v partner | awk '{print $1":"$2}'))
   for image in ${IMAGELIST[@]}
   do
-    echo pull image $image
-    time docker exec -i $KINDNAME-control-plane crictl pull $image
+    pullCrictl $image
   done
 }
