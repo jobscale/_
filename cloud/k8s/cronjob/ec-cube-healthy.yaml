@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ec-cube-healthy
+  namespace: health-check
+spec:
+  jobTemplate:
+    metadata:
+      name: ec-cube-healthy
+    spec:
+      template:
+        spec:
+          containers:
+          - image: jobscale/ec-cube
+            name: ec-cube-healthy
+            args: ["/bin/cat", "/etc/os-release"]
+            imagePullPolicy: Always
+          restartPolicy: OnFailure
+  schedule: 0/3 * * * *

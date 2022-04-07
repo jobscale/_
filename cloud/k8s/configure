@@ -235,12 +235,12 @@ deployPhp() {
   exposeLoadBalancer lumen jobscale/lumen 80 80 3
   exposeLoadBalancer dokuwiki jobscale/dokuwiki 80 80 3
   exposeLoadBalancer ec-cube ghcr.io/jobscale/ec-cube 80 80 3
-  exposeLoadBalancer wordpress wordpress:5 80 80 0
   kubectl apply -f wordpress && waitFor wordpress
   kubectl apply -f redmine && waitFor redmine
   {
     kubectl create namespace health-check
-    kubectl create cronjob -n health-check ec-cube-healthy --image jobscale/ec-cube --schedule='0/7 * * * *'
+    kubectl apply -f cronjob/ec-cube-check.yaml
+    kubectl apply -f cronjob/ec-cube-healthy.yaml
   }
 }
 
