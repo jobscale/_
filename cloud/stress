@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+echo "Usage: https_proxy=http://proxy.os.jsx.jp:3128 ./stress https://jsx.jp"
+
 host=$1
 
 a() {
