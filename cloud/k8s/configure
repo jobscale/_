@@ -132,6 +132,7 @@ token() {
 
 internalService() {
   kubectl create namespace net-apps
+  kubectl apply -f limitrange-limits.yaml -n net-apps
   kubectl apply -f net-apps
   waitFor bind9
   waitFor squid
@@ -157,6 +158,8 @@ firstApps() {
 
 jsxSite() {
   [[ $KINDNAME == production ]] && partner/create-secret.sh && kubectl apply -f partner && waitFor partner
+  kubectl create namespace jsxjp
+  kubectl apply -f limitrange-limits.yaml -n jsxjp
   kubectl apply -f jsxjp && waitFor jsxjp
 }
 
@@ -244,10 +247,6 @@ deployPhp() {
   }
 }
 
-deployApache() {
-  exposeLoadBalancer apache httpd 80 80 3
-}
-
 deployPython() {
   exposeLoadBalancer tutorial docker/getting-started 80 80 3
   exposeLoadBalancer python-fastapi jobscale/python-fastapi 80 80 3
@@ -267,7 +266,6 @@ deployApps() {
   deployNginx &
   deployPhp &
   deployPython &
-  deployApache &
   deployEcho &
   wait
   echo "####################################################"
@@ -276,18 +274,27 @@ deployApps() {
 }
 
 exposeLoadBalancer() {
-  MIN_REPLICA=$5
-  MIN_REPLICA=1 # minimum up
-  kubectl create deployment $1 --image $2
-  kubectl expose deployment $1 --name $1 --type LoadBalancer --port $3 --target-port $4
-  [[ "$5" != "0" ]] && kubectl autoscale deployment $1 --cpu-percent 50 --min $MIN_REPLICA --max 20
-  waitFor $1
+  local NAME=$1
+  local IMAGE=$2
+  local PORT=$3
+  local TARGET=$4
+  local MIN_REPLICA=$5
+  local MIN_REPLICA=1 # kubernetes.io/limit-ranger: LimitRanger plugin set: cpu, memory request for container
+  kubectl create deployment $NAME --image $IMAGE
+  kubectl expose deployment $NAME --name $NAME --type LoadBalancer --port $PORT --target-port $TARGET
+  [[ "$MIN_REPLICA" != "0" ]] && kubectl autoscale deployment $NAME \
+  --cpu-percent 50 --min $MIN_REPLICA --max 20
+  waitFor $NAME
 }
 
 exposeCluster() {
-  kubectl create deployment $1 --image $2
-  kubectl expose deployment $1 --name $1 --type ClusterIP --port $3 --target-port $4
-  waitFor $1
+  local NAME=$1
+  local IMAGE=$2
+  local PORT=$3
+  local TARGET=$4
+  kubectl create deployment $NAME --image $IMAGE
+  kubectl expose deployment $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
+  waitFor $NAME
 }
 
 postSlack() {
