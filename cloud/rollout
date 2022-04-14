@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/web
+  kubectl rollout restart deployment -n default web
+}
+
+{
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/jsxjp
+  kubectl rollout restart deployment -n jsxjp jsxjp
+}
+
+{
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/tanpo
+  kubectl rollout restart deployment -n standard tanpo
+}
