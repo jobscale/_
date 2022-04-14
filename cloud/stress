@@ -1,23 +1,33 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+set -eu
 
 host=$1
+
 a() {
-  no_proxy=$host curl $host
+  np_proxy=$host curl -s -I $host
+  # https_proxy=http://proxy.us.jsx.jp:3128 curl -s -I https://$host
 }
+
 b() {
-  for i in {1..50}
+  for i in {1..10}
   do
     a &
   done
 }
+
 c() {
   b
   wait
 }
+
 d() {
-  for i in {1..100}
+  for i in {1..10}
   do
     time c
+    echo "finish..."
   done
 }
-time d
+
+{
+  time d
+} 2>&1 | tee stress-$(date +%s).log
