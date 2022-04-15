@@ -1,17 +1,37 @@
 #!/usr/bin/env bash
-set -eu
 
-{
+web() {
   docker exec -it production-control-plane crictl pull ghcr.io/jobscale/web
   kubectl rollout restart deployment -n default web
 }
 
-{
+jsxjp() {
   docker exec -it production-control-plane crictl pull ghcr.io/jobscale/jsxjp
   kubectl rollout restart deployment -n jsxjp jsxjp
 }
 
-{
+tanpo() {
   docker exec -it production-control-plane crictl pull ghcr.io/jobscale/tanpo
   kubectl rollout restart deployment -n standard tanpo
 }
+
+bind9() {
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/bind9
+  kubectl rollout restart deployment -n net-apps bind9
+}
+
+squid() {
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/squid
+  kubectl rollout restart deployment -n net-apps squid
+}
+
+ALL() {
+  web
+  jsxjp
+  tanpo
+  bind9
+  squid
+}
+
+ grep ^[A-Za-z] rollout
+ 
