@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 (() => {
-  const url = 'https://jsx.jp/cdn/css/assign.css';
+  const url = 'https://jsx.jp/assets/css/assign.css';
   const element = document.createElement('link');
   element.setAttribute('href', url);
   element.setAttribute('type', 'text/css');
