@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+IMAGE="kindest/node:v1.23.5"
+
 production() {
   export KINDNAME=production
   export KINDCONFIG=kindest/production.yaml
@@ -79,7 +81,6 @@ inAllInOne() {
 createKind() {
   DATE=$(date +'%Y-%m-%d_%H:%M:%S')
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$DATE
-  IMAGE="kindest/node:v1.23.3"
   docker pull "$IMAGE"
   kind create cluster --name $KINDNAME --config $KINDCONFIG --image "$IMAGE"
   cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE

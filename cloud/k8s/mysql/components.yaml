@@ -9,7 +9,7 @@ metadata:
   name: mysql-pv
   namespace: mysql
 spec:
-  storageClassName: mysql
+  storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
@@ -23,7 +23,7 @@ metadata:
   name: mysql-pv-claim
   namespace: mysql
 spec:
-  storageClassName: mysql
+  storageClassName: ssd.sda
   accessModes:
     - ReadWriteOnce
   resources:

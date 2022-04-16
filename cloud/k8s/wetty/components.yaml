@@ -3,7 +3,7 @@ kind: PersistentVolume
 metadata:
   name: wetty-docker-pv
 spec:
-  storageClassName: wetty
+  storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
@@ -16,7 +16,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: wetty-docker-pv-claim
 spec:
-  storageClassName: wetty
+  storageClassName: ssd.sda
   accessModes:
     - ReadWriteOnce
   resources:
@@ -28,7 +28,7 @@ kind: PersistentVolume
 metadata:
   name: wetty-store-pv
 spec:
-  storageClassName: node-aws
+  storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
@@ -41,7 +41,7 @@ apiVersion: v1
 metadata:
   name: wetty-store-pv-claim
 spec:
-  storageClassName: node-aws
+  storageClassName: ssd.sda
   accessModes:
     - ReadWriteOnce
   resources:

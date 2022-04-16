@@ -9,7 +9,7 @@ metadata:
   name: postgres-pv
   namespace: postgres
 spec:
-  storageClassName: postgres
+  storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
@@ -23,7 +23,7 @@ metadata:
   name: postgres-pv-claim
   namespace: postgres
 spec:
-  storageClassName: postgres
+  storageClassName: ssd.sda
   accessModes:
     - ReadWriteOnce
   resources:

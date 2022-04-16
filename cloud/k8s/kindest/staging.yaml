@@ -6,21 +6,21 @@ nodes:
 - role: control-plane
   extraPortMappings:
   - containerPort: 30443
-    hostPort: 3443
+    hostPort: 4443
     listenAddress: 0.0.0.0
   - containerPort: 30080
-    hostPort: 3080
+    hostPort: 4080
     listenAddress: 0.0.0.0
   - containerPort: 30053
     protocol: TCP
-    hostPort: 53
+    hostPort: 4053
     listenAddress: 127.0.0.2
   - containerPort: 30053
     protocol: UDP
-    hostPort: 53
+    hostPort: 4053
     listenAddress: 127.0.0.2
   - containerPort: 30312
-    hostPort: 3128
+    hostPort: 4128
     listenAddress: 0.0.0.0
   extraMounts:
   - containerPath: /var/log

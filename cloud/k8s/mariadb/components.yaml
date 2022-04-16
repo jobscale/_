@@ -9,7 +9,7 @@ metadata:
   name: mariadb-pv
   namespace: mariadb
 spec:
-  storageClassName: mariadb
+  storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
@@ -23,7 +23,7 @@ metadata:
   name: mariadb-pv-claim
   namespace: mariadb
 spec:
-  storageClassName: mariadb
+  storageClassName: ssd.sda
   accessModes:
     - ReadWriteOnce
   resources:
