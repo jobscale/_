@@ -1,8 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: wetty-pv
-  namespace: standard
+  name: wetty-docker-pv
 spec:
   storageClassName: wetty
   capacity:
@@ -15,10 +14,34 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: wetty-pv-claim
-  namespace: standard
+  name: wetty-docker-pv-claim
 spec:
   storageClassName: wetty
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wetty-store-pv
+spec:
+  storageClassName: node-aws
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/extra/home/store"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: wetty-store-pv-claim
+spec:
+  storageClassName: node-aws
   accessModes:
     - ReadWriteOnce
   resources:
@@ -29,7 +52,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wetty
-  namespace: standard
 spec:
   selector:
     matchLabels:
@@ -45,18 +67,22 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
-        - name: wetty-persistent-storage
+        - name: wetty-docker-persistent-storage
           mountPath: /var/lib/docker
+        - name: wetty-store-persistent-storage
+          mountPath: /home/store
       volumes:
-      - name: wetty-persistent-storage
+      - name: wetty-docker-persistent-storage
         persistentVolumeClaim:
-          claimName: wetty-pv-claim
+          claimName: wetty-docker-pv-claim
+      - name: wetty-store-persistent-storage
+        persistentVolumeClaim:
+          claimName: wetty-store-pv-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: wetty
-  namespace: standard
 spec:
   ports:
   - name: http
