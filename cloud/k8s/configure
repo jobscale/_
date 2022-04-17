@@ -71,6 +71,7 @@ inAllInOne() {
 
   echo -n "        ending" && loop 20
   kubectl get pods -A -o wide
+  kubectl top pods -n standard --containers | sort -h -k 4
   docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
