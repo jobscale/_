@@ -30,6 +30,10 @@ wetty() {
   kubectl rollout restart deployment -n standard wetty
 }
 
+partner() {
+  kubectl rollout restart deployment -n credentials partner
+}
+
 ALL() {
   web
   jsxjp
