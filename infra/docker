@@ -3,8 +3,7 @@ set -eu
 
 export DEBIAN_FRONTEND=noninteractive
 
-# Debian 10
-buster() {
+debian() {
   apt-get update
   apt-get install -y apt-transport-https
   apt-get update
@@ -18,23 +17,7 @@ buster() {
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
-# Debian 11
-bullseye() {
-  apt-get update
-  apt-get install -y apt-transport-https
-  apt-get update
-  sudo apt-get install -y software-properties-common ca-certificates gnupg
-
-  id=$(lsb_release -is)
-  echo ${id,,} $(lsb_release -cs)
-  curl -fsSL https://download.docker.com/linux/${id,,}/gpg | apt-key add -
-  add-apt-repository "deb https://download.docker.com/linux/${id,,} $(lsb_release -cs) stable"
-  apt install -y docker.io
-  echo -- sudo usermod -aG docker \$\(whoami\)
-}
-
-# Ubuntu 20.04
-focal() {
+ubuntu() {
   apt update
   apt install -y apt-transport-https
 
@@ -44,6 +27,26 @@ focal() {
   add-apt-repository "deb https://download.docker.com/linux/${id,,} $(lsb_release -cs) stable"
   apt install -y docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
+}
+
+# Debian 10
+buster() {
+  debian
+}
+
+# Debian 11
+bullseye() {
+  debian
+}
+
+# Ubuntu 20.04
+focal() {
+  ubuntu
+}
+
+# Ubuntu 22.04
+jammy() {
+  ubuntu
 }
 
 {

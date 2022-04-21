@@ -52,6 +52,11 @@ impish() {
   stable
 }
 
+# Ubuntu 22.04
+jammy() {
+  stable
+}
+
 {
   date +'BEGIN stable %Y-%m-%d %H:%M:%S'
   which lsb_release && lsb_release -cs

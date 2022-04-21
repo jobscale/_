@@ -3,6 +3,20 @@ set -eu
 
 export DEBIAN_FRONTEND=noninteractive
 
+# Ubuntu 22.04
+jammy() {
+  apt update
+  apt install -y $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}') \
+    terminator ibus-mozc conky
+}
+
+# Debian 11
+bullseye() {
+  apt update
+  apt install -y $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}') \
+    terminator ibus-mozc conky
+}
+
 # Ubuntu 20.04
 focal() {
   apt update
