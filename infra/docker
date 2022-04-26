@@ -7,7 +7,7 @@ debian() {
   apt-get update
   apt-get install -y apt-transport-https
   apt-get update
-  sudo apt-get install -y software-properties-common ca-certificates gnupg
+  apt-get install -y software-properties-common ca-certificates gnupg
 
   id=$(lsb_release -is)
   echo ${id,,} $(lsb_release -cs)
