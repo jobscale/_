@@ -3,7 +3,7 @@ set -eu
 
 export DEBIAN_FRONTEND=noninteractive
 
-uptoBullseye() {
+buster() {
   [[ $(grep buster /etc/*release | wc -l) < 1 ]] && echo 'no work' && return
   grep aws.deb /etc/apt/sources.list || echo -n > /tmp/aws-deb
   sed -e 's/buster/bullseye/g' < /tmp/aws-deb > /etc/apt/sources.list
@@ -17,11 +17,12 @@ deb http://deb.debian.org/debian bullseye-updates main
   apt full-upgrade -y
   uname -a
   arch
-  lsb_release -a
+  ehich lsb_release && lsb_release -a
 }
 
 {
   date +'BEGIN $0 upto-bullseye %Y-%m-%d %H:%M:%S'
-  time uptoBullseye
+  eval $(cat /etc/*release)
+  time $VERSION_CODENAME
   date +'END   $0 upto-bullseye %Y-%m-%d %H:%M:%S'
 }
