@@ -9,10 +9,10 @@ debian() {
   apt-get update
   apt-get install -y software-properties-common ca-certificates gnupg
 
-  id=$(lsb_release -is)
-  echo ${id,,} $(lsb_release -cs)
-  curl -fsSL https://download.docker.com/linux/${id,,}/gpg | apt-key add -
-  add-apt-repository "deb https://download.docker.com/linux/${id,,} $(lsb_release -cs) stable"
+  echo ${ID,,} ${VERSION_CODENAME}
+  curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
+  add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
+  apt update
   apt install -y docker-ce docker-ce-cli containerd.io
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
@@ -21,10 +21,10 @@ ubuntu() {
   apt update
   apt install -y apt-transport-https
 
-  id=$(lsb_release -is)
-  echo ${id,,} $(lsb_release -cs)
-  curl -fsSL https://download.docker.com/linux/${id,,}/gpg | apt-key add -
-  add-apt-repository "deb https://download.docker.com/linux/${id,,} $(lsb_release -cs) stable"
+  echo ${ID,,} ${VERSION_CODENAME}
+  curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
+  add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
+  apt update
   apt install -y docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
