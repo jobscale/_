@@ -2,7 +2,6 @@
 set -eu
 
 userData() {
-  curl -sL git.io/upto-bullseye | bash
   curl -sL git.io/ramen | bash
   curl -sL git.io/susi | bash
   curl -sL git.io/ja-jp | bash
