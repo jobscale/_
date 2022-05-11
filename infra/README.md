@@ -31,4 +31,5 @@ curl -sL git.io/user-data | bash
 # curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/upto-bullseye" -F "code=upto-bullseye"
 # curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/ja-jp" -F "code=ja-jp"
 # curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/auth-gen" -F "code=auth-gen"
+# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/aws-ec2" -F "code=aws-ec2"
 ```

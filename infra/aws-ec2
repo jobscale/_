@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -eu
+
+export DEBIAN_FRONTEND=noninteractive
+
+iNodejs() {
+  curl -fsSLo- https://raw.githubusercontent.com/creationix/nvm/$(
+    git ls-remote --refs --tags https://github.com/nvm-sh/nvm.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
+  )/install.sh | bash
+  . ~/.bashrc
+  LATEST=$(nvm ls-remote | grep 'Latest LTS' | tail -1 | awk '{print $1}')
+  nvm install $LATEST
+  nvm alias default $LATEST
+  nvm use $LATEST
+  node --version
+  npm --version
+  id
+}
+
+iAws() {
+  curl -sL -o "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-$(arch).zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  rm -fr aws awscliv2.zip
+}
+
+{
+  iAws
+  iNodejs
+}
