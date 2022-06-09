@@ -252,7 +252,6 @@ deployPhp() {
 deployPython() {
   exposeLoadBalancer tutorial docker/getting-started 80 80 3
   exposeLoadBalancer python-fastapi ghcr.io/jobscale/python-fastapi 80 80 3
-  exposeLoadBalancer webssh ghcr.io/jobscale/webssh 80 8888 3
   # kubectl apply -f django && waitFor django
 }
 
