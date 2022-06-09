@@ -1,10 +1,25 @@
+whileCheck() {
+  for i in {1..9999999}
+  do
+    sleep 60
+    nc -vz -w 1 bastion.us.jsx.jp 2022
+    if [[ $(echo $?) != 0 ]]
+    then
+      PID=$(ps auxf | grep "ssh [u]s-watch" | awk '{print $2}')
+      kill $PID
+      break
+    fi
+  done
+}
+
 {
   for i in {1..9999999}
   do
     PRINT="$(date) connect"
     echo "$PRINT"
     $HOME/bin/post-slack "$PRINT"
-    ssh us-watch
-    sleep 60
+    ssh us-watch &
+    whileCheck
+    sleep 10
   done
 }
