@@ -2,7 +2,8 @@ whileCheck() {
   for i in {1..9999999}
   do
     sleep 60
-    nc -vz -w 1 bastion.us.jsx.jp 2022
+    # nc -vz -w 1 bastion.us.jsx.jp 2022
+    timeout 10 ssh bastion.us.jsx.jp -p 2022 date +%s
     if [[ $(echo $?) != 0 ]]
     then
       PID=$(ps auxf | grep "ssh [u]s-watch" | awk '{print $2}')
