@@ -16,9 +16,14 @@ screensaver() {
 }
 
 {
-  nohup terminator -l start >& /dev/null &
   sleep 1.1
   nohup $HOME/bin/conky-daemon >& /dev/null &
+  sleep 1.1
+  sudo apt update
+  sudo apt upgrade -y
+  sleep 1.1
+  nohup terminator -l start >& /dev/null &
+  sleep 1.1
   $HOME/bin/autostart-session
   calm && date +'%Y-%m-%d %H:%M:%S.%3N'
   [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before" || echo -n
