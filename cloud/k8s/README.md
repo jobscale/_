@@ -2,7 +2,7 @@
 
 ## https://jsx.jp
 
-Kubernetes v1.23.3
+Kubernetes v1.23.5
 
 stern version 1.11.0
 
