@@ -1,26 +1,30 @@
+#!/usr/bin/env bash
+
+cleanZonbi() {
+  PID=$(ps auxf | grep "ssh [u]s-watch" | awk '{print $2}')
+  [[ "$PID" == "" ]] || kill $PID
+}
+
 whileCheck() {
-  for i in {1..9999999}
+  cleanZonbi
+  while true
   do
     sleep 60
-    # nc -vz -w 1 bastion.us.jsx.jp 2022
-    timeout 10 ssh bastion.us.jsx.jp -p 2022 date +%s
-    if [[ $(echo $?) != 0 ]]
-    then
-      PID=$(ps auxf | grep "ssh [u]s-watch" | awk '{print $2}')
-      kill $PID
-      break
-    fi
+    nc -vz -w 1 bastion.us.jsx.jp 2022
+    [[ $(echo $?) == 0 ]] || cleanZonbi && continue
+    timeout 15 ssh bastion.us.jsx.jp -p 2022 date +%s
+    [[ $(echo $?) == 0 ]] || cleanZonbi && continue
   done
 }
 
 {
-  for i in {1..9999999}
+  whileCheck &
+  while true
   do
     PRINT="$(date) connect"
     echo "$PRINT"
-    $HOME/bin/post-slack "$PRINT"
-    ssh us-watch &
-    whileCheck
+    post-slack "$PRINT"
+    ssh us-watch
     sleep 10
   done
 }
