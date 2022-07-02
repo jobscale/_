@@ -124,6 +124,7 @@ adminDashboard() {
   curl -so dashboard/kubernetes-dashboard.yaml https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
   kubectl apply -f dashboard/kubernetes-dashboard.yaml
   kubectl apply -f dashboard/admin-user-service-account.yaml
+  kubectl apply -f dashboard/admin-user-secret.yaml
   waitFor kubernetes-dashboard
 }
 
