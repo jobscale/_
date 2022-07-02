@@ -1,137 +1,57 @@
- #!/usr/bin/env bash
- set -u
+#!/usr/bin/env bash
+set -u
 
- docker pull ghcr.io/jobscale/ec-cube
- [[ $? == 0 ]] && docker push jobscale/ec-cube
+LIST=(
+  ec-cube
+  php-fpm
+  mongo-blog
+  webssh
+  python-fastapi
+  partner
+  ramen-timer
+  node-express-ejs-authorization
+  wetty
+  value-domain
+  jsxjp
+  web
+  todo
+  bind9
+  nginx-net
+  nginx-tls
+  tetris
+  django
+  bastion
+  certbot
+  squid
+  wordpress
+  focal
+  node-aws
+  cloud-terminal
+  health-check
+  speedtest-slack
+  eslint
+  certificate
+  gitlab
+  svn
+  dokuwiki
+  anywaychat
+  room-chat
+  mqtt-chat
+  swagger-editor
+  wallgame
+  autocannon
+  basic-auth
+  profile
+  mp4box
+  webm
+  simple-chat
+  lumen
+  laravel
+)
 
- docker pull ghcr.io/jobscale/php-fpm
- [[ $? == 0 ]] && docker push jobscale/php-fpm
-
- docker pull ghcr.io/jobscale/mongo-blog
- [[ $? == 0 ]] && docker push jobscale/mongo-blog
-
- docker pull ghcr.io/jobscale/webssh
- [[ $? == 0 ]] && docker push jobscale/webssh
-
- docker pull ghcr.io/jobscale/python-fastapi
- [[ $? == 0 ]] && docker push jobscale/python-fastapi
-
- docker pull ghcr.io/jobscale/partner
- [[ $? == 0 ]] && docker push jobscale/partner
-
- docker pull ghcr.io/jobscale/ramen-timer
- [[ $? == 0 ]] && docker push jobscale/ramen-timer
-
- docker pull ghcr.io/jobscale/node-express-ejs-authorization
- [[ $? == 0 ]] && docker push jobscale/node-express-ejs-authorization
-
- docker pull ghcr.io/jobscale/wetty
- [[ $? == 0 ]] && docker push jobscale/wetty
-
- docker pull ghcr.io/jobscale/value-domain
- [[ $? == 0 ]] && docker push jobscale/value-domain
-
- docker pull ghcr.io/jobscale/jsxjp
- [[ $? == 0 ]] && docker push jobscale/jsxjp
-
- docker pull ghcr.io/jobscale/web
- [[ $? == 0 ]] && docker push jobscale/web
-
- docker pull ghcr.io/jobscale/todo
- [[ $? == 0 ]] && docker push jobscale/todo
-
- docker pull ghcr.io/jobscale/bind9
- [[ $? == 0 ]] && docker push jobscale/bind9
-
- docker pull ghcr.io/jobscale/nginx-net
- [[ $? == 0 ]] && docker push jobscale/nginx-net
-
- docker pull ghcr.io/jobscale/nginx-tls
- [[ $? == 0 ]] && docker push jobscale/nginx-tls
-
- docker pull ghcr.io/jobscale/tetris
- [[ $? == 0 ]] && docker push jobscale/tetris
-
- docker pull ghcr.io/jobscale/django
- [[ $? == 0 ]] && docker push jobscale/django
-
- docker pull ghcr.io/jobscale/bastion
- [[ $? == 0 ]] && docker push jobscale/bastion
-
- docker pull ghcr.io/jobscale/certbot
- [[ $? == 0 ]] && docker push jobscale/certbot
-
- docker pull ghcr.io/jobscale/squid
- [[ $? == 0 ]] && docker push jobscale/squid
-
- docker pull ghcr.io/jobscale/wordpress
- [[ $? == 0 ]] && docker push jobscale/wordpress
-
- docker pull ghcr.io/jobscale/focal
- [[ $? == 0 ]] && docker push jobscale/focal
-
- docker pull ghcr.io/jobscale/node-aws
- [[ $? == 0 ]] && docker push jobscale/node-aws
-
- docker pull ghcr.io/jobscale/cloud-terminal
- [[ $? == 0 ]] && docker push jobscale/cloud-terminal
-
- docker pull ghcr.io/jobscale/health-check
- [[ $? == 0 ]] && docker push jobscale/health-check
-
- docker pull ghcr.io/jobscale/speedtest-slack
- [[ $? == 0 ]] && docker push jobscale/speedtest-slack
-
- docker pull ghcr.io/jobscale/eslint
- [[ $? == 0 ]] && docker push jobscale/eslint
-
- docker pull ghcr.io/jobscale/certificate
- [[ $? == 0 ]] && docker push jobscale/certificate
-
- docker pull ghcr.io/jobscale/gitlab
- [[ $? == 0 ]] && docker push jobscale/gitlab
-
- docker pull ghcr.io/jobscale/svn
- [[ $? == 0 ]] && docker push jobscale/svn
-
- docker pull ghcr.io/jobscale/dokuwiki
- [[ $? == 0 ]] && docker push jobscale/dokuwiki
-
- docker pull ghcr.io/jobscale/anywaychat
- [[ $? == 0 ]] && docker push jobscale/anywaychat
-
- docker pull ghcr.io/jobscale/room-chat
- [[ $? == 0 ]] && docker push jobscale/room-chat
-
- docker pull ghcr.io/jobscale/mqtt-chat
- [[ $? == 0 ]] && docker push jobscale/mqtt-chat
-
- docker pull ghcr.io/jobscale/swagger-editor
- [[ $? == 0 ]] && docker push jobscale/swagger-editor
-
- docker pull ghcr.io/jobscale/wallgame
- [[ $? == 0 ]] && docker push jobscale/wallgame
-
- docker pull ghcr.io/jobscale/autocannon
- [[ $? == 0 ]] && docker push jobscale/autocannon
-
- docker pull ghcr.io/jobscale/basic-auth
- [[ $? == 0 ]] && docker push jobscale/basic-auth
-
- docker pull ghcr.io/jobscale/profile
- [[ $? == 0 ]] && docker push jobscale/profile
-
- docker pull ghcr.io/jobscale/mp4box
- [[ $? == 0 ]] && docker push jobscale/mp4box
-
- docker pull ghcr.io/jobscale/webm
- [[ $? == 0 ]] && docker push jobscale/webm
-
- docker pull ghcr.io/jobscale/simple-chat
- [[ $? == 0 ]] && docker push jobscale/simple-chat
-
- docker pull ghcr.io/jobscale/lumen
- [[ $? == 0 ]] && docker push jobscale/lumen
-
- docker pull ghcr.io/jobscale/laravel
- [[ $? == 0 ]] && docker push jobscale/laravel
+{
+  for i in ${LIST[@]}
+  do
+    docker pull ghcr.io/jobscale/$i && docker tab ghcr.io/jobscale/$i jobscale/$i && docker push jobscale/$i
+  done
+} 2>&1
