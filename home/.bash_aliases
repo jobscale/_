@@ -8,6 +8,9 @@ export TZ=Asia/Tokyo
 
 [[ $(uname -s) == "Linux" ]] && umask u=rwx,g=,o=
 [[ $(uname -s) == "Darwin" ]] && umask u=rwx,g=rx,o=rx
+PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
+[[ "$(hostname)" == focal ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
+[[ "$(hostname)" == bullseye ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
 
 alias ul='less_with_unbuffer'
 alias diff='colordiff'
