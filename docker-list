@@ -52,6 +52,12 @@ LIST=(
 {
   for i in ${LIST[@]}
   do
-    docker pull ghcr.io/jobscale/$i && docker tab ghcr.io/jobscale/$i jobscale/$i && docker push jobscale/$i
+    echo docker pull ghcr.io/jobscale/$i \
+    && docker pull ghcr.io/jobscale/$i \
+    && echo docker tag ghcr.io/jobscale/$i jobscale/$i \
+    && docker tag ghcr.io/jobscale/$i jobscale/$i \
+    && echo docker push jobscale/$i \
+    && docker push jobscale/$i
+    docker rmi ghcr.io/jobscale/$i jobscale/$i
   done
 } 2>&1
