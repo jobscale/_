@@ -21,7 +21,7 @@ bind9() {
 }
 
 squid() {
-  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/squid
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/squid:secure
   kubectl rollout restart deployment -n net-apps squid
 }
 
