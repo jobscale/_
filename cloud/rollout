@@ -25,6 +25,16 @@ squid() {
   kubectl rollout restart deployment -n net-apps squid
 }
 
+nodeAws() {
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/node-aws:dind
+  kubectl rollout restart deployment -n standard node-aws
+}
+
+codeServer() {
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/code-server:dind
+  kubectl rollout restart deployment -n standard code-server
+}
+
 wetty() {
   docker exec -it production-control-plane crictl pull ghcr.io/jobscale/wetty:dind
   kubectl rollout restart deployment -n standard wetty

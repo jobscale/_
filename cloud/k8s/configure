@@ -219,6 +219,7 @@ cronJob() {
 
 deployNode() {
   kubectl apply -f node-aws && waitFor node-aws
+  kubectl apply -f code-server && waitFor code-server
   kubectl apply -f wetty && waitFor wetty
   kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
