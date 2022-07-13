@@ -59,14 +59,14 @@ setFW() {
   sudo iptables -A INPUT -p icmp -s 49.135.0.0/16 -j ACCEPT
   sudo iptables -A INPUT -p icmp -j DROP
 }
-# [[ $(which sudo) != "" && $(which sudo iptables) != "" ]] && setFW
+# which sudo && which sudo iptables && setFW
 
-proxyConfigure() {
-  disableProxy() {
-    echo "no proxy"
-    unset http_proxy
-    unset https_proxy
-  }
-  [[ $(nc -vz -w 1 8.8.8.8 53 2>&1 | grep -e succeeded -e Connected | wc -l) > 0 ]] && disableProxy
-}
-proxyConfigure
+realIp=$(http_proxy= curl -s inet-ip.info/ip | sed -e 's/,.*//')
+if [[ "$realIp" == "111.237.80.34" ]]
+then
+  export http_proxy=proxy.jp.jsx.jp:443
+  export https_proxy=proxy.jp.jsx.jp:443
+  echo "set internal proxy"
+else
+  echo "not set proxy"
+fi
