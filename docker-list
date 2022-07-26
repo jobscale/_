@@ -2,8 +2,10 @@
 set -u
 
 LIST=(
-  ec-cube
   php-fpm
+  php-fpm:xdebug
+  node-aws
+  node-aws:dind
   mongo-blog
   webssh
   python-fastapi
@@ -25,7 +27,6 @@ LIST=(
   squid
   wordpress
   focal
-  node-aws
   cloud-terminal
   health-check
   speedtest-slack
@@ -47,9 +48,10 @@ LIST=(
   simple-chat
   lumen
   laravel
+  ec-cube
 )
 
-{
+main() {
   for i in ${LIST[@]}
   do
     echo docker pull ghcr.io/jobscale/$i \
@@ -60,4 +62,11 @@ LIST=(
     && docker push jobscale/$i
     docker rmi ghcr.io/jobscale/$i jobscale/$i
   done
-} 2>&1
+}
+
+{
+  echo "START $(date)"
+  main 2>&1
+  echo "FINISH $(date)"
+} | tee -a ~/docker-list.log
+

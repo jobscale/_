@@ -39,10 +39,8 @@ spec:
         app: code-server
     spec:
       containers:
-      - image: ghcr.io/jobscale/code-server:dind
+      - image: ghcr.io/jobscale/code-server
         name: code-server
-        securityContext:
-          privileged: true
         volumeMounts:
         - name: code-server-persistent-storage
           mountPath: /home/store

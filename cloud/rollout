@@ -31,7 +31,7 @@ nodeAws() {
 }
 
 codeServer() {
-  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/code-server:dind
+  docker exec -it production-control-plane crictl pull ghcr.io/jobscale/code-server
   kubectl rollout restart deployment -n standard code-server
 }
 
