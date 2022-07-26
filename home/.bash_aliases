@@ -8,6 +8,8 @@ export TZ=Asia/Tokyo
 
 [[ $(uname -s) == "Linux" ]] && umask u=rwx,g=,o=
 [[ $(uname -s) == "Darwin" ]] && umask u=rwx,g=rx,o=rx
+[[ $(uname -s) == "Linux" ]] && alias ps='ps auxf'
+[[ $(uname -s) == "Darwin" ]] && alias ps='ps aux -o ppid'
 
 PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
 [[ "$(hostname)" == focal ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
@@ -57,14 +59,14 @@ setFW() {
   sudo iptables -A INPUT -p icmp -s 49.135.0.0/16 -j ACCEPT
   sudo iptables -A INPUT -p icmp -j DROP
 }
-# [[ $(which sudo) != "" && $(which sudo iptables) != "" ]] && setFW
+# which sudo && which sudo iptables && setFW
 
-proxyConfigure() {
-  disableProxy() {
-    echo "no proxy"
-    unset http_proxy
-    unset https_proxy
-  }
-  [[ $(nc -vz -w 1 8.8.8.8 53 2>&1 | grep -e succeeded -e Connected | wc -l) > 0 ]] && disableProxy
-}
-proxyConfigure
+realIp=$(http_proxy= curl -s inet-ip.info/ip | sed -e 's/,.*//')
+if [[ "$realIp" == "111.237.80.34" ]]
+then
+  export http_proxy=proxy.jp.jsx.jp:443
+  export https_proxy=proxy.jp.jsx.jp:443
+  echo "set internal proxy"
+else
+  echo "not set proxy"
+fi
