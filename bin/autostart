@@ -19,8 +19,7 @@ screensaver() {
   sleep 1.1
   nohup $HOME/bin/conky-daemon >& /dev/null &
   sleep 1.1
-  sudo apt update
-  sudo apt upgrade -y
+  [[ ! -e /var/lib/dpkg/lock-frontend ]] && sudo apt update && sudo apt upgrade -y || echo "no upgrade"
   sleep 1.1
   nohup terminator -l start >& /dev/null &
   sleep 1.1
@@ -36,5 +35,5 @@ screensaver() {
     nohup discord >& /dev/null &
     nohup slack >& /dev/null &
   }
-  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra" || echo -n
+  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra" || echo "FINISH AUTOSTART"
 } 2>&1 | tee -a $HOME/autostart.log
