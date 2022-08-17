@@ -7,8 +7,8 @@ stable() {
   apt update
   apt install -y apt-transport-https
   apt update
-  apt upgrade -y
-  apt install -y curl git vim tmux \
+  apt full-upgrade -y
+  apt install -y curl git vim tmux htop \
     iproute2 dnsutils ncat netcat iputils-ping \
     procps whois nmap traceroute  \
     python3-pip unzip zip tree colordiff
