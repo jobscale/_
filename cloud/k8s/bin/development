@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -eu
 
+if [[ $(kind get clusters | grep development) != '' ]]
+then
+  echo -e 'create before executetion\n - kind delete cluster --name development'
+  exit 1
+fi
+
 . configure
 development
 allInOne

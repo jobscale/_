@@ -46,8 +46,8 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  mkdir -p /home/k8s/logs
-  [[ ! -d /home/k8s/logs ]] && echo mkdir /home/k8s/logs && return 1
+  sudo mkdir -p /home/k8s/logs
+  sudo chown -R $(id -un):$(id -gn) /home/k8s/logs
   LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time inAllInOne 2>&1 | tee $LOGFILE
 }
@@ -64,7 +64,7 @@ inAllInOne() {
 
   createStandard
 
-  initializeDatabase false
+  [[ $KINDNAME == production ]] && initializeDatabase false
   # [[ $KINDNAME == production ]] && cronJob
 
   ingressRestart
@@ -157,7 +157,7 @@ firstApps() {
 }
 
 jsxSite() {
-  [[ $KINDNAME == production ]] && partner/create-secret.sh && kubectl apply -f partner && waitFor partner
+  [[ $KINDNAME == production || $KINDNAME == staging ]] && partner/create-secret.sh && kubectl apply -f partner && waitFor partner
   kubectl create namespace jsxjp
   kubectl apply -f limitrange-limits.yaml -n jsxjp
   kubectl apply -f jsxjp && waitFor jsxjp
@@ -181,7 +181,7 @@ createStandard() {
   exposeCluster ddb amazon/dynamodb-local 80 8000 0
 
   [[ $KINDNAME == production ]] && deployApps
-  [[ $KINDNAME == production ]] && initWetty
+  [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
 
   kubectl describe nodes
   kubectl config set-context $(kubectl config current-context) --namespace default

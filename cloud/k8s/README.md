@@ -2,7 +2,7 @@
 
 ## https://jsx.jp
 
-Kubernetes v1.23.5
+Kubernetes v1.25.0
 
 stern version 1.11.0
 
@@ -37,6 +37,7 @@ iKubectl() {
   )/bin/${UNAME}/${ARCH}/$FNAME
   chmod ugo+x $FNAME
   sudo mv $FNAME /usr/local/bin/kubectl
+  [[ "$(grep ' kubernetes' /etc/hosts)" == "" ]] && echo '127.0.0.1 kubernetes' | sudo tee -a /etc/hosts || echo "already hosts"
   kubectl version
 } && iKubectl
 ```
@@ -76,7 +77,7 @@ iKind() {
 
   FNAME=kind-${UNAME}-${ARCH}
   curl -fsSLO https://github.com/kubernetes-sigs/kind/releases/download/$(
-    git ls-remote --refs --tags https://github.com/kubernetes-sigs/kind.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
+    git ls-remote --refs --tags https://github.com/kubernetes-sigs/kind.git | grep -v alpha | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
   )/$FNAME
   chmod ugo+x $FNAME
   sudo mv $FNAME /usr/local/bin/kind
@@ -119,7 +120,7 @@ kubectl config set-context $(kubectl config current-context) --namespace standar
 kubectl apply -f limitrange-limits.yaml
 ```
 
-### setup metallb system
+### setup metalLB system
 
 ```
 METAL_VERSION=$(git ls-remote --refs --tags https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
@@ -165,7 +166,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/mast
 sudo -E kubectl port-forward -n ingress-nginx --address 0.0.0.0 svc/ingress-nginx 443:443 80:80
 ```
 
-### manual address loadbalancer
+### manual address LoadBalancer
 ```
 svc() {
   [[ $(nc -v localhost 8001 -w 1 < /dev/null 2>&1 | grep succeeded | wc -l) != 1 ]] && kubectl proxy &
