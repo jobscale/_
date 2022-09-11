@@ -1,7 +1,6 @@
 HISTSIZE=500000
 HISTFILESIZE=5000000
 PROMPT_DIRTRIM=3
-PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 
 export DEBIAN_FRONTEND=noninteractive
 export TZ=Asia/Tokyo
@@ -16,6 +15,8 @@ PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\
 [[ "$(hostname)" == bullseye ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
 [[ "$(hostname)" == jammy ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
 
+PATH="$PATH:$HOME/bin:$HOME/.local/bin"
+[[ -d "$HOME/.deta/bin" ]] && PATH="$HOME/.deta/bin:$PATH"
 which aws_completer && complete -C aws_completer aws
 
 alias ul='less_with_unbuffer'
