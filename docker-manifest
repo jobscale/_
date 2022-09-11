@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -eu
+
+which jp || npm i -g @jobscale/jp
+
+if [[ "$1" == "" ]]
+then
+  echo "Usage: $0 image-name"
+  exit 127
+fi
+
+SP=($(echo "$1" | awk -F: '{print $1" "$2}'))
+INAME="${SP[0]}"
+TAG="${SP[1]:-latest}"
+IMAGE=$INAME:$TAG
+echo "Image = $IMAGE"
+
+config() {
+  DOCKER_MANIFESTS=$(docker manifest inspect ghcr.io/jobscale/$IMAGE)
+  ARCH0=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[0].platform.architecture)
+  DIGEST0=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[0].digest)
+  ARCH1=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[1].platform.architecture)
+  DIGEST1=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[1].digest)
+}
+
+deploy() {
+  docker pull ghcr.io/jobscale/$INAME@$DIGEST0
+  docker tag ghcr.io/jobscale/$INAME@$DIGEST0 jobscale/$INAME:$TAG-$ARCH0
+
+  docker pull ghcr.io/jobscale/$INAME@$DIGEST1
+  docker tag ghcr.io/jobscale/$INAME@$DIGEST1 jobscale/$INAME:$TAG-$ARCH1
+
+  docker push jobscale/$INAME:$TAG-$ARCH0
+  docker push jobscale/$INAME:$TAG-$ARCH1
+
+  echo "$(docker manifest rm jobscale/$IMAGE)"
+  docker manifest create jobscale/$IMAGE \
+  --amend jobscale/$INAME:$TAG-$ARCH0 \
+  --amend jobscale/$INAME:$TAG-$ARCH1
+
+  docker manifest push jobscale/$IMAGE
+
+  docker manifest inspect jobscale/$IMAGE
+}
+
+{
+  config
+  deploy
+}
