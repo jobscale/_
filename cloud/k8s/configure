@@ -110,7 +110,7 @@ metalLB() {
   echo -e "\n MetalLB ${METAL_VERSION} \n"
   kubectl create namespace metallb-system
   kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey=$METAL_SECRET
-  kubectl apply -f metalLB/metallb.yaml || echo 'NG'
+  kubectl apply -f metalLB/metallb.yaml
   kubectl apply -f metalLB/km-config.yaml
   waitFor metallb-system
 }
