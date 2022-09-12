@@ -1,74 +1,91 @@
 mkcd() {
-    mkdir $1 && cd $_
+  mkdir $1 && cd $_
 }
 
 b() {
   cp -pr $1{,.B-$(date +'%Y%m%d%H%M%S')} && echo "backuped --- $1.B-$(date +'%Y%m%d%H%M%S')"
 }
 
+docker() {
+  if [[ $@ == "ps -a" ]]
+  then
+    cmd="docker ps -a --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}'"
+    echo "$cmd"
+    bash -c "$cmd"
+    return
+  fi
+  if [[ $@ == "ps" ]]
+  then
+    cmd="docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}'"
+    echo "$cmd"
+    bash -c "$cmd"
+    return
+  fi
+}
+
 git() {
-    if [[ $1 == "clone" && $2 == "--depth" ]]
-    then
-        shift
-        cmd="git clone --depth 1 $@"
-        echo "$cmd"
-        command $cmd
-        return
-    fi
-    if [[ $1 == "sort" ]]
-    then
-        cmd="git ls-remote --tags | sort -t '/' -k 3 -V"
-        echo "$cmd"
-        bash -c "$cmd"
-        return
-    fi
-    if [[ $@ == "branch -a" ]]
-    then
-        cmd="git fetch --all --prune --tags"
-        echo "$cmd"
-        command $cmd
-    fi
-    command git "$@"
+  if [[ $1 == "clone" && $2 == "--depth" ]]
+  then
+    shift
+    cmd="git clone --depth 1 $@"
+    echo "$cmd"
+    command $cmd
+    return
+  fi
+  if [[ $1 == "sort" ]]
+  then
+    cmd="git ls-remote --tags | sort -t '/' -k 3 -V"
+    echo "$cmd"
+    bash -c "$cmd"
+    return
+  fi
+  if [[ $@ == "branch -a" ]]
+  then
+    cmd="git fetch --all --prune --tags"
+    echo "$cmd"
+    command $cmd
+  fi
+  command git "$@"
 }
 
 realdir() {
-    if [ "-bash" == "$0" ]
-    then
-        pwd
-        return
-    fi
-    dir=$(dirname "$0")
-    if [ -d "$dir" ]
-    then
-        echo $(cd "$dir" && pwd)
-    else
-        pwd
-    fi
+  if [ "-bash" == "$0" ]
+  then
+    pwd
+    return
+  fi
+  dir=$(dirname "$0")
+  if [ -d "$dir" ]
+  then
+    echo $(cd "$dir" && pwd)
+  else
+    pwd
+  fi
 }
 
 skip() {
-    for i in $(seq 1 $1)
-    do
-        echo
-    done
+  for i in $(seq 1 $1)
+  do
+    echo
+  done
 }
 
 loop() {
-    for i in $(seq $1 -1 1)
-    do
-        printf '\r%5d ' $i
-        sleep 1
-    done
-    printf '\r%5d\n' 0
+  for i in $(seq $1 -1 1)
+  do
+    printf '\r%5d ' $i
+    sleep 1
+  done
+  printf '\r%5d\n' 0
 }
 
 gff() {
-    while read file
-    do
-        grep $@ "${file}"
-    done < <(ff)
+  while read file
+  do
+    grep $@ "${file}"
+  done < <(ff)
 }
 
 less_with_unbuffer () {
-    unbuffer "$@" 2>&1 | less -SR
+  unbuffer "$@" 2>&1 | less -SR
 }
