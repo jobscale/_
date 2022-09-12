@@ -181,7 +181,7 @@ createStandard() {
   exposeCluster ddb amazon/dynamodb-local 80 8000 0
 
   [[ $KINDNAME == production ]] && deployApps
-  if [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
+  [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
 
   kubectl describe nodes
   kubectl config set-context $(kubectl config current-context) --namespace default
