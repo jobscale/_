@@ -181,13 +181,14 @@ createStandard() {
   exposeCluster ddb amazon/dynamodb-local 80 8000 0
 
   [[ $KINDNAME == production ]] && deployApps
-  [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
+  if [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
 
   kubectl describe nodes
   kubectl config set-context $(kubectl config current-context) --namespace default
 }
 
 initWetty() {
+  kubectl apply -f wetty && waitFor wetty
   TTY_PASSWD="$(makePasswd)"
   genPasswd "$TTY_PASSWD"
   echo "Initialized password: '$TTY_PASSWD'"
@@ -217,7 +218,6 @@ cronJob() {
 deployNode() {
   kubectl apply -f node-aws && waitFor node-aws
   kubectl apply -f code-server && waitFor code-server
-  kubectl apply -f wetty && waitFor wetty
   kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
   exposeLoadBalancer sshwifty ghcr.io/jobscale/sshwifty 80 8182 3
