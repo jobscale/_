@@ -21,6 +21,7 @@ docker() {
     bash -c "$cmd"
     return
   fi
+  command docker "$@"
 }
 
 git() {
