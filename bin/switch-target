@@ -1,4 +1,5 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+set -eu
 
 [[ "$1" == "multi-user" ]] && target="multi-user"
 [[ "$1" == "graphical" ]] && target="graphical"

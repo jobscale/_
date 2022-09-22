@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -eu
+
+device_run() {
+  tmux new-session -d
+  tmux new-window
+  tmux send-keys "npm run device-1 | tee device-1-$(date +%s).log" C-m
+  tmux splitw -v -p 35
+  tmux send-keys "npm run device-2 | tee device-2-$(date +%s).log" C-m
+  tmux select-window -t 0
+}
+
+ens6() {
+  sleep 7
+  echo "> set down ens5"
+  sudo ip link set down ens5
+  sleep 2
+  echo "> set up ens6"
+  sudo ip link set up ens6
+  sleep 1
+  sudo ip route show
+}
+
+ens5() {
+  sleep 7
+  echo "> set down ens6"
+  sudo ip link set down ens6
+  sleep 2
+  echo "> set up ens5"
+  sudo ip link set up ens5
+  sleep 1
+  sudo ip route show
+}
+
+main() {
+  device_run
+  sleep 10
+  for i in {1..30}
+  do
+    date
+    ens6
+    date
+    ens5
+  done
+}
+
+main | tee switch-ens-$(date +%s).log
