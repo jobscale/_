@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -u
+
+tcpForward() {
+  /etc/init.d/ssh start
+  ssh -L 0.0.0.0:53:127.0.0.53:53 -o "StrictHostKeyChecking no" -o "RequestTTY force" 127.0.0.1
+}
+
+udpForward() {
+  [[ -e /tmp/pipe-udp ]] && unlink /tmp/pipe-udp
+  mkfifo /tmp/pipe-udp
+  while true
+  do
+    nc -w 1 -ul 0.0.0.0 53 < /tmp/pipe-udp | nc -u 127.0.0.53 53 > /tmp/pipe-udp
+  done
+}
+
+# tcpForward &
+echo "[udpForward]"
+udpForward &
+wait
