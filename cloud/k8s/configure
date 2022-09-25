@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.25.0"
+IMAGE="kindest/node:v1.25.1"
 
 production() {
   export KINDNAME=production
