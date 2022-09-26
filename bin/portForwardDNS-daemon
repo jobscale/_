@@ -2,21 +2,17 @@
 set -eu
 
 cp bin/portForwardDNS /usr/local/bin/portForwardDNS
-echo '#!/usr/bin/env bash
-set -eu
-
-/usr/local/bin/portForwardDNS &' > /usr/local/bin/port-forward-dns.sh
-chmod +x /usr/local/bin/port-forward-dns.sh
 
 echo '[Unit]
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/port-forward-dns.sh
+ExecStart=/usr/local/bin/portForwardDNS
 
 [Install]
 WantedBy=default.target' > /etc/systemd/system/port-forward-dns.service
 
 systemctl daemon-reload
 systemctl enable port-forward-dns.service
+systemctl start port-forward-dns.service
 systemctl status port-forward-dns.service
