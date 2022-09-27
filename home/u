@@ -1,4 +1,6 @@
 sudo apt update
 echo
+apt list --upgradable
+echo
 sudo apt full-upgrade -y
 sudo autoremove -y

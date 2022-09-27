@@ -10,6 +10,13 @@ linkDot() {
   done
 }
 
+copyCmd() {
+  for i in u x y
+  do
+    [[ ! -s ~/$i ]] && cp $i ~ || echo exist $i
+  done
+}
+
 cloneVim() {
   [ -s "$HOME/.vim/bundle/Vundle.vim" ] && return
   git clone --depth 1 https://github.com/VundleVim/Vundle.vim.git "$HOME/.vim/bundle/Vundle.vim"
@@ -20,6 +27,7 @@ main () {
   [[ $(pwd) == "$HOME" ]] && echo "can't be symbolic link" && return
   linkDot
   cloneVim
+  copyCmd
 }
 
 main
