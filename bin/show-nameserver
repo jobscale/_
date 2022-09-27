@@ -1,3 +1,9 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
+set -eu
 
-systemd-resolve --status
+if [[ $(uname) == Darwin ]]
+then
+  scutil --dns
+else
+  systemd-resolve --status || cat /etc/resolv.conf
+fi
