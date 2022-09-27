@@ -1,0 +1,4 @@
+sudo apt update
+echo
+sudo apt full-upgrade -y
+sudo autoremove -y
