@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+ set -u
+
 network() {
   [[ $(docker network list | grep standard | wc -l) == 0 ]] && docker network create standard
 }
@@ -71,5 +74,5 @@ proxies() {
 
 {
   THIS=${0##*/}
-  grep ^[a-z] $([[ -s "$THIS" ]] && echo "$THIS" || echo containers) | awk -F'(' '{print $1}'
+  grep ^[a-z] containers | awk -F'(' '{print $1}'
 }

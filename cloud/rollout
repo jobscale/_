@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+ set -u
 
 web() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/web
@@ -44,7 +45,7 @@ partner() {
   kubectl rollout restart deployment -n credentials partner
 }
 
-ALL() {
+aLL() {
   web
   jsxjp
   tanpo
@@ -53,4 +54,7 @@ ALL() {
   wetty
 }
 
- grep ^[A-Za-z] rollout
+{
+  THIS=${0##*/}
+  grep ^[a-z] rollout | awk -F'(' '{print $1}'
+}

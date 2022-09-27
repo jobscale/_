@@ -62,7 +62,8 @@ Main() {
   then
     echo "Usage: ${0##*/} [command]"
     echo "[command]:"
-    grep ^[a-z] $(which $0) | awk -F'(' '{print $1}'
+    THIS=${0##*/}
+    grep ^[a-z] $(which "$THIS" || echo "$THIS") | awk -F'(' '{print $1}'
     return 1
   fi
 
