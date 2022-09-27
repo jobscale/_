@@ -71,5 +71,5 @@ proxies() {
 
 {
   THIS=${0##*/}
-  grep ^[a-z] $([[ -s "$THIS" ]] && echo "$THIS" || echo containers)
+  grep ^[a-z] $([[ -s "$THIS" ]] && echo "$THIS" || echo containers) | awk -F'(' '{print $1}'
 }

@@ -57,16 +57,18 @@ gitDiff() {
   done
 }
 
-{
+Main() {
   if [[ $# == 0 ]]
   then
-    Usage: ${0##*/} command
-    echo "[command]"
-    grep ^[a-z] $(which $0)
-    exit 1
+    echo "Usage: ${0##*/} [command]"
+    echo "[command]:"
+    grep ^[a-z] $(which $0) | awk -F'(' '{print $1}'
+    return 1
   fi
 
   FILE=$(date '+/tmp/%s')
   $1 | tee $FILE
   echo "log file = $FILE"
 }
+
+Main
