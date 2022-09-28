@@ -32,7 +32,7 @@ gitDiff() {
   url=$(echo $repo | jq --raw-output .url)
   [[ ! -d $name ]] && echo "$name not found" && return
   cd $name
-  git remote set-url origin $repo
+  git remote set-url origin $url
   git pull
   git diff | cat
   cd - > /dev/null
