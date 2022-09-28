@@ -2,6 +2,7 @@
  set -eu
 
 Config() {
+  ApiGit="https://api.github.com/users/jobscale/repos?type=all&sort=updated&page="
   if [[ $(hostname) == focal ]]
   then
     TYPE="ssh_url"
@@ -11,43 +12,43 @@ Config() {
 }
 Config
 
-GetAll() {
-  for i in {1..4}
-  do
-    curl -s "https://api.github.com/users/jobscale/repos?type=all&sort=updated&page=$i" | grep $TYPE | awk -F'"' '{print $4}'
-  done
-}
-
 gitClone() {
-  LIST=($(GetAll))
-  for repo in ${LIST[@]}
-  do
-    name=$(echo $repo | awk -F'[:/.]' '{print $4}')
-    echo -e "\n# $name"
-    [[ ! -d $name ]] && git clone $name
-    [[ ! -d $name ]] && continue
-    cd $name
-    git pull
-    git-user
-    git branch -a | head
-    git diff | cat
-    cd - > /dev/null
-  done
+  echo "$repo" | jq .
+  name=$(echo $repo | jq --raw-output .name)
+  url=$(echo $repo | jq --raw-output .url)
+  [[ ! -d $name ]] && git clone $url
+  [[ ! -d $name ]] && echo "$name not found" && return
+  cd $name
+  git pull
+  git-user
+  git branch -a | head
+  git diff | cat
+  cd - > /dev/null
 }
 
 gitDiff() {
-  LIST=($(GetAll))
-  for repo in ${LIST[@]}
+  echo "$repo" | jq .
+  name=$(echo $repo | jq --raw-output .name)
+  url=$(echo $repo | jq --raw-output .url)
+  [[ ! -d $name ]] && echo "$name not found" && return
+  cd $name
+  git remote set-url origin $repo
+  git pull
+  git diff | cat
+  cd - > /dev/null
+}
+
+Loop() {
+  IFS=$'\n'
+  echo -e "\n$(date +"%F %H:%M:%S.%3N") [START]\n"
+  for i in {1..5}
   do
-    name=$(echo $repo | awk -F'[:/.]' '{print $4}')
-    echo -e "\n# $name"
-    [[ ! -d $name ]] && echo "$name not found" && continue
-    cd $name
-    git remote set-url origin $repo
-    git pull
-    git diff | cat
-    cd - > /dev/null
+    for repo in $(curl -s "$ApiGit$i" | jq -c ".[] | { name: .name, url: .$TYPE }")
+    do
+      $1
+    done
   done
+  echo -e "\n$(date +"%F %H:%M:%S.%3N") [FINISH]\n"
 }
 
 Main() {
@@ -61,7 +62,7 @@ Main() {
   fi
 
   LOG_FILE=$(date '+/tmp/%s')
-  $1 | tee $LOG_FILE
+  Loop $1 | tee $LOG_FILE
   echo "log file = $LOG_FILE"
 }
 Main $*
