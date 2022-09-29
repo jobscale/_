@@ -3,7 +3,7 @@ mkcd() {
 }
 
 b() {
-  cp -pr $1{,.B-$(date +'%Y%m%d%H%M%S')} && echo "backuped --- $1.B-$(date +'%Y%m%d%H%M%S')"
+  sudo cp -pr $1{,.B-$(date +'%Y%m%d%H%M%S')} && echo "backuped --- $1.B-$(date +'%Y%m%d%H%M%S')"
 }
 
 docker() {
