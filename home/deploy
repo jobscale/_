@@ -11,7 +11,7 @@ linkDot() {
 }
 
 copyCmd() {
-  [[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 1 ]] || return
+  [[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 0 ]] || return
   for i in u x y
   do
     [[ ! -s ~/$i ]] && cp $i ~ || echo exist $i
