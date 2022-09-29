@@ -14,6 +14,7 @@ PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\
 [[ "$(hostname)" == focal ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
 [[ "$(hostname)" == bullseye ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
 [[ "$(hostname)" == jammy ]] && PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
+[[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 0 ]] || PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;35m\]\u@\h\[\033[00m\] \[\033[01;32m\]\w\[\033[00m\] \$ "
 
 PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 [[ -d "$HOME/.deta/bin" ]] && PATH="$HOME/.deta/bin:$PATH"
