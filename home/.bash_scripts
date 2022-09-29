@@ -40,11 +40,15 @@ git() {
     bash -c "$cmd"
     return
   fi
-  if [[ $@ == "branch -a" ]]
+  if [[ $@ == "branch" ]]
   then
     cmd="git fetch --all --prune --tags"
     echo "$cmd"
     command $cmd
+    cmd="git branch -a -vv"
+    echo "$cmd"
+    command $cmd
+    return
   fi
   command git "$@"
 }
