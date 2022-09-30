@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
- set -u
 
 network() {
   [[ $(docker network list | grep standard | wc -l) == 0 ]] && docker network create standard

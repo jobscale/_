@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
- set -u
 
 web() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/web

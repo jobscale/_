@@ -49,6 +49,7 @@ conky.text = [[
 ${color3}Load: $color1$loadavg$color3${alignr}Uptime: $color1$uptime$color3
 RAM: $color1$memperc%$alignc$mem/$memmax$alignr$color3 Freq: $color1${freq_g}GHz
 $color4${membar 8}$color3
+\
 CPU: $color1$cpu%  ${color3}Swap: $color1$swapperc%  $color4${swapbar 8}$color3
 ${template2 cpu1 cpu2}
 ${template2 cpu3 cpu4}
@@ -56,27 +57,21 @@ ${if_match "$nodename" == "focal"}\
 ${template2 cpu5 cpu6}
 ${template2 cpu7 cpu8}
 $endif\
-${if_match "$nodename" == "bionic"}\
-${template2 cpu5 cpu6}
-${template2 cpu7 cpu8}
-$endif\
-${if_match "$nodename" == "boxing"}\
-${template2 cpu5 cpu6}
-${template2 cpu7 cpu8}
-$endif\
-  Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
+${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
 ${color5}Storage         $stippled_hr \
-${template0 / /dev/sda1 SSD}\
-${template0 /home /dev/sdb1 SSD}\
-${template0 /var/lib /dev/sdc1 SSD}\
-${template0 /task /dev/sdd1 SSD}\
-${template0 /mnt/sdb2 /dev/sdb2 SSD}\
-${template0 /media/jobscale/d9fb763b-4004-4d37-8982-d05faef4ad5a /dev/sdd1 SSD}\
-${template0 /media/jobscale/b1ed86b0-511e-4eaa-85d8-5c145ae8af44 /dev/sde1 SD}\
+${template0 /               sda SSD}\
+${template0 /home/vbox      sdb SSD}\
+\
+${template0 /home           sdb SS}\
+${template0 /var/lib        sdc SS}\
+${template0 /task           sdd SS}\
+\
+${template0 /media/jobscale/d9fb763b-4004-4d37-8982-d05faef4ad5a sdd SSD}\
+${template0 /media/jobscale/b1ed86b0-511e-4eaa-85d8-5c145ae8af44 sde SD}\
 ${template0 /media/jobscale/7b2fc0f8-0a3b-47b5-9dc4-75075f935c09 sdd SSD}\
 ${template0 /media/jobscale/e657358c-0471-4cb6-87db-a24a055f2031 sdf SD}\
 ${template0 /media/jobscale/8f387411-a7dd-4144-ae04-7aa7075b275c sdb ext4}\
-${template0 /media/jobscale/Central sdc Central}\
+${template0 /media/jobscale/Central                              sdc Central}\
 
 ${color5}Network         $stippled_hr\
 ${template1 enp4s0}${template1 ens9}${template1 wlp3s0}${template1 enp0s3}
