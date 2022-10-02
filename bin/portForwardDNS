@@ -2,6 +2,7 @@
 set -eu
 
 proto=UDP
+listen_addr=0.0.0.0
 listen_port=53
 target_addr=127.0.0.53
 target_port=53
@@ -10,4 +11,13 @@ localForward() {
   socat -dd -ly ${proto}-LISTEN:${listen_port},FORK ${proto}-CONNECT:${target_addr}:${target_port}
 }
 
-localForward
+portForward() {
+  [[ -e /tmp/pipe-udp ]] && unlink /tmp/pipe-udp
+  mkfifo /tmp/pipe-udp
+  while true
+  do
+    nc -w 1 -ul $listen_addr $listen_port < /tmp/pipe-udp | nc -u $target_addr $target_port > /tmp/pipe-udp
+  done
+}
+
+portForward
