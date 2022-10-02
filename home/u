@@ -5,4 +5,4 @@ echo
 apt list --upgradable
 echo
 sudo apt full-upgrade -y
-sudo autoremove -y
+sudo apu autoremove -y
