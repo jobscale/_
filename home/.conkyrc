@@ -61,6 +61,7 @@ ${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3  
 ${color5}Storage         $stippled_hr \
 ${template0 /               sda SSD}\
 ${template0 /home/vbox      sdb SSD}\
+${template0 /mnt/ssd        sdc SSD}\
 \
 ${template0 /home           sdb SS}\
 ${template0 /var/lib        sdc SS}\
