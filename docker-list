@@ -24,8 +24,6 @@ LIST=(
   bastion
   certbot
   squid
-  wordpress
-  focal
   cloud-terminal
   health-check
   speedtest-slack
@@ -68,8 +66,8 @@ main() {
 {
   LOG_FILE=$HOME/docker-list-$(date +%s).log
   main | tee -a $LOG_FILE
-  grep -i error $LOG_FILE
-  grep -i fail $LOG_FILE
-  grep -i invalid $LOG_FILE
-  grep -i unknown $LOG_FILE
+  grep -i -1 error $LOG_FILE
+  grep -i -1 fail $LOG_FILE
+  grep -i -1 invalid $LOG_FILE
+  grep -i -1 unknown $LOG_FILE
 }

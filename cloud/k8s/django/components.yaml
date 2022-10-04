@@ -18,7 +18,7 @@ spec:
         app: django
     spec:
       containers:
-      - image: jobscale/django
+      - image: ghcr.io/jobscale/django
         name: django
 ---
 apiVersion: v1
