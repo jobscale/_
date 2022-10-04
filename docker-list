@@ -63,5 +63,5 @@ main() {
   echo "START $(date)"
   time main 2>&1
   echo "FINISH $(date)"
-} | tee -a ~/docker-list.log
+} | tee -a ~/docker-list-$(date +%s).log
 
