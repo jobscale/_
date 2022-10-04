@@ -52,16 +52,24 @@ LIST=(
   ec-cube
 )
 
-main() {
+loop() {
   for i in ${LIST[@]}
   do
     ./docker-manifest $i
   done
 }
 
-{
+main() {
   echo "START $(date)"
-  time main 2>&1
+  time loop 2>&1 || date
   echo "FINISH $(date)"
-} | tee -a ~/docker-list-$(date +%s).log
+}
 
+{
+  LOG_FILE=$HOME/docker-list-$(date +%s).log
+  main | tee -a $LOG_FILE
+  grep -i error $LOG_FILE
+  grep -i fail $LOG_FILE
+  grep -i invalid $LOG_FILE
+  grep -i unknown $LOG_FILE
+}
