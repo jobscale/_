@@ -23,7 +23,7 @@ whileCheck() {
   do
     PRINT="$(date) connect"
     echo "$PRINT"
-    post-slack "$PRINT"
+    timeout 10 post-slack "$PRINT"
     ssh us-watch
     sleep 10
   done
