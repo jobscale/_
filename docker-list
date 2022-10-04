@@ -16,7 +16,6 @@ LIST=(
   value-domain
   jsxjp
   web
-  todo
   bind9
   nginx-net
   nginx-tls
@@ -48,6 +47,8 @@ LIST=(
   simple-chat
   lumen
   laravel
+  todo
+  todo:nginx
   ec-cube
 )
 
