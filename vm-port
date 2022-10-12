@@ -1,0 +1,4 @@
+VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
+VBoxManage controlvm jammy natpf1 "web,tcp,0.0.0.0,3000,,3000"
+VBoxManage controlvm jammy natpf1 "mqtt,tcp,0.0.0.0,1883,,1883"
+VBoxManage controlvm jammy natpf1 "websocket,tcp,0.0.0.0,8883,,8883"
