@@ -14,7 +14,7 @@ copyCmd() {
   [[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 0 ]] || return
   for i in u x y
   do
-    [[ ! -s ~/$i ]] && cp $i ~ || echo exist $i
+    [[ ! -s ~/$i ]] && ln -sfn _/home/$i ~ || echo exist $i
   done
 }
 
