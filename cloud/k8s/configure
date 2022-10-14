@@ -220,6 +220,7 @@ deployNode() {
   kubectl apply -f code-server && waitFor code-server
   kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
+  exposeLoadBalancer zipcode-jp ghcr.io/jobscale/zipcode-jp 80 3000 3
   exposeLoadBalancer sshwifty ghcr.io/jobscale/sshwifty 80 8182 3
   exposeLoadBalancer mongo-blog ghcr.io/jobscale/mongo-blog 80 3000 3
   exposeLoadBalancer todo ghcr.io/jobscale/todo-app 80 3000 0
