@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt
+spec:
+  selector:
+    matchLabels:
+      app: mqtt
+  template:
+    metadata:
+      labels:
+        app: mqtt
+    spec:
+      containers:
+      - name: mqtt
+        image: ghcr.io/jobscale/MQTT-c-pub-sub
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt
+spec:
+  selector:
+    app: mqtt
+  type: LoadBalancer
+  ports:
+  - name: mqtt
+    nodePort: 31883
+    port: 1883
+    targetPort: 1883
+    protocol: TCP
+  - name: mqtt-ws
+    nodePort: 30883
+    port: 8883
+    targetPort: 8883
+    protocol: TCP
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mqtt
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mqtt
+  maxReplicas: 20
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50
