@@ -25,15 +25,20 @@ spec:
     app: web
   type: LoadBalancer
   ports:
+  - name: http
+    nodePort: 30080
+    port: 80
+    targetPort: 80
+    protocol: TCP
   - name: https
     nodePort: 30443
     port: 443
     targetPort: 443
     protocol: TCP
-  - name: http
-    nodePort: 30080
-    port: 80
-    targetPort: 80
+  - name: mqtts
+    nodePort: 30883
+    port: 8883
+    targetPort: 8883
     protocol: TCP
 ---
 apiVersion: autoscaling/v1

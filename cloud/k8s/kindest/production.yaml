@@ -11,9 +11,6 @@ nodes:
   - containerPort: 30080
     hostPort: 80
     listenAddress: 0.0.0.0
-  - containerPort: 31883
-    hostPort: 1883
-    listenAddress: 0.0.0.0
   - containerPort: 30883
     hostPort: 8883
     listenAddress: 0.0.0.0
