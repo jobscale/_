@@ -4,3 +4,4 @@ cert.*
 *.crt
 *.csr
 *.cert
+*.srl
