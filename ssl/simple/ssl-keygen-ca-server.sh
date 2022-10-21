@@ -34,6 +34,7 @@ serverCertificateRequest() {
 }
 
 serverCertificateCreate() {
+  serverCertificateRequest
   openssl x509 -req -days $days \
   -in $fname.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
   -out $fname.crt
@@ -43,7 +44,6 @@ serverCertificateCreate() {
   caPrivate
   caCertificateCreate
   serverPrivate
-  serverCertificateRequest
   serverCertificateCreate
 
   ls -lh *{key,crt}
