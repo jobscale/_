@@ -1,24 +1,49 @@
 Host *
   StrictHostKeyChecking no
-  # netcat-openbsd
+  # [netcat, netcat-openbsd]
   # ProxyCommand nc -X connect -x proxy.jsx.jp:3128 %h %p
-  # netcat, netcat6
+  # [ncat, netcat6]
   # ProxyCommand ncat --proxy-type http --proxy proxy.jsx.jp:3128 %h %p
+  # [options]
+  # GatewayPorts yes
+  # RequestTTY force
+  # RemoteCommand watch -n 180 date
+  # ProxyCommand ssh -W %h:%p secure
+  # LocalForward 0.0.0.0:53 127.0.0.53:53
+  # RemoteForward 2022 172.16.6.22:22
+  # BatchMode yes
+  # Ciphers aes128-ctr
+  # ExitOnForwardFailure yes
+  Compression yes
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
 
 Host vm1
   HostName vm1.gcp.jsx.jp
-  IdentityFile ~/.ssh/vm1.pem
+  IdentityFile ~/.ssh/gcp-vm1.pem
   ProxyCommand nc -X connect -x proxy.jsx.jp:3128 %h %p
-  RemoteForward 3128 127.0.0.1:3128
 
 Host vm2
   HostName vm2.gcp.jsx.jp
-  IdentityFile ~/.ssh/vm2.pem
+  IdentityFile ~/.ssh/gcp-vm2.pem
   ProxyCommand ssh -W %h:%p vm1
-  LocalForward 8001 127.0.0.1:8001
+  LocalForward 3306 127.0.0.1:3306
 
 Host vm3
   HostName vm3.gcp.jsx.jp
-  IdentityFile ~/.ssh/vm3.pem
+  IdentityFile ~/.ssh/gcp-vm3.pem
   ProxyCommand ssh -W %h:%p vm2
-  LocalForward 8001 127.0.0.1:8001
+  RemoteForward 3128 127.0.0.1:3128
+
+Host bastion-watch
+  HostName bastion.gcp.jsx.jp
+  User root
+  IdentityFile ~/.ssh/gcp-bastion-root.pem
+  RemoteForward 2022 127.0.0.1:22
+  RemoteForward 80 127.0.0.1:80
+  RemoteForward 443 127.0.0.1:443
+  RemoteForward 1883 127.0.0.1:1883
+  RemoteForward 8883 127.0.0.1:8883
+  GatewayPorts yes
+  RequestTTY force
+  RemoteCommand TZ=Asia/Tokyo watch -n 180 bash -c 'echo "$(nc -vz -w 1 127.0.0.1 2022 && nc -vz -w 1 127.0.0.1 80 && nc -vz -w 1 127.0.0.1 443 && nc -vz -w 1 127.0.0.1 1883 && nc -vz -w 1 127.0.0.1 8883)"'
