@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  days=$(( 365 * 3 + 1 ))
+  country=JP
+  state=Osaka
+  locality=Osaka
+  organizational=jsx.jp
+  unit=Creators
+  common=jsx.jp,*.jsx.jp,*.jp.jsx.jp,*.os.jsx.jp,*.us.jsx.jp,*.eu.jsx.jp,*.in.jsx.jp
+  fname=wildcard.jsx.jp
+  subj="/C=$country/ST=$state/L=$locality/O=$organizational/CN=$common"
+  directory=tls
+}
+
+conf() {
+  > rsa-x509.cnf
+  echo '[ req ]' >> rsa-x509.cnf
+  echo 'default_bits           = 4096' >> rsa-x509.cnf
+  echo 'default_md             = sha256' >> rsa-x509.cnf
+  echo 'distinguished_name     = subject' >> rsa-x509.cnf
+  echo 'string_mask            = utf8only' >> rsa-x509.cnf
+  echo 'prompt                 = no' >> rsa-x509.cnf
+  echo 'encrypt_key            = no' >> rsa-x509.cnf
+  echo '' >> rsa-x509.cnf
+  echo '[ subject ]' >> rsa-x509.cnf
+  echo 'countryName            = JP' >> rsa-x509.cnf
+  echo 'stateOrProvinceName    = Osaka' >> rsa-x509.cnf
+  echo 'localityName           = Osaka City' >> rsa-x509.cnf
+  echo 'organizationName       = jsx.jp' >> rsa-x509.cnf
+  echo 'organizationalUnitName = jsx.jp Technologies' >> rsa-x509.cnf
+  echo 'commonName             = jsx.jp' >> rsa-x509.cnf
+  echo 'emailAddress           = certificate@jsx.jp' >> rsa-x509.cnf
+  echo '' >> rsa-x509.cnf
+  echo '[ alternate_names ]' >> rsa-x509.cnf
+  echo 'DNS.1 = jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.2 = *.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.3 = *.jp.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.4 = *.os.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.5 = *.en.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.6 = *.eu.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.7 = *.in.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.8 = *.cn.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.9 = *.sg.jsx.jp' >> rsa-x509.cnf
+  echo 'DNS.10 = *.io.jsx.jp' >> rsa-x509.cnf
+}
+
+random() {
+  head -c 8 /dev/random | od -x -An | sed -e 's/ //g' | tee ~/.rnd
+}
+
+x509() {
+  conf
+  openssl req -new -newkey rsa:4096 -days $days \
+  -nodes -x509 -config $(pwd)/rsa-x509.cnf \
+  -keyout $fname.key \
+  -out $fname.crt
+}
+
+{
+  # random
+  rm -fr $directory
+  mkdir $directory
+  cd $directory
+  x509
+
+  ls -lh *{key,crt}
+  cd - > /dev/null
+}

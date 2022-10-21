@@ -3,7 +3,7 @@ set  -eu
 
 {
   days=$(( 365 * 3 + 1 ))
-  country=JA
+  country=JP
   state=Osaka
   locality=Osaka
   organizational=jsx.jp
@@ -45,6 +45,7 @@ serverCertificateCreate() {
   serverPrivate
   serverCertificateRequest
   serverCertificateCreate
+
+  ls -lh *{key,crt}
 }
 
-ls -lh *{key,crt}

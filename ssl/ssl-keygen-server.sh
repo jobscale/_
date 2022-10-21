@@ -3,7 +3,7 @@ set  -eu
 
 {
   days=$(( 365 * 3 + 1 ))
-  country=JA
+  country=JP
   state=Osaka
   locality=Osaka
   organizational=jsx.jp
@@ -14,19 +14,21 @@ set  -eu
 }
 
 rsa() {
-  openssl req -new -newkey rsa:4096 \
-  -days $days -nodes -x509 -subj $subj \
+  openssl req -new -newkey rsa:4096 -days $days \
+  -nodes -x509 -subj $subj \
   -keyout $fname.key \
   -out $fname.crt
 }
 
 ec() {
-  openssl req -new -newkey ec
-  -pkeyopt ec_paramgen_curve:prime256v1 \
-  -days $days -nodes -x509 -subj $subj \
+  openssl req -new -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -days $days \
+  -nodes -x509 -subj $subj \
   -keyout $fname.key \
   -out $fname.crt
 }
 
-rsa
-ls -lh *{key,crt}
+{
+  rsa
+
+  ls -lh *{key,crt}
+}
