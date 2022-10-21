@@ -14,7 +14,7 @@ set -eu
 }
 
 clientPrivate() {
-  openssl genrsa -out client.key 4096
+  openssl genpkey -out client.key -algorithm RSA -pkeyopt rsa_keygen_bits:4096
 }
 
 clientCertificateRequest() {

@@ -14,7 +14,7 @@ set -eu
 }
 
 caPrivate() {
-  openssl genrsa -out ca.key 4096
+  openssl genpkey -out ca.key -algorithm RSA -pkeyopt rsa_keygen_bits:4096
 }
 
 caCertificateCreate() {
@@ -24,7 +24,7 @@ caCertificateCreate() {
 }
 
 serverPrivate() {
-  openssl genrsa -out $fname.key 4096
+  openssl genpkey -out $fname.key -algorithm RSA -pkeyopt rsa_keygen_bits:4096
 }
 
 serverCertificateRequest() {

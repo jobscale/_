@@ -50,9 +50,17 @@ random() {
   head -c 8 /dev/random | od -x -An | sed -e 's/ //g' | tee ~/.rnd
 }
 
-x509() {
+serverCertificateCreate() {
   conf
   openssl req -new -newkey rsa:4096 -days $days \
+  -nodes -x509 -config $(pwd)/rsa-x509.cnf \
+  -keyout $fname.key \
+  -out $fname.crt
+}
+
+serverCertificateCreate_ec() {
+  conf
+  openssl req -new -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -days $days \
   -nodes -x509 -config $(pwd)/rsa-x509.cnf \
   -keyout $fname.key \
   -out $fname.crt
@@ -63,7 +71,8 @@ x509() {
   rm -fr $directory
   mkdir $directory
   cd $directory
-  x509
+
+  serverCertificateCreate
 
   ls -lh *{key,crt}
   cd - > /dev/null
