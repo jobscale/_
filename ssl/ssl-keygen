@@ -59,7 +59,7 @@ x509() {
 }
 
 {
-  # random
+  random
   rm -fr $directory
   mkdir $directory
   cd $directory

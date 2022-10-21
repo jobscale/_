@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  days=$(( 365 * 3 + 1 ))
+  country=JP
+  state=Osaka
+  locality=Osaka
+  organizational=jsx.jp
+  unit=Creators
+  common=jsx.jp,*.jsx.jp,*.os.jsx.jp,*.in.jsx.jp
+  fname=wildcard.jsx.jp
+  subj="/C=$country/ST=$state/L=$locality/O=$organizational/CN=$common"
+  directory=tls
+}
+
+clientPrivate() {
+  openssl genrsa -out client.key 4096
+}
+
+clientCertificateRequest() {
+  openssl req -new -subj $subj \
+  -key client.key \
+  -out client.csr
+}
+
+clientCertificateCreate() {
+  clientCertificateRequest
+  openssl x509 -req -days $days \
+  -in client.csr -CA $fname.crt -CAkey $fname.key \
+  -set_serial 01 \
+  -out client.crt
+}
+
+{
+  cd $directory
+
+  clientPrivate
+  clientCertificateCreate
+
+  ls -lh *{key,crt}
+  cd - > /dev/null
+}

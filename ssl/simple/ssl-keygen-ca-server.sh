@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set  -eu
+set -eu
 
 {
   days=$(( 365 * 3 + 1 ))
@@ -18,8 +18,8 @@ caPrivate() {
 }
 
 caCertificateCreate() {
-  openssl req -new -x509 -days $days \
-  -subj $subj -key ca.key \
+  openssl req -new -x509 -days $days -subj $subj \
+  -key ca.key \
   -out ca.crt
 }
 
@@ -28,15 +28,15 @@ serverPrivate() {
 }
 
 serverCertificateRequest() {
-  openssl req -new \
-  -subj $subj -key $fname.key \
+  openssl req -new -subj $subj \
+  -key $fname.key \
   -out $fname.csr
 }
 
 serverCertificateCreate() {
-  openssl x509 -req -in $fname.csr \
-  -CA ca.crt -CAkey ca.key -CAcreateserial \
-  -out $fname.crt -days $days
+  openssl x509 -req -days $days \
+  -in $fname.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out $fname.crt
 }
 
 {

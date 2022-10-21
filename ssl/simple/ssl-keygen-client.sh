@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set  -eu
+set -eu
 
 {
   days=$(( 365 * 3 + 1 ))
@@ -18,24 +18,22 @@ clientPrivate() {
 }
 
 clientCertificateRequest() {
-  openssl req -new \
-  -subj $subj -key client.key \
+  openssl req -new -subj $subj \
+  -key client.key \
   -out client.csr
 }
 
 clientCertificateCreate() {
-  openssl x509 -req \
-  -days $days -in client.csr \
-  -CA $fname.crt -CAkey $fname.key \
+  clientCertificateRequest
+  openssl x509 -req -days $days \
+  -in client.csr -CA $fname.crt -CAkey $fname.key \
   -set_serial 01 \
   -out client.crt
 }
 
 {
   clientPrivate
-  clientCertificateRequest
   clientCertificateCreate
 
   ls -lh *{key,crt}
 }
-

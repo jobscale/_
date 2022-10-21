@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set  -eu
+set -eu
 
 {
   days=$(( 365 * 3 + 1 ))
@@ -13,14 +13,14 @@ set  -eu
   subj="/C=$country/ST=$state/L=$locality/O=$organizational/CN=$common"
 }
 
-rsa() {
+serverCertificateCreate() {
   openssl req -new -newkey rsa:4096 -days $days \
   -nodes -x509 -subj $subj \
   -keyout $fname.key \
   -out $fname.crt
 }
 
-ec() {
+serverCertificateCreate_ec() {
   openssl req -new -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -days $days \
   -nodes -x509 -subj $subj \
   -keyout $fname.key \
@@ -28,7 +28,7 @@ ec() {
 }
 
 {
-  rsa
+  serverCertificateCreate
 
   ls -lh *{key,crt}
 }
