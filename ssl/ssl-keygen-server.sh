@@ -2,7 +2,7 @@
 set  -eu
 
 {
-  days=1826
+  days=$(( 365 * 3 + 1 ))
   country=JA
   state=Osaka
   locality=Osaka

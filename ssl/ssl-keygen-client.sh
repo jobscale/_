@@ -2,7 +2,7 @@
 set  -eu
 
 {
-  days=1826
+  days=$(( 365 * 3 + 1 ))
   country=JA
   state=Osaka
   locality=Osaka
@@ -13,14 +13,13 @@ set  -eu
   subj="/C=$country/ST=$state/L=$locality/O=$organizational/CN=$common"
 }
 
-caPrivate() {
-  openssl genrsa \
-  -out ca.key 4096
+clientPrivate() {
+  openssl genrsa -out client.key 4096
 }
 
 clientCertificateRequest() {
   openssl req -new \
-  -subj $subj -key ca.key \
+  -subj $subj -key client.key \
   -out client.csr
 }
 
@@ -33,7 +32,7 @@ clientCertificateCreate() {
 }
 
 {
-  caPrivate
+  clientPrivate
   clientCertificateRequest
   clientCertificateCreate
 }

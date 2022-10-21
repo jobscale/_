@@ -2,7 +2,7 @@
 set  -eu
 
 {
-  days=1826
+  days=$(( 365 * 3 + 1 ))
   country=JA
   state=Osaka
   locality=Osaka
@@ -14,8 +14,7 @@ set  -eu
 }
 
 caPrivate() {
-  openssl genrsa \
-  -out ca.key 4096
+  openssl genrsa -out ca.key 4096
 }
 
 caCertificateCreate() {
@@ -25,8 +24,7 @@ caCertificateCreate() {
 }
 
 serverPrivate() {
-  openssl genrsa \
-  -out $fname.key 4096
+  openssl genrsa -out $fname.key 4096
 }
 
 serverCertificateRequest() {
