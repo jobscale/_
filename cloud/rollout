@@ -40,17 +40,13 @@ wetty() {
   kubectl rollout restart deployment -n standard wetty
 }
 
-partner() {
-  kubectl rollout restart deployment -n credentials partner
+mqtt() {
+  docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/mqtt-c-pub-sub
+  kubectl rollout restart deployment -n standard mqtt
 }
 
-aLL() {
-  web
-  jsxjp
-  tanpo
-  bind9
-  squid
-  wetty
+partner() {
+  kubectl rollout restart deployment -n credentials partner
 }
 
 {
