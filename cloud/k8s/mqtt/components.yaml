@@ -29,7 +29,13 @@ spec:
     port: 80
     targetPort: 3000
     protocol: TCP
+  - name: mqtts
+    nodePort: 30883
+    port: 8883
+    targetPort: 8883
+    protocol: TCP
   - name: mqtt
+    nodePort: 31883
     port: 1883
     targetPort: 1883
     protocol: TCP
