@@ -216,6 +216,7 @@ cronJob() {
 }
 
 deployNode() {
+  kubectl apply -f mqtt && waitFor mqtt
   kubectl apply -f node-aws && waitFor node-aws
   kubectl apply -f code-server && waitFor code-server
   kubectl apply -f tanpo && waitFor tanpo
