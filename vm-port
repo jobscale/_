@@ -1,4 +1,17 @@
-VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
-VBoxManage controlvm jammy natpf1 "web,tcp,0.0.0.0,3000,,3000"
-VBoxManage controlvm jammy natpf1 "mqtt,tcp,0.0.0.0,1883,,1883"
-VBoxManage controlvm jammy natpf1 "websocket,tcp,0.0.0.0,8883,,8883"
+portForward() {
+  VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
+  VBoxManage controlvm jammy natpf1 "http,tcp,0.0.0.0,3000,,3000"
+  VBoxManage controlvm jammy natpf1 "https,tcp,0.0.0.0,3443,,3443"
+  VBoxManage controlvm jammy natpf1 "mqtt,tcp,0.0.0.0,1883,,1883"
+  VBoxManage controlvm jammy natpf1 "mqtts,tcp,0.0.0.0,8883,,8883"
+  VBoxManage controlvm jammy natpf1 "websocket,tcp,0.0.0.0,12470,,12470"
+}
+
+portDelete() {
+  VBoxManage controlvm jammy natpf1 delete ssh
+  VBoxManage controlvm jammy natpf1 delete http
+  VBoxManage controlvm jammy natpf1 delete https
+  VBoxManage controlvm jammy natpf1 delete mqtt
+  VBoxManage controlvm jammy natpf1 delete mqtts
+  VBoxManage controlvm jammy natpf1 delete websocket
+}
