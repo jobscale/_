@@ -3,16 +3,19 @@
 web() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/web
   kubectl rollout restart deployment -n default web
+  echo https://web.jsx.jp
 }
 
 jsxjp() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/jsxjp
   kubectl rollout restart deployment -n jsxjp jsxjp
+  echo https://jsx.jp
 }
 
 tanpo() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/tanpo
   kubectl rollout restart deployment -n standard tanpo
+  echo https://tanpo.jsx.jp
 }
 
 bind9() {
@@ -33,16 +36,25 @@ nodeAws() {
 codeServer() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/code-server
   kubectl rollout restart deployment -n standard code-server
+  echo https://code-server.jsx.jp
 }
 
 wetty() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/wetty:dind
   kubectl rollout restart deployment -n standard wetty
+  echo https://wetty.jsx.jp
+}
+
+zipcode() {
+  docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/zipcode-jp
+  kubectl rollout restart deployment -n standard zipcode-jp
+  echo https://zipcode-jp.jsx.jp
 }
 
 mqtt() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/mqtt-c-pub-sub
   kubectl rollout restart deployment -n standard mqtt
+  echo https://mqtt.jsx.jp
 }
 
 partner() {
