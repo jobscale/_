@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  VIA="$(ip route show | grep dhcp | awk '{print $2" "$3" "$4" "$5}')"
+  sudo ip route add 172.16.0.0/20 $VIA
+  ip route show
+}
