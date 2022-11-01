@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -eu
+
+cat > $HOME/l2tp.env <<EOF
+VPN_IPSEC_PSK=vpnpresharedkey
+VPN_USER=vpnuser
+VPN_PASSWORD=vpnpassword
+VPN_PUBLIC_IP=
+VPN_L2TP_NET=
+VPN_L2TP_LOCAL=
+VPN_L2TP_REMOTE=
+VPN_XAUTH_NET=
+VPN_XAUTH_REMOTE=
+VPN_DNS1=
+VPN_DNS2=
+VPN_SHA2_TRUNCBUG=
+EOF
+
+start() {
+  docker run --name l2tp \
+  --privileged \
+  --restart=always \
+  -p 500:500/udp -p 4500:4500/udp \
+  --env-file $HOME/l2tp.env -it teddysun/l2tp
+}
+
+{
+  docker pull teddysun/l2tp
+  start
+}
