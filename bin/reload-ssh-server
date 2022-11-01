@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eu
+
+
+linux() {
+  sudo /etc/init.d/ssh reload
+}
+
+darwin() {
+  sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
+  sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+}
+
+$(uname | awk '{print tolower($0)}') $@
