@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -eu
+
+cat <<EOF
+# ネットワーク状態の一覧を確認
+nmcli
+
+# コネクションの状態を確認
+nmcli connection
+
+# デバイスの状態を確認
+nmcli device
+
+# コネクションを有効化/無効化
+nmcli connection {up|down} {コネクション名}
+
+# イーサネットコネクションを作成 (IPv4/v6自動、自動接続)
+nmcli connection add type ethernet con-name {コネクション名} ifname {デバイス名}
+
+# コネクションの設定値を確認
+nmcli connection show {コネクション名}
+
+# IPv4アドレスを手動で設定
+nmcli connection modify {コネクション名} ipv4.method manual ipv4.addresses {アドレス}
+
+# IPv4デフォルトゲートウェイを設定
+nmcli connection modify {コネクション名} ipv4.gateway {アドレス}
+
+# コネクションの自動接続を解除
+nmcli connection modify {コネクション名} connection.autoconnect no
+
+# 無線コネクションを作成
+nmcli device wifi connect {SSID} [password パス] [ifname デバイス名] [con-name コネクション名]
+
+# 現在のホスト名の確認
+nmcli general hostname
+
+# ホスト名の変更
+nmcli general hostname {ホスト名}
+EOF
