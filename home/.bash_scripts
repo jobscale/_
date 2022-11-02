@@ -24,6 +24,17 @@ docker() {
   command docker "$@"
 }
 
+VBoxManage() {
+  if [[ $@ == "list vms" ]]
+  then
+    cmd='VBoxManage list vms --long | grep -e "Name:" -e "State:"'
+    echo "$cmd"
+    bash -c "$cmd"
+    return
+  fi
+  command docker "$@"
+}
+
 git() {
   if [[ $1 == "clone" && $2 == "--depth" ]]
   then
