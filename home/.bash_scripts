@@ -27,12 +27,12 @@ docker() {
 VBoxManage() {
   if [[ $@ == "list vms" ]]
   then
-    cmd='VBoxManage list vms --long | grep -e "Name:" -e "State:"'
+    cmd='VBoxManage list vms --long | grep -e Name: -e State: -e Rule'
     echo "$cmd"
     bash -c "$cmd"
     return
   fi
-  command docker "$@"
+  command VBoxManage "$@"
 }
 
 git() {
