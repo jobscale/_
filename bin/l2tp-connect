@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -eu
 
+L2TP_GATEWAY=vpn.jsx.jp
+L2TP_IPSEC_PSK=pre-shared-key
+L2TP_USER=user
+L2TP_PASSWORD=secret
+
 {
   VPN_DATA="gateway = ${L2TP_GATEWAY}, ipsec-enabled = yes, ipsec-psk = ${L2TP_IPSEC_PSK}, user = ${L2TP_USER}, password-flags = 0"
 
