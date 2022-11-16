@@ -22,7 +22,7 @@ which aws_completer && complete -C aws_completer aws
 
 alias ul='less_with_unbuffer'
 alias diff='colordiff'
-alias rsync='rsync -tlrHhv --delete'
+alias rsync='rsync -tlrHhPzv --delete'
 alias netstat='sudo netstat -anptu'
 alias lsof='sudo lsof -Pan -i tcp -i udp'
 alias ss='sudo ss -tnl'

@@ -102,6 +102,11 @@ gff() {
   done < <(ff)
 }
 
+tree_html() {
+  tree -L 3 -H . $PWD -o tree.html
+  open tree.html
+}
+
 less_with_unbuffer () {
   unbuffer "$@" 2>&1 | less -SR
 }
