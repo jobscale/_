@@ -17,6 +17,7 @@ PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\
 [[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 0 ]] || PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;35m\]\u@\h\[\033[00m\] \[\033[01;32m\]\w\[\033[00m\] \$ "
 
 PATH="$PATH:$HOME/bin:$HOME/.local/bin"
+PATH="$PATH:$HOME/node_modules/.bin"
 [[ -d "$HOME/.deta/bin" ]] && PATH="$HOME/.deta/bin:$PATH"
 which aws_completer && complete -C aws_completer aws
 
