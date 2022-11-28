@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  nmcli connection up "VPN L2TP"
+}
