@@ -61,11 +61,13 @@ ${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3  
 ${color5}Storage         $stippled_hr \
 ${template0 /               sda SSD}\
 ${template0 /home/vbox      sdb SSD}\
-${template0 /mnt/ssd        sdc SSD}\
+${template0 /home/storage   sdd SSD}\
+${template0 /home/pinky     sdc SSD}\
 \
 ${template0 /home           sdb SS}\
-${template0 /var/lib        sdc SS}\
+${template0 /usr            sdc SS}\
 ${template0 /task           sdd SS}\
+${template0 /var/lib        sde SS}\
 \
 ${template0 /media/jobscale/d9fb763b-4004-4d37-8982-d05faef4ad5a sdd SSD}\
 ${template0 /media/jobscale/b1ed86b0-511e-4eaa-85d8-5c145ae8af44 sde SD}\
