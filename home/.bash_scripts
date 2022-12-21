@@ -39,7 +39,7 @@ git() {
   if [[ $1 == "clone" && $2 == "--depth" ]]
   then
     shift
-    cmd="git clone --depth 1 $@"
+    cmd="git clone --depth 1 $4"
     echo "$cmd"
     command $cmd
     return
@@ -51,7 +51,7 @@ git() {
     bash -c "$cmd"
     return
   fi
-  if [[ $@ == "branch" ]]
+  if [[ $1 == "branch" || $2 == "-a" ]]
   then
     cmd="git fetch --all --prune --tags"
     echo "$cmd"
@@ -60,6 +60,12 @@ git() {
     echo "$cmd"
     command $cmd
     return
+  fi
+  if [[ $@ == "log --all" ]]
+  then
+    cmd="git --no-pager log --simplify-by-decoration --tags --branches --remotes --date-order --decorate --pretty=tformat:'%Cblue %h %Creset %<(25)%ci %C(auto)%d%Creset %s'"
+    echo "$cmd"
+    command $cmd
   fi
   command git "$@"
 }
