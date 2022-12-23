@@ -51,7 +51,7 @@ git() {
     bash -c "$cmd"
     return
   fi
-  if [[ $1 == "branch" || $2 == "-a" ]]
+  if [[ $@ == "branch -a" ]]
   then
     cmd="git fetch --all --prune --tags"
     echo "$cmd"
