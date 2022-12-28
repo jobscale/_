@@ -215,7 +215,7 @@ cronJob() {
   # kubectl create job -n health-check value-domain-$(date +%s%3N) --from=cronjob.batch/value-domain
 
   kubectl create namespace cron-job
-  kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='35 9,12,15 * * 1-5'
+  kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='35 0,3,6 * * 1-5'
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
 }
