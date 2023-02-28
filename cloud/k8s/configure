@@ -218,6 +218,10 @@ cronJob() {
   kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='35 0,3,6 * * 1-5'
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
+
+  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='45 0,6,12,18 * * *'
+  ## Create One time job
+  # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
 }
 
 deployNode() {
