@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.25.2"
+IMAGE="kindest/node:v1.26.2"
 
 production() {
   export KINDNAME=production
@@ -219,9 +219,13 @@ cronJob() {
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
 
-  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='45 0,12 * * *'
+  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='45 23,11 * * *'
   ## Create One time job
   # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
+
+  kubectl create cronjob -n cron-job info-certificate --image ghcr.io/jobscale/info-certificate --schedule='59 23 * * *'
+  ## Create One time job
+  # kubectl create job -n cron-job info-certificate-$(date +%s%3N) --from=cronjob.batch/info-certificate
 }
 
 deployNode() {
