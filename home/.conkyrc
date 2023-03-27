@@ -5,7 +5,7 @@ conky.config = {
     color4 = '#eacaba',
     color5 = '#424222',
     template0 = '${if_mounted \\1}\n$color2 \\3  $color1${fs_used \\1}/${fs_size \\1}  $color4${fs_bar 8 \\1}$color3\n${diskiograph_read \\2 18,160 07CC0D fc8060 -t}${alignr} ${diskiograph_write \\2 18,160 07CC0D fc8060 -t}$endif',
-    template1 = '${if_up \\1}\n$color2 $alignr \\1  $color1${addrs \\1}$color3  \n  Up: $color1${upspeed \\1}${alignr}$color3${upspeedgraph \\1 18,220 212121 00aaaa}$color3\n  Down: $color1${downspeed \\1}$alignr$color3${downspeedgraph \\1 18,220 212121 00aa00}$color3$endif',
+    template1 = '${if_up \\1}\n${voffset -20}$color2 $alignr \\1  $color1${addrs \\1}$color3  \n  Up: $color1${upspeed \\1}${alignr}$color3${upspeedgraph \\1 18,220 212121 00aaaa}$color3\n  Down: $color1${downspeed \\1}$alignr$color3${downspeedgraph \\1 18,220 212121 00aa00}$color3$endif',
     template2 = '${cpugraph \\1 18,160 212121 f08000}${alignr} ${cpugraph \\2 18,160 212121 f08000}',
     alignment = 'top_right',
     gap_x = 0,
@@ -57,7 +57,8 @@ ${if_match "$nodename" == "focal"}\
 ${template2 cpu5 cpu6}
 ${template2 cpu7 cpu8}
 $endif\
-${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
+${color5}Network         $stippled_hr\
+${template1 enp4s0}${template1 ens9}${template1 wlp3s0}${template1 enp0s3}
 ${color5}Storage         $stippled_hr \
 ${template0 /               sda SSD}\
 ${template0 /home/vbox      sdb SSD}\
@@ -76,11 +77,10 @@ ${template0 /media/jobscale/e657358c-0471-4cb6-87db-a24a055f2031 sdf SD}\
 ${template0 /media/jobscale/8f387411-a7dd-4144-ae04-7aa7075b275c sdb ext4}\
 ${template0 /media/jobscale/Central                              sdc Central}\
 
-${color5}Network         $stippled_hr\
-${template1 enp4s0}${template1 ens9}${template1 wlp3s0}${template1 enp0s3}
 ${color5}Date         $stippled_hr
 ${voffset 7}${alignr}$color2${time %B %e日 %A} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
 ${voffset -4}${color5}Process         $stippled_hr $color3
+${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
 $alignr PID   CPU%   MEM%$color2
   ${top name 1}$alignr${top pid 1} ${top cpu 1}% ${top mem 1}%
   ${top name 2}$alignr${top pid 2} ${top cpu 2}% ${top mem 2}%
