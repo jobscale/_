@@ -22,7 +22,19 @@ gitClone() {
   git pull
   git-user
   git branch -a | head
-  git diff | cat
+  git diff
+  cd - > /dev/null
+}
+
+gitStatus() {
+  echo "$repo" | jq .
+  name=$(echo $repo | jq --raw-output .name)
+  url=$(echo $repo | jq --raw-output .url)
+  [[ ! -d $name ]] && echo "$name not found" && return
+  cd $name
+  git remote set-url origin $url
+  git pull
+  git status
   cd - > /dev/null
 }
 
@@ -34,7 +46,7 @@ gitDiff() {
   cd $name
   git remote set-url origin $url
   git pull
-  git diff | cat
+  git diff
   cd - > /dev/null
 }
 
@@ -45,6 +57,7 @@ Loop() {
   do
     for repo in $(curl -s "$ApiGit$i" | jq -c ".[] | { name: .name, url: .$TYPE }")
     do
+      echo -e "\n"
       $1
     done
   done
@@ -62,7 +75,6 @@ Main() {
   fi
 
   LOG_FILE=$(date '+/tmp/%s')
-  Loop $1 | tee $LOG_FILE
-  echo "log file = $LOG_FILE"
+  Loop $1
 }
 Main $*
