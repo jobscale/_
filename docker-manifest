@@ -17,6 +17,7 @@ echo "Image = $IMAGE"
 
 config() {
   DOCKER_MANIFESTS=$(docker manifest inspect ghcr.io/jobscale/$IMAGE)
+  echo $DOCKER_MANIFESTS
   ARCH0=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[0].platform.architecture)
   DIGEST0=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[0].digest)
   ARCH1=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[1].platform.architecture)
