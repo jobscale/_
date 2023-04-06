@@ -21,6 +21,13 @@ docker() {
     bash -c "$cmd"
     return
   fi
+  if [[ $@ == "images" ]]
+  then
+    cmd="docker images '--format={{.CreatedAt}} {{.ID}} {{.Repository}}:{{.Tag}}' | sort"
+    echo "$cmd"
+    bash -c "$cmd"
+    return
+  fi
   command docker "$@"
 }
 
