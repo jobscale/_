@@ -206,7 +206,6 @@ genPasswd() {
 }
 
 cronJob() {
-  # kubectl create cronjob speedtest-slack -n standard --image jobscale/speedtest-slack --schedule '52 20,23,0,3,4,7,8,11,12 * * *'
   [[ "$KINDNAME" != production ]] && return
   [[ "$(hostname)" != focal ]] && return
   # kubectl create namespace health-check
@@ -221,11 +220,18 @@ cronJob() {
 
   kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='45 23,11 * * *'
   ## Create One time job
+  # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/news-top
   # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
 
   kubectl create cronjob -n cron-job info-certificate --image ghcr.io/jobscale/info-certificate --schedule='59 23 * * *'
   ## Create One time job
+  # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/info-certificate
   # kubectl create job -n cron-job info-certificate-$(date +%s%3N) --from=cronjob.batch/info-certificate
+
+  kubectl create cronjob -n cron-job speedtest --image ghcr.io/jobscale/speedtest --schedule '49,59 3,23 * * *'
+  ## Create One time job
+  # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/speedtest
+  # kubectl create job -n cron-job speedtest-$(date +%s%3N) --from=cronjob.batch/speedtest
 }
 
 deployNode() {
