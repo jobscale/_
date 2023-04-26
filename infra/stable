@@ -9,9 +9,9 @@ stable() {
   apt update
   apt full-upgrade -y
   apt install -y curl git vim tmux htop \
-    network-manager iproute2 dnsutils ncat netcat iputils-ping \
+    iproute2 dnsutils ncat netcat iputils-ping \
     procps whois nmap traceroute  \
-    python3-pip unzip zip tree colordiff
+    python3-pip unzip tree colordiff
   apt autoremove -y
 
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
@@ -20,11 +20,13 @@ stable() {
 # Debian 10
 buster() {
   stable
+  apt install -y network-manager
 }
 
 # Debian 11
 bullseye() {
   stable
+  apt install -y network-manager
 }
 
 # Ubuntu 14.04
@@ -44,11 +46,6 @@ bionic() {
 
 # Ubuntu 20.04
 focal() {
-  stable
-}
-
-# Ubuntu 21.10
-impish() {
   stable
 }
 
