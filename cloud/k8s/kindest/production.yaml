@@ -6,27 +6,27 @@ nodes:
 - role: control-plane
   extraPortMappings:
   - containerPort: 30443
+    listenAddress: 0.0.0.0
     hostPort: 443
-    listenAddress: 0.0.0.0
   - containerPort: 30080
+    listenAddress: 0.0.0.0
     hostPort: 80
-    listenAddress: 0.0.0.0
   - containerPort: 30883
+    listenAddress: 0.0.0.0
     hostPort: 8883
-    listenAddress: 0.0.0.0
   - containerPort: 31883
-    hostPort: 1883
     listenAddress: 0.0.0.0
+    hostPort: 1883
   - containerPort: 30053
-    hostPort: 53
     listenAddress: 172.16.6.22
+    hostPort: 3053
   - containerPort: 30053
+    listenAddress: 172.16.6.22
+    hostPort: 3053
     protocol: UDP
-    hostPort: 53
-    listenAddress: 172.16.6.22
   - containerPort: 30312
-    hostPort: 3128
     listenAddress: 172.16.6.22
+    hostPort: 3128
   extraMounts:
   # - containerPath: /var/lib/containerd
   #   hostPath: /home/k8s/system/var/lib/containerd
