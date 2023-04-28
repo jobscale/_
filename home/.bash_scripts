@@ -39,6 +39,13 @@ VBoxManage() {
     bash -c "$cmd"
     return
   fi
+  if [[ $@ == "controlvm" ]]
+  then
+    echo VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
+    echo VBoxManage controlvm jammy natpf1 delete ssh
+    command VBoxManage "$@"
+    return
+  fi
   command VBoxManage "$@"
 }
 
