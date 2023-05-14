@@ -23,7 +23,7 @@ start() {
   --privileged \
   --restart=always \
   -p 500:500/udp -p 4500:4500/udp \
-  --env-file $HOME/l2tp.env -it teddysun/l2tp
+  --env-file $HOME/l2tp.env -it ghcr.io/jobscale/l2tp
 }
 
 listUsers() {
@@ -39,7 +39,6 @@ deleteUser() {
 }
 
 {
-  docker pull teddysun/l2tp
   configure
   start
 }
