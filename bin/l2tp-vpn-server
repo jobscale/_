@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -eu
 
-cat > $HOME/l2tp.env <<EOF
-VPN_IPSEC_PSK=vpnpresharedkey
-VPN_USER=vpnuser
-VPN_PASSWORD=vpnpassword
+configure() {
+  cat > $HOME/l2tp.env <<EOF
+VPN_IPSEC_PSK=vpn-pre-shared-key
+VPN_USER=vpn-user
+VPN_PASSWORD="vpn secret"
 VPN_PUBLIC_IP=
 VPN_L2TP_NET=
 VPN_L2TP_LOCAL=
@@ -15,6 +16,7 @@ VPN_DNS1=
 VPN_DNS2=
 VPN_SHA2_TRUNCBUG=
 EOF
+}
 
 start() {
   docker run --name l2tp \
@@ -24,7 +26,20 @@ start() {
   --env-file $HOME/l2tp.env -it teddysun/l2tp
 }
 
+listUsers() {
+  docker exec -it l2tp l2tpctl -l
+}
+
+addUser() {
+  docker exec -it l2tp l2tpctl -a
+}
+
+deleteUser() {
+  docker exec -it l2tp l2tpctl -d
+}
+
 {
   docker pull teddysun/l2tp
+  configure
   start
 }
