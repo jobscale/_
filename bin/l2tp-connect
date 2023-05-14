@@ -5,7 +5,7 @@ configure() {
   L2TP_GATEWAY=vpn.jsx.jp
   L2TP_IPSEC_PSK=vpn-pre-shared-key
   L2TP_USER=vpn-user
-  L2TP_PASSWORD="vpn secret"
+  L2TP_PASSWORD=vpn-secret
 }
 
 start() {

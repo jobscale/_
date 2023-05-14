@@ -5,7 +5,7 @@ configure() {
   cat > $HOME/l2tp.env <<EOF
 VPN_IPSEC_PSK=vpn-pre-shared-key
 VPN_USER=vpn-user
-VPN_PASSWORD="vpn secret"
+VPN_PASSWORD=vpn-secret
 VPN_PUBLIC_IP=
 VPN_L2TP_NET=
 VPN_L2TP_LOCAL=
