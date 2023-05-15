@@ -2,17 +2,17 @@
 set -eu
 
 configure() {
-  L2TP_GATEWAY=vpn.jsx.jp
-  L2TP_IPSEC_PSK=vpn-pre-shared-key
-  L2TP_USER=vpn-user
-  L2TP_PASSWORD=vpn-secret
+  VPN_GATEWAY=vpn.jsx.jp
+  VPN_IPSEC_PSK=ipsec-pre-shared-key
+  VPN_USER=vpn-user
+  VPN_PASSWORD=vpn-secret
 }
 
 start() {
-  VPN_DATA="gateway = ${L2TP_GATEWAY}, ipsec-enabled = yes, ipsec-psk = ${L2TP_IPSEC_PSK}, user = ${L2TP_USER}, password-flags = 0"
+  VPN_DATA="gateway = ${VPN_GATEWAY}, ipsec-enabled = yes, ipsec-psk = ${VPN_IPSEC_PSK}, user = ${VPN_USER}, password-flags = 0"
 
   nmcli connection add connection.id VPNName con-name "VPN L2TP" type VPN vpn-type l2tp ifname \
-  -- vpn.data "${VPN_DATA}" vpn.secrets password="${L2TP_PASSWORD}"
+  -- vpn.data "${VPN_DATA}" vpn.secrets password="${VPN_PASSWORD}"
 
   nmcli connection up "VPN L2TP"
 }

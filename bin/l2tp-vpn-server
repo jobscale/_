@@ -3,39 +3,47 @@ set -eu
 
 configure() {
   cat > $HOME/l2tp.env <<EOF
-VPN_IPSEC_PSK=vpn-pre-shared-key
+VPN_IPSEC_PSK=ipsec-pre-shared-key
 VPN_USER=vpn-user
 VPN_PASSWORD=vpn-secret
-VPN_PUBLIC_IP=
-VPN_L2TP_NET=
-VPN_L2TP_LOCAL=
-VPN_L2TP_REMOTE=
-VPN_XAUTH_NET=
-VPN_XAUTH_REMOTE=
-VPN_DNS1=
-VPN_DNS2=
-VPN_SHA2_TRUNCBUG=
+
+# Define additional VPN users
+# - DO NOT put "" or '' around values, or add space around =
+# - DO NOT use these special characters within values: \ " '
+# - Usernames and passwords must be separated by spaces
+# VPN_ADDL_USERS=additional_username_1 additional_username_2
+# VPN_ADDL_PASSWORDS=additional_password_1 additional_password_2
+
+# Use a DNS name for the VPN server
+# - The DNS name must be a fully qualified domain name (FQDN)
+# VPN_DNS_NAME=vpn.example.com
+
+# Specify a name for the first IKEv2 client
+# - Use one word only, no special characters except '-' and '_'
+# - The default is 'vpnclient' if not specified
+# VPN_CLIENT_NAME=your_client_name
+
+# Use alternative DNS servers
+# - By default, clients are set to use Google Public DNS
+# - Example below shows Cloudflare's DNS service
+# VPN_DNS_SRV1=1.1.1.1
+# VPN_DNS_SRV2=1.0.0.1
+
+# Protect IKEv2 client config files using a password
+# - By default, no password is required when importing IKEv2 client configuration
+# - Uncomment if you want to protect these files using a random password
+# VPN_PROTECT_CONFIG=yes
 EOF
 }
 
 start() {
   docker run --name l2tp \
   --privileged \
-  --restart=always \
+  --restart always \
+  -v /lib/modules:/lib/modules:ro \
   -p 500:500/udp -p 4500:4500/udp \
-  --env-file $HOME/l2tp.env -it ghcr.io/jobscale/l2tp
-}
-
-listUsers() {
-  docker exec -it l2tp l2tpctl -l
-}
-
-addUser() {
-  docker exec -it l2tp l2tpctl -a
-}
-
-deleteUser() {
-  docker exec -it l2tp l2tpctl -d
+  --env-file $HOME/l2tp.env \
+  -it hwdsl2/ipsec-vpn-server:debian
 }
 
 {
