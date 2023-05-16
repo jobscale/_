@@ -12,20 +12,22 @@ debian() {
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
   add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
-  apt update
-  apt install -y docker-ce docker-ce-cli containerd.io
+  apt-get update
+  apt-get install -y docker-ce docker-ce-cli containerd.io
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
 ubuntu() {
-  apt update
-  apt install -y apt-transport-https
+  apt-get update
+  apt-get install -y apt-transport-https
+  apt-get update
+  apt-get install -y software-properties-common ca-certificates gnupg
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
   add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
-  apt update
-  apt install -y docker-ce
+  apt-get update
+  apt-get install -y docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
@@ -51,7 +53,7 @@ jammy() {
 
 {
   date +'BEGIN $0 docker %Y-%m-%d %H:%M:%S'
-  which lsb_release && lsb_release -cs
+  which lsb_release && lsb_release -cs || no lsb_release
   eval $(cat /etc/*release)
   $VERSION_CODENAME
   date +'END   $0 docker %Y-%m-%d %H:%M:%S'

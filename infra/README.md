@@ -13,6 +13,12 @@ curl -Ls git.io/susi | sudo bash
 curl -Ls git.io/yakiniku | sudo bash
 ```
 
+## install before
+
+```
+apt update && apt install -y vim curl
+```
+
 ## user data
 
 ```bash

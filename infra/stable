@@ -4,15 +4,15 @@ set -eu
 export DEBIAN_FRONTEND=noninteractive
 
 stable() {
-  apt update
-  apt install -y apt-transport-https
-  apt update
-  apt full-upgrade -y
-  apt install -y curl git vim tmux htop \
+  apt-get update
+  apt-get install -y apt-transport-https
+  apt-get update
+  apt-get full-upgrade -y
+  apt-get install -y curl git vim tmux htop \
     iproute2 dnsutils ncat netcat iputils-ping \
     procps whois nmap traceroute  \
     python3-pip unzip tree colordiff
-  apt autoremove -y
+  apt-get autoremove -y
 
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
 }
@@ -20,13 +20,13 @@ stable() {
 # Debian 10
 buster() {
   stable
-  apt install -y network-manager
+  apt-get install -y network-manager
 }
 
 # Debian 11
 bullseye() {
   stable
-  apt install -y network-manager
+  apt-get install -y network-manager
 }
 
 # Ubuntu 14.04
