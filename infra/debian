@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -eu
-
-export DEBIAN_FRONTEND=noninteractive
-
-{
-  apt update
-  apt install -y curl git vim tmux zip
-}
