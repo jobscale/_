@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eux
 
 userAdd() {
   useradd -g staff -G users,sudo --shell $(which bash) --create-home $1
