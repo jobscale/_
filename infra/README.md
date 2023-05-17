@@ -29,13 +29,13 @@ curl -sL git.io/user-data | bash
 ## shorten
 
 ```bash
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/stable" -F "code=ramen"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/docker" -F "code=susi"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/graphical" -F "code=yakiniku"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/user-data" -F "code=user-data"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/user-add" -F "code=user-add"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/upto-bullseye" -F "code=upto-bullseye"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/ja-jp" -F "code=ja-jp"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/auth-gen" -F "code=auth-gen"
-# curl -i https://git.io/ -F "url=https://raw.githubusercontent.com/jobscale/_/master/infra/aws-ec2" -F "code=aws-ec2"
+# stable = curl -sL git.io/ramen
+# docker = curl -sL git.io/susi
+# graphical = curl -sL git.io/yakiniku
+# user-data = curl -sL git.io/user-data
+# user-add = curl -sL git.io/user-add
+# upto-bullseye = curl -sL git.io/upto-bullseye
+# ja-jp = curl -sL git.io/ja-jp
+# auth-gen = curl -sL git.io/auth-gen
+# aws-ec2 = curl -sL git.io/aws-ec2
 ```
