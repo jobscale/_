@@ -25,6 +25,7 @@ iAws() {
   sudo pip3 install awslogs
   curl -sL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
   sudo mv /tmp/eksctl /usr/local/bin
+  aws --version
 }
 
 iServerless() {
@@ -48,10 +49,10 @@ iVue() {
 }
 
 time {
-  time iNodejs
-  time iAws
-  time iServerless
-  time iSam
-  time iAmplify
-  time iVue
+  iNodejs
+  iAws
+  iServerless
+  iSam
+  iAmplify
+  iVue
 }
