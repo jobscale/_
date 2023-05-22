@@ -214,11 +214,11 @@ cronJob() {
   # kubectl create job -n health-check value-domain-$(date +%s%3N) --from=cronjob.batch/value-domain
 
   kubectl create namespace cron-job
-  kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='55 6 * * 1-5'
+  kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='57 7 * * 1-5'
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
 
-  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='52 * * * *'
+  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='53 * * * *'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/news-top
   # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
@@ -228,7 +228,7 @@ cronJob() {
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/info-certificate
   # kubectl create job -n cron-job info-certificate-$(date +%s%3N) --from=cronjob.batch/info-certificate
 
-  kubectl create cronjob -n cron-job speedtest --image ghcr.io/jobscale/speedtest --schedule '56 3,23 * * *'
+  kubectl create cronjob -n cron-job speedtest --image ghcr.io/jobscale/speedtest --schedule '56 23 * * *'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/speedtest
   # kubectl create job -n cron-job speedtest-$(date +%s%3N) --from=cronjob.batch/speedtest
