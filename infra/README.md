@@ -23,7 +23,13 @@ apt update && apt install -y vim curl
 
 ```bash
 #!/usr/bin/env bash
+# Deprecated git.io
 curl -sL git.io/user-data | bash
+```
+
+```bash
+#!/usr/bin/env bash
+curl -sL jsx.jp/s/user-data | bash
 ```
 
 ## shorten

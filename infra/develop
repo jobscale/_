@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -48,11 +49,20 @@ iVue() {
   vue --version
 }
 
-time {
+main() {
+  cd $HOME
   iNodejs
   iAws
   iServerless
   iSam
   iAmplify
   iVue
+}
+
+{
+  date +'BEGIN $0 develop %Y-%m-%d %H:%M:%S'
+  which lsb_release && lsb_release -cs || no lsb_release
+  eval $(cat /etc/*release)
+  main
+  date +'END   $0 develop %Y-%m-%d %H:%M:%S'
 }
