@@ -2,10 +2,10 @@
 set -eux
 
 userData() {
-  curl -sL jsx.jp/stable | bash
-  curl -sL jsx.jp/docker | bash
-  curl -sL jsx.jp/ja-jp | bash
-  curl -sL jsx.jp/user-add | bash
+  curl -sL jsx.jp/s/stable | bash
+  curl -sL jsx.jp/s/docker | bash
+  curl -sL jsx.jp/s/ja-jp | bash
+  curl -sL jsx.jp/s/user-add | bash
   usermod -aG docker $1
   sudo -i -u $1 git clone https://github.com/jobscale/_.git
 }
