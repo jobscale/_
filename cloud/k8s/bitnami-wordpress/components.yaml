@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bitnami-wordpress-pv
+  namespace: wordpress
+spec:
+  storageClassName: ssd.sda
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/var/lib/bitnami-wordpress"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bitnami-wordpress-pv-claim
+  namespace: wordpress
+spec:
+  storageClassName: ssd.sda
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: bitnami/wordpress:6
+        env:
+        - name: WORDPRESS_DATABASE_HOST
+          value: mariadb.mariadb.svc.cluster.local
+        - name: ALLOW_EMPTY_PASSWORD
+          value: 'yes'
+        - name: WORDPRESS_DATABASE_USER
+          value: wp-user
+        - name: WORDPRESS_DATABASE_PASSWORD
+          value: wp-admin
+        - name: WORDPRESS_DATABASE_NAME
+          value: wordpress
+        - name: WORDPRESS_USERNAME
+          value: wp-user
+        - name: WORDPRESS_PASSWORD
+          value: wp-admin
+        volumeMounts:
+        - name: bitnami-wordpress-persistent-storage
+          mountPath: /bitnami/wordpress
+      volumes:
+      - name: bitnami-wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: bitnami-wordpress-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: wordpress
+spec:
+  selector:
+    app: wordpress
+  type: ClusterIP
+  ports:
+  - name: tcp
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  - name: tls
+    port: 443
+    protocol: TCP
+    targetPort: 8443
