@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wordpress
+  namespace: standard
 spec:
   selector:
     matchLabels:
@@ -13,7 +14,7 @@ spec:
     spec:
       containers:
       - name: wordpress
-        image: wordpress:5
+        image: wordpress:6
         env:
         - name: WORDPRESS_DB_HOST
           value: mariadb.mariadb.svc.cluster.local
@@ -28,6 +29,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wordpress
+  namespace: standard
 spec:
   selector:
     app: wordpress

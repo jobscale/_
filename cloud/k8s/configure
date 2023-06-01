@@ -66,6 +66,7 @@ inAllInOne() {
 
   [[ $KINDNAME == production ]] && initializeDatabase false
   [[ $KINDNAME == production ]] && cronJob
+  [[ $KINDNAME == production ]] && deployWordpress
 
   ingressRestart
 
@@ -159,8 +160,8 @@ firstApps() {
 jsxSite() {
   [[ $KINDNAME == production || $KINDNAME == staging ]] && partner/create-secret.sh && kubectl apply -f partner && waitFor partner
   kubectl create namespace jsxjp
-  kubectl apply -f limitrange-limits.yaml -n jsxjp
-  kubectl apply -f jsxjp && waitFor jsxjp
+  kubectl apply -n jsxjp -f limitrange-limits.yaml
+  kubectl apply -n jsxjp -f jsxjp && waitFor jsxjp
 }
 
 ingressForward() {
@@ -171,14 +172,20 @@ ingressRestart() {
   kubectl rollout restart deployment web
 }
 
+deployWordpress() {
+  kubectl create namespace wordpress
+  kubectl apply -n wordpress -f limitrange-limits.yaml
+  kubectl apply -n wordpress -f wordpress && waitFor wordpress
+}
+
 createStandard() {
   kubectl create namespace standard
+  kubectl apply -n standard -f limitrange-limits.yaml
   kubectl config set-context $(kubectl config current-context) --namespace standard
-  kubectl apply -f limitrange-limits.yaml
 
-  exposeCluster redis redis 6379 6379
-  exposeCluster mongo mongo 27017 27017
-  exposeCluster ddb amazon/dynamodb-local 80 8000 0
+  exposeCluster standard redis redis 6379 6379
+  exposeCluster standard mongo mongo 27017 27017
+  exposeCluster standard ddb amazon/dynamodb-local 80 8000 0
 
   [[ $KINDNAME == production ]] && deployApps
   [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
@@ -240,27 +247,26 @@ deployNode() {
   kubectl apply -f code-server && waitFor code-server
   kubectl apply -f tanpo && waitFor tanpo
   kubectl apply -f exp && waitFor exp
-  exposeLoadBalancer zipcode-jp ghcr.io/jobscale/zipcode-jp 80 3000 3
-  exposeLoadBalancer sshwifty ghcr.io/jobscale/sshwifty 80 8182 3
-  exposeLoadBalancer mongo-blog ghcr.io/jobscale/mongo-blog 80 3000 3
-  exposeLoadBalancer todo ghcr.io/jobscale/todo-app 80 3000 0
-  exposeLoadBalancer room-chat jobscale/room-chat 80 3000 0
-  exposeLoadBalancer simple-chat jobscale/simple-chat 80 3000 0
+  exposeLoadBalancer standard zipcode-jp ghcr.io/jobscale/zipcode-jp 80 3000 3
+  exposeLoadBalancer standard sshwifty ghcr.io/jobscale/sshwifty 80 8182 3
+  exposeLoadBalancer standard mongo-blog ghcr.io/jobscale/mongo-blog 80 3000 3
+  exposeLoadBalancer standard todo ghcr.io/jobscale/todo-app 80 3000 0
+  exposeLoadBalancer standard room-chat jobscale/room-chat 80 3000 0
+  exposeLoadBalancer standard simple-chat jobscale/simple-chat 80 3000 0
 }
 
 deployNginx() {
-  exposeLoadBalancer anywaychat ghcr.io/jobscale/anywaychat-web 80 80 3
-  exposeLoadBalancer ramen-timer ghcr.io/jobscale/ramen-timer 80 80 3
-  exposeLoadBalancer tetris ghcr.io/jobscale/tetris 80 80 3
+  exposeLoadBalancer standard anywaychat ghcr.io/jobscale/anywaychat-web 80 80 3
+  exposeLoadBalancer standard ramen-timer ghcr.io/jobscale/ramen-timer 80 80 3
+  exposeLoadBalancer standard tetris ghcr.io/jobscale/tetris 80 80 3
 }
 
 deployPhp() {
-  exposeLoadBalancer profile ghcr.io/jobscale/profile 80 80 3
-  exposeLoadBalancer laravel ghcr.io/jobscale/laravel 80 80 3
-  exposeLoadBalancer lumen ghcr.io/jobscale/lumen 80 80 3
-  exposeLoadBalancer dokuwiki jobscale/dokuwiki 80 80 3
-  exposeLoadBalancer ec-cube ghcr.io/jobscale/ec-cube 80 80 3
-  kubectl apply -f wordpress && waitFor wordpress
+  exposeLoadBalancer standard profile ghcr.io/jobscale/profile 80 80 3
+  exposeLoadBalancer standard laravel ghcr.io/jobscale/laravel 80 80 3
+  exposeLoadBalancer standard lumen ghcr.io/jobscale/lumen 80 80 3
+  exposeLoadBalancer standard dokuwiki jobscale/dokuwiki 80 80 3
+  exposeLoadBalancer standard ec-cube ghcr.io/jobscale/ec-cube 80 80 3
   kubectl apply -f redmine && waitFor redmine
   {
     kubectl create namespace health-check
@@ -270,13 +276,13 @@ deployPhp() {
 }
 
 deployPython() {
-  exposeLoadBalancer tutorial docker/getting-started 80 80 3
-  exposeLoadBalancer python-fastapi ghcr.io/jobscale/python-fastapi 80 80 3
+  exposeLoadBalancer standard tutorial docker/getting-started 80 80 3
+  exposeLoadBalancer standard python-fastapi ghcr.io/jobscale/python-fastapi 80 80 3
   # kubectl apply -f django && waitFor django
 }
 
 deployEcho() {
-  exposeLoadBalancer echo-server inanimate/echo-server 80 8080 3
+  exposeLoadBalancer standard echo-server inanimate/echo-server 80 8080 3
 }
 
 deployApps() {
@@ -295,26 +301,28 @@ deployApps() {
 }
 
 exposeLoadBalancer() {
-  local NAME=$1
-  local IMAGE=$2
-  local PORT=$3
-  local TARGET=$4
-  local MIN_REPLICA=$5
+  local NAME_SPACE=$1
+  local NAME=$2
+  local IMAGE=$3
+  local PORT=$4
+  local TARGET=$5
+  local MIN_REPLICA=$6
   local MIN_REPLICA=1 # kubernetes.io/limit-ranger: LimitRanger plugin set: cpu, memory request for container
-  kubectl create deployment $NAME --image $IMAGE
-  kubectl expose deployment $NAME --name $NAME --type LoadBalancer --port $PORT --target-port $TARGET
+  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
+  kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type LoadBalancer --port $PORT --target-port $TARGET
   [[ "$MIN_REPLICA" != "0" ]] && kubectl autoscale deployment $NAME \
   --cpu-percent 50 --min $MIN_REPLICA --max 20
   waitFor $NAME
 }
 
 exposeCluster() {
-  local NAME=$1
-  local IMAGE=$2
-  local PORT=$3
-  local TARGET=$4
-  kubectl create deployment $NAME --image $IMAGE
-  kubectl expose deployment $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
+  local NAME_SPACE=$1
+  local NAME=$2
+  local IMAGE=$3
+  local PORT=$4
+  local TARGET=$5
+  kubectl create deployment -n $NAME_SPACE $NAME $NAME --image $IMAGE
+  kubectl expose deployment -n $NAME_SPACE $NAME $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
   waitFor $NAME
 }
 
