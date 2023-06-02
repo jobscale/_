@@ -18,19 +18,19 @@ development() {
 development
 
 initializeDatabase() {
-  sql="CREATE DATABASE IF NOT EXISTS wordpress;
+  SQL="CREATE DATABASE IF NOT EXISTS wordpress;
 CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
 
-  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$sql\" | mysql -p$1"
+  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mysql -p$1"
 
-  sql="CREATE DATABASE IF NOT EXISTS redmine;
+  SQL="CREATE DATABASE IF NOT EXISTS redmine;
 CREATE USER IF NOT EXISTS 'redmine-user'@'%' IDENTIFIED BY 'redmine-admin';
 GRANT ALL PRIVILEGES ON redmine.* TO 'redmine-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
 
-  kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$sql\" | mysql -pmy-secret-pw"
+  kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
 }
 
 k8sVolume() {
@@ -46,10 +46,16 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  sudo mkdir -p /home/k8s/logs
-  sudo chown -R $(id -un):$(id -gn) /home/k8s/logs
+  cleanKind
   LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time inAllInOne 2>&1 | tee $LOGFILE
+}
+
+cleanKind() {
+  sudo rm -fr /home/k8s/system
+  sudo rm -fr /home/k8s/mnt
+  sudo mkdir -p /home/k8s/logs
+  sudo chown -R $(id -un):$(id -gn) /home/k8s/logs
 }
 
 inAllInOne() {
@@ -60,11 +66,13 @@ inAllInOne() {
   kubectl apply -f limitrange-limits.yaml -n default
   k8sApps
   firstApps
+  deployDatabase
+
   ingressForward
+  [[ $KINDNAME == production ]] && initializeDatabase false
 
   createStandard
 
-  [[ $KINDNAME == production ]] && initializeDatabase false
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployWordpress
 
@@ -139,10 +147,11 @@ internalService() {
   waitFor squid
 }
 
-deploySql() {
+deployDatabase() {
   kubectl apply -f mariadb && waitFor mariadb
   kubectl apply -f postgres && waitFor postgres
   kubectl apply -f mysql && waitFor mysql
+  kubectl get all -A | grep -e mariadb -e mysql
 }
 
 k8sApps() {
@@ -153,7 +162,6 @@ k8sApps() {
 
 firstApps() {
   internalService
-  deploySql
   jsxSite
 }
 
@@ -165,7 +173,8 @@ jsxSite() {
 }
 
 ingressForward() {
-  kubectl apply -f web && waitFor web
+  kubectl apply -n default -f web && waitFor web
+  kubectl exec -n default -it svc/web -- bash -c "curl -I -s jsxjp.jsxjp.svc.cluster.local:3000"
 }
 
 ingressRestart() {
@@ -321,8 +330,8 @@ exposeCluster() {
   local IMAGE=$3
   local PORT=$4
   local TARGET=$5
-  kubectl create deployment -n $NAME_SPACE $NAME $NAME --image $IMAGE
-  kubectl expose deployment -n $NAME_SPACE $NAME $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
+  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
+  kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
   waitFor $NAME
 }
 
