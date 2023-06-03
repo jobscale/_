@@ -36,7 +36,7 @@ focal() {
 }
 
 {
-  which lsb_release && lsb_release -cs || no lsb_release
+  which lsb_release && lsb_release -cs || echo "no lsb_release"
   eval $(cat /etc/*release)
   $VERSION_CODENAME
 }

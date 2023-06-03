@@ -53,7 +53,7 @@ jammy() {
 
 {
   date +'BEGIN $0 docker %Y-%m-%d %H:%M:%S'
-  which lsb_release && lsb_release -cs || no lsb_release
+  which lsb_release && lsb_release -cs || echo "no lsb_release"
   eval $(cat /etc/*release)
   $VERSION_CODENAME
   date +'END   $0 docker %Y-%m-%d %H:%M:%S'
