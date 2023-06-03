@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: bitnami-wordpress-pv
-  namespace: wordpress
+  name: wp-bitnami-pv
+  namespace: bitnami
 spec:
   storageClassName: ssd.sda
   capacity:
@@ -10,13 +10,13 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/var/lib/bitnami-wordpress"
+    path: "/mnt/var/lib/wp-bitnami"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: bitnami-wordpress-pv-claim
-  namespace: wordpress
+  name: wp-bitnami-pv-claim
+  namespace: bitnami
 spec:
   storageClassName: ssd.sda
   accessModes:
@@ -28,19 +28,27 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wordpress
-  namespace: wordpress
+  name: wp-bitnami
+  namespace: bitnami
 spec:
   selector:
     matchLabels:
-      app: wordpress
+      app: wp-bitnami
   template:
     metadata:
       labels:
-        app: wordpress
+        app: wp-bitnami
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 4
+        fsGroup: 33
+      volumes:
+      - name: wp-bitnami-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-bitnami-pv-claim
       containers:
-      - name: wordpress
+      - name: wp-bitnami
         image: bitnami/wordpress:6
         env:
         - name: WORDPRESS_DATABASE_HOST
@@ -52,27 +60,23 @@ spec:
         - name: WORDPRESS_DATABASE_PASSWORD
           value: wp-admin
         - name: WORDPRESS_DATABASE_NAME
-          value: wordpress
+          value: wp_bitnami
         - name: WORDPRESS_USERNAME
           value: wp-user
         - name: WORDPRESS_PASSWORD
           value: wp-admin
         volumeMounts:
-        - name: bitnami-wordpress-persistent-storage
+        - name: wp-bitnami-persistent-storage
           mountPath: /bitnami/wordpress
-      volumes:
-      - name: bitnami-wordpress-persistent-storage
-        persistentVolumeClaim:
-          claimName: bitnami-wordpress-pv-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: wordpress
-  namespace: wordpress
+  name: wp-bitnami
+  namespace: bitnami
 spec:
   selector:
-    app: wordpress
+    app: wp-bitnami
   type: ClusterIP
   ports:
   - name: tcp

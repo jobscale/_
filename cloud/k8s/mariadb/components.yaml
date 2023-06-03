@@ -44,6 +44,10 @@ spec:
       labels:
         app: mariadb
     spec:
+      volumes:
+      - name: mariadb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pv-claim
       containers:
       - name: mariadb
         image: mariadb
@@ -53,10 +57,6 @@ spec:
         volumeMounts:
         - name: mariadb-persistent-storage
           mountPath: /var/lib/mysql
-      volumes:
-      - name: mariadb-persistent-storage
-        persistentVolumeClaim:
-          claimName: mariadb-pv-claim
 ---
 apiVersion: v1
 kind: Service

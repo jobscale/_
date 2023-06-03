@@ -44,6 +44,10 @@ spec:
       labels:
         app: postgres
     spec:
+      volumes:
+      - name: postgres-persistent-storage
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
       containers:
       - name: postgres
         image: postgres
@@ -53,10 +57,6 @@ spec:
         volumeMounts:
         - name: postgres-persistent-storage
           mountPath: /var/lib/postgres/data
-      volumes:
-      - name: postgres-persistent-storage
-        persistentVolumeClaim:
-          claimName: postgres-pv-claim
 ---
 apiVersion: v1
 kind: Service

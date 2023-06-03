@@ -61,6 +61,13 @@ spec:
       labels:
         app: wetty
     spec:
+      volumes:
+      - name: wetty-docker-persistent-storage
+        persistentVolumeClaim:
+          claimName: wetty-docker-pv-claim
+      - name: wetty-store-persistent-storage
+        persistentVolumeClaim:
+          claimName: wetty-store-pv-claim
       containers:
       - image: ghcr.io/jobscale/wetty:dind
         name: wetty
@@ -71,13 +78,6 @@ spec:
           mountPath: /var/lib/docker
         - name: wetty-store-persistent-storage
           mountPath: /home/store
-      volumes:
-      - name: wetty-docker-persistent-storage
-        persistentVolumeClaim:
-          claimName: wetty-docker-pv-claim
-      - name: wetty-store-persistent-storage
-        persistentVolumeClaim:
-          claimName: wetty-store-pv-claim
 ---
 apiVersion: v1
 kind: Service

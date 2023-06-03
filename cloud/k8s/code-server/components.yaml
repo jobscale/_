@@ -38,16 +38,16 @@ spec:
       labels:
         app: code-server
     spec:
+      volumes:
+      - name: code-server-persistent-storage
+        persistentVolumeClaim:
+          claimName: code-server-pv-claim
       containers:
       - image: ghcr.io/jobscale/code-server
         name: code-server
         volumeMounts:
         - name: code-server-persistent-storage
           mountPath: /home/store
-      volumes:
-      - name: code-server-persistent-storage
-        persistentVolumeClaim:
-          claimName: code-server-pv-claim
 ---
 apiVersion: v1
 kind: Service

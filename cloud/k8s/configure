@@ -17,22 +17,6 @@ development() {
 
 development
 
-initializeDatabase() {
-  SQL="CREATE DATABASE IF NOT EXISTS wordpress;
-CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
-GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;"
-
-  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mysql -p$1"
-
-  SQL="CREATE DATABASE IF NOT EXISTS redmine;
-CREATE USER IF NOT EXISTS 'redmine-user'@'%' IDENTIFIED BY 'redmine-admin';
-GRANT ALL PRIVILEGES ON redmine.* TO 'redmine-user'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;"
-
-  kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
-}
-
 k8sVolume() {
   MNT_DIR=/home/k8s/mnt/var/lib
   sudo mkdir -p $MNT_DIR/_empty
@@ -69,16 +53,21 @@ inAllInOne() {
   deployDatabase
 
   ingressForward
-  [[ $KINDNAME == production ]] && initializeDatabase false
 
   createStandard
 
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployWordpress
+  [[ $KINDNAME == production ]] && deployBitnami
+  [[ $KINDNAME == production ]] && deployRedmine
 
   ingressRestart
 
   echo -n "        ending" && loop 20
+
+  kubectl exec -n default -it svc/web -- bash -c "curl -I -s wordpress.wordpress.svc.cluster.local:80"
+  kubectl exec -n default -it svc/web -- bash -c "curl -I -s wp-bitnami.bitnami.svc.cluster.local:80"
+
   kubectl get pods -A -o wide
   kubectl top pods -n standard --containers | sort -h -k 4
   docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
@@ -182,9 +171,40 @@ ingressRestart() {
 }
 
 deployWordpress() {
+  SQL="CREATE DATABASE IF NOT EXISTS wordpress;
+CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;"
+
+  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mysql -p$1"
+
   kubectl create namespace wordpress
   kubectl apply -n wordpress -f limitrange-limits.yaml
   kubectl apply -n wordpress -f wordpress && waitFor wordpress
+}
+
+deployBitnami() {
+  SQL="CREATE DATABASE IF NOT EXISTS wo_bitnami;
+CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
+GRANT ALL PRIVILEGES ON wo_bitnami.* TO 'wp-user'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;"
+
+  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mysql -p$1"
+
+  kubectl create namespace bitnami
+  kubectl apply -n bitnami -f limitrange-limits.yaml
+  kubectl apply -n bitnami -f wp-bitnami && waitFor wp-bitnami
+}
+
+deployRedmine() {
+  SQL="CREATE DATABASE IF NOT EXISTS redmine;
+CREATE USER IF NOT EXISTS 'redmine-user'@'%' IDENTIFIED BY 'redmine-admin';
+GRANT ALL PRIVILEGES ON redmine.* TO 'redmine-user'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;"
+
+  kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
+
+  kubectl apply -f redmine && waitFor redmine
 }
 
 createStandard() {
@@ -276,7 +296,7 @@ deployPhp() {
   exposeLoadBalancer standard lumen ghcr.io/jobscale/lumen 80 80 3
   exposeLoadBalancer standard dokuwiki jobscale/dokuwiki 80 80 3
   exposeLoadBalancer standard ec-cube ghcr.io/jobscale/ec-cube 80 80 3
-  kubectl apply -f redmine && waitFor redmine
+
   {
     kubectl create namespace health-check
     kubectl apply -f cronjob/ec-cube-check.yaml

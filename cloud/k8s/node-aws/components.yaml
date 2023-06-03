@@ -38,6 +38,10 @@ spec:
       labels:
         app: node-aws
     spec:
+      volumes:
+      - name: node-aws-persistent-storage
+        persistentVolumeClaim:
+          claimName: node-aws-pv-claim
       containers:
       - image: ghcr.io/jobscale/node-aws:dind
         name: node-aws
@@ -47,10 +51,6 @@ spec:
         volumeMounts:
         - name: node-aws-persistent-storage
           mountPath: /home/store
-      volumes:
-      - name: node-aws-persistent-storage
-        persistentVolumeClaim:
-          claimName: node-aws-pv-claim
 ---
 apiVersion: v1
 kind: Service
