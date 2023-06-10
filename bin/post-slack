@@ -5,7 +5,7 @@ DATA="$1"
 
 postSlack() {
   GIP=$(curl -s https://inet-ip.info/ip)
-  curl -s -X POST -H 'Content-Type: application/json' https://tanpo.jsx.jp/api/slack \
+  curl -s -X POST -H 'Content-Type: application/json' https://jsx.jp/api/slack \
   --data "{\"icon_emoji\":\":anchor:\",\"username\":\"Anchor\",\"text\":\"$GIP\\n$DATA\"}" > /dev/null || echo
 }
 
