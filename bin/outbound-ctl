@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-set -u
+set -eu
 
 SWITCH=${1:-on}
 DEVICE=${2:-enp4s0}
-RATE=${3:-500Kbit}
+RATE=${3:-2000Kbit}
 
 main() {
   [[ $SWITCH != on && $SWITCH != off ]] && echo "Usage: $0 <on|off> <interface> <rate>" && return 1
   echo "initialize.."
-  sudo tc qdisc del dev $DEVICE root
+  sudo tc qdisc del dev $DEVICE root || echo "no device"
   [[ $SWITCH != on ]] && return 0
   sleep 2
   echo "qdisc add.."
