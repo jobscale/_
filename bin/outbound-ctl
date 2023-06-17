@@ -5,14 +5,20 @@ SWITCH=${1:-on}
 DEVICE=${2:-enp4s0}
 RATE=${3:-2000Kbit}
 
+FIRST_DEVICE=$(ip a | grep BROADCAST | awk '{print $2}' | awk -F: '{print $1}' | head -1)
+
 main() {
-  [[ $SWITCH != on && $SWITCH != off ]] && echo "Usage: $0 <on|off> <interface> <rate>" && return 1
+  [[ $SWITCH != on && $SWITCH != off ]] && echo -e "\n  Usage: $0 <on|off> <interface> <rate>" && return 1
+  echo -n "INTERFACE OUTBOUND LIMMITER: [$SWITCH] TARGET: [$DEVICE] "
+  [[ "$DEVICE" != "$FIRST_DEVICE" ]] && echo -en "\n  WARN: diff [$DEVICE] [$FIRST_DEVICE] "
   echo "initialize.."
   sudo tc qdisc del dev $DEVICE root || echo "no device"
   [[ $SWITCH != on ]] && return 0
+  echo -n "TARGET: [$DEVICE] RATE: [$RATE] "
   sleep 2
-  echo "qdisc add.."
+  echo -n "qdisc add.. "
   sudo tc qdisc add dev $DEVICE root tbf limit 1MB burst 20Kb rate $RATE
+  echo "done."
 }
 
 main
