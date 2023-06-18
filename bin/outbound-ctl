@@ -8,8 +8,8 @@ RATE=${3:-2000Kbit}
 FIRST_DEVICE=$(ip a | grep BROADCAST | awk '{print $2}' | awk -F: '{print $1}' | head -1)
 
 main() {
+  echo -n "INTERFACE OUTBOUND LIMMITER: [$SWITCH] TARGET: [$FIRST_DEVICE] "
   [[ $SWITCH != on && $SWITCH != off ]] && echo -e "\n  Usage: $0 <on|off> <interface> <rate>" && return 1
-  echo -n "INTERFACE OUTBOUND LIMMITER: [$SWITCH] TARGET: [$DEVICE] "
   [[ "$DEVICE" != "$FIRST_DEVICE" ]] && echo -en "\n  WARN: diff [$DEVICE] [$FIRST_DEVICE] "
   echo "initialize.."
   sudo tc qdisc del dev $DEVICE root || echo "no device"
