@@ -47,12 +47,14 @@ inAllInOne() {
 
   # pullImages
 
-  kubectl apply -f limitrange-limits.yaml -n default
+  kubectl -n default apply -f limitrange-limits.yaml
   k8sApps
   firstApps
   deployDatabase
 
-  ingressForward
+  # metalLB
+  # ingressForward
+  ingressNginx
 
   createStandard
 
@@ -61,19 +63,23 @@ inAllInOne() {
   [[ $KINDNAME == production ]] && deployBitnami
   [[ $KINDNAME == production ]] && deployRedmine
 
-  ingressRestart
+  # ingressRestart
 
   echo -n "        ending" && loop 20
 
-  kubectl exec -n default -it svc/web -- bash -c "curl -I -s wordpress.wordpress.svc.cluster.local:80"
-  kubectl exec -n default -it svc/web -- bash -c "curl -I -s wp-bitnami.bitnami.svc.cluster.local:80"
+  kubectl exec -n default -it svc/wetty -- bash -c "curl -I -s wordpress.wordpress.svc.cluster.local:80"
+  kubectl exec -n default -it svc/wetty -- bash -c "curl -I -s wp-bitnami.bitnami.svc.cluster.local:80"
 
   kubectl get pods -A -o wide
   kubectl top pods -n standard --containers | sort -h -k 4
   docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
-  token && postSlack "$(token)"
+  kubectl -n kubernetes-dashboard create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
+  kubectl -n kubernetes-dashboard apply -f backend/k8s
+  token && postSlack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
 }
 
@@ -119,7 +125,7 @@ adminDashboard() {
   curl -so dashboard/kubernetes-dashboard.yaml https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
   kubectl apply -f dashboard/kubernetes-dashboard.yaml
   kubectl apply -f dashboard/admin-user-service-account.yaml
-  . dashboard/admin-user-secret.yaml
+  kubectl apply -f dashboard/admin-user-secret.yaml
   waitFor kubernetes-dashboard
 }
 
@@ -130,22 +136,21 @@ token() {
 
 internalService() {
   kubectl create namespace net-apps
-  kubectl apply -f limitrange-limits.yaml -n net-apps
-  kubectl apply -f net-apps
+  kubectl -n net-apps apply -f limitrange-limits.yaml
+  kubectl apply -f backend/net-apps
   waitFor bind9
   waitFor squid
 }
 
 deployDatabase() {
-  kubectl apply -f mariadb && waitFor mariadb
-  kubectl apply -f postgres && waitFor postgres
-  kubectl apply -f mysql && waitFor mysql
+  kubectl apply -f backend/mariadb && waitFor mariadb
+  kubectl apply -f backend/postgres && waitFor postgres
+  kubectl apply -f backend/mysql && waitFor mysql
   kubectl get all -A | grep -e mariadb -e mysql
 }
 
 k8sApps() {
   metricsServer
-  metalLB
   adminDashboard
 }
 
@@ -155,15 +160,37 @@ firstApps() {
 }
 
 jsxSite() {
-  [[ $KINDNAME == production || $KINDNAME == staging ]] && partner/create-secret.sh && kubectl apply -f partner && waitFor partner
+  [[ $KINDNAME == production || $KINDNAME == staging ]] \
+  && partner/create-secret.sh \
+  && kubectl apply -f backend/partner && waitFor partner
+
   kubectl create namespace jsxjp
-  kubectl apply -n jsxjp -f limitrange-limits.yaml
-  kubectl apply -n jsxjp -f jsxjp && waitFor jsxjp
+  kubectl -n jsxjp apply -f limitrange-limits.yaml
+  kubectl -n jsxjp create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
+  kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
+}
+
+ingressSecret() {
+  rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
+  kubectl -n default create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
+}
+
+ingressNginx() {
+  kubectl create namespace ingress-nginx
+  kubectl -n ingress-nginx create configmap modsecurity-config \
+  --from-file=custom-modsecurity.conf=ingress-nginx/conf/custom-modsecurity.conf
+  kubectl apply -f ingress-nginx
+
+  ingressSecret
 }
 
 ingressForward() {
-  kubectl apply -n default -f web && waitFor web
-  kubectl exec -n default -it svc/web -- bash -c "curl -I -s jsxjp.jsxjp.svc.cluster.local:3000"
+  kubectl -n default apply -f backend/web && waitFor web
+  kubectl -n default exec -it svc/web -- bash -c "curl -I -s jsxjp.jsxjp.svc.cluster.local:3000"
 }
 
 ingressRestart() {
@@ -176,11 +203,14 @@ CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
 
-  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mysql -p$1"
+  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace wordpress
-  kubectl apply -n wordpress -f limitrange-limits.yaml
-  kubectl apply -n wordpress -f wordpress && waitFor wordpress
+  kubectl -n wordpress apply -f limitrange-limits.yaml
+  kubectl -n wordpress create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
+  kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
 
 deployBitnami() {
@@ -189,11 +219,14 @@ CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
 GRANT ALL PRIVILEGES ON wo_bitnami.* TO 'wp-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
 
-  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mysql -p$1"
+  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace bitnami
-  kubectl apply -n bitnami -f limitrange-limits.yaml
-  kubectl apply -n bitnami -f wp-bitnami && waitFor wp-bitnami
+  kubectl -n bitnami apply -f limitrange-limits.yaml
+  kubectl -n bitnami create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
+  kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
 
 deployRedmine() {
@@ -204,27 +237,34 @@ FLUSH PRIVILEGES;"
 
   kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
 
-  kubectl apply -f redmine && waitFor redmine
+  kubectl create namespace redmine
+  kubectl -n redmine apply -f limitrange-limits.yaml
+  kubectl -n redmine create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
+  kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
 createStandard() {
   kubectl create namespace standard
-  kubectl apply -n standard -f limitrange-limits.yaml
-  kubectl config set-context $(kubectl config current-context) --namespace standard
+  kubectl -n standard apply -f limitrange-limits.yaml
+  # kubectl config set-context $(kubectl config current-context) --namespace standard
+  kubectl -n standard create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem
 
-  exposeCluster standard redis redis 6379 6379
-  exposeCluster standard mongo mongo 27017 27017
-  exposeCluster standard ddb amazon/dynamodb-local 80 8000 0
+  kubectl -n standard apply -f backend/redis && waitFor redis
+  kubectl -n standard apply -f backend/mongo && waitFor mongo
+  kubectl -n standard apply -f backend/ddb && waitFor ddb
 
   [[ $KINDNAME == production ]] && deployApps
-  [[ $KINDNAME == production || $KINDNAME == staging ]] && initWetty
 
   kubectl describe nodes
-  kubectl config set-context $(kubectl config current-context) --namespace default
+  # kubectl config set-context $(kubectl config current-context) --namespace default
 }
 
 initWetty() {
-  kubectl apply -f wetty && waitFor wetty
+  kubectl apply -f backend/wetty && waitFor wetty
   TTY_PASSWD="$(makePasswd)"
   genPasswd "$TTY_PASSWD"
   echo "Initialized password: '$TTY_PASSWD'"
@@ -270,63 +310,41 @@ cronJob() {
   # kubectl create job -n cron-job speedtest-$(date +%s%3N) --from=cronjob.batch/speedtest
 }
 
-deployNode() {
-  kubectl apply -f mqtt && waitFor mqtt
-  kubectl apply -f node-aws && waitFor node-aws
-  kubectl apply -f code-server && waitFor code-server
-  kubectl apply -f tanpo && waitFor tanpo
-  kubectl apply -f exp && waitFor exp
-  exposeLoadBalancer standard zipcode-jp ghcr.io/jobscale/zipcode-jp 80 3000 3
-  exposeLoadBalancer standard sshwifty ghcr.io/jobscale/sshwifty 80 8182 3
-  exposeLoadBalancer standard mongo-blog ghcr.io/jobscale/mongo-blog 80 3000 3
-  exposeLoadBalancer standard todo ghcr.io/jobscale/todo-app 80 3000 0
-  exposeLoadBalancer standard room-chat jobscale/room-chat 80 3000 0
-  exposeLoadBalancer standard simple-chat jobscale/simple-chat 80 3000 0
-}
-
-deployNginx() {
-  exposeLoadBalancer standard anywaychat ghcr.io/jobscale/anywaychat-web 80 80 3
-  exposeLoadBalancer standard ramen-timer ghcr.io/jobscale/ramen-timer 80 80 3
-  exposeLoadBalancer standard tetris ghcr.io/jobscale/tetris 80 80 3
-}
-
-deployPhp() {
-  exposeLoadBalancer standard profile ghcr.io/jobscale/profile 80 80 3
-  exposeLoadBalancer standard laravel ghcr.io/jobscale/laravel 80 80 3
-  exposeLoadBalancer standard lumen ghcr.io/jobscale/lumen 80 80 3
-  exposeLoadBalancer standard dokuwiki jobscale/dokuwiki 80 80 3
-  exposeLoadBalancer standard ec-cube ghcr.io/jobscale/ec-cube 80 80 3
-
-  {
-    kubectl create namespace health-check
-    kubectl apply -f cronjob/ec-cube-check.yaml
-    kubectl apply -f cronjob/ec-cube-healthy.yaml
-  }
-}
-
-deployPython() {
-  exposeLoadBalancer standard tutorial docker/getting-started 80 80 3
-  exposeLoadBalancer standard python-fastapi ghcr.io/jobscale/python-fastapi 80 80 3
-  # kubectl apply -f django && waitFor django
-}
-
-deployEcho() {
-  exposeLoadBalancer standard echo-server inanimate/echo-server 80 8080 3
-}
-
 deployApps() {
-  echo "####################################################"
-  echo "##### start mix logs"
-  echo "####################################################"
-  deployNode &
-  deployNginx &
-  deployPhp &
-  deployPython &
-  deployEcho &
+  # deployNode
+  kubectl -n standard apply -f backend/mqtt && waitFor mqtt
+  kubectl -n standard apply -f backend/tanpo && waitFor tanpo
+  kubectl -n standard apply -f backend/exp && waitFor exp
+  kubectl -n standard apply -f backend/todo && waitFor todo
+  kubectl -n standard apply -f backend/sshwifty && waitFor sshwifty
+  kubectl -n standard apply -f backend/zipcode-jp && waitFor zipcode-jp
+  kubectl -n standard apply -f backend/code-server && waitFor code-server
+  kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
+  kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
+  # deployNginx
+  kubectl -n standard apply -f backend/tetris && waitFor tetris
+  kubectl -n standard apply -f backend/anywaychat && waitFor anywaychat
+  kubectl -n standard apply -f backend/ramen-timer && waitFor ramen-timer
+  # deployPhp
+  kubectl -n standard apply -f backend/dokuwiki && waitFor dokuwiki
+  kubectl -n standard apply -f backend/shop && waitFor shop
+  # deployPython
+  kubectl -n standard apply -f backend/tutorial && waitFor tutorial
+  kubectl -n standard apply -f backend/fastapi && waitFor fastapi
+  # kubectl -n standard apply -f backend/django && waitFor django
+  # deployEcho
+  kubectl -n standard apply -f backend/echo && waitFor echo
+
+  initWetty
+
   wait
-  echo "####################################################"
-  echo "##### finish mix logs"
-  echo "####################################################"
+  cronCube
+}
+
+cronCube() {
+  kubectl create namespace health-check
+  kubectl apply -f backend/cronjob/ec-cube-check.yaml
+  kubectl apply -f backend/cronjob/ec-cube-healthy.yaml
 }
 
 exposeLoadBalancer() {
@@ -339,7 +357,7 @@ exposeLoadBalancer() {
   local MIN_REPLICA=1 # kubernetes.io/limit-ranger: LimitRanger plugin set: cpu, memory request for container
   kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
   kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type LoadBalancer --port $PORT --target-port $TARGET
-  [[ "$MIN_REPLICA" != "0" ]] && kubectl autoscale deployment $NAME \
+  [[ "$MIN_REPLICA" != "0" ]] && kubectl autoscale deployment -n $NAME_SPACE $NAME $NAME \
   --cpu-percent 50 --min $MIN_REPLICA --max 20
   waitFor $NAME
 }
