@@ -42,14 +42,33 @@ cleanKind() {
   sudo chown -R $(id -un):$(id -gn) /home/k8s/logs
 }
 
+defaultImage() {
+  IMG_LIST=(
+    ghcr.io/jobscale/jsxjp
+    ghcr.io/jobscale/wetty:dind
+    ghcr.io/jobscale/bind9
+    ghcr.io/jobscale/squid:secure
+    ghcr.io/jobscale/mqtt-c-pub-sub
+  )
+  for i in ${IMG_LIST[@]}
+  do
+    echo -n "$i "
+    time { docker exec -i $KINDNAME-control-plane crictl pull $i; } | xargs echo -n
+  done
+}
+
 inAllInOne() {
   createKind
 
-  # pullImages
-
   kubectl -n default apply -f limitrange-limits.yaml
+  ingressSecret default
+
+  # pullImages
+  defaultImage
+
   k8sApps
-  firstApps
+  jsxSite
+  networkService
   deployDatabase
 
   # metalLB
@@ -58,6 +77,7 @@ inAllInOne() {
 
   createStandard
 
+  [[ $KINDNAME == production ]] && createWetty
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployWordpress
   [[ $KINDNAME == production ]] && deployBitnami
@@ -67,20 +87,21 @@ inAllInOne() {
 
   echo -n "        ending" && loop 20
 
-  kubectl exec -n default -it svc/wetty -- bash -c "curl -I -s wordpress.wordpress.svc.cluster.local:80"
-  kubectl exec -n default -it svc/wetty -- bash -c "curl -I -s wp-bitnami.bitnami.svc.cluster.local:80"
-
   kubectl get pods -A -o wide
   kubectl top pods -n standard --containers | sort -h -k 4
   docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
-  kubectl -n kubernetes-dashboard create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  ingressSecret kubernetes-dashboard
   kubectl -n kubernetes-dashboard apply -f backend/k8s
+
   token && postSlack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
+}
+
+check-wp() {
+  kubectl exec -n wetty -it svc/wetty -- bash -c "curl -I -s wordpress.wordpress.svc.cluster.local:80"
+  kubectl exec -n wetty -it svc/wetty -- bash -c "curl -I -s wp-bitnami.bitnami.svc.cluster.local:80"
 }
 
 createKind() {
@@ -134,7 +155,7 @@ token() {
   kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token | awk '{print $2}'
 }
 
-internalService() {
+networkService() {
   kubectl create namespace net-apps
   kubectl -n net-apps apply -f limitrange-limits.yaml
   kubectl apply -f backend/net-apps
@@ -154,27 +175,21 @@ k8sApps() {
   adminDashboard
 }
 
-firstApps() {
-  internalService
-  jsxSite
-}
-
 jsxSite() {
   [[ $KINDNAME == production || $KINDNAME == staging ]] \
-  && partner/create-secret.sh \
+  && backend/partner/create-secret.sh \
   && kubectl apply -f backend/partner && waitFor partner
 
   kubectl create namespace jsxjp
   kubectl -n jsxjp apply -f limitrange-limits.yaml
-  kubectl -n jsxjp create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  ingressSecret jsxjp
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
 }
 
 ingressSecret() {
+  NAMESPACE=$1
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
-  kubectl -n default create secret tls jsxjp-tls \
+  kubectl -n $NAMESPACE create secret tls jsxjp-tls \
   --cert=tls/jsx.jp/fullchain.pem \
   --key=tls/jsx.jp/privkey.pem
 }
@@ -184,8 +199,8 @@ ingressNginx() {
   kubectl -n ingress-nginx create configmap modsecurity-config \
   --from-file=custom-modsecurity.conf=ingress-nginx/conf/custom-modsecurity.conf
   kubectl apply -f ingress-nginx
-
-  ingressSecret
+  # default (Allow wetty)
+  # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/aws/deploy.yaml
 }
 
 ingressForward() {
@@ -207,9 +222,7 @@ FLUSH PRIVILEGES;"
 
   kubectl create namespace wordpress
   kubectl -n wordpress apply -f limitrange-limits.yaml
-  kubectl -n wordpress create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  ingressSecret wordpress
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
 
@@ -223,9 +236,7 @@ FLUSH PRIVILEGES;"
 
   kubectl create namespace bitnami
   kubectl -n bitnami apply -f limitrange-limits.yaml
-  kubectl -n bitnami create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  ingressSecret bitnami
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
 
@@ -239,9 +250,7 @@ FLUSH PRIVILEGES;"
 
   kubectl create namespace redmine
   kubectl -n redmine apply -f limitrange-limits.yaml
-  kubectl -n redmine create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  ingressSecret redmine
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
@@ -249,9 +258,7 @@ createStandard() {
   kubectl create namespace standard
   kubectl -n standard apply -f limitrange-limits.yaml
   # kubectl config set-context $(kubectl config current-context) --namespace standard
-  kubectl -n standard create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  ingressSecret standard
 
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
@@ -263,8 +270,12 @@ createStandard() {
   # kubectl config set-context $(kubectl config current-context) --namespace default
 }
 
-initWetty() {
-  kubectl apply -f backend/wetty && waitFor wetty
+createWetty() {
+  kubectl create namespace wetty
+  kubectl -n wetty apply -f limitrange-limits.yaml
+  ingressSecret wetty
+
+  kubectl -n wetty apply -f backend/wetty && waitFor wetty
   TTY_PASSWD="$(makePasswd)"
   genPasswd "$TTY_PASSWD"
   echo "Initialized password: '$TTY_PASSWD'"
@@ -278,7 +289,7 @@ makePasswd() {
 genPasswd() {
   GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
-  kubectl exec -i $(kubectl get pods | grep ^wetty- | awk '{print $1}') -- bash -c "echo bullseye:$GEN_PASSWD | chpasswd"
+  kubectl -n wetty exec -i svc/wetty -- bash -c "echo bullseye:$GEN_PASSWD | chpasswd"
 }
 
 cronJob() {
@@ -315,29 +326,32 @@ deployApps() {
   kubectl -n standard apply -f backend/mqtt && waitFor mqtt
   kubectl -n standard apply -f backend/tanpo && waitFor tanpo
   kubectl -n standard apply -f backend/exp && waitFor exp
-  kubectl -n standard apply -f backend/todo && waitFor todo
-  kubectl -n standard apply -f backend/sshwifty && waitFor sshwifty
-  kubectl -n standard apply -f backend/zipcode-jp && waitFor zipcode-jp
-  kubectl -n standard apply -f backend/code-server && waitFor code-server
-  kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
-  kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
-  # deployNginx
-  kubectl -n standard apply -f backend/tetris && waitFor tetris
-  kubectl -n standard apply -f backend/anywaychat && waitFor anywaychat
-  kubectl -n standard apply -f backend/ramen-timer && waitFor ramen-timer
-  # deployPhp
-  kubectl -n standard apply -f backend/dokuwiki && waitFor dokuwiki
-  kubectl -n standard apply -f backend/shop && waitFor shop
-  # deployPython
-  kubectl -n standard apply -f backend/tutorial && waitFor tutorial
-  kubectl -n standard apply -f backend/fastapi && waitFor fastapi
-  # kubectl -n standard apply -f backend/django && waitFor django
-  # deployEcho
-  kubectl -n standard apply -f backend/echo && waitFor echo
-
-  initWetty
+  {
+    kubectl -n standard apply -f backend/todo && waitFor todo
+    kubectl -n standard apply -f backend/sshwifty && waitFor sshwifty
+    kubectl -n standard apply -f backend/zipcode-jp && waitFor zipcode-jp
+    kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
+    kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
+    kubectl -n standard apply -f backend/code-server && waitFor code-server
+  } &
+  {
+    # deployNginx
+    kubectl -n standard apply -f backend/tetris && waitFor tetris
+    kubectl -n standard apply -f backend/anywaychat && waitFor anywaychat
+    kubectl -n standard apply -f backend/ramen-timer && waitFor ramen-timer
+    # deployPhp
+    kubectl -n standard apply -f backend/dokuwiki && waitFor dokuwiki
+    kubectl -n standard apply -f backend/shop && waitFor shop
+    # deployPython
+    kubectl -n standard apply -f backend/tutorial && waitFor tutorial
+    kubectl -n standard apply -f backend/fastapi && waitFor fastapi
+    # kubectl -n standard apply -f backend/django && waitFor django
+    # deployEcho
+    kubectl -n standard apply -f backend/echo && waitFor echo
+  } &
 
   wait
+
   cronCube
 }
 
@@ -466,9 +480,12 @@ pullCrictl() {
 }
 
 pullImages() {
-  IMAGELIST=($(grep ^[a-z] images-production-list | grep -v partner | awk '{print $1":"$2}'))
-  for image in ${IMAGELIST[@]}
+  IMG_LIST=(
+    $(grep image: backend/*/components.yaml | awk -F'image:' '{print $2}')
+  )
+  for i in ${IMG_LIST[@]}
   do
-    pullCrictl $image
+    echo -n "$i "
+    time { docker exec -i $KINDNAME-control-plane crictl pull $i; } | xargs echo -n
   done
 }
