@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      return 301 $scheme://jsx.awsapps.com/mail$request_uri;
+  name: ingress-redirect
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - mail.jsx.jp
+    secretName: jsxjp-tls
+  rules:
+  - host: mail.jsx.jp

@@ -159,8 +159,7 @@ networkService() {
   kubectl create namespace net-apps
   kubectl -n net-apps apply -f limitrange-limits.yaml
   kubectl apply -f backend/net-apps
-  waitFor bind9
-  waitFor squid
+  waitFor bind9 && waitFor squid
 }
 
 deployDatabase() {
@@ -184,6 +183,7 @@ jsxSite() {
   kubectl -n jsxjp apply -f limitrange-limits.yaml
   ingressSecret jsxjp
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
+  kubectl -n jsxjp apply -f backend/mail/components.yaml
 }
 
 ingressSecret() {

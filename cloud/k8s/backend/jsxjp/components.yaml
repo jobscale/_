@@ -56,8 +56,18 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["www.jsx.jp"]
+    hosts: ["jsx.jp", "www.jsx.jp"]
   rules:
+  - host: jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80
   - host: www.jsx.jp
     http:
       paths:
