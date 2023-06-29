@@ -60,7 +60,7 @@ defaultImage() {
 inAllInOne() {
   createKind
 
-  kubectl -n default apply -f limitrange-limits.yaml
+  kubectl -n default apply -f backend/limitrange-limits.yaml
   ingressSecret default
 
   # pullImages
@@ -77,6 +77,7 @@ inAllInOne() {
 
   createStandard
 
+  [[ $KINDNAME == production ]] && createCodeServer
   [[ $KINDNAME == production ]] && createWetty
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployWordpress
@@ -157,7 +158,7 @@ token() {
 
 networkService() {
   kubectl create namespace net-apps
-  kubectl -n net-apps apply -f limitrange-limits.yaml
+  kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl apply -f backend/net-apps
   waitFor bind9 && waitFor squid
 }
@@ -180,7 +181,7 @@ jsxSite() {
   && kubectl apply -f backend/partner && waitFor partner
 
   kubectl create namespace jsxjp
-  kubectl -n jsxjp apply -f limitrange-limits.yaml
+  kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
   ingressSecret jsxjp
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
   kubectl -n jsxjp apply -f backend/mail/components.yaml
@@ -221,7 +222,7 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace wordpress
-  kubectl -n wordpress apply -f limitrange-limits.yaml
+  kubectl -n wordpress apply -f backend/limitrange-limits.yaml
   ingressSecret wordpress
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
@@ -235,7 +236,7 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace bitnami
-  kubectl -n bitnami apply -f limitrange-limits.yaml
+  kubectl -n bitnami apply -f backend/limitrange-limits.yaml
   ingressSecret bitnami
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
@@ -249,14 +250,14 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
 
   kubectl create namespace redmine
-  kubectl -n redmine apply -f limitrange-limits.yaml
+  kubectl -n redmine apply -f backend/limitrange-limits.yaml
   ingressSecret redmine
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
 createStandard() {
   kubectl create namespace standard
-  kubectl -n standard apply -f limitrange-limits.yaml
+  kubectl -n standard apply -f backend/limitrange-limits.yaml
   # kubectl config set-context $(kubectl config current-context) --namespace standard
   ingressSecret standard
 
@@ -270,11 +271,17 @@ createStandard() {
   # kubectl config set-context $(kubectl config current-context) --namespace default
 }
 
+createCodeServer() {
+  kubectl create namespace code-server
+  ingressSecret code-server
+  kubectl -n code-server apply -f backend/basic-auth.yaml
+  kubectl -n code-server apply -f backend/code-server && waitFor code-server
+}
+
 createWetty() {
   kubectl create namespace wetty
-  kubectl -n wetty apply -f limitrange-limits.yaml
+  kubectl -n wetty apply -f backend/limitrange-limits.yaml
   ingressSecret wetty
-
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
   TTY_PASSWD="$(makePasswd)"
   genPasswd "$TTY_PASSWD"
@@ -332,7 +339,6 @@ deployApps() {
     kubectl -n standard apply -f backend/zipcode-jp && waitFor zipcode-jp
     kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
     kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
-    kubectl -n standard apply -f backend/code-server && waitFor code-server
   } &
   {
     # deployNginx
