@@ -28,11 +28,13 @@ bullseye() {
 # Ubuntu 22.04
 jammy() {
   cinnamon && chrome && code
+  sudo apt update && sudo apt install -y language-pack-gnome-ja
 }
 
 # Ubuntu 20.04
 focal() {
   cinnamon && chrome && code
+  sudo apt update && sudo apt install -y language-pack-gnome-ja
 }
 
 {
