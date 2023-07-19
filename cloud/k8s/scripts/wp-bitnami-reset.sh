@@ -39,7 +39,9 @@ showDB() {
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 }
 
-check() {
-  curl -I -sL https://cms.jsx.jp
+check-wp() {
+  echo "check wp"
   curl -I -sL https://wp.jsx.jp
+  echo "check cms"
+  curl -I -sL https://cms.jsx.jp
 }
