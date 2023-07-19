@@ -89,9 +89,9 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["cms.jsx.jp"]
+    hosts: ["blog.jsx.jp"]
   rules:
-  - host: cms.jsx.jp
+  - host: blog.jsx.jp
     http:
       paths:
       - pathType: Prefix

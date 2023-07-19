@@ -17,7 +17,7 @@ FLUSH PRIVILEGES;"
   kubectl -n bitnami apply -f backend/wp-bitnami
 }
 
-reset-cms() {
+reset-blog() {
   kubectl -n wordpress delete -f backend/wordpress
   sudo rm -fr /home/k8s/mnt/var/lib/wordpress
 
@@ -42,6 +42,6 @@ showDB() {
 check-wp() {
   echo "check wp"
   curl -I -sL https://wp.jsx.jp
-  echo "check cms"
-  curl -I -sL https://cms.jsx.jp
+  echo "check blog"
+  curl -I -sL https://blog.jsx.jp
 }
