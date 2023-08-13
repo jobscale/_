@@ -302,10 +302,12 @@ genPasswd() {
 cronJob() {
   [[ "$KINDNAME" != production ]] && return
   [[ "$(hostname)" != focal ]] && return
-  # kubectl create namespace health-check
   # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='0/7 * * * *'
-  ## Create One time job
-  # kubectl create job -n health-check value-domain-$(date +%s%3N) --from=cronjob.batch/value-domain
+  kubectl create namespace health-check
+  kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='0/7 * * * *'
+  # kubectl create job -n health-check health-check-$(date +%s%3N) --from=cronjob.batch/health-check
+  # kubectl apply -n health-check -f backend/cronjob/ec-cube-check.yaml
+  # kubectl apply -n health-check -f backend/cronjob/ec-cube-healthy.yaml
 
   kubectl create namespace cron-job
   kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='57 7 * * 1-5'
@@ -357,14 +359,6 @@ deployApps() {
   } &
 
   wait
-
-  cronCube
-}
-
-cronCube() {
-  kubectl create namespace health-check
-  kubectl apply -f backend/cronjob/ec-cube-check.yaml
-  kubectl apply -f backend/cronjob/ec-cube-healthy.yaml
 }
 
 exposeLoadBalancer() {
