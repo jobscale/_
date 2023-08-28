@@ -48,7 +48,7 @@
       if (encoding !== 'base32') {
         return ArrayBuffer.from(who, encoding);
       }
-      return this.decodeBase32(who);
+      return this.decodeBase32(who.toUpperCase());
     },
 
     async createHmacKey(secret, buf, algorithm) {
@@ -113,7 +113,7 @@
     }
 
     const mfaCode = await simpleOTP.totp({
-      secret: 'boToXyxAbc'.toUpperCase(),
+      secret: 'boToXyxAbc',
       encoding: 'base32',
       time: Math.floor(Date.now() / 1000) + 30,
     });
