@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 (() => {
-  const simpleOTP = {
+  const TOTP = {
     decodeBase32(encoded) {
       const base32Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
       const base32AlphabetValuesMap = new Map(
@@ -32,7 +32,6 @@
           result[byteOffset++] = (dataBuffer >> dataBufferBitLength) & 0xff;
         }
       }
-      if (dataBufferBitLength >= 5) throw new Error('Invalid base32 string');
       if (dataBufferBitLength) {
         let mask = 0;
         for (let i = dataBufferBitLength; i; i--) {
@@ -112,13 +111,41 @@
       return;
     }
 
-    const mfaCode = await simpleOTP.totp({
-      secret: 'boToXyxAbc',
+    const totp = token => TOTP.totp({
+      secret: token,
       encoding: 'base32',
       time: Math.floor(Date.now() / 1000) + 30,
     });
 
-    auth.value = `${mfaCode} `;
+    const div = document.createElement('div');
+    div.style = 'position: absolute; right: 47px; top: 5em; font-size: 2em; display: grid; gap: 1em; width: 10em;';
+    const items = [
+      { name: 'refresh', token: 'AAZ' },
+      { name: 'refresh', token: 'BAZ' },
+      { name: 'refresh', token: 'CAZ' },
+    ];
+    const ts = document.createElement('div');
+    setInterval(() => {
+      ts.textContent = 30 - (Math.floor(Date.now() / 1000) % 30);
+    }, 1000)
+    div.append(ts);
+    for (const item of items) {
+      const el = document.createElement('div');
+      const span = document.createElement('span');
+      el.append(span);
+      const btn = document.createElement('button');
+      btn.style = 'margin: 0.3em 0.6em; padding: 0.3em 0.7em; font-size: 0.8em;';
+      btn.textContent = item.name;
+      el.append(btn);
+      div.append(el);
+      const update = async () => {
+        const mfaCode = await totp(item.token);
+        span.innerHTML = `<span>${mfaCode}</span>`;
+      };
+      btn.addEventListener('click', update);
+      await update();
+    }
+    document.body.append(div);
   };
 
   action();
