@@ -5,6 +5,7 @@
 // @description  try to take over the world!
 // @author       You
 // @match        https://tver.jp/*/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=tver.jp
 // @grant        none
 // ==/UserScript==
 
@@ -16,22 +17,111 @@ const setVideo = () => {
     return;
   }
   clearTimeout(idVideo);
-  who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
+  document.querySelector('[class^="companion-ad-slot_host"]').remove();
   document.body.style.backgroundColor = 'black';
+  who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
   document.querySelector('[class^="cross-column-layout_container"]')
-    .style = 'margin-top:95vh;'
+  .style = 'margin-top:95vh;'
+  document.querySelector('.cross-column-layout_main__w0npD').style = 'z-index: 10;'
 };
 
 let idClick;
 const setClick = () => {
   const who = document.querySelector('[class^="footer_copyright"]');
   if (!who) {
+    console.info('footer_copyright not found');
     idClick = setTimeout(setClick, 500);
     return;
   }
   clearTimeout(idClick);
-  who.style = 'position:fixed;right:0;bottom:0;cursor:pointer;'
+  who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;'
   who.onclick = () => setTimeout(setVideo, 500);
 };
 
-window.addEventListener('load', () => setTimeout(setClick, 1000));
+setTimeout(setClick, 1000);
+
+const changeStyle = () => {
+  const css = `
+body {
+  background-color: #222;
+  color: #888;
+  height: auto;
+}
+.btn-close {
+  position: absolute;
+  top: -1em;
+  right: -0.5em;
+  width: 1.2em;
+  height: 1.2em;
+  cursor: not-allowed;
+}
+.btn-button {
+  width: 15em;
+  background-color: #111;
+  color: #58f;
+  cursor: pointer;
+  border-radius: 1em;
+  margin: auto;
+}
+`;
+  const el1 = document.querySelector('[class^="mypage-page-main_tabList"]');
+  if (el1) el1.style.visibility = 'hidden';
+  const uni = document.querySelectorAll('div[class^="episode-pattern-c_seriesTitle"]');
+  if (uni) uni.forEach(el => { el.style.color = '#aaa'; });
+  const list = document.querySelectorAll('a div, a span, div ul');
+  if(list) list.forEach(el => { el.style.color = '#aaa'; });
+  const style = document.createElement('style');
+  style.innerHTML = css;
+  document.head.append(style);
+  const el2 = document.querySelector('div[class^="companion-ad-slot"]');
+  if (el2) el2.style.visibility = 'hidden';
+  const el3 = document.querySelector('div[class^="series-info_container"]');
+  if (el3) el3.style['background-color'] = '#111'
+};
+
+const setEvent = content => {
+  const el = document.createElement('div');
+  el.classList.add('btn-close');
+  el.textContent = '🍺';
+  el.addEventListener('click', event => {
+    event.preventDefault();
+    const { target } = event;
+    const parent = target.parentNode;
+    parent.remove();
+  });
+  content.append(el);
+};
+
+const setMenu = areaMenu => {
+  const el = document.createElement('button');
+  el.classList.add('btn-button');
+  el.textContent = 'ダイジェストを非表示';
+  el.addEventListener('click', event => {
+    event.preventDefault();
+    document.querySelectorAll('[class^="episode-pattern-c_container"]')
+    .forEach(content => {
+      if (content.textContent.match(/ダイジェスト/)) { content.remove(); return; }
+      if (content.textContent.match(/振り返り/)) { content.remove(); return; }
+      if (content.textContent.match(/解説放送/)) { content.remove(); return; }
+      if (content.textContent.match(/【予告】/)) { content.remove(); return; }
+      if (content.textContent.match(/【PR】/)) { content.remove(); return; }
+      if (content.textContent.match(/放送直前/)) { content.remove(); return; }
+      if (content.textContent.match(/制作発表/)) { content.remove(); return; }
+      if (content.textContent.match(/完成披露/)) { content.remove(); return; }
+      if (content.textContent.match(/見どころ/)) { content.remove(); return; }
+    })
+  });
+  areaMenu.append(el);
+};
+
+const setContentEvent = () => {
+  document.querySelectorAll('[class^="episode-pattern-c_container"]')
+  .forEach(content => setEvent(content));
+  setMenu(document.querySelector('[class^="favorite-filter-menu_viewedRemove"]'));
+};
+
+setTimeout(() => {
+  changeStyle();
+  setTimeout(() => changeStyle(), 3000);
+  setTimeout(() => setContentEvent(), 4000);
+}, 1500);
