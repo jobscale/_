@@ -1,0 +1,68 @@
+<body>
+  <div class="g-area">
+    <div>123</div>
+    <div class="g-box">
+      <span>888888</span>
+      <button>XXXXXXXXXX</button>
+    </div>
+    <div class="g-box">
+      <span>888888</span>
+      <button>XXXXXXXXXX</button>
+    </div>
+    <div class="g-box">
+      <span>8888</span>
+      <button>XXXXXXXXXX</button>
+    </div>
+    <div class="g-box">
+      <span>888888</span>
+      <button>XXXXXXXXXX</button>
+    </div>
+    <div class="g-box">
+      <span>888888</span>
+      <button>XXXXXXXX</button>
+    </div>
+  </div>
+</body>
+
+<style>
+body {
+  background-color: #10222eb9;
+}
+.g-area {
+  position: absolute;
+  text-align: center;
+  right: 47px;
+  top: 5em;
+  font-size: 1.5vmin;
+  display: grid;
+  gap: 0.4em;
+  width: 16em;
+}
+.g-area * {
+  background: #333;
+  color: #ddd;
+}
+.g-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 1em;
+  box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
+  padding: 0.3em;
+}
+.g-box span {
+  width: 6em;
+}
+.g-box button {
+  cursor: pointer;
+  border: 1px solid #6a6;
+  border-radius: 0.5em;
+  margin: 0.3em 0.6em;
+  padding: 0.3em 0.7em;
+  font-size: 0.8em;
+  width: 10em;
+}
+input {
+  background: transparent;
+}
+</style>

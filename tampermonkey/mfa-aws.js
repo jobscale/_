@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name         MFA AWS
+// @name         MFA AWS Azure
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin*
+// @match        https://login.microsoftonline.com/*/login
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        none
 // ==/UserScript==
@@ -105,7 +106,8 @@
   };
 
   const action = async () => {
-    const auth = document.querySelector('#mfacode');
+    const auth = document.querySelector('#mfacode')
+      || document.querySelector('input[name="otc"]');
     if (!auth) {
       setTimeout(action, 1000);
       return;
@@ -117,8 +119,52 @@
       time: Math.floor(Date.now() / 1000) + 30,
     });
 
+    const style = document.createElement('style');
+    style.textContent = `
+body {
+  background-color: #10222eb9;
+}
+.g-area {
+  position: absolute;
+  text-align: center;
+  right: 47px;
+  top: 5em;
+  font-size: 1.5vmin;
+  display: grid;
+  gap: 0.4em;
+  width: 16em;
+}
+.g-area * {
+  background: #333;
+  color: #ddd;
+}
+.g-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 1em;
+  box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
+  padding: 0.3em;
+}
+.g-box span {
+  width: 6em;
+}
+.g-box button {
+  cursor: pointer;
+  border: 1px solid #6a6;
+  border-radius: 0.5em;
+  margin: 0.3em 0.6em;
+  padding: 0.3em 0.7em;
+  font-size: 0.8em;
+  width: 10em;
+}
+input {
+  background: transparent;
+}
+`;
+    document.head.append(style);
     const div = document.createElement('div');
-    div.style = 'position: absolute; right: 47px; top: 5em; font-size: 2em; display: grid; gap: 1em; width: 10em;';
+    div.classList.add('g-area');
     const items = [
       { name: 'refresh', token: 'AAZ' },
       { name: 'refresh', token: 'BAZ' },
@@ -131,16 +177,16 @@
     div.append(ts);
     for (const item of items) {
       const el = document.createElement('div');
+      el.classList.add('g-box');
       const span = document.createElement('span');
       el.append(span);
       const btn = document.createElement('button');
-      btn.style = 'margin: 0.3em 0.6em; padding: 0.3em 0.7em; font-size: 0.8em;';
       btn.textContent = item.name;
       el.append(btn);
       div.append(el);
       const update = async () => {
         const mfaCode = await totp(item.token);
-        span.innerHTML = `<span>${mfaCode}</span>`;
+        span.textContent = mfaCode;
       };
       btn.addEventListener('click', update);
       await update();
