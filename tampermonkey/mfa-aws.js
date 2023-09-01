@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         MFA AWS Azure
+// @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin*
 // @match        https://login.microsoftonline.com/*/login
+// @match        https://github.com/sessions/two-factor/app
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        none
 // ==/UserScript==
@@ -105,67 +106,20 @@
     },
   };
 
-  const action = async () => {
-    const auth = document.querySelector('#mfacode')
-      || document.querySelector('input[name="otc"]');
-    if (!auth) {
-      setTimeout(action, 1000);
-      return;
-    }
+  const totp = token => TOTP.totp({
+    secret: token,
+    encoding: 'base32',
+    time: Math.floor(Date.now() / 1000) + 30,
+  });
 
-    const totp = token => TOTP.totp({
-      secret: token,
-      encoding: 'base32',
-      time: Math.floor(Date.now() / 1000) + 30,
-    });
-
-    const style = document.createElement('style');
-    style.textContent = `
-body {
-  background-color: #10222eb9;
-}
-.g-area {
-  position: absolute;
-  text-align: center;
-  right: 47px;
-  top: 5em;
-  font-size: 1.5vmin;
-  display: grid;
-  gap: 0.4em;
-  width: 16em;
-}
-.g-area * {
-  background: #333;
-  color: #ddd;
-}
-.g-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 1em;
-  box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
-  padding: 0.3em;
-}
-.g-box span {
-  width: 6em;
-}
-.g-box button {
-  cursor: pointer;
-  border: 1px solid #6a6;
-  border-radius: 0.5em;
-  margin: 0.3em 0.6em;
-  padding: 0.3em 0.7em;
-  font-size: 0.8em;
-  width: 10em;
-}
-input {
-  background: transparent;
-}
-`;
-    document.head.append(style);
-    const div = document.createElement('div');
-    div.classList.add('g-area');
-    const items = [
+  const render = async () => {
+    const old = document.querySelector('.g-base');
+    if (old) old.remove();
+    const area = document.createElement('div');
+    area.classList.add('g-area');
+    const exist = localStorage.getItem('g-data');
+    const data = exist ? JSON.parse(exist) : { list: [] };
+    const items = data.list.length ? data.list : [
       { name: 'refresh', token: 'AAZ' },
       { name: 'refresh', token: 'BAZ' },
       { name: 'refresh', token: 'CAZ' },
@@ -174,7 +128,9 @@ input {
     setInterval(() => {
       ts.textContent = 30 - (Math.floor(Date.now() / 1000) % 30);
     }, 1000)
-    div.append(ts);
+    area.append(ts);
+    const div = document.createElement('div');
+    area.append(div);
     for (const item of items) {
       const el = document.createElement('div');
       el.classList.add('g-box');
@@ -191,7 +147,109 @@ input {
       btn.addEventListener('click', update);
       await update();
     }
-    document.body.append(div);
+    const ctl = document.createElement('div');
+    ctl.classList.add('g-ctl');
+    const gName = document.createElement('input');
+    gName.placeholder = 'secret name';
+    ctl.append(gName);
+    const gToken = document.createElement('input');
+    gToken.placeholder = 'secret code';
+    gToken.type = 'password';
+    ctl.append(gToken);
+    const gBtn = document.createElement('button');
+    gBtn.textContent = 'add new';
+    ctl.append(gBtn);
+    area.append(ctl);
+    const addToken = () => {
+      if (!gName.value || !gToken.value) return;
+      const exist = localStorage.getItem('g-data');
+      const data = exist ? JSON.parse(exist) : { list: [] };
+      data.list.push({
+        name: gName.value,
+        token: gToken.value,
+      });
+      localStorage.setItem('g-data', JSON.stringify(data));
+      render();
+    };
+    gBtn.addEventListener('click', addToken);
+
+    document.body.append(area);
+  };
+
+  const action = async () => {
+    const auth = document.querySelector('#mfacode')
+    || document.querySelector('input[name="otc"]')
+    || document.querySelector('#app_totp');
+    if (!auth) {
+      setTimeout(action, 1000);
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+body {
+  background-color: #10222eb9;
+}
+body {
+  background-color: #10222eb9;
+}
+.g-area {
+  position: absolute;
+  color: #ddd;
+  text-align: center;
+  right: 47px;
+  top: 5em;
+  font-size: 2vmin;
+  display: grid;
+  gap: 0.4em;
+  width: 16em;
+}
+.g-area button {
+  cursor: pointer;
+}
+.g-area button, .g-area input {
+  background: #333;
+  color: #ddd;
+  text-align: center;
+  font-size: 1em;
+  border-radius: 0.5em;
+  border: 1px solid #66a;
+  padding: 3px 0.5em;
+  margin: 3px;
+}
+.g-box {
+  background: #444;
+  border-radius: 1em;
+  box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
+  padding: 0.3em;
+  margin: 0.4em 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.g-box span {
+  width: 6em;
+}
+.g-box button {
+  border: 1px solid #6a6;
+  margin: 0.3em 0.6em;
+  padding: 0.3em 0.7em;
+  font-size: 0.8em;
+  width: 10em;
+}
+.g-ctl {
+  padding: 0.3em 0;
+  background: #333;
+  border-radius: 1em;
+  border: 1px solid #66a;
+  box-shadow: 0 0 1.5em -0.25em rgba(35, 37, 146, 0.75);
+}
+input {
+  background: transparent;
+}
+`;
+    document.head.append(style);
+    render();
   };
 
   action();
