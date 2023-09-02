@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eu
+
+TOKEN=$1
+curl -s -X POST -H 'Content-Type: application/json' https://jsx.jp/auth/totp --data "{\"secret\":\"$TOKEN\"}" | jq .
