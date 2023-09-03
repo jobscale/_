@@ -92,24 +92,41 @@ const setEvent = content => {
   content.append(el);
 };
 
-const setMenu = areaMenu => {
+const setMenu1 = areaMenu => {
   const el = document.createElement('button');
   el.classList.add('btn-button');
   el.textContent = 'ダイジェストを非表示';
   el.addEventListener('click', event => {
     event.preventDefault();
-    document.querySelectorAll('[class^="episode-pattern-c_container"]')
-    .forEach(content => {
-      if (content.textContent.match(/ダイジェスト/)) { content.remove(); return; }
-      if (content.textContent.match(/振り返り/)) { content.remove(); return; }
-      if (content.textContent.match(/解説放送/)) { content.remove(); return; }
-      if (content.textContent.match(/【予告】/)) { content.remove(); return; }
-      if (content.textContent.match(/【PR】/)) { content.remove(); return; }
-      if (content.textContent.match(/放送直前/)) { content.remove(); return; }
-      if (content.textContent.match(/制作発表/)) { content.remove(); return; }
-      if (content.textContent.match(/完成披露/)) { content.remove(); return; }
-      if (content.textContent.match(/見どころ/)) { content.remove(); return; }
+    Array.from(document.querySelectorAll('[class^="episode-pattern-c_container"]'))
+    .filter(content => {
+      if (content.textContent.match(/ダイジェスト/)) return true;
+      if (content.textContent.match(/振り返り/)) return true;
+      if (content.textContent.match(/解説放送/)) return true;
+      if (content.textContent.match(/【予告】/)) return true;
+      if (content.textContent.match(/【PR】/)) return true;
+      if (content.textContent.match(/放送直前/)) return true;
+      if (content.textContent.match(/制作発表/)) return true;
+      if (content.textContent.match(/完成披露/)) return true;
+      if (content.textContent.match(/見どころ/)) return true;
+      return false;
     })
+    .forEach(content => content.remove())
+  });
+  areaMenu.append(el);
+};
+
+const setMenu2 = areaMenu => {
+  const el = document.createElement('button');
+  el.classList.add('btn-button');
+  el.textContent = '既読を非表示';
+  el.addEventListener('click', event => {
+    event.preventDefault();
+    Array.from(document.querySelectorAll('[class^="episode-pattern-c_container"]'))
+    .filter(content => {
+      return content.querySelector('div[class^="progress-bar_progressBar"]');
+    })
+    .forEach(content => content.remove())
   });
   areaMenu.append(el);
 };
@@ -117,7 +134,9 @@ const setMenu = areaMenu => {
 const setContentEvent = () => {
   document.querySelectorAll('[class^="episode-pattern-c_container"]')
   .forEach(content => setEvent(content));
-  setMenu(document.querySelector('[class^="favorite-filter-menu_viewedRemove"]'));
+  const areaMenu = document.querySelector('[class^="favorite-filter-menu_viewedRemove"]');
+  setMenu1(areaMenu);
+  setMenu2(areaMenu);
 };
 
 setTimeout(() => {
