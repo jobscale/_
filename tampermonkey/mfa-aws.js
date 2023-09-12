@@ -3,10 +3,12 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
-// @author       You
+// @author       jobscale
 // @match        https://*.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin*
 // @match        https://login.microsoftonline.com/*/login
 // @match        https://github.com/sessions/two-factor/app
+// @match        https://www.npmjs.com/login/otp?next=*
+// @match        https://www.npmjs.com/escalate/otp?next=*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        none
 // ==/UserScript==
@@ -177,9 +179,10 @@
   };
 
   const action = async () => {
-    const auth = document.querySelector('#mfacode')
-    || document.querySelector('input[name="otc"]')
-    || document.querySelector('#app_totp');
+    const auth = document.querySelector('#mfacode') // AWS
+    || document.querySelector('input[name="otc"]') // MS
+    || document.querySelector('#app_totp') // GitHub
+    || document.querySelector('#login_otp'); // npm
     if (!auth) {
       setTimeout(action, 1000);
       return;
@@ -197,12 +200,15 @@ body {
   position: absolute;
   color: #ddd;
   text-align: center;
-  right: 47px;
-  top: 5em;
   font-size: 2vmin;
+  right: 1em;
+  top: 3em;
+  padding: 1em;
   display: grid;
   gap: 0.4em;
-  width: 16em;
+  width: 18em;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
 }
 .g-area button {
   cursor: pointer;
@@ -218,7 +224,8 @@ body {
   margin: 3px;
 }
 .g-box {
-  background: #444;
+  background: rgba(10,10,10,.6);
+  backdrop-filter: blur(4px);
   border-radius: 1em;
   box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
   padding: 0.3em;
