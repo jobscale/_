@@ -1,37 +1,113 @@
 // ==UserScript==
-// @name         style change
+// @name         Custom Style
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
-// @author       You
-// @match        http://*/*
-// @match        https://*/*
+// @author       jobscale
+// @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=playcode.io
 // @grant        none
 // ==/UserScript==
 
-const change = () => {
-  const css = `
-body {
-  background-color: #222;
-  color: #888;
-  height: auto;
+const app = {
+  css1: `/* Custom Scheme */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; }
 }
-`;
-  const el1 = document.querySelector('[class^="mypage-page-main_tabList"]');
-  if (el1) el1.style.visibility = 'hidden';
-  const uni = document.querySelectorAll('div[class^="episode-pattern-c_seriesTitle"]');
-  if (uni) uni.forEach(el => { el.style.color = '#aaa'; });
-  const list = document.querySelectorAll('a div, a span, div ul');
-  if(list) list.forEach(el => { el.style.color = '#aaa'; });
-  const style = document.createElement('style');
-  style.innerHTML = css;
-  document.head.append(style);
-  const el2 = document.querySelector('div[class^="companion-ad-slot"]');
-  if (el2) el2.style.visibility = 'hidden';
+@media (prefers-color-scheme: light) {
+  :root { color-scheme: light; }
+}
+`,
+
+  css2: `/* Custom Scheme */
+:root { filter: invert(1); }
+html { height: 100vh; background-color: #ddd }
+`,
+
+  css3: `/* Custom Scheme */
+video, img { filter: invert(1); }
+`,
+
+  btn: `position: fixed;
+right: 2em;
+bottom: 2em;
+z-index: 1000001;`,
+
+  add(css, no) {
+    const style = document.createElement('style');
+    style.innerHTML = css;
+    style.id = `custom-css-${no}`;
+    document.head.append(style);
+    const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
+    customCss.push(no);
+    localStorage.setItem('custom-css', JSON.stringify(customCss));
+  },
+
+  toggle(css, no) {
+    const exist = document.querySelector(`#custom-css-${no}`);
+    const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
+    if (customCss.includes(no)) {
+      if (exist) exist.remove();
+      localStorage.setItem('custom-css', JSON.stringify(customCss.filter(v => v !== no)));
+    } else if (!exist) {
+      this.add(css, no);
+    }
+  },
+
+  update(no, force) {
+    const css = this[`css${no}`];
+    if (force) {
+      this.add(css, no);
+      return;
+    }
+    this.toggle(css, no);
+  },
+
+  mounted() {
+    const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
+    if (customCss.includes(1)) this.update(1, true);
+    if (customCss.includes(2)) this.update(2, true);
+    if (customCss.includes(3)) this.update(3, true);
+  },
+
+  setting() {
+    const div = document.createElement('div');
+    div.style = this.btn;
+
+    const el1 = document.createElement('button');
+    el1.type = 'button';
+    el1.textContent = 'type 1';
+    el1.addEventListener('click', event => {
+      event.preventDefault();
+      this.update(1);
+    });
+    div.append(el1);
+
+    const el2 = document.createElement('button');
+    el2.type = 'button';
+    el2.textContent = 'type 2';
+    el2.addEventListener('click', event => {
+      event.preventDefault();
+      this.update(2);
+    });
+    div.append(el2);
+
+    const el3 = document.createElement('button');
+    el3.type = 'button';
+    el3.textContent = 'type 3';
+    el3.addEventListener('click', event => {
+      event.preventDefault();
+      this.update(3);
+    });
+    div.append(el3);
+
+    document.body.append(div);
+  },
+
+  main() {
+    this.mounted();
+    this.setting();
+  },
 };
 
-setTimeout(() => {
-  change();
-  setTimeout(() => change(), 3500);
-}, 1500);
+setTimeout(() => app.main(), 0);

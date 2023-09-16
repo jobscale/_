@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
-// @author       You
+// @author       jobscale
 // @match        https://tver.jp/*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tver.jp
 // @grant        none
@@ -18,7 +18,6 @@ const setVideo = () => {
   }
   clearTimeout(idVideo);
   document.querySelector('[class^="companion-ad-slot_host"]').remove();
-  document.body.style.backgroundColor = 'black';
   who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
   document.querySelector('[class^="cross-column-layout_container"]')
   .style = 'margin-top:95vh;'
@@ -42,41 +41,29 @@ setTimeout(setClick, 1000);
 
 const changeStyle = () => {
   const css = `
-body {
-  background-color: #222;
-  color: #888;
-  height: auto;
-}
 .btn-close {
   position: absolute;
   top: -1em;
   right: -0.5em;
   width: 1.2em;
   height: 1.2em;
-  cursor: not-allowed;
+  cursor: cell;
+  filter: invert(1);
 }
 .btn-button {
   width: 15em;
-  background-color: #111;
-  color: #58f;
   cursor: pointer;
   border-radius: 1em;
   margin: auto;
 }
 `;
-  const el1 = document.querySelector('[class^="mypage-page-main_tabList"]');
-  if (el1) el1.style.visibility = 'hidden';
-  const uni = document.querySelectorAll('div[class^="episode-pattern-c_seriesTitle"]');
-  if (uni) uni.forEach(el => { el.style.color = '#aaa'; });
-  const list = document.querySelectorAll('a div, a span, div ul');
-  if(list) list.forEach(el => { el.style.color = '#aaa'; });
   const style = document.createElement('style');
   style.innerHTML = css;
   document.head.append(style);
+  const el1 = document.querySelector('[class^="mypage-page-main_tabList"]');
+  if (el1) el1.style.visibility = 'hidden';
   const el2 = document.querySelector('div[class^="companion-ad-slot"]');
   if (el2) el2.style.visibility = 'hidden';
-  const el3 = document.querySelector('div[class^="series-info_container"]');
-  if (el3) el3.style['background-color'] = '#111'
 };
 
 const setEvent = content => {
@@ -134,7 +121,7 @@ const setMenu2 = areaMenu => {
 const setContentEvent = () => {
   document.querySelectorAll('[class^="episode-pattern-c_container"]')
   .forEach(content => setEvent(content));
-  const areaMenu = document.querySelector('[class^="favorite-filter-menu_viewedRemove"]');
+    const areaMenu = document.querySelector('[class^="favorite-filter-menu_viewedRemove"]');
   setMenu1(areaMenu);
   setMenu2(areaMenu);
 };
