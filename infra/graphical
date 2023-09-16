@@ -16,25 +16,37 @@ code() {
 }
 
 cinnamon() {
-  apt update
-  apt install -y $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}') terminator ibus-mozc conky
+  sudo apt update
+  sudo apt install -y $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}')
 }
 
 # Debian 11
 bullseye() {
   cinnamon && chrome && code
+  sudo apt install -y terminator ibus-mozc conky
 }
 
 # Ubuntu 22.04
 jammy() {
+  sudo apt update
   cinnamon && chrome && code
-  sudo apt update && sudo apt install -y language-pack-gnome-ja
+  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y language-pack-gnome-ja
 }
 
 # Ubuntu 20.04
 focal() {
+  sudo apt update
   cinnamon && chrome && code
-  sudo apt update && sudo apt install -y language-pack-gnome-ja
+  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y language-pack-gnome-ja
+}
+
+# Kali
+kali-rolling() {
+  sudo apt update
+  chrome && code
+  sudo apt install -y terminator ibus-mozc conky
 }
 
 {
