@@ -4,14 +4,14 @@ set -eux
 export DEBIAN_FRONTEND=noninteractive
 
 chrome() {
-  curl -sLO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  apt install -y ./google-chrome-stable_current_amd64.deb
+  curl -sLO "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+  sudo apt install -y ./google-chrome-stable_current_amd64.deb
   rm google-chrome-stable_current_amd64.deb
 }
 
 code() {
   curl -sSL -o code-stable-linux.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
-  apt install -y ./code-stable-linux.deb
+  sudo apt install -y ./code-stable-linux.deb
   rm code-stable-linux.deb
 }
 
@@ -45,7 +45,9 @@ focal() {
 # Kali
 kali-rolling() {
   sudo apt update
+  cd /tmp
   chrome && code
+  cd -
   sudo apt install -y terminator ibus-mozc conky
   sudo apt install -y task-japanese-desktop
 }
