@@ -1,6 +1,0 @@
-#!/bin/bash -eu
-
-main() {
-  nohup ~/.bin/PhpStorm-*/bin/phpstorm.sh $@ >&/dev/null &
-}
-main $@

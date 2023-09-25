@@ -92,7 +92,8 @@ iNodejs() {
   curl -fsSLo- https://raw.githubusercontent.com/creationix/nvm/$(
     git ls-remote --refs --tags https://github.com/nvm-sh/nvm.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
   )/install.sh | bash
-  . ~/.bashrc
+  echo $SHELL | grep bash && source ~/.bashrc
+  echo $SHELL | grep zsh && source ~/.zshrc
   LATEST=$(nvm ls-remote | grep 'Latest LTS' | tail -1 | awk '{print $1}')
   nvm install $LATEST
   nvm alias default $LATEST
