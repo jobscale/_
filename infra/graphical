@@ -50,6 +50,8 @@ kali-rolling() {
   cd -
   sudo apt install -y terminator ibus-mozc conky
   sudo apt install -y task-japanese-desktop
+  sudo dpkg-reconfigure locales
+  sudo systemctl enable ssh --now
 }
 
 {
