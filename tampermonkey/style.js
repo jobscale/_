@@ -68,13 +68,6 @@ z-index: 1000001;`,
     this.toggle(css, no);
   },
 
-  mounted() {
-    const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
-    if (customCss.includes(1)) this.update(1, true);
-    if (customCss.includes(2)) this.update(2, true);
-    if (customCss.includes(3)) this.update(3, true);
-  },
-
   setting() {
     const div = document.createElement('div');
     div.style = this.btn;
@@ -109,9 +102,20 @@ z-index: 1000001;`,
     document.body.append(div);
   },
 
+  mounted() {
+    const ts = Date.now();
+    const conf = JSON.parse(localStorage.getItem('custom-css-conf') ?? '{}');
+    localStorage.setItem('custom-css-conf', JSON.stringify({ expired: ts + 1000 }));
+    if (conf.expired && conf.expired > ts) return;
+    const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
+    if (customCss.includes(1)) this.update(1, true);
+    if (customCss.includes(2)) this.update(2, true);
+    if (customCss.includes(3)) this.update(3, true);
+    this.setting();
+  },
+
   main() {
     this.mounted();
-    this.setting();
   },
 };
 

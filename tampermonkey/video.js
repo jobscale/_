@@ -17,7 +17,6 @@ const setVideo = () => {
     return;
   }
   clearTimeout(idVideo);
-  document.body.style.backgroundColor = 'black';
   who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
   document.querySelector('#page').style = 'margin-top:100vh;';
   document.querySelector('.input-group').style = 'display: none;';
