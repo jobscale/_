@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.27.1"
+IMAGE="kindest/node:v1.28.0"
 
 production() {
   export KINDNAME=production
@@ -90,7 +90,7 @@ inAllInOne() {
 
   kubectl get pods -A -o wide
   kubectl top pods -n standard --containers | sort -h -k 4
-  docker exec -i $KINDNAME-control-plane crictl images > images-$KINDNAME-list
+  docker exec -i $KINDNAME-control-plane crictl images | sort > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
   ingressSecret kubernetes-dashboard
@@ -352,7 +352,7 @@ deployApps() {
     kubectl -n standard apply -f backend/shop && waitFor shop
     # deployPython
     kubectl -n standard apply -f backend/tutorial && waitFor tutorial
-    kubectl -n standard apply -f backend/fastapi && waitFor fastapi
+    # kubectl -n standard apply -f backend/fastapi && waitFor fastapi
     # kubectl -n standard apply -f backend/django && waitFor django
     # deployEcho
     kubectl -n standard apply -f backend/echo && waitFor echo
