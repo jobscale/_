@@ -190,12 +190,6 @@
 
     const style = document.createElement('style');
     style.textContent = `
-body {
-  background-color: #10222eb9;
-}
-body {
-  background-color: #10222eb9;
-}
 .g-area {
   position: absolute;
   color: #ddd;
