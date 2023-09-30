@@ -31,6 +31,20 @@ ubuntu() {
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
+kali-rolling() {
+  apt-get update
+  apt-get install -y apt-transport-https
+  apt-get update
+  apt-get install -y software-properties-common ca-certificates gnupg
+
+  echo ${ID,,} ${VERSION_CODENAME}
+  curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+  add-apt-repository "deb https://download.docker.com/linux/debian bullseye stable"
+  apt-get update
+  apt-get install -y docker-ce docker-ce-cli containerd.io
+  echo -- sudo usermod -aG docker \$\(whoami\)
+}
+
 # Debian 10
 buster() {
   debian
