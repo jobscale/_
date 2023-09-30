@@ -99,7 +99,7 @@ configure_prompt() {
         twoline)
             PROMPT=$'%F{%(#.blue.green)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.blue)}%n'$prompt_symbol$'%m%b%F{%(#.blue.green)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.green)}]\n└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
             [[ $(hostname) == "focal" ]] && PROMPT=$'%F{%(#.blue.cyan)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.cyan)}%n'🍺$'%m%b%F{%(#.blue.cyan)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.cyan)}]\n└─%B%(#.%F{red}#.%F{cyan}$)%b%F{reset} '
-            [[ $(hostname) == "mojave" ]] && PROMPT=$'%F{%(#.blue.blue)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.magenta)}%n'@$'%m%b%F{%(#.blue.blue)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.blue)}]\n└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
+            [[ $(hostname) == "mojave.local" ]] && PROMPT=$'%F{%(#.blue.blue)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.magenta)}%n'@$'%m%b%F{%(#.blue.blue)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.blue)}]\n└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
             # Right-side prompt with exit codes and background processes
             #RPROMPT=$'%(?.. %? %F{red}%B⨯%b%F{reset})%(1j. %j %F{yellow}%B⚙%b%F{reset}.)'
             ;;
