@@ -35,7 +35,7 @@ video, img { filter: invert(1); }
 
   btn: `position: fixed;
 right: 2em;
-bottom: 2em;
+bottom: 5em;
 z-index: 1000001;`,
 
   add(css, no) {
