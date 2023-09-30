@@ -10,9 +10,8 @@ export TZ=Asia/Tokyo
 [[ $(uname -s) == "Linux" ]] && alias ps='ps auxf'
 [[ $(uname -s) == "Darwin" ]] && alias ps='ps aux -o ppid'
 
-PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\] \$ "
-[[ "$(hostname)" == kail ]] && PS1="%F{%(#.blue.green)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.green)}]
-└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset}"
+PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
+└─\$ "
 [[ "$(hostname)" == focal ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
 [[ "$(hostname)" == bullseye ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
