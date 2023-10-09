@@ -37,9 +37,9 @@ main() {
   sleep 10
   for i in {1..30}
   do
-    date
+    date -Iseconds
     ens6
-    date
+    date -Iseconds
     ens5
   done
 }

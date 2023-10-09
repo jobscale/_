@@ -25,7 +25,7 @@ BODY="$(echo -n "Hi, this is my message, and I'm sending it to you!
 Host: ${HOST}
 Arch: $(arch)
 Distribution: ${NAME} ${VERSION}
-Timestamp: $(date)
+Timestamp: $(date -Iseconds)
 GlobalIP: ${GID}
 
 $(df -h /)

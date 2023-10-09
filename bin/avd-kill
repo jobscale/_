@@ -1,0 +1,2 @@
+kill $(ps auxf | grep qem[u] | awk '{print $2}')
+rm -f ~/.android/avd/Nexus_9_API_31.avd/*.lock
