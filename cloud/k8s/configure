@@ -310,6 +310,8 @@ cronJob() {
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-healthy.yaml
 
   kubectl create namespace cron-job
+  kubectl create cronjob -n cron-job remind --image ghcr.io/jobscale/remind --schedule='* * * * *'
+
   kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='57 7 * * 1-5'
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
