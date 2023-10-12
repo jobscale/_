@@ -43,6 +43,12 @@ bullseye() {
   apt-get install -y network-manager
 }
 
+# Debian 12
+bookworm() {
+  stable
+  apt-get install -y network-manager
+}
+
 # Ubuntu 14.04
 trusty() {
   stable

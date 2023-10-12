@@ -55,6 +55,11 @@ bullseye() {
   debian
 }
 
+# Debian 12
+bookworm() {
+  debian
+}
+
 # Ubuntu 20.04
 focal() {
   ubuntu

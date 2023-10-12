@@ -26,6 +26,12 @@ bullseye() {
   sudo apt install -y terminator ibus-mozc conky
 }
 
+# Debian 12
+bookworm() {
+  cinnamon && chrome && code
+  sudo apt install -y terminator ibus-mozc conky
+}
+
 # Ubuntu 22.04
 jammy() {
   sudo apt update
