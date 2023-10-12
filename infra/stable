@@ -17,7 +17,7 @@ stable() {
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
 }
 
-kali-rolling() {
+stable-2023() {
   apt-get update
   apt-get install -y apt-transport-https
   apt-get update
@@ -29,6 +29,10 @@ kali-rolling() {
   apt-get autoremove -y
 
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
+}
+
+kali-rolling() {
+  stable-2023
 }
 
 # Debian 10
@@ -45,7 +49,7 @@ bullseye() {
 
 # Debian 12
 bookworm() {
-  stable
+  stable-2023
   apt-get install -y network-manager
 }
 
