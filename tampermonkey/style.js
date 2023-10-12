@@ -72,6 +72,15 @@ z-index: 1000001;`,
     const div = document.createElement('div');
     div.style = this.btn;
 
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.textContent = 'hide';
+    el.addEventListener('click', event => {
+      event.preventDefault();
+      div.remove();
+    });
+    div.append(el);
+
     const el1 = document.createElement('button');
     el1.type = 'button';
     el1.textContent = 'type 1';
