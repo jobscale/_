@@ -57,8 +57,21 @@ ${if_match "$nodename" == "focal"}\
 ${template2 cpu5 cpu6}
 ${template2 cpu7 cpu8}
 $endif\
+${if_match "$nodename" == "mini"}\
+${template2 cpu5 cpu6}
+${template2 cpu7 cpu8}
+${template2 cpu9 cpu10}
+${template2 cpu11 cpu12}
+${template2 cpu13 cpu14}
+${template2 cpu15 cpu16}
+$endif\
 ${color5}Network         $stippled_hr\
-${template1 enp4s0}${template1 ens9}${template1 wlp3s0}${template1 enp0s3}
+${template1 enp4s0}\
+${template1 ens9}\
+${template1 wlp3s0}\
+${template1 enp0s3}\
+${template1 wlan0}\
+${template1 eth0}
 ${color5}Storage         $stippled_hr \
 ${template0 /               sda SSD}\
 ${template0 /home/vbox      sdb SSD}\
