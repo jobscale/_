@@ -1,1 +1,15 @@
-gsettings set org.freedesktop.ibus.panel xkb-icon-rgba '#f57900'
+#!/usr/bin/env bash
+
+ibus-color-0() {
+  gsettings set org.freedesktop.ibus.panel xkb-icon-rgba '#f57900'
+}
+
+ibus-color-1() {
+  gsettings set org.freedesktop.ibus.panel xkb-icon-rgba '#75f900'
+}
+
+{
+  NO=$(echo "$(date +%s) % 2" | bc)
+  echo ibus-color-${NO}
+  ibus-color-${NO}
+}
