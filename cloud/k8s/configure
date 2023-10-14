@@ -20,8 +20,8 @@ development
 k8sVolume() {
   MNT_DIR=/home/k8s/mnt/var/lib
   sudo mkdir -p $MNT_DIR/_empty
-  sudo chown root:adm $MNT_DIR/*
-  sudo chmod g+rX $MNT_DIR/*
+  sudo bash -c "chown root:adm $MNT_DIR/*"
+  sudo bash -c "chmod g+rX $MNT_DIR/*"
   sudo tree -h -L 2 $MNT_DIR
 }
 
@@ -39,7 +39,7 @@ cleanKind() {
   sudo rm -fr /home/k8s/system
   sudo rm -fr /home/k8s/mnt
   sudo mkdir -p /home/k8s/logs
-  sudo chown -R $(id -un):$(id -gn) /home/k8s/logs
+  sudo chown -R $(id -un):$(id -gn) /home/k8s
 }
 
 defaultImage() {
