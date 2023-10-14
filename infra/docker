@@ -38,10 +38,10 @@ kali-rolling() {
   apt-get install -y software-properties-common ca-certificates gnupg
 
   echo ${ID,,} ${VERSION_CODENAME}
-  curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-  add-apt-repository "deb https://download.docker.com/linux/debian bullseye stable"
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  add-apt-repository "deb https://download.docker.com/linux/ubuntu jammy stable"
   apt-get update
-  apt-get install -y docker-ce docker-ce-cli containerd.io
+  apt-get install -y docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
