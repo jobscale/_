@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+set -eu
+
+sudo iptables -F
+sudo iptables -t nat -F
+
+# sudo iptables -t nat -A PREROUTING -p udp -d $SERVER --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -t nat -A PREROUTING -p udp -d 127.0.0.1 --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+
+# sudo iptables -A PREROUTING -t nat -p udp --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -A FORWARD -p udp --dport 53 -d 127.0.0.53 -j ACCEPT
+# sudo iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+
+# sudo iptables -A FORWARD -p udp --dport 53 -d 127.0.0.53 -j ACCEPT
+# sudo iptables -A FORWARD -p udp --dport 53 -d $SERVER -j ACCEPT
+# sudo iptables -A PREROUTING -t nat -p udp --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -A POSTROUTING -t nat -j MASQUERADE
+
+# NETIF=enp0s3
+# sudo iptables -t nat -A PREROUTING -p udp -d $SERVER --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -A INPUT -p udp -m udp --dport 53 -j ACCEPT
+# sudo iptables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i ${NETIF} -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o ${NETIF} -p udp --sport 53 -j ACCEPT
+# sudo iptables -A FORWARD -j DROP
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+# # DNS転送のための設定を追加する
+# sudo iptables -t nat -A PREROUTING -p udp -d ${SERVER} --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+# # パケットの転送を許可する設定を追加する
+# sudo iptables -A FORWARD -i ${NETIF} -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o ${NETIF} -p udp --sport 53 -j ACCEPT
+# # ローカルホストでの名前解決のための設定を追加する
+# sudo iptables -A OUTPUT -o lo -p udp --dport 53 -j ACCEPT
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+
+# # 設定をクリアする
+# sudo iptables -F
+# sudo iptables -t nat -F
+
+# # ループバックアドレスの名前解決を許可する
+# sudo iptables -A INPUT -i lo -j ACCEPT
+# sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# # DNSパケットを転送する
+# sudo iptables -t nat -A PREROUTING -p udp -d $SERVER --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -t nat -A POSTROUTING -p udp -s 127.0.0.53 --sport 53 -j SNAT --to-source $SERVER
+
+# # パケットの転送を許可する
+# sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+
+# # 設定をクリアする
+# sudo iptables -F
+# sudo iptables -t nat -F
+
+# # ループバックアドレスの名前解決を許可する
+# sudo iptables -A INPUT -i lo -j ACCEPT
+# sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# # DNSパケットを転送する
+# sudo iptables -t nat -A PREROUTING -p udp -d $SERVER --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -t nat -A POSTROUTING -s 127.0.0.53/32 -d 127.0.0.53/32 -p udp --sport 53 -j SNAT --to-source $SERVER
+
+# # パケットの転送を許可する
+# sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# # 外部からのUDPパケットを許可する
+# sudo iptables -A INPUT -i $NETIF -p udp --dport 53 -j ACCEPT
+# sudo iptables -A OUTPUT -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+
+# # Clear the settings
+# sudo iptables -F
+# sudo iptables -t nat -F
+
+# # Allow name resolution of loopback address
+# sudo iptables -A INPUT -i lo -j ACCEPT
+# sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# # Forward DNS packets
+# sudo iptables -t nat -A PREROUTING -p udp -d $SERVER --dport 53 -j DNAT --to-destination 127.0.0.53:53
+# sudo iptables -t nat -A POSTROUTING -p udp --dport 53 -j SNAT --to-source $SERVER
+
+# # Allow packet forwarding
+# sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# # Allow external UDP packets
+# sudo iptables -A INPUT -i $NETIF -p udp --dport 53 -j ACCEPT
+# sudo iptables -A OUTPUT -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+
+# # Clear the settings
+# sudo iptables -F
+# sudo iptables -t nat -F
+
+# # Allow name resolution of loopback address
+# sudo iptables -A INPUT -i lo -j ACCEPT
+# sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# # Forward DNS packets
+# sudo iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination $SERVER:53
+# sudo iptables -t nat -A POSTROUTING -p udp -s 127.0.0.1/32 --sport 53 -j SNAT --to-source $SERVER
+
+# # Allow packet forwarding
+# sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# # Allow external UDP packets
+# sudo iptables -A INPUT -i $NETIF -p udp --dport 53 -j ACCEPT
+# sudo iptables -A OUTPUT -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+
+# # Clear the settings
+# sudo iptables -F
+# sudo iptables -t nat -F
+
+# # Allow name resolution of loopback address
+# sudo iptables -A INPUT -i lo -j ACCEPT
+# sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# # Forward DNS packets
+# sudo iptables -t nat -A PREROUTING -i $NETIF -p udp --dport 53 -j DNAT --to-destination $SERVER:53
+# sudo iptables -t nat -A POSTROUTING -o $NETIF -p udp --sport 53 -j SNAT --to-source $SERVER
+
+# # Allow packet forwarding
+# sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# # Allow external UDP packets
+# sudo iptables -A INPUT -i $NETIF -p udp --dport 53 -j ACCEPT
+# sudo iptables -A OUTPUT -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# SERVER=172.16.6.110
+# NETIF=enp0s3
+
+# # Clear the settings
+# sudo iptables -F
+# sudo iptables -t nat -F
+
+# # Allow name resolution of loopback address
+# sudo iptables -A INPUT -i lo -j ACCEPT
+# sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# # Forward DNS packets
+# sudo iptables -t nat -A PREROUTING -i $NETIF -p udp --dport 53 -j DNAT --to-destination $SERVER:53
+# sudo iptables -t nat -A POSTROUTING -o $NETIF -p udp --sport 53 -j SNAT --to-source $(hostname -I)
+
+# # Allow packet forwarding
+# sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 53 -j ACCEPT
+# sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# # Allow external UDP packets
+# sudo iptables -A INPUT -i $NETIF -p udp --dport 53 -j ACCEPT
+# sudo iptables -A OUTPUT -o $NETIF -p udp --sport 53 -j ACCEPT
+
+SERVER_IP=172.16.6.110
+NETIF=enp0s3
+
+# Clear the settings
+sudo iptables -t nat -F
+sudo iptables -F
+sudo iptables -X
+sudo iptables -L -n -t nat
+
+# Forward DNS packets to localhost
+sudo iptables -t nat -A PREROUTING -i $NETIF -p udp --dport 53 -j DNAT --to-destination 127.0.0.53:3053
+sudo iptables -t nat -A POSTROUTING -o $NETIF -p udp --sport 53 -j SNAT --to-source $SERVER_IP
+
+# Allow name resolution of loopback address
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# Allow packet forwarding
+sudo iptables -A FORWARD -i $NETIF -o lo -p udp --dport 3053 -j ACCEPT
+sudo iptables -A FORWARD -i lo -o $NETIF -p udp --sport 53 -j ACCEPT
+
+# Allow external UDP packets
+sudo iptables -A INPUT -i $NETIF -p udp --dport 5353 -j ACCEPT
+sudo iptables -A OUTPUT -o $NETIF -p udp --sport 53 -j ACCEPT
+sudo iptables -L -n -t nat

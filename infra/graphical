@@ -23,20 +23,20 @@ cinnamon() {
 # Debian 11
 bullseye() {
   cinnamon && chrome && code
-  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y terminator ibus-mozc conky gdm3
 }
 
 # Debian 12
 bookworm() {
   cinnamon && chrome && code
-  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y terminator ibus-mozc conky gdm3
 }
 
 # Ubuntu 22.04
 jammy() {
   sudo apt update
   cinnamon && chrome && code
-  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y language-pack-gnome-ja
 }
 
@@ -44,7 +44,7 @@ jammy() {
 focal() {
   sudo apt update
   cinnamon && chrome && code
-  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y language-pack-gnome-ja
 }
 
@@ -54,7 +54,7 @@ kali-rolling() {
   cd /tmp
   chrome && code
   cd -
-  sudo apt install -y terminator ibus-mozc conky
+  sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y task-japanese-desktop
   sudo dpkg-reconfigure locales
   sudo systemctl enable ssh --now
