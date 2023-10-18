@@ -57,7 +57,7 @@ ${if_match "$nodename" == "focal"}\
 ${template2 cpu5 cpu6}
 ${template2 cpu7 cpu8}
 $endif\
-${if_match "$nodename" == "mini"}\
+${if_match "$nodename" == "jammy"}\
 ${template2 cpu5 cpu6}
 ${template2 cpu7 cpu8}
 ${template2 cpu9 cpu10}
