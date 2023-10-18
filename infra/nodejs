@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -e
 
 {
   curl -fsSLo- https://raw.githubusercontent.com/creationix/nvm/$(
