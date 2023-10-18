@@ -53,9 +53,8 @@ $color4${membar 8}$color3
 CPU: $color1$cpu%  ${color3}Swap: $color1$swapperc%  $color4${swapbar 8}$color3
 ${template2 cpu1 cpu2}
 ${template2 cpu3 cpu4}
-${if_match "$nodename" == "focal"}\
+${if_match "$nodename" == "bookworm"}\
 ${template2 cpu5 cpu6}
-${template2 cpu7 cpu8}
 $endif\
 ${if_match "$nodename" == "jammy"}\
 ${template2 cpu5 cpu6}
