@@ -301,7 +301,6 @@ genPasswd() {
 
 cronJob() {
   [[ "$KINDNAME" != production ]] && return
-  [[ "$(hostname)" != focal ]] && return
   # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='0/7 * * * *'
   kubectl create namespace health-check
   kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='0/7 * * * *'
