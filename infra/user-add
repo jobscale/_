@@ -17,7 +17,7 @@ userAdd() {
 }
 
 {
-  date +'BEGIN user-add %Y-%m-%d %H:%M:%S'
+  echo "START  user-add $(date --rfc-3339=seconds)"
   time userAdd jobscale
-  date +'END   user-add %Y-%m-%d %H:%M:%S'
+  echo "FINISH user-add $(date --rfc-3339=seconds)"
 }

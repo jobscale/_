@@ -1,1 +1,3 @@
-dd if=/dev/zero of=benchmark$(date +%s).img bs=50M count=200 status=progress
+time {
+  dd if=/dev/zero of=benchmark$(date +%s).img bs=50M count=100 status=progress
+}

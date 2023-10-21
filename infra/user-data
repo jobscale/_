@@ -4,14 +4,15 @@ set -eux
 userData() {
   curl -sL jsx.jp/s/stable | bash
   curl -sL jsx.jp/s/docker | bash
+  curl -sL jsx.jp/s/nodejs | bash
   curl -sL jsx.jp/s/ja-jp | bash
   curl -sL jsx.jp/s/user-add | bash
   usermod -aG docker $1
   sudo -i -u $1 git clone https://github.com/jobscale/_.git
 }
 
-{
-  date +'BEGIN user-data %Y-%m-%d %H:%M:%S'
+time {
+  echo "START  user-data $(date --rfc-3339=seconds)"
   time userData jobscale
-  date +'END   user-data %Y-%m-%d %H:%M:%S'
+  echo "FINISH user-data $(date --rfc-3339=seconds)"
 }

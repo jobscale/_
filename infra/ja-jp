@@ -14,7 +14,7 @@ jaJP() {
 }
 
 {
-  echo "BEGIN ja-jp $(date --rfc-3339=seconds)"
+  echo "START  ja-jp $(date --rfc-3339=seconds)"
   jaJP
-  echo "END   ja-jp $(date --rfc-3339=seconds)"
+  echo "FINISH ja-jp $(date --rfc-3339=seconds)"
 }
