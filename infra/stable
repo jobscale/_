@@ -14,7 +14,7 @@ stable() {
     python3-pip bc unzip tree colordiff
   apt-get autoremove -y
 
-  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
+  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
 stable-2023() {
@@ -28,7 +28,7 @@ stable-2023() {
     python3-pip bc unzip tree colordiff
   apt-get autoremove -y
 
-  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_
+  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
 kali-rolling() {

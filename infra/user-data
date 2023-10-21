@@ -4,7 +4,6 @@ set -eux
 userData() {
   curl -sL jsx.jp/s/stable | bash
   curl -sL jsx.jp/s/docker | bash
-  curl -sL jsx.jp/s/nodejs | bash
   curl -sL jsx.jp/s/ja-jp | bash
   curl -sL jsx.jp/s/user-add | bash
   usermod -aG docker $1
