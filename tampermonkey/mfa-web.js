@@ -6,7 +6,7 @@
 // @author       jobscale
 // @match        https://*.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin*
 // @match        https://login.microsoftonline.com/*/login
-// @match        https://github.com/sessions/two-factor/app
+// @match        https://github.com/*
 // @match        https://www.npmjs.com/login/otp?next=*
 // @match        https://www.npmjs.com/escalate/otp?next=*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
