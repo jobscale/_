@@ -53,12 +53,14 @@ iStern() {
   }
   setArch
 
-  FNAME=stern_${UNAME}_${ARCH}
-  curl -fsSLO https://github.com/wercker/stern/releases/download/$(
-    git ls-remote --refs --tags https://github.com/wercker/stern.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
-  )/$FNAME
-  chmod ugo+x $FNAME
-  sudo mv $FNAME /usr/local/bin/stern
+  VERSION=$(git ls-remote --refs --tags https://github.com/stern/stern.git | sort -t '/' -k 3 -V \
+  | tail -1 | awk -F/ '{print $3}' | sed -e 's/v//')
+  FNAME=stern_${VERSION}_${UNAME}_${ARCH}.tar.gz
+  echo $FNAME
+  curl -fsSLO https://github.com/stern/stern/releases/download/v$VERSION/$FNAME
+  tar xf $FNAME
+  rm $FNAME LICENSE
+  sudo mv stern /usr/local/bin/
   stern --version
 } && iStern
 ```

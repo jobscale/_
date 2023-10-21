@@ -287,10 +287,10 @@ createWetty() {
   kubectl -n wetty apply -f backend/limitrange-limits.yaml
   ingressSecret wetty
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
-  TTY_PASSWD="$(makePasswd)"
-  genPasswd "$TTY_PASSWD"
-  echo "Initialized password: '$TTY_PASSWD'"
-  postSlack "Initialized password: '$TTY_PASSWD'"
+  # TTY_PASSWD="$(makePasswd)"
+  # genPasswd "$TTY_PASSWD"
+  # echo "Initialized password: '$TTY_PASSWD'"
+  # postSlack "Initialized password: '$TTY_PASSWD'"
 }
 
 makePasswd() {
