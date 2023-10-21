@@ -67,22 +67,23 @@ inAllInOne() {
   defaultImage
 
   k8sApps
+  # partnerContainer
   jsxSite
   networkService
-  deployDatabase
 
   # metalLB
   # ingressForward
   ingressNginx
 
+  # deployDatabase
   createStandard
 
-  [[ $KINDNAME == production ]] && createCodeServer
+  # [[ $KINDNAME == production ]] && createCodeServer
   [[ $KINDNAME == production ]] && createWetty
   [[ $KINDNAME == production ]] && cronJob
-  [[ $KINDNAME == production ]] && deployWordpress
-  [[ $KINDNAME == production ]] && deployBitnami
-  [[ $KINDNAME == production ]] && deployRedmine
+  # [[ $KINDNAME == production ]] && deployWordpress
+  # [[ $KINDNAME == production ]] && deployBitnami
+  # [[ $KINDNAME == production ]] && deployRedmine
 
   # ingressRestart
 
@@ -175,11 +176,13 @@ k8sApps() {
   adminDashboard
 }
 
-jsxSite() {
+partnerContainer() {
   [[ $KINDNAME == production || $KINDNAME == staging ]] \
   && backend/partner/create-secret.sh \
   && kubectl apply -f backend/partner && waitFor partner
+}
 
+jsxSite() {
   kubectl create namespace jsxjp
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
   ingressSecret jsxjp
@@ -261,11 +264,12 @@ createStandard() {
   # kubectl config set-context $(kubectl config current-context) --namespace standard
   ingressSecret standard
 
-  kubectl -n standard apply -f backend/redis && waitFor redis
-  kubectl -n standard apply -f backend/mongo && waitFor mongo
+  # kubectl -n standard apply -f backend/redis && waitFor redis
+  # kubectl -n standard apply -f backend/mongo && waitFor mongo
   kubectl -n standard apply -f backend/ddb && waitFor ddb
+  kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
-  [[ $KINDNAME == production ]] && deployApps
+  # [[ $KINDNAME == production ]] && deployApps
 
   kubectl describe nodes
   # kubectl config set-context $(kubectl config current-context) --namespace default
@@ -333,7 +337,6 @@ cronJob() {
 
 deployApps() {
   # deployNode
-  kubectl -n standard apply -f backend/mqtt && waitFor mqtt
   kubectl -n standard apply -f backend/tanpo && waitFor tanpo
   kubectl -n standard apply -f backend/exp && waitFor exp
   {

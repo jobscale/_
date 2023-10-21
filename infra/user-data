@@ -14,4 +14,8 @@ time {
   echo "START  user-data $(date --rfc-3339=seconds)"
   time userData jobscale
   echo "FINISH user-data $(date --rfc-3339=seconds)"
+  {
+    sleep 30
+    reboot
+  } &
 }
