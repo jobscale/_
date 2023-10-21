@@ -35,21 +35,6 @@ gui() {
   # gsettings set org.freedesktop.ibus.panel xkb-icon-rgba '#f57900'
 }
 
-iNodejs() {
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/$(
-    git ls-remote --tags --refs https://github.com/nvm-sh/nvm.git | grep -P 'v0.\d\d' | tail -1 | awk -F/ '{print $3}'
-  )/install.sh | bash
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-  LATEST=$(nvm ls-remote | grep 'Latest LTS' | tail -1 | awk '{print $1}')
-  nvm install $LATEST
-  nvm alias default $LATEST
-  nvm use $LATEST
-  node --version
-  npm --version
-  id
-}
-
 iAws() {
   curl -sL -o awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
   unzip awscliv2.zip
@@ -68,39 +53,6 @@ iGcloud() {
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
   sudo add-apt-repository "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -cs) main"
   sudo apt install -y google-cloud-sdk
-}
-
-iDocker() {
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  sudo add-apt-repository "deb https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  sudo apt install -y docker-ce apt-transport-https
-  sudo usermod -aG docker $(whoami)
-}
-
-iKubectl() {
-  curl -sLO https://storage.googleapis.com/kubernetes-release/release/$(
-    curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt
-  )/bin/linux/amd64/kubectl
-  chmod +x kubectl
-  sudo mv kubectl /usr/local/bin
-  kubectl version
-}
-
-iStern() {
-  curl -sLo stern https://github.com/wercker/stern/releases/download/$(
-    git ls-remote --refs --tags https://github.com/wercker/stern.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}'
-  )/stern_linux_amd64
-  chmod ugo+x stern
-  sudo mv stern /usr/local/bin
-}
-
-iKind() {
-  curl -sLo kind https://github.com/kubernetes-sigs/kind/releases/download/$(
-    git ls-remote --tags --refs https://github.com/kubernetes-sigs/kind.git | tail -1 | awk -F/ '{print $3}'
-  )/kind-$(uname)-amd64
-  chmod +x kind
-  sudo mv kind /usr/local/bin
-  kind version
 }
 
 useFunction() {
