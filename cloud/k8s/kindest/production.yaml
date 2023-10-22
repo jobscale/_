@@ -21,11 +21,11 @@ nodes:
     listenAddress: 0.0.0.0
     hostPort: 3128
   - containerPort: 30053
-    listenAddress: 127.0.0.2
-    hostPort: 3053
+    listenAddress: 0.0.0.0
+    hostPort: 53
   - containerPort: 30053
-    listenAddress: 127.0.0.2
-    hostPort: 3053
+    listenAddress: 0.0.0.0
+    hostPort: 53
     protocol: UDP
   extraMounts:
   # - containerPath: /var/lib/containerd
