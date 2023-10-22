@@ -58,6 +58,9 @@ defaultImage() {
 }
 
 inAllInOne() {
+  sudo systemctl disable systemd-resolved --now
+  sudo systemctl mask systemd-resolved
+
   createKind
 
   kubectl -n default apply -f backend/limitrange-limits.yaml
@@ -71,10 +74,6 @@ inAllInOne() {
   jsxSite
   networkService
 
-  # metalLB
-  # ingressForward
-  ingressNginx
-
   # deployDatabase
   createStandard
 
@@ -85,6 +84,10 @@ inAllInOne() {
   # [[ $KINDNAME == production ]] && deployBitnami
   # [[ $KINDNAME == production ]] && deployRedmine
 
+  # metalLB
+  # ingressForward
+  ingressNginx
+  loop 20
   # ingressRestart
 
   echo -n "        ending" && loop 20
@@ -266,16 +269,8 @@ createStandard() {
 
   # kubectl -n standard apply -f backend/redis && waitFor redis
   # kubectl -n standard apply -f backend/mongo && waitFor mongo
-  applyDDB() {
-    sleep 20
-    kubectl -n standard apply -f backend/ddb && waitFor ddb
-  }
-  applyDDB || applyDDB || applyDDB || applyDDB
-  applyMQTT() {
-    sleep 20
-    kubectl -n standard apply -f backend/mqtt && waitFor mqtt
-  }
-  applyMQTT || applyMQTT || applyMQTT || applyMQTT
+  kubectl -n standard apply -f backend/ddb && waitFor ddb
+  kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
   # [[ $KINDNAME == production ]] && deployApps
 
@@ -294,11 +289,7 @@ createWetty() {
   kubectl create namespace wetty
   kubectl -n wetty apply -f backend/limitrange-limits.yaml
   ingressSecret wetty
-  applyWetty() {
-    sleep 20
-    kubectl -n wetty apply -f backend/wetty && waitFor wetty
-  }
-  applyWetty || applyWetty || applyWetty || applyWetty
+  kubectl -n wetty apply -f backend/wetty && waitFor wetty
   # TTY_PASSWD="$(makePasswd)"
   # genPasswd "$TTY_PASSWD"
   # echo "Initialized password: '$TTY_PASSWD'"
