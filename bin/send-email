@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -u
+
+DATA="$1"
+ENDPOINT=https://jsx.jp/api/email
+
+sendEmail() {
+  GIP=$(curl -s https://inet-ip.info/ip)
+  curl -s -X POST -H 'Content-Type: application/json' ${ENDPOINT} \
+  --data "{\"subject\":\"$DATA\",\"text\":\"$HOSTNAME\\n$GIP\"}" > /dev/null || echo
+}
+
+sendEmail
