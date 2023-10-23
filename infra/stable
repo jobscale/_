@@ -10,7 +10,7 @@ stable() {
   apt-get full-upgrade -y
   apt-get install -y curl git vim tmux htop \
     iproute2 dnsutils ncat netcat iputils-ping \
-    procps whois nmap traceroute  \
+    nmap traceroute procps whois progress \
     python3-pip bc unzip tree colordiff
   apt-get autoremove -y
 
@@ -24,20 +24,16 @@ stable-2023() {
   apt-get full-upgrade -y
   apt-get install -y curl git vim tmux htop \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
-    procps whois nmap traceroute  \
+    nmap traceroute procps whois progress \
     python3-pip bc unzip tree colordiff
   apt-get autoremove -y
 
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
-kali-rolling() {
+# Debian 12
+bookworm() {
   stable-2023
-}
-
-# Debian 10
-buster() {
-  stable
   apt-get install -y network-manager
 }
 
@@ -47,24 +43,14 @@ bullseye() {
   apt-get install -y network-manager
 }
 
-# Debian 12
-bookworm() {
-  stable-2023
+# Debian 10
+buster() {
+  stable
   apt-get install -y network-manager
 }
 
-# Ubuntu 14.04
-trusty() {
-  stable
-}
-
-# Ubuntu 16.04
-xenial() {
-  stable
-}
-
-# Ubuntu 18.04
-bionic() {
+# Ubuntu 22.04
+jammy() {
   stable
 }
 
@@ -73,9 +59,24 @@ focal() {
   stable
 }
 
-# Ubuntu 22.04
-jammy() {
+# Ubuntu 18.04
+bionic() {
   stable
+}
+
+# Ubuntu 16.04
+xenial() {
+  stable
+}
+
+# Ubuntu 14.04
+trusty() {
+  stable
+}
+
+# kali
+kali-rolling() {
+  stable-2023
 }
 
 {
