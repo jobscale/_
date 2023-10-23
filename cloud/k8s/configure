@@ -58,6 +58,8 @@ defaultImage() {
 }
 
 inAllInOne() {
+  sudo ln -sfn /usr/lib/systemd/resolv.conf /etc/resolv.conf
+  echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
   sudo systemctl disable systemd-resolved --now
   sudo systemctl mask systemd-resolved
 
