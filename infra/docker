@@ -13,7 +13,7 @@ debian() {
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
   add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
   apt-get update
-  apt-get install -y docker-ce docker-ce-cli containerd.io
+  apt-get install -y docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
