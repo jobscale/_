@@ -82,4 +82,4 @@ else
   echo "not set proxy"
 fi
 
-post-slack "Logged in $(hostname)"
+post-slack "Logged in $(hostname)" &

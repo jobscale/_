@@ -56,7 +56,7 @@ ${template2 cpu3 cpu4}
 ${if_match "$nodename" == "bookworm"}\
 ${template2 cpu5 cpu6}
 $endif\
-${if_match "$nodename" == "jammy"}\
+${if_match "$nodename" == "dark"}\
 ${template2 cpu5 cpu6}
 ${template2 cpu7 cpu8}
 ${template2 cpu9 cpu10}
@@ -65,18 +65,19 @@ ${template2 cpu13 cpu14}
 ${template2 cpu15 cpu16}
 $endif\
 ${color5}Network         $stippled_hr\
+${template1 wlp2s0}\
+${template1 wlp3s0}\
 ${template1 enp4s0}\
 ${template1 ens9}\
-${template1 wlp3s0}\
 ${template1 enp0s3}\
 ${template1 wlan0}\
 ${template1 eth0}
 ${color5}Storage         $stippled_hr \
-${template0 /               sda SSD}\
-${template0 /home/vbox      sdb SSD}\
-${template0 /home/storage   sdd SSD}\
-${template0 /home/pinky     sdc SSD}\
+${template0 /               nvme0n1 SSD}\
+${template0 /home/storage   sda SSD}\
 \
+${template0 /home/vbox      sdb SSD}\
+${template0 /home/pinky     sdc SSD}\
 ${template0 /home           sdb SS}\
 ${template0 /usr            sdc SS}\
 ${template0 /task           sdd SS}\
