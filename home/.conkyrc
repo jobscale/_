@@ -67,6 +67,7 @@ $endif\
 ${color5}Network         $stippled_hr\
 ${template1 wlp2s0}\
 ${template1 wlp3s0}\
+${template1 eno1}\
 ${template1 enp4s0}\
 ${template1 ens9}\
 ${template1 enp0s3}\
