@@ -8,7 +8,7 @@ stable() {
   apt-get install -y apt-transport-https
   apt-get update
   apt-get full-upgrade -y
-  apt-get install -y curl git vim tmux htop \
+  apt-get install -y curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat iputils-ping \
     nmap traceroute procps whois progress \
     python3-pip bc unzip tree colordiff
@@ -22,7 +22,7 @@ stable-2023() {
   apt-get install -y apt-transport-https
   apt-get update
   apt-get full-upgrade -y
-  apt-get install -y curl git vim tmux htop \
+  apt-get install -y curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
     nmap traceroute procps whois progress \
     python3-pip bc unzip tree colordiff
