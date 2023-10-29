@@ -1,3 +1,10 @@
+
+COUNT=100
+if [[ $# == 1 ]]
+then
+  COUNT=$1
+fi
+
 time {
-  dd if=/dev/zero of=benchmark$(date +%s).img bs=50M count=100 status=progress
+  dd if=/dev/zero of=benchmark$(date +%s).img bs=50M count=${COUNT} status=progress
 }
