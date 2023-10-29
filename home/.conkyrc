@@ -23,7 +23,7 @@ conky.config = {
     double_buffer = true,
     override_utf8_locale = true,
     use_xft = true,
-    font = 'IPAGothic:style=Regular:size=10',
+    font = 'Regular:size=10',
     minimum_height = 5,
     minimum_width = 5,
     net_avg_samples = 2,
@@ -92,7 +92,7 @@ ${template0 /media/jobscale/8f387411-a7dd-4144-ae04-7aa7075b275c sdb ext4}\
 ${template0 /media/jobscale/Central                              sdc Central}\
 
 ${color5}Date         $stippled_hr
-${voffset 7}${alignr}$color2${time %B %e日 %A} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
+${voffset 7}${alignr}$color2${time %A %e %B} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
 ${voffset -4}${color5}Process         $stippled_hr $color3
 ${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
 $alignr PID   CPU%   MEM%$color2
