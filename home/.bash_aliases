@@ -13,11 +13,13 @@ export TZ=Asia/Tokyo
 bash-ps1() {
   PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
-  [[ "$(hostname)" == focal ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
+  # Green
+  [[ "$(hostname)" == jammy ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;36m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
-  [[ "$(hostname)" == bullseye ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
+  # Yellow
+  [[ "$(hostname)" == bookworm ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
-  [[ "$(hostname)" == jammy ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
+  [[ "$(hostname)" == dark ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
   [[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 0 ]] || PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;35m\]\u@\h\[\033[00m\] \[\033[01;32m\]\w\[\033[00m\]
 └─\$ "
@@ -82,4 +84,4 @@ else
   echo "not set proxy"
 fi
 
-post-slack "Logged in $(hostname)" &
+CHANNEL="secure" post-slack "Logged in $(hostname)" &
