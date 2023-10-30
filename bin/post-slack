@@ -17,4 +17,4 @@ postChannel() {
   --data "${PAYLOAD}" > /dev/null || echo
 }
 
-[[ "${CHANNEL}" != "" ]] && postChannel || postSlack
+[[ "${CHANNEL:-}" != "" ]] && postChannel || postSlack
