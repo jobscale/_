@@ -84,4 +84,7 @@ else
   echo "not set proxy"
 fi
 
-CHANNEL="secure" post-slack "Logged in $(hostname)" &
+notification() {
+  CHANNEL="secure" post-slack "Logged in $(hostname)"
+}
+notification &
