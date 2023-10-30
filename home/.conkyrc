@@ -64,7 +64,7 @@ ${template2 cpu11 cpu12}
 ${template2 cpu13 cpu14}
 ${template2 cpu15 cpu16}
 $endif\
-${color5}Network         $stippled_hr\
+${color5}Network         $stippled_hr
 ${template1 wlp2s0}\
 ${template1 wlp3s0}\
 ${template1 eno1}\
