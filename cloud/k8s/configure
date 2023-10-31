@@ -235,9 +235,9 @@ FLUSH PRIVILEGES;"
 }
 
 deployBitnami() {
-  SQL="CREATE DATABASE IF NOT EXISTS wo_bitnami;
+  SQL="CREATE DATABASE IF NOT EXISTS wp_bitnami;
 CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
-GRANT ALL PRIVILEGES ON wo_bitnami.* TO 'wp-user'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON wp_bitnami.* TO 'wp-user'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;"
 
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
