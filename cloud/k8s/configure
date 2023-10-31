@@ -230,7 +230,6 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace wordpress
-  kubectl -n wordpress apply -f backend/limitrange-limits.yaml
   ingressSecret wordpress
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
@@ -244,7 +243,6 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace bitnami
-  kubectl -n bitnami apply -f backend/limitrange-limits.yaml
   ingressSecret bitnami
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }

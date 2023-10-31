@@ -21,7 +21,7 @@ whileCheck() {
   whileCheck &
   while true
   do
-    PRINT="$(date -Iseconds) $(hostname) connected"
+    PRINT="$(date -Iseconds) backdoor - $(hostname) connected"
     echo "$PRINT"
     timeout 10 post-slack "$PRINT"
     ssh us-watch
