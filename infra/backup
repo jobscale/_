@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eu
+
+VM_NAME=bookworm
+DIR_NAME=$(date +%Y-%m-%d.%s)
+mkdir ${DIR_NAME}
+time for i in $(find /home/vbox/node/${VM_NAME} -maxdepth 1 -type f)
+do
+  FILE_NAME=$(echo $i | awk -F'/' '{print $NF}')
+  set -x
+  dd if=$i of=${DIR_NAME}/${FILE_NAME} bs=50M status=progress
+  set +x
+done
+ls -lh $DIR_NAME
