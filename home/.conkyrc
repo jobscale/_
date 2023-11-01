@@ -47,10 +47,10 @@ conky.config = {
 
 conky.text = [[
 ${color3}Load: $color1$loadavg$color3${alignr}Uptime: $color1$uptime$color3
-RAM: $color1$memperc%$alignc$mem/$memmax$alignr$color3 Freq: $color1${freq_g}GHz
+RAM: $color1$memperc% $alignc$mem/$memmax$alignr$color3 Freq: $color1${freq_g}GHz
 $color4${membar 8}$color3
-\
-CPU: $color1$cpu%  ${color3}Swap: $color1$swapperc%  $color4${swapbar 8}$color3
+${voffset -5}\
+CPU: $color1$cpu%  ${color3}Swap: $color1$swapperc% $swapmax ${voffset 2} $color4${swapbar 8}$color3
 ${template2 cpu1 cpu2}
 ${template2 cpu3 cpu4}
 ${if_match "$nodename" == "bookworm"}\
@@ -76,6 +76,9 @@ ${template1 eth0}
 ${color5}Storage         $stippled_hr \
 ${template0 /               nvme0n1 SSD}\
 ${template0 /home/storage   sda SSD}\
+${template0 /media/jobscale/bf45adae-828d-45bc-850e-b1f57aba80cf   sdd SSD}\
+${template0 /media/jobscale/058cb442-261f-4a79-96ae-614d8663475b   sdc SSD}\
+${template0 /media/jobscale/795d8d85-a925-41f6-bb9b-4a72410d015e   sdb SSD}\
 \
 ${template0 /home/vbox      sdb SSD}\
 ${template0 /home/pinky     sdc SSD}\
@@ -92,7 +95,7 @@ ${template0 /media/jobscale/8f387411-a7dd-4144-ae04-7aa7075b275c sdb ext4}\
 ${template0 /media/jobscale/Central                              sdc Central}\
 
 ${color5}Date         $stippled_hr
-${voffset 7}${alignr}$color2${time %A %e %B} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
+${voffset 8}${alignr}$color2${time %A %e %B} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
 ${voffset -4}${color5}Process         $stippled_hr $color3
 ${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
 $alignr PID   CPU%   MEM%$color2
