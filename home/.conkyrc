@@ -4,8 +4,8 @@ conky.config = {
     color3 = 'dim gray',
     color4 = '#eacaba',
     color5 = '#424222',
-    template0 = '${if_mounted \\1}\n$color2 \\3  $color1${fs_used \\1}/${fs_size \\1}  $color4${fs_bar 8 \\1}$color3\n${diskiograph_read \\2 18,160 07CC0D fc8060 -t}${alignr} ${diskiograph_write \\2 18,160 07CC0D fc8060 -t}$endif',
-    template1 = '${if_up \\1}\n${voffset -20}$color2 $alignr \\1  $color1${addrs \\1}$color3  \n  Up: $color1${upspeed \\1}${alignr}$color3${upspeedgraph \\1 18,220 212121 00aaaa}$color3\n  Down: $color1${downspeed \\1}$alignr$color3${downspeedgraph \\1 18,220 212121 00aa00}$color3$endif',
+    template0 = '${if_mounted \\1}\n$color2 \\3  $color1${fs_used \\1}/${fs_size \\1} ${voffset 2} $color4 ${fs_bar 8 \\1}$color3\n${diskiograph_read \\2 18,160 07CC0D fc8060 -t}${alignr} ${diskiograph_write \\2 18,160 07CC0D fc8060 -t}$endif',
+    template1 = '${if_up \\1}$color2 $alignr \\1  $color1${addrs \\1}$color3  \n  Up: $color1${upspeed \\1}${alignr}$color3${upspeedgraph \\1 18,220 212121 00aaaa}$color3\n  Down: $color1${downspeed \\1}$alignr$color3${downspeedgraph \\1 18,220 212121 00aa00}\n$color3$endif',
     template2 = '${cpugraph \\1 18,160 212121 f08000}${alignr} ${cpugraph \\2 18,160 212121 f08000}',
     alignment = 'top_right',
     gap_x = 0,
@@ -64,7 +64,9 @@ ${template2 cpu11 cpu12}
 ${template2 cpu13 cpu14}
 ${template2 cpu15 cpu16}
 $endif\
+\
 ${color5}Network         $stippled_hr
+${voffset -5}\
 ${template1 wlp2s0}\
 ${template1 wlp3s0}\
 ${template1 eno1}\
@@ -72,7 +74,8 @@ ${template1 enp4s0}\
 ${template1 ens9}\
 ${template1 enp0s3}\
 ${template1 wlan0}\
-${template1 eth0}
+${template1 eth0}\
+\
 ${color5}Storage         $stippled_hr \
 ${template0 /               nvme0n1 SSD}\
 ${template0 /home/storage   sda SSD}\
