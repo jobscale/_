@@ -1,0 +1,5 @@
+echo '[smartctl]'
+sudo smartctl -a /dev/nvme0n1 | grep Sensor | grep Celsius
+echo
+echo '[sensors]'
+sensors | grep '°C'
