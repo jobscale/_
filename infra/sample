@@ -58,8 +58,9 @@ iGcloud() {
 useFunction() {
   user=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
   name=$1
+  command="$@"
   type $name | tail -$(echo $(type $name | wc -l)-1 | bc) > /tmp/$name
-  sudo -u $user bash -c ". /tmp/$name && $name"
+  sudo -u $user bash -c ". /tmp/$name && $command"
   rm /tmp/$name
 }
 
@@ -72,11 +73,11 @@ account() {
 }
 
 system() {
-  sudo dd if=/dev/zero of=/var/swapfile bs=16M count=4K
-  sudo chmod 0600 /var/swapfile
-  sudo mkswap /var/swapfile
-  sudo swapon /var/swapfile
-  echo '/var/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  sudo dd if=/dev/zero of=/swapfile bs=20M count=1K status=progress
+  sudo chmod 0600 /swapfile
+  sudo mkswap /swapfile
+  echo 'sudo swapon /swapfile'
+  echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
   sudo mount -a
 }
 
@@ -101,14 +102,6 @@ cli() {
 account() {
   user=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
   echo "$user ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
-}
-
-system() {
-  dd if=/dev/zero of=/mnt/swap bs=2M count=512
-  chmod 0600 /mnt/swap
-  mkswap /mnt/swap
-  swapon /mnt/swap
-  echo '/mnt/swap none swap sw 0 0' | tee -a /etc/fstab
 }
 
 main() {
