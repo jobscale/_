@@ -7,13 +7,29 @@
 // @match        https://*.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin*
 // @match        https://login.microsoftonline.com/*/login
 // @match        https://github.com/*
+// @match        https://jsx.jp/auth/
+// @match        https://*.jsx.jp/auth/
 // @match        https://www.npmjs.com/login/otp?next=*
 // @match        https://www.npmjs.com/escalate/otp?next=*
+// @match        https://bitflyer.com/*/ex/twofactorauth
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        none
 // ==/UserScript==
 
 (() => {
+  const mfaList = () => [
+    { name: 'refresh', token: 'AAZ' },
+    { name: 'refresh', token: 'BAZ' },
+    { name: 'refresh', token: 'CAZ' },
+  ];
+
+  const authInput = () => document.querySelector('#mfacode') // AWS
+  || document.querySelector('input[name="otc"]') // MS
+  || document.querySelector('#app_totp') // GitHub
+  || document.querySelector('#login_otp') // npm
+  || document.querySelector('form[class="auth-area"]') // jsxjp
+  || document.querySelector('#otpCode'); // bitflyer
+
   const TOTP = {
     decodeBase32(encoded) {
       const base32Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -121,11 +137,7 @@
     area.classList.add('g-area');
     const exist = localStorage.getItem('g-data');
     const data = exist ? JSON.parse(exist) : { list: [] };
-    const items = data.list.length ? data.list : [
-      { name: 'refresh', token: 'AAZ' },
-      { name: 'refresh', token: 'BAZ' },
-      { name: 'refresh', token: 'CAZ' },
-    ];
+    const items = data.list.length ? data.list : mfaList();
     const ts = document.createElement('div');
     setInterval(() => {
       ts.textContent = 30 - (Math.floor(Date.now() / 1000) % 30);
@@ -179,11 +191,7 @@
   };
 
   const action = async () => {
-    const auth = document.querySelector('#mfacode') // AWS
-    || document.querySelector('input[name="otc"]') // MS
-    || document.querySelector('#app_totp') // GitHub
-    || document.querySelector('#login_otp'); // npm
-    if (!auth) {
+    if (!authInput()) {
       setTimeout(action, 1000);
       return;
     }
@@ -201,8 +209,9 @@
   display: grid;
   gap: 0.4em;
   width: 18em;
-  background: rgba(0,0,0,.6);
+  background: rgba(20,20,20,.6);
   backdrop-filter: blur(4px);
+  z-index: 1;
 }
 .g-area button {
   cursor: pointer;

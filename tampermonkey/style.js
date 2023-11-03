@@ -33,10 +33,12 @@ html { height: 100vh; background-color: #ddd }
 video, img { filter: invert(1); }
 `,
 
-  btn: `position: fixed;
-right: 2em;
-bottom: 5em;
-z-index: 1000001;`,
+  style: `div.b-area {
+  position: fixed;
+  right: 2em;
+  bottom: 5em;
+  z-index: 1000001;
+}`,
 
   add(css, no) {
     const style = document.createElement('style');
@@ -69,8 +71,12 @@ z-index: 1000001;`,
   },
 
   setting() {
+    const style = document.createElement('style');
+    style.innerText = this.style;
+    document.head.append(style);
+
     const div = document.createElement('div');
-    div.style = this.btn;
+    div.classList.add('b-area');
 
     const el = document.createElement('button');
     el.type = 'button';
