@@ -46,11 +46,11 @@ conky.config = {
 }
 
 conky.text = [[
-${color3}Load: $color1$loadavg$color3${alignr}Uptime: $color1$uptime$color3
-RAM: $color1$memperc% $alignc$mem/$memmax$alignr$color3 Freq: $color1${freq_g}GHz
-$color4${membar 8}$color3
-${voffset -5}\
-CPU: $color1$cpu%  ${color3}Swap: $color1$swapperc% $swapmax ${voffset 2} $color4${swapbar 8}$color3
+${voffset -3}${color3}Load: $color1$loadavg ${alignr}${color3}Uptime: $color1$uptime
+${voffset  0}${color3}DDR: ${color1}$memperc% $mem/$memmax ${voffset 2} $color4 ${membar 8}
+${voffset -3}${color3}Swap: ${color1}$swapperc% $swap/$swapmax ${voffset 2} $color4${swapbar 8}
+${voffset -3}${color3}CPU: ${color1}$cpu%      ${exec sensors | grep '°C' | head -1 | awk '{print $2}' }      ${alignc}${exec sensors | grep '°C' | head -2 | tail -1 | awk '{print $2}' } ${color3}${alignr}Freq: $color1${freq_g}GHz
+${voffset  6}\
 ${template2 cpu1 cpu2}
 ${template2 cpu3 cpu4}
 ${if_match "$nodename" == "bookworm"}\
@@ -78,28 +78,20 @@ ${template1 eth0}\
 \
 ${color5}Storage         $stippled_hr \
 ${template0 /               nvme0n1 SSD}\
-${template0 /home/storage   sda SSD}\
-${template0 /media/jobscale/bf45adae-828d-45bc-850e-b1f57aba80cf   sdd SSD}\
-${template0 /media/jobscale/058cb442-261f-4a79-96ae-614d8663475b   sdc SSD}\
-${template0 /media/jobscale/795d8d85-a925-41f6-bb9b-4a72410d015e   sdb SSD}\
+${template0 /media/jobscale/795d8d85-a925-41f6-bb9b-4a72410d015e  sda SSD}\
+${template0 /media/jobscale/8f1ced4c-becb-4256-9554-9477d143be65  sdb SSD}\
+${template0 /media/jobscale/bf45adae-828d-45bc-850e-b1f57aba80cf  sdc NVMe}\
+${template0 /media/jobscale/058cb442-261f-4a79-96ae-614d8663475b  sdd SSD}\
 \
-${template0 /home/vbox      sdb SSD}\
-${template0 /home/pinky     sdc SSD}\
-${template0 /home           sdb SS}\
-${template0 /usr            sdc SS}\
-${template0 /task           sdd SS}\
-${template0 /var/lib        sde SS}\
-\
-${template0 /media/jobscale/d9fb763b-4004-4d37-8982-d05faef4ad5a sdd SSD}\
-${template0 /media/jobscale/b1ed86b0-511e-4eaa-85d8-5c145ae8af44 sde SD}\
-${template0 /media/jobscale/7b2fc0f8-0a3b-47b5-9dc4-75075f935c09 sdd SSD}\
-${template0 /media/jobscale/e657358c-0471-4cb6-87db-a24a055f2031 sdf SD}\
-${template0 /media/jobscale/8f387411-a7dd-4144-ae04-7aa7075b275c sdb ext4}\
-${template0 /media/jobscale/Central                              sdc Central}\
+${template0 /home          sdb SS}\
+${template0 /usr           sdc SS}\
+${template0 /task          sdd SS}\
+${template0 /var/lib       sde SS}\
 
 ${color5}Date         $stippled_hr
-${voffset 8}${alignr}$color2${time %A %e %B} ${voffset -17} $color3 ${font Regular:size=26} ${time %H:%M:%S}${font} ${alignr}
-${voffset -4}${color5}Process         $stippled_hr $color3
+${voffset  0}${color2}      ${time %A %e %B}
+${voffset  0}${color2}${alignc}${exec TZ= date +'%H:%M:%S'} ${voffset -20}${alignr}${color3}${font Regular:size=22}${time %H:%M:%S}${font}
+${voffset -2}${color5}Process         $stippled_hr $color3
 ${alignc}Proces: $color1$processes$color3        Thrds: $color1$threads$color3        Runs: $color1$running_processes
 $alignr PID   CPU%   MEM%$color2
   ${top name 1}$alignr${top pid 1} ${top cpu 1}% ${top mem 1}%
