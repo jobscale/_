@@ -32,6 +32,13 @@ apt update && apt install -y vim curl git
 # aws-ec2 = curl -sL jsx.jp/s/aws-ec2
 ```
 
+## EC2 auto scaling
+
+```bash
+#!/usr/bin/env bash
+curl -sL jsx.jp/s/auto-scaling | ENV=dev bash
+```
+
 ## EC2 user data
 
 ```bash
