@@ -76,15 +76,15 @@ inAllInOne() {
   jsxSite
   networkService
 
-  # deployDatabase
+  deployDatabase
   createStandard
 
-  # [[ $KINDNAME == production ]] && createCodeServer
+  [[ $KINDNAME == production ]] && createCodeServer
   [[ $KINDNAME == production ]] && createWetty
   [[ $KINDNAME == production ]] && cronJob
-  # [[ $KINDNAME == production ]] && deployWordpress
-  # [[ $KINDNAME == production ]] && deployBitnami
-  # [[ $KINDNAME == production ]] && deployRedmine
+  [[ $KINDNAME == production ]] && deployWordpress
+  [[ $KINDNAME == production ]] && deployBitnami
+  [[ $KINDNAME == production ]] && deployRedmine
 
   # metalLB
   # ingressForward
@@ -256,23 +256,23 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
 
   kubectl create namespace redmine
-  kubectl -n redmine apply -f backend/limitrange-limits.yaml
+  # kubectl -n redmine apply -f backend/limitrange-limits.yaml
   ingressSecret redmine
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
 createStandard() {
   kubectl create namespace standard
-  kubectl -n standard apply -f backend/limitrange-limits.yaml
+  # kubectl -n standard apply -f backend/limitrange-limits.yaml
   # kubectl config set-context $(kubectl config current-context) --namespace standard
   ingressSecret standard
 
-  # kubectl -n standard apply -f backend/redis && waitFor redis
-  # kubectl -n standard apply -f backend/mongo && waitFor mongo
+  kubectl -n standard apply -f backend/redis && waitFor redis
+  kubectl -n standard apply -f backend/mongo && waitFor mongo
   kubectl -n standard apply -f backend/ddb && waitFor ddb
   kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
-  # [[ $KINDNAME == production ]] && deployApps
+  [[ $KINDNAME == production ]] && deployApps
 
   kubectl describe nodes
   # kubectl config set-context $(kubectl config current-context) --namespace default
@@ -287,7 +287,7 @@ createCodeServer() {
 
 createWetty() {
   kubectl create namespace wetty
-  kubectl -n wetty apply -f backend/limitrange-limits.yaml
+  # kubectl -n wetty apply -f backend/limitrange-limits.yaml
   ingressSecret wetty
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
   # TTY_PASSWD="$(makePasswd)"
