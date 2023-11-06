@@ -21,9 +21,11 @@ whileCheck() {
   whileCheck &
   while true
   do
-    PRINT="$(date -Iseconds) backdoor - $(hostname) connected"
+    REMOTE=$(dig us.jsx.jp | grep -1 "ANSWER SECTION" | tail -1 | awk '{print $5}')
+    PRINT="$(date -Iseconds) backdoor - ${REMOTE} - $(hostname) connected"
     echo "$PRINT"
-    timeout 10 post-slack "$PRINT"
+    CHANNEL=secure timeout 10 post-slack "$PRINT"
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "bastion.us.jsx.jp"
     ssh us-watch
     sleep 10
   done
