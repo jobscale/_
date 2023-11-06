@@ -74,7 +74,7 @@ setFW() {
 }
 # which sudo && which sudo iptables && setFW
 
-realIp=$(http_proxy= curl -s inet-ip.info/ip | sed -e 's/,.*//')
+realIp=$(http_proxy= timeout 1 curl -s inet-ip.info/ip | sed -e 's/,.*//')
 if [[ "$realIp" == "111.237.80.34" ]]
 then
   export http_proxy=proxy.jp.jsx.jp:443
