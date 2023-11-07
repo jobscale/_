@@ -2,15 +2,20 @@
 
 {
   echo "AutoScaling EC2 - ${ENV:+dev} $(date -Iseconds)"
-  docker pull ghcr.io/jobscale/value-domain
-  docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-  {
-    sleep 30
-    docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-    sleep 30
-    docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-  } &
-  /root/_/bin/post-slack "AutoScaling EC2 - ${ENV}" &
   hostname "$ENV"
   echo "$ENV" | tee /etc/hostname
+  if [[ "${ENV}" == "dev" ]]
+  then
+    /usr/local/bin/noip2
+  else
+    docker pull ghcr.io/jobscale/value-domain
+    docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
+    {
+      sleep 30
+      docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
+      sleep 30
+      docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
+    } &
+  fi
+  /root/_/bin/post-slack "AutoScaling EC2 - ${ENV}" &
 }
