@@ -17,5 +17,5 @@
       docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
     } &
   fi
-  /root/_/bin/post-slack "AutoScaling EC2 - ${ENV}" &
+  CHANNEL=infra /root/_/bin/post-slack "AutoScaling EC2 - ${ENV}" &
 }
