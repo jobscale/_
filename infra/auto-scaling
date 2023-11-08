@@ -24,6 +24,6 @@ ddns-prod() {
   echo "AutoScaling EC2 - ${ENV:+dev} $(date -Iseconds)"
   hostname "$ENV"
   echo "$ENV" | tee /etc/hostname
-  ddns-$(ENV)
+  ddns-${ENV}
   CHANNEL=infra /root/_/bin/post-slack "AutoScaling EC2 - ${ENV}" &
 }
