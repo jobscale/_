@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+{
+  CHANNEL=infra /root/_/bin/post-slack "noip - Dynamic DNS $@"
+}
