@@ -20,10 +20,17 @@ ddns-prod() {
   ddns
 }
 
+update-infra() {
+  cd /root/_ && git pull
+  cd /home/jobscale/_ && sudo -u jobscale git pull
+}
+
 {
-  echo "AutoScaling EC2 - ${ENV:+dev} $(date -Iseconds)"
+  MESSAGE="AutoScaling EC2 - ${ENV:+dev} $(date -Iseconds)"
+  echo "${MESSAGE}"
+  update-infra
+  CHANNEL=infra /root/_/bin/post-slack "${MESSAGE}" &
   hostname "$ENV"
   echo "$ENV" | tee /etc/hostname
   ddns-${ENV}
-  CHANNEL=infra /root/_/bin/post-slack "AutoScaling EC2 - ${ENV}" &
 }
