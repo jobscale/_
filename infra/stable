@@ -11,7 +11,7 @@ stable() {
   apt-get install -y curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat iputils-ping \
     nmap traceroute procps whois progress \
-    python3-pip bc unzip tree colordiff
+    python3-pip bc unzip tree expect colordiff
   apt-get autoremove -y
 
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
@@ -25,7 +25,7 @@ stable-2023() {
   apt-get install -y curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
     nmap traceroute procps whois progress \
-    python3-pip bc unzip tree colordiff
+    python3-pip bc unzip tree expect colordiff
   apt-get autoremove -y
 
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
