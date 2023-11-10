@@ -5,10 +5,11 @@ set -eu
   tmux new-session -d
   tmux new-window
   tmux select-window -t 0
+  tmux send-keys "date -Iseconds" C-m
   tmux splitw -v -p 35
   tmux send-keys "watch date +%s%3N" C-m
   tmux selectp -t 0
-  tmux send-keys "echo $(https_proxy=proxy.us.jsx.jp:3128 curl -s -H 'User-Agent: bullseye' https://inet-ip.info/ip)" C-m
+  tmux send-keys "echo $(https_proxy=proxy.us.jsx.jp:3128 curl -s -H 'User-Agent: bookworm' https://inet-ip.info/ip)" C-m
   tmux select-window -t 1
   [[ -x $HOME/bin/.autostart-session ]] && $HOME/bin/.autostart-session || echo -n
 }
