@@ -87,7 +87,7 @@ $endif\
 \
 ${if_match "$nodename" == "bookworm"}\
 ${template0 /        sda SSD}\
-${template0 /task    sdd SSD}\
+${template0 /task    sdb SSD}\
 $endif\
 
 ${color5}Date         $stippled_hr
