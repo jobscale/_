@@ -94,8 +94,9 @@ fi
 configure_prompt() {
     prompt_symbol=⚛
     [[ $(hostname) == "kali" ]] && prompt_symbol=㉿
-    [[ $(hostname) == "focal" ]] && prompt_symbol=🍺
-    [[ $(hostname) == "mojave.local" ]] && prompt_symbol=☠
+    [[ $(hostname) == "jammy" ]] && prompt_symbol=" ✈ "
+    [[ $(hostname) == "black" ]] && prompt_symbol=" ☃ "
+    [[ $(hostname) == "mojave.local" ]] && prompt_symbol=" ☠ "
     # Skull emoji for root terminal
     #[ "$EUID" -eq 0 ] && prompt_symbol=💀
     case "$PROMPT_ALTERNATIVE" in
