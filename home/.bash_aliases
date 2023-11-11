@@ -29,7 +29,11 @@ bash-ps1() {
 PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 PATH="$PATH:$HOME/node_modules/.bin"
 [[ -d "$HOME/.deta/bin" ]] && PATH="$HOME/.deta/bin:$PATH"
-which aws_completer && complete -C aws_completer aws
+if type compdef &> /dev/null; then
+  compdef _gnu_generic aws
+elif type complete &> /dev/null; then
+  complete -C aws_completer aws
+fi
 
 alias ul='less_with_unbuffer'
 alias diff='colordiff'
