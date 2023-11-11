@@ -49,7 +49,7 @@ conky.text = [[
 ${voffset -3}${color2}Load   $color1$loadavg ${alignr}${color2}Uptime   $color1$uptime
 ${voffset  0}${color2}DDR ${alignr}${color1}$memperc% $memmax ${voffset 2} ${alignr}${color4}${membar 8,200}
 ${voffset -3}${color2}Swap ${alignr}${color1}$swapperc% $swapmax ${voffset 2} ${alignr}${color4}${swapbar 8,200}
-${voffset -3}${color2}CPU     ${color1}$cpu%      ${exec sensors | grep '°C' | head -1 | awk '{print $2}' }      ${alignc}${exec sensors | grep '°C' | head -2 | tail -1 | awk '{print $2}' } ${color2}${alignr}Freq   $color1${freq_g}GHz
+${voffset -3}${color2}CPU     ${color1}$cpu% ${alignr}${exec sensors | grep '°C' | head -1 | awk '{print $2}' }      ${exec sensors | grep '°C' | head -2 | tail -1 | awk '{print $2}' }      ${color2}Freq   $color1${freq_g}GHz
 ${voffset  6}\
 ${template2 cpu1 cpu2}
 ${template2 cpu3 cpu4}
