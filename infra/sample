@@ -73,10 +73,10 @@ account() {
 }
 
 system() {
-  sudo dd if=/dev/zero of=/swapfile bs=20M count=100 status=progress
+  sudo dd if=/dev/zero of=/swapfile bs=20M count=120 status=progress
   sudo chmod 0600 /swapfile
   sudo mkswap /swapfile
-  echo 'sudo swapon /swapfile'
+  sudo swapon /swapfile
   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
   sudo mount -a
 }
