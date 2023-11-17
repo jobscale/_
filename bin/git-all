@@ -50,6 +50,10 @@ gitDiff() {
   cd - > /dev/null
 }
 
+setSSH() {
+  sed -i.sw -e 's/https:\/\/github.com\/jobscale/git@github.com:jobscale/' */.git/config
+}
+
 Loop() {
   IFS=$'\n'
   echo -e "\n$(date +"%F %H:%M:%S.%3N") [START]\n"
@@ -77,4 +81,5 @@ Main() {
   LOG_FILE=$(date '+/tmp/%s')
   Loop $1
 }
+
 Main $*
