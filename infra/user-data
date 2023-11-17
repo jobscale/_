@@ -7,7 +7,7 @@ userData() {
   curl -sL jsx.jp/s/ja-jp | bash
   curl -sL jsx.jp/s/user-add | bash
   usermod -aG docker $1
-  sudo -i -u $1 git clone https://github.com/jobscale/_.git
+  sudo -i -u $1 git clone git@github.com:jobscale/_.git
 }
 
 time {
