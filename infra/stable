@@ -15,7 +15,7 @@ stable() {
     openssh-server bash-completion
   apt-get autoremove -y
 
-  [[ ! -d ~/_ ]] && git clone git@github.com:jobscale/_.git ~/_ || echo
+  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
 stable-2023() {
@@ -30,7 +30,7 @@ stable-2023() {
     openssh-server bash-completion
   apt-get autoremove -y
 
-  [[ ! -d ~/_ ]] && git clone git@github.com:jobscale/_.git ~/_ || echo
+  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
 # Debian 12
