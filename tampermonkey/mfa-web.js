@@ -32,35 +32,38 @@
 
   const TOTP = {
     decodeBase32(encoded) {
-      const base32Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-      const base32AlphabetValuesMap = new Map(
-        Array.from(base32Alphabet, (encoding, value) => [encoding, value])
-      );
-      const stringTrimmed = encoded.replace(/=*$/, '');
-      const result = new Uint8Array(Math.ceil((stringTrimmed.length * 5) / 8));
-      let dataBuffer = 0;
-      let dataBufferBitLength = 0;
-      let byteOffset = 0;
-      for (const encoding of stringTrimmed) {
-        const value = base32AlphabetValuesMap.get(encoding);
-        if (typeof value === 'undefined') throw new Error('Invalid base32 string');
-        dataBuffer <<= 5;
-        dataBuffer |= value;
-        dataBufferBitLength += 5;
-        while (dataBufferBitLength >= 8) {
-          dataBufferBitLength -= 8;
-          result[byteOffset++] = (dataBuffer >> dataBufferBitLength) & 0xff;
-        }
+      const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+      const base32Lookup = {};
+      for (let i = 0; i < base32Chars.length; i++) {
+        base32Lookup[base32Chars[i]] = i;
       }
-      if (dataBufferBitLength) {
-        let mask = 0;
-        for (let i = dataBufferBitLength; i; i--) {
-          mask >>= 1;
-          mask += 128;
+
+      const base32String = encoded.replace(/=+$/, '').toUpperCase();
+      const bitsPerChar = 5;
+      const bitsPerByte = 8;
+
+      let binaryString = '';
+      for (let i = 0; i < base32String.length; i++) {
+        const char = base32String[i];
+        if (base32Lookup[char] === undefined) {
+          throw new Error(`Invalid character in Base32 string: ${char}`);
         }
-        result[byteOffset] = (dataBuffer << (3 - dataBufferBitLength)) & mask;
+        const binaryValue = base32Lookup[char].toString(2).padStart(bitsPerChar, '0');
+        binaryString += binaryValue;
       }
-      return result;
+
+      // Pad the binary string to a multiple of 8
+      const paddedBinaryString = binaryString.padEnd(Math.ceil(binaryString.length / bitsPerByte) * bitsPerByte, '0');
+
+      // Split the binary string into 8-bit chunks
+      const chunks = paddedBinaryString.match(/.{1,8}/g);
+
+      // Create a Buffer from the 8-bit chunks
+      if (typeof Uint8Array === 'undefined') {
+        return Buffer.from(chunks.map(chunk => parseInt(chunk, 2)));
+      }
+
+      return new Uint8Array(chunks.map(chunk => parseInt(chunk, 2)));
     },
 
     convertToBuffer(who, encoding) {
