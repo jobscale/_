@@ -30,9 +30,10 @@
   || document.querySelector('form[class="auth-area"]') // jsxjp
   || document.querySelector('#otpCode'); // bitflyer
 
+  const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
   const TOTP = {
     decodeBase32(encoded) {
-      const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
       const base32Lookup = {};
       for (let i = 0; i < base32Chars.length; i++) {
         base32Lookup[base32Chars[i]] = i;
@@ -40,7 +41,6 @@
 
       const base32String = encoded.replace(/=+$/, '').toUpperCase();
       const bitsPerChar = 5;
-      const bitsPerByte = 8;
 
       let binaryString = '';
       for (let i = 0; i < base32String.length; i++) {
@@ -52,11 +52,8 @@
         binaryString += binaryValue;
       }
 
-      // Pad the binary string to a multiple of 8
-      const paddedBinaryString = binaryString.padEnd(Math.ceil(binaryString.length / bitsPerByte) * bitsPerByte, '0');
-
       // Split the binary string into 8-bit chunks
-      const chunks = paddedBinaryString.match(/.{1,8}/g);
+      const chunks = binaryString.match(/.{1,8}/g).filter(v => v.length === 8);
 
       // Create a Buffer from the 8-bit chunks
       if (typeof Uint8Array === 'undefined') {
