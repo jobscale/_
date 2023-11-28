@@ -32,16 +32,16 @@
 
   const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
-  const TOTP = {
+  class TOTP {
     decodeBase32(encoded) {
       const base32Lookup = {};
       for (let i = 0; i < base32Chars.length; i++) {
         base32Lookup[base32Chars[i]] = i;
       }
-
+  
       const base32String = encoded.replace(/=+$/, '').toUpperCase();
       const bitsPerChar = 5;
-
+  
       let binaryString = '';
       for (let i = 0; i < base32String.length; i++) {
         const char = base32String[i];
@@ -51,25 +51,25 @@
         const binaryValue = base32Lookup[char].toString(2).padStart(bitsPerChar, '0');
         binaryString += binaryValue;
       }
-
+  
       // Split the binary string into 8-bit chunks
       const chunks = binaryString.match(/.{1,8}/g).filter(v => v.length === 8);
-
+  
       // Create a Buffer from the 8-bit chunks
       if (typeof Uint8Array === 'undefined') {
         return Buffer.from(chunks.map(chunk => parseInt(chunk, 2)));
       }
-
+  
       return new Uint8Array(chunks.map(chunk => parseInt(chunk, 2)));
-    },
-
+    }
+  
     convertToBuffer(who, encoding) {
       if (encoding !== 'base32') {
         return ArrayBuffer.from(who, encoding);
       }
       return this.decodeBase32(who.toUpperCase());
-    },
-
+    }
+  
     async createHmacKey(secret, buf, algorithm) {
       const key = await window.crypto.subtle.importKey(
         "raw",
@@ -78,53 +78,50 @@
         ["sign", "verify"],
       );
       return window.crypto.subtle.sign("HMAC", key, buf);
-    },
-
+    }
+  
     async digest(options) {
-      var secret = options.secret;
-      var counter = options.counter;
-      var encoding = options.encoding || 'base32';
-      var algorithm = 'sha1';
-
-      secret = this.convertToBuffer(secret, encoding);
-
-      var buf = new Uint8Array(8);
-      var tmp = counter;
+      const secret = options.secret;
+      const counter = options.counter;
+      const encoding = options.encoding || 'base32';
+      const algorithm = 'sha1';
+      const blob = this.convertToBuffer(secret, encoding);
+      const buf = new Uint8Array(8);
+      let tmp = counter;
       for (let i = 0; i < 8; i++) {
         buf[7 - i] = tmp & 0xff;
         tmp = tmp >> 8;
       }
-
-      var signature = await this.createHmacKey(secret, buf, algorithm);
+      const signature = await this.createHmacKey(blob, buf, algorithm);
       return new Uint8Array(signature);
-    },
-
+    }
+  
     async hotp(options) {
-      var digits = (options.digits != null ? options.digits : options.length) || 6;
-      var digest = options.digest || await this.digest(options);
-      var offset = digest[digest.length - 1] & 0xf;
-      var code = (digest[offset] & 0x7f) << 24 |
+      const digits = (options.digits ? options.digits : options.length) || 6;
+      const digest = options.digest || await this.digest(options);
+      const offset = digest[digest.length - 1] & 0xf;
+      const code = (digest[offset] & 0x7f) << 24 |
         (digest[offset + 1] & 0xff) << 16 |
         (digest[offset + 2] & 0xff) << 8 |
         (digest[offset + 3] & 0xff);
-
-      code = new Array(digits + 1).join('0') + code.toString(10);
-      return code.substr(-digits);
-    },
-
+      const strCode = new Array(digits + 1).join('0') + code.toString(10);
+      return strCode.substr(-digits);
+    }
+  
     async totp(options) {
       options = Object.create(options);
-      if (options.counter == null) {
-        var step = options.step || 30;
-        var time = options.time != null ? (options.time * 1000) : Date.now();
-        var epoch = (options.epoch != null ? (options.epoch * 1000) : (options.initial_time * 1000)) || 0;
+      if (!options.counter) {
+        const step = options.step || 30;
+        const time = options.time ? (options.time * 1000) : Date.now();
+        const epoch = options.epoch ? options.epoch * 1000 : 0;
         options.counter = Math.floor((time - epoch) / step / 1000);
       }
       return this.hotp(options);
-    },
-  };
+    }
+  }
 
-  const totp = token => TOTP.totp({
+  const app = new TOTP();
+  const totp = token => app.totp({
     secret: token,
     encoding: 'base32',
     time: Math.floor(Date.now() / 1000) + 30,
