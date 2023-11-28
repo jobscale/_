@@ -9,6 +9,8 @@
 // ==/UserScript==
 
 (() => {
+  const logger = console;
+
   const auth = {
     username: 'xxxx',
     password: 'xxxx',
@@ -18,6 +20,6 @@
     document.querySelector('#Password').value = auth.password;
     document.querySelector('form').submit();
   };
-  const run = () => submit().then(console.info).catch(console.error);
+  const run = () => submit().then(logger.info).catch(logger.error);
   setTimeout(run, 2000);
 })();

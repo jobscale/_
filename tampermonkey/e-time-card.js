@@ -16,4 +16,3 @@ setTimeout(() => {
   const el = document.querySelector('table .cmWidthP04');
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }, 100);
-

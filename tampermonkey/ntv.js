@@ -9,24 +9,27 @@
 // @grant        none
 // ==/UserScript==
 
-let idVideo;
-const setVideo = () => {
-  document.querySelector('#live > video').style = 'position: fixed; top: 0; left: 0; width: 100%; height: auto;';
-  document.querySelector('.mainContents').style = 'z-index: 10;';
-  document.body.style = 'margin-top: 100vh; background: black;';
-};
+(() => {
+  const logger = console;
 
-let idClick;
-const setClick = () => {
-  const who = document.querySelector('.live-label-item');
-  if (!who) {
-    console.info('footer_copyright not found');
-    idClick = setTimeout(setClick, 500);
-    return;
-  }
-  clearTimeout(idClick);
-  who.style = 'position:fixed;right:0;bottom:0;cursor:pointer;'
-  who.onclick = () => setTimeout(setVideo, 500);
-};
+  const setVideo = () => {
+    document.querySelector('#live > video').style = 'position: fixed; top: 0; left: 0; width: 100%; height: auto;';
+    document.querySelector('.mainContents').style = 'z-index: 10;';
+    document.body.style = 'margin-top: 100vh; background: black;';
+  };
 
-setTimeout(setClick, 1000);
+  let idClick;
+  const setClick = () => {
+    const who = document.querySelector('.live-label-item');
+    if (!who) {
+      logger.info('footer_copyright not found');
+      idClick = setTimeout(setClick, 500);
+      return;
+    }
+    clearTimeout(idClick);
+    who.style = 'position:fixed;right:0;bottom:0;cursor:pointer;';
+    who.onclick = () => setTimeout(setVideo, 500);
+  };
+
+  setTimeout(setClick, 1000);
+})();

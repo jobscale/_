@@ -1,3 +1,5 @@
+const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
 class TOTP {
   decodeBase32(encoded) {
     const base32Lookup = {};
@@ -23,33 +25,33 @@ class TOTP {
   }
 
   convertToBuffer(who, encoding) {
-    if (encoding !== 'base32') return ArrayBuffer.from(who, encoding);
-    return this.decodeBase32(who.toUpperCase());
+    if (encoding === 'base32') return this.decodeBase32(who);
+    return ArrayBuffer.from(who, encoding);
   }
 
-  async createHmacKey(secret, buf, algorithm) {
+  async createHmacKey(secret, buf, algorithm = 'HMAC') {
     const key = await window.crypto.subtle.importKey(
-      "raw",
-      secret, { name: "HMAC", hash: { name: "SHA-1" } },
+      'raw',
+      secret,
+      { name: algorithm, hash: { name: 'SHA-1' } },
       false,
-      ["sign", "verify"],
+      ['sign', 'verify'],
     );
-    return window.crypto.subtle.sign("HMAC", key, buf);
+    return window.crypto.subtle.sign(algorithm, key, buf);
   }
 
   async digest(options) {
-    const secret = options.secret;
-    const counter = options.counter;
+    const { secret } = options;
+    const { counter } = options;
     const encoding = options.encoding || 'base32';
-    const algorithm = 'sha1';
     const blob = this.convertToBuffer(secret, encoding);
     const buf = new Uint8Array(8);
     let tmp = counter;
     for (let i = 0; i < 8; i++) {
       buf[7 - i] = tmp & 0xff;
-      tmp = tmp >> 8;
+      tmp >>= 8;
     }
-    const signature = await this.createHmacKey(blob, buf, algorithm);
+    const signature = await this.createHmacKey(blob, buf);
     return new Uint8Array(signature);
   }
 
@@ -57,12 +59,12 @@ class TOTP {
     const digits = (options.digits ? options.digits : options.length) || 6;
     const digest = options.digest || await this.digest(options);
     const offset = digest[digest.length - 1] & 0xf;
-    const code = (digest[offset] & 0x7f) << 24 |
-      (digest[offset + 1] & 0xff) << 16 |
-      (digest[offset + 2] & 0xff) << 8 |
-      (digest[offset + 3] & 0xff);
+    const code = (digest[offset] & 0x7f) << 24
+      | (digest[offset + 1] & 0xff) << 16
+      | (digest[offset + 2] & 0xff) << 8
+      | (digest[offset + 3] & 0xff);
     const strCode = new Array(digits + 1).join('0') + code.toString(10);
-    return strCode.substr(-digits);
+    return strCode.slice(-digits);
   }
 
   async totp(options) {
@@ -76,3 +78,5 @@ class TOTP {
     return this.hotp(options);
   }
 }
+
+window.TOTP = TOTP;
