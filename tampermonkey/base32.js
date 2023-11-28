@@ -2,9 +2,7 @@ const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 class Base32 {
   encode(buffer) {
-    const binaryString = Array.from(
-      typeof Uint8Array === 'undefined' ? Buffer.from(buffer) : new Uint8Array(buffer),
-    )
+    const binaryString = Array.from(new Uint8Array(buffer))
     .map(byte => byte.toString(2).padStart(8, '0'))
     .join('');
     const bitsPerChar = 5;
@@ -36,9 +34,6 @@ class Base32 {
       binaryString += binaryValue;
     }
     const chunks = binaryString.match(/.{1,8}/g).filter(v => v.length === 8);
-    if (typeof Uint8Array === 'undefined') {
-      return Buffer.from(chunks.map(chunk => parseInt(chunk, 2)));
-    }
     return new Uint8Array(chunks.map(chunk => parseInt(chunk, 2)));
   }
 }

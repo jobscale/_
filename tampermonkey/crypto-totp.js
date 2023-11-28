@@ -18,9 +18,6 @@ class TOTP {
       binaryString += binaryValue;
     }
     const chunks = binaryString.match(/.{1,8}/g).filter(v => v.length === 8);
-    if (typeof Uint8Array === 'undefined') {
-      return Buffer.from(chunks.map(chunk => parseInt(chunk, 2)));
-    }
     return new Uint8Array(chunks.map(chunk => parseInt(chunk, 2)));
   }
 
@@ -30,14 +27,21 @@ class TOTP {
   }
 
   async createHmacKey(secret, buf, algorithm = 'HMAC') {
-    const key = await window.crypto.subtle.importKey(
+    const loader = typeof require !== 'undefined' ? require : undefined;
+    if (loader) {
+      const crypto = loader('crypto');
+      const hmac = crypto.createHmac('sha1', secret);
+      hmac.update(buf);
+      return Buffer.from(hmac.digest(), 'hex');
+    }
+    const key = await crypto.subtle.importKey(
       'raw',
       secret,
       { name: algorithm, hash: { name: 'SHA-1' } },
       false,
       ['sign', 'verify'],
     );
-    return window.crypto.subtle.sign(algorithm, key, buf);
+    return crypto.subtle.sign(algorithm, key, buf);
   }
 
   async digest(options) {
@@ -79,4 +83,17 @@ class TOTP {
   }
 }
 
-window.TOTP = TOTP;
+const logger = console;
+const totp = new TOTP();
+totp.totp({
+  encoding: 'base32',
+  secret: 'JSXJPX6EY4BMPXIRSSR74',
+  time: Math.floor(Date.now() / 1000),
+})
+.then(logger.info);
+totp.totp({
+  encoding: 'base32',
+  secret: 'JSXJPX6EY4BMPXIRSSR74',
+  time: Math.floor(Date.now() / 1000) + 30,
+})
+.then(logger.info);
