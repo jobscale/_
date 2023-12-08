@@ -4,7 +4,7 @@
     {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
-      "Resource": "arn:aws:iam:::role/role",
+      "Resource": "arn:aws:iam::*:role/role",
       "Condition": {
         "Bool": {
           "aws:MultiFactorAuthPresent": "true"
