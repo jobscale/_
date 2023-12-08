@@ -8,12 +8,12 @@ fi
 
 TOKEN_CODE=$1
 DURARION=129600
-MFA_ACCOUNT_ID=123456789012
-USER_NAME=user
+MFA_ACCOUNT_ID=$(aws --profile sw sts get-caller-identity --out text --query Account)
+USER_NAME=user.mfa
 SERIAL_NUMBER=arn:aws:iam::${MFA_ACCOUNT_ID}:mfa/${USER_NAME}
 MFA_PROFILE_NAME=mfa
 
-ACCOUNT_ID=123456789012
+ACCOUNT_ID=$(aws --profile sw sts get-caller-identity --out text --query Account)
 REGION=ap-northeast-1
 ROLE_NAME=role
 ROLE_ARN=arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}
