@@ -12,7 +12,6 @@ ddns() {
 }
 
 ddns-dev() {
-  rm -f /usr/local/bin/noip2
   ddns
 }
 
