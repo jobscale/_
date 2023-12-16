@@ -4,8 +4,8 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       jobscale
-// @match        https://*.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin*
-// @match        https://login.microsoftonline.com/*/login
+// @match        https://*.signin.aws.amazon.com/oauth?*
+// @match        https://login.microsoftonline.com/*
 // @match        https://github.com/*
 // @match        https://jsx.jp/auth/
 // @match        https://*.jsx.jp/auth/
