@@ -9,9 +9,8 @@
 // @grant        none
 // ==/UserScript==
 
-(() => {
+setTimeout(() => {
   const logger = console;
-
   let idVideo;
   const setVideo = () => {
     const who = document.querySelector('[class^="player_"] video');
@@ -114,7 +113,10 @@
     el.addEventListener('click', event => {
       event.preventDefault();
       Array.from(document.querySelectorAll('[class^="mypage-content-item_container"]'))
-      .filter(content => content.querySelector('div[class^="progress-bar_progressBar"]'))
+      .filter(content => {
+        if (content.textContent.match(/年放送/)) return true;
+        return content.querySelector('div[class^="progress-bar_progressBar"]');
+      })
       .forEach(content => content.remove());
     });
     areaMenu.append(el);
@@ -128,9 +130,7 @@
     setMenu2(areaMenu);
   };
 
-  setTimeout(() => {
-    changeStyle();
-    setTimeout(() => changeStyle(), 3000);
-    setTimeout(() => setContentEvent(), 4000);
-  }, 1500);
-})();
+  changeStyle();
+  setTimeout(() => changeStyle(), 3000);
+  setTimeout(() => setContentEvent(), 4000);
+}, 1500);
