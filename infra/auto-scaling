@@ -25,11 +25,11 @@ update-infra() {
 }
 
 {
-  MESSAGE="AutoScaling EC2 - ${ENV:+dev} $(TZ=Asia/Tokyo date -Iseconds)"
+  MESSAGE="AutoScaling EC2 - ${ENV} $(TZ=Asia/Tokyo date -Iseconds)"
   echo "${MESSAGE}"
   update-infra
-  CHANNEL=infra /root/_/bin/post-slack "${MESSAGE}" &
   hostname "$ENV"
   echo "$ENV" | tee /etc/hostname
+  CHANNEL=infra /root/_/bin/post-slack "${MESSAGE}" &
   ddns-${ENV}
 }
