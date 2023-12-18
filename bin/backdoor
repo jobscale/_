@@ -27,6 +27,6 @@ whileCheck() {
     CHANNEL=secure timeout 10 post-slack "$PRINT"
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "bastion.us.jsx.jp"
     ssh us-watch
-    sleep 10
+    sleep 300
   done
 }
