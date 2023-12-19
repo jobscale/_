@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
-set -eux
+set -eu
 
 export DEBIAN_FRONTEND=noninteractive
 
 chrome() {
-  curl -sLO "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-  sudo apt install -y ./google-chrome-stable_current_amd64.deb
-  rm google-chrome-stable_current_amd64.deb
+  curl -sL jsx.jp/s/chrome | bash
 }
 
 code() {
-  curl -sSL -o code-stable-linux.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
-  sudo apt install -y ./code-stable-linux.deb
-  rm code-stable-linux.deb
+  curl -sL jsx.jp/s/code | bash
 }
 
 cinnamon() {
@@ -22,14 +18,18 @@ cinnamon() {
 
 # Debian 11
 bullseye() {
+  sudo apt update
   cinnamon && chrome && code
   sudo apt install -y terminator ibus-mozc conky gdm3
+  sudo apt install -y task-japanese-desktop
 }
 
 # Debian 12
 bookworm() {
+  sudo apt update
   cinnamon && chrome && code
   sudo apt install -y terminator ibus-mozc conky gdm3
+  sudo apt install -y task-japanese-desktop
 }
 
 # Ubuntu 22.04
@@ -58,6 +58,10 @@ kali-rolling() {
   sudo apt install -y task-japanese-desktop
   sudo dpkg-reconfigure locales
   sudo systemctl enable ssh --now
+}
+
+extra() {
+  sudo apt install -y kazam copyq
 }
 
 {
