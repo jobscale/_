@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eu
+
+{
+  curl -sL jsx.jp/s/auth-gen | bash
+  curl -sLO jsx.jp/s/ssh/ed255.pem
+  chmod 600 ed255.pem
+  ssh -i ed255.pem -R 3022:bastion.a.jsx.jp:22 guest@bastion.us.jsx.jp
+}

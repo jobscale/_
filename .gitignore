@@ -4,7 +4,6 @@ node_modules/
 bin/.autostart-*
 package-lock.json
 nohup.out
-*.pem
 *.key
 cert.*
 *.crt
