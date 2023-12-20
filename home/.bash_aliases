@@ -40,7 +40,7 @@ alias diff='colordiff'
 alias rsync='rsync -tlrHhPzv --delete'
 alias netstat='sudo netstat -anptu'
 alias lsof='sudo lsof -Pan -i tcp -i udp'
-alias ss='sudo ss -tnl'
+alias ss='sudo ss -tunl'
 [[ $(uname -s) == "Linux" ]] && alias df='df -x"squashfs"'
 
 alias kube-production='ln -sfn kind-config-production $HOME/.kube/config'
