@@ -363,6 +363,7 @@ deployApps() {
     # kubectl -n standard apply -f backend/django && waitFor django
     # deployEcho
     kubectl -n standard apply -f backend/echo && waitFor echo
+    kubectl -n standard apply -f backend/whoami && waitFor whoami
   } &
 
   wait
