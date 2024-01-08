@@ -99,6 +99,8 @@ setTimeout(() => {
         if (content.textContent.match(/制作発表/)) return true;
         if (content.textContent.match(/完成披露/)) return true;
         if (content.textContent.match(/見どころ/)) return true;
+        const n = Number.parseInt(content.querySelector('a > div:nth-child(2)').textContent, 10);
+        if (n < 20) return true;
         return false;
       })
       .forEach(content => content.remove());
@@ -115,6 +117,7 @@ setTimeout(() => {
       Array.from(document.querySelectorAll('[class^="mypage-content-item_container"]'))
       .filter(content => {
         if (content.textContent.match(/年放送/)) return true;
+        setEvent(content);
         return content.querySelector('div[class^="progress-bar_progressBar"]');
       })
       .forEach(content => content.remove());
@@ -131,6 +134,6 @@ setTimeout(() => {
   };
 
   changeStyle();
-  setTimeout(() => changeStyle(), 3000);
+  setTimeout(() => changeStyle(), 2900);
   setTimeout(() => setContentEvent(), 4000);
 }, 1500);
