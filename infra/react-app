@@ -6,5 +6,5 @@ set -eu
   cd react-app
   docker build . -t react-app/local
   docker images react-app/local
-  docker run --rm -p 3000:3000 -it react-app/local
+  docker run --rm -p 3000:3000 -i react-app/local
 }
