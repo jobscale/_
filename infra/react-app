@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -eu
+
+{
+  git clone https://github.com/jobscale/react-app.git
+  cd react-app
+  docker build . -t react-app/local
+  docker images react-app/local
+  docker run --rm -p 3000:3000 -it react-app/local
+}
