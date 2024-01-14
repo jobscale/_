@@ -9,7 +9,7 @@ fi
 TOKEN_CODE=$1
 DURARION=129600
 MFA_ACCOUNT_ID=$(aws --profile sw sts get-caller-identity --out text --query Account)
-USER_NAME=user.mfa
+USER_NAME=mfa
 SERIAL_NUMBER=arn:aws:iam::${MFA_ACCOUNT_ID}:mfa/${USER_NAME}
 MFA_PROFILE_NAME=mfa
 
@@ -20,7 +20,7 @@ ROLE_ARN=arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}
 PROFILE_NAME=default
 
 SESSION_JSON=$(
-  aws sts get-session-token --duration $DURARION \
+  aws --profile sw sts get-session-token --duration $DURARION \
   --serial-number $SERIAL_NUMBER --token-code $TOKEN_CODE \
   --output json
 )
