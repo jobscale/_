@@ -23,7 +23,7 @@ docker() {
   fi
   if [[ $@ == "images" ]]
   then
-    cmd="docker images '--format={{.CreatedAt}} {{.ID}} {{.Repository}}:{{.Tag}}' | sort"
+    cmd="docker images '--format={{.CreatedAt}} {{.ID}} {{.Size}} {{.Repository}}:{{.Tag}}' | sort"
     echo "$cmd"
     bash -c "$cmd"
     return
