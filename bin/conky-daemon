@@ -6,7 +6,7 @@ main() {
   while $attempt
   do
     attempt=$((( $attempt - 1 )))
-    EXIST="$(ps | grep [c]onky | awk '{print $2}')"
+    EXIST="$(ps auxf | grep [c]onky | grep -v $$ | awk '{print $2}')"
     [[ "$EXIST" != "" ]] && kill $EXIST
     LANG=en_US.UTF-8 conky
     sleep 2.2
