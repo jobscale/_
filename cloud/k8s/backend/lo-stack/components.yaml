@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lo-stacl
+  name: lo-stack
 spec:
   selector:
     matchLabels:
-      app: lo-stacl
+      app: lo-stack
   template:
     metadata:
       labels:
-        app: lo-stacl
+        app: lo-stack
     spec:
       containers:
       - image: localstack/localstack
-        name: lo-stacl
+        name: lo-stack
 ---
 apiVersion: v1
 kind: Service
