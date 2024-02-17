@@ -10,9 +10,9 @@ whileCheck() {
   while true
   do
     sleep 60
-    nc -vz -w 1 bastion.us.jsx.jp 2022
+    nc -vz -w 1 bastion.asia.jsx.jp 2022
     [[ $(echo $?) == 0 ]] || cleanZonbi && continue
-    timeout 15 ssh bastion.us.jsx.jp -p 2022 date +%s
+    timeout 15 ssh bastion.asia.jsx.jp -p 2022 date +%s
     [[ $(echo $?) == 0 ]] || cleanZonbi && continue
   done
 }

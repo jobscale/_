@@ -270,6 +270,7 @@ createStandard() {
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
   kubectl -n standard apply -f backend/ddb && waitFor ddb
+  kubectl -n standard apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
   [[ $KINDNAME == production ]] && deployApps
