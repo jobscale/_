@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 main() {
-  for i in {1..10000}
+  attempt=100
+  cd /tmp
+  while $attempt
   do
-    cd /tmp
+    attempt=$((( $attempt - 1 )))
+    EXIST="$(ps | grep [c]onky | head -2 | awk '{print $2}')"
     LANG=en_US.UTF-8 conky
     sleep 2.2
   done
