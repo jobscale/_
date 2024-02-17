@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
+set -x
 
 main() {
   attempt=100
   cd /tmp
-  while $attempt
+  while [[ $attempt > 0 ]]
   do
     attempt=$((( $attempt - 1 )))
-    EXIST="$(ps auxf | grep [c]onky | head -n -1 | awk '{print $2}')"
+    PS_LIST="$(ps auxf | grep [c]onky)"
+    EXIST="$(echo -e "$PS_LIST" | head -n -2 | awk '{print $2}')"
     [[ "$EXIST" != "" ]] && kill $EXIST
     LANG=en_US.UTF-8 conky
     sleep 2.2
