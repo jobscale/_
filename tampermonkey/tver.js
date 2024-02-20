@@ -41,6 +41,14 @@ setTimeout(() => {
 
   setTimeout(setClick, 1000);
 
+  const fetchData = () => JSON.parse(localStorage.getItem('a-list') || '[]');
+
+  const appendData = data => {
+    const list = fetchData();
+    list.unshift(data);
+    localStorage.setItem('a-list', JSON.stringify(list));
+  };
+
   const changeStyle = () => {
     const css = `
   .btn-close {
@@ -76,6 +84,11 @@ setTimeout(() => {
       event.preventDefault();
       const { target } = event;
       const parent = target.parentNode;
+      const data = {
+        href: parent.querySelector('a').href,
+        ts: new Date().toISOString(),
+      };
+      appendData(data);
       parent.remove();
     });
     content.append(el);
@@ -100,7 +113,7 @@ setTimeout(() => {
         if (content.textContent.match(/完成披露/)) return true;
         if (content.textContent.match(/見どころ/)) return true;
         const n = Number.parseInt(content.querySelector('a > div:nth-child(2)').textContent, 10);
-        if (n < 20) return true;
+        if (n < 10) return true;
         return false;
       })
       .forEach(content => content.remove());
@@ -114,9 +127,12 @@ setTimeout(() => {
     el.textContent = '既読を非表示';
     el.addEventListener('click', event => {
       event.preventDefault();
+      const list = fetchData();
       Array.from(document.querySelectorAll('[class^="mypage-content-item_container"]'))
       .filter(content => {
         if (content.textContent.match(/年放送/)) return true;
+        const exist = list.find(data => data.href === content.querySelector('a').href);
+        if (exist) return true;
         setEvent(content);
         return content.querySelector('div[class^="progress-bar_progressBar"]');
       })
