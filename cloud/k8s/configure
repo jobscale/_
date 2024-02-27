@@ -88,7 +88,7 @@ inAllInOne() {
 
   # metalLB
   # ingressForward
-  ingressNginx
+  ingressNginxSecure
   loop 20
   # ingressRestart
 
@@ -101,6 +101,9 @@ inAllInOne() {
 
   ingressSecret kubernetes-dashboard
   kubectl -n kubernetes-dashboard apply -f backend/k8s
+
+  # Allow API
+  ingressNginxAllow
 
   token && postSlack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
@@ -203,13 +206,16 @@ ingressSecret() {
   --key=tls/jsx.jp/privkey.pem
 }
 
-ingressNginx() {
+ingressNginxSecure() {
   kubectl create namespace ingress-nginx
   kubectl -n ingress-nginx create configmap modsecurity-config \
   --from-file=custom-modsecurity.conf=ingress-nginx/conf/custom-modsecurity.conf
   kubectl apply -f ingress-nginx
-  # default (Allow wetty)
-  # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/aws/deploy.yaml
+}
+
+ingressNginxAllow() {
+  # default (Allow API)
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/aws/deploy.yaml
 }
 
 ingressForward() {
