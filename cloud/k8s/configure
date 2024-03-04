@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.28.0"
+IMAGE="kindest/node:v1.29.2"
 
 production() {
   export KINDNAME=production
@@ -57,11 +57,15 @@ defaultImage() {
   done
 }
 
-inAllInOne() {
+initNetwork() {
   sudo ln -sfn /usr/lib/systemd/resolv.conf /etc/resolv.conf
   echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
   sudo systemctl disable systemd-resolved --now
   sudo systemctl mask systemd-resolved
+}
+
+inAllInOne() {
+  # initNetwork
 
   createKind
 
@@ -80,7 +84,7 @@ inAllInOne() {
   createStandard
 
   [[ $KINDNAME == production ]] && createCodeServer
-  [[ $KINDNAME == production ]] && createWetty
+  # [[ $KINDNAME == production ]] && createWetty
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployWordpress
   [[ $KINDNAME == production ]] && deployBitnami
@@ -151,7 +155,9 @@ metalLB() {
 }
 
 adminDashboard() {
-  DASHBOARD_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes/dashboard.git | sort -t '/' -k 3 -V | grep -v alpha | tail -1 | awk -F/ '{print $3}')
+  DASHBOARD_VERSION=$(
+    git ls-remote --refs --tags https://github.com/kubernetes/dashboard.git | grep tags/v | sort -t '/' -k 3 -V | grep -v alpha | tail -1 | awk -F/ '{print $3}'
+  )
   echo -e "\n Kubernetes Dashboard ${DASHBOARD_VERSION} \n"
   curl -so dashboard/kubernetes-dashboard.yaml https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
   kubectl apply -f dashboard/kubernetes-dashboard.yaml
@@ -275,7 +281,7 @@ createStandard() {
 
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
-  kubectl -n standard apply -f backend/ddb && waitFor ddb
+  # kubectl -n standard apply -f backend/ddb && waitFor ddb
   kubectl -n standard apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
@@ -413,12 +419,12 @@ postSlack() {
 
 waitFor() {
   echo -n "        waiting" && loop 10
-  for limit in {5..1}
+  for limit in {3..1}
   do
     [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
     echo " $1 - ng"
-    echo -ne "just a moment please 11.."
-    for i in {10..0}
+    echo -ne "just a moment please 6.."
+    for i in {5..0}
     do
       delay
       [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
