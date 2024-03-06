@@ -86,8 +86,9 @@ ${template0 /media/jobscale/058cb442-261f-4a79-96ae-614d8663475b sdd SSD}\
 $endif\
 \
 ${if_match "$nodename" == "bookworm"}\
-${template0 /        sda SSD}\
-${template0 /task    sdb SSD}\
+${template0 /                  sda SSD}\
+${template0 /task              sdb SSD}\
+${template0 /var/lib/docker    sdc SSD}\
 $endif\
 
 ${color5}Date         $stippled_hr
