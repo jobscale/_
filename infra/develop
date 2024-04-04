@@ -13,7 +13,7 @@ iNodejs() {
   nvm install $LATEST
   nvm alias default $LATEST
   nvm use $LATEST
-  npm i -g npm@latest
+  npm i -g npm@latest && npm version | xargs
   node --version
   npm --version
   id

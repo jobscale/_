@@ -104,7 +104,9 @@ inAllInOne() {
   echo -e '\n\nk8s creation finished.\n\n'
 
   ingressSecret kubernetes-dashboard
+  sleep 10
   kubectl -n kubernetes-dashboard apply -f backend/k8s
+  sleep 10
 
   # Allow API
   ingressNginxAllow
@@ -358,7 +360,7 @@ deployApps() {
   {
     kubectl -n standard apply -f backend/todo && waitFor todo
     kubectl -n standard apply -f backend/sshwifty && waitFor sshwifty
-    kubectl -n standard apply -f backend/zipcode-jp && waitFor zipcode-jp
+    kubectl -n standard apply -f backend/zipcode && waitFor zipcode
     kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
     kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
   } &
