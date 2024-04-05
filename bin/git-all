@@ -3,7 +3,7 @@
 
 Config() {
   ApiGit="https://api.github.com/users/jobscale/repos?type=all&sort=updated&page="
-  if [[ $(hostname) == focal ]]
+  if [[ $(hostname) == dark ]]
   then
     TYPE="ssh_url"
   else
