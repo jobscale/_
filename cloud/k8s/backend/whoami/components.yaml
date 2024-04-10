@@ -12,7 +12,7 @@ spec:
         app: whoami
     spec:
       containers:
-      - image: traefik/whoami
+      - image: ghcr.io/jobscale/whoami
         name: whoami
 ---
 apiVersion: v1
@@ -24,7 +24,7 @@ spec:
   - name: http
     port: 80
     protocol: TCP
-    targetPort: 80
+    targetPort: 3000
   selector:
     app: whoami
   type: ClusterIP
