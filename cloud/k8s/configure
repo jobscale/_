@@ -104,7 +104,7 @@ inAllInOne() {
   echo -e '\n\nk8s creation finished.\n\n'
 
   ingressSecret kubernetes-dashboard
-  sleep 10
+  sleep 30
   kubectl -n kubernetes-dashboard apply -f backend/k8s
   sleep 10
 
