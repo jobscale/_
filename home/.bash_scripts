@@ -9,7 +9,7 @@ b() {
 docker() {
   if [[ $@ == "ps -a" ]]
   then
-    cmd="docker ps -a --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}'"
+    cmd="docker container ls -as --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Size}}\t{{.Status}}'"
     echo "$cmd"
     bash -c "$cmd"
     return
