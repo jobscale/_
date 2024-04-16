@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -eu
+
+export DEBIAN_FRONTEND=noninteractive
+
+simple() {
+  apt-get update
+  apt-get install -y apt-transport-https
+  apt-get update
+  apt-get install -y curl git vim tmux htop expect \
+    iproute2 dnsutils ncat netcat-openbsd iputils-ping \
+    nmap traceroute procps whois progress \
+    python3-pip bc jq zip unzip tree colordiff \
+    bash-completion
+
+  [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
+}
+
+{
+  echo "START  simple $(date --rfc-3339=seconds)"
+  which lsb_release && lsb_release -cs || echo "no lsb_release"
+  eval $(cat /etc/*release)
+  simple
+  echo "FINISH stable $(date --rfc-3339=seconds)"
+}
