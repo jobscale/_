@@ -81,6 +81,7 @@ inAllInOne() {
   networkService
 
   deployDatabase
+  createReverse
   createStandard
 
   [[ $KINDNAME == production ]] && createCodeServer
@@ -284,13 +285,28 @@ createStandard() {
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
   # kubectl -n standard apply -f backend/ddb && waitFor ddb
-  kubectl -n standard apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
   [[ $KINDNAME == production ]] && deployApps
 
   kubectl describe nodes
   # kubectl config set-context $(kubectl config current-context) --namespace default
+}
+
+generateBasicAuth() {
+  htpasswd -c auth-file bookworm
+  kubectl create secret generic basic-auth --from-file=auth-file
+  kubectl get secret basic-auth -o yaml
+}
+
+createReverse() {
+  kubectl create namespace reverse
+  kubectl -n reverse apply -f backend/limitrange-limits.yaml
+  ingressSecret reverse
+  kubectl -n reverse apply -f backend/basic-auth.yaml
+  kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
+  kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
+  kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
 }
 
 createCodeServer() {
