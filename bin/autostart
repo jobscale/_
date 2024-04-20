@@ -2,7 +2,7 @@
 set -eu
 
 calm() {
-  $(find $HOME/.nvm -type f -name node | head -1) \
+  $(which node || find $HOME/.nvm -type f -name node | head -1) \
   -e '(() => new Promise(cb => setTimeout(cb, Date.now() % 1000 + 1000)))()'
 }
 

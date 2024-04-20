@@ -16,7 +16,7 @@ spec:
         name: kde-lo
         env:
         - name: BACKEND
-          value: http://kde.x.jsx.jp:3032
+          value: http://kde.x.jsx.jp:2999
 ---
 apiVersion: v1
 kind: Service
