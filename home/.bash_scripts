@@ -49,6 +49,10 @@ VBoxManage() {
   command VBoxManage "$@"
 }
 
+savestate() {
+  VBoxManage controlvm local-stack savestate
+}
+
 git() {
   if [[ $1 == "clone" && $2 == "--depth" ]]
   then
