@@ -17,6 +17,7 @@ screensaver() {
 }
 
 start-application() {
+  nohup ibus-daemon -rxd >& /dev/null &
   nohup google-chrome "https://jsx.jp" >& /dev/null &
   nohup discord >& /dev/null &
   nohup slack >& /dev/null &
@@ -37,7 +38,6 @@ start-application() {
   screensaver
 
   [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami):$(id -gn) /dev/kvm || echo -n
-  which ibus-daemon && ibus-daemon -rxd || echo -n
 
   start-application
 
