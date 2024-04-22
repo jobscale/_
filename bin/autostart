@@ -36,8 +36,8 @@ start-application() {
 
   screensaver
 
-  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami):$(id -gn) /dev/kvm
-  ibus-daemon -rxd
+  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami):$(id -gn) /dev/kvm || echo -n
+  which ibus-daemon && ibus-daemon -rxd || echo -n
 
   start-application
 
