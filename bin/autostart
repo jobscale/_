@@ -7,7 +7,7 @@ calm() {
 }
 
 screensaver() {
-  which cinnamon-screensaver-command || return
+  which cinnamon-screensaver-command || return 0
   for i in {1..6}
   do
     [[ $(ps auxf | grep cinnamon[-]screensaver | wc -l) > 0 ]] && break
