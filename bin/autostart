@@ -16,23 +16,31 @@ screensaver() {
   cinnamon-screensaver-command -l
 }
 
+start-application() {
+  nohup google-chrome "https://jsx.jp" >& /dev/null &
+  nohup discord >& /dev/null &
+  nohup slack >& /dev/null &
+}
+
 {
-  sleep 1.1
+  calm && date +'%Y-%m-%d %H:%M:%S.%3N conky'
   nohup $HOME/bin/conky-daemon >& /dev/null &
-  sleep 1.1
+  calm && date +'%Y-%m-%d %H:%M:%S.%3N terminator'
   nohup terminator -l start >& /dev/null &
-  sleep 1.1
+
+  calm && date +'%Y-%m-%d %H:%M:%S.%3N autostart-session'
   $HOME/bin/autostart-session
-  calm && date +'%Y-%m-%d %H:%M:%S.%3N'
+
+  calm && date +'%Y-%m-%d %H:%M:%S.%3N autostart-before'
   [[ -x "$HOME/bin/.autostart-before" ]] && "$HOME/bin/.autostart-before" || echo -n
+
   screensaver
-  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami). /dev/kvm
+
+  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami):$(id -gn) /dev/kvm
   ibus-daemon -rxd
 
-  {
-    nohup google-chrome "https://jsx.jp" >& /dev/null &
-    nohup discord >& /dev/null &
-    nohup slack >& /dev/null &
-  }
-  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra" || echo "FINISH AUTOSTART"
+  start-application
+
+  [[ -x "$HOME/bin/.autostart-extra" ]] && "$HOME/bin/.autostart-extra" || echo -n
+  calm && date +'%Y-%m-%d %H:%M:%S.%3N FINISH AUTOSTART'
 } 2>&1 | tee -a $HOME/autostart.log
