@@ -11,15 +11,10 @@ code() {
   curl -sL jsx.jp/s/code | bash
 }
 
-cinnamon() {
-  sudo apt update
-  sudo apt install -y $(apt search cinnamon | grep ^cinnamon | awk -F/ '{print $1}')
-}
-
 # Debian 11
 bullseye() {
   sudo apt update
-  cinnamon && chrome && code
+  chrome && code
   sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y task-japanese-desktop
 }
@@ -27,7 +22,7 @@ bullseye() {
 # Debian 12
 bookworm() {
   sudo apt update
-  cinnamon && chrome && code
+  chrome && code
   sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y task-japanese-desktop
 }
@@ -35,7 +30,7 @@ bookworm() {
 # Ubuntu 22.04
 jammy() {
   sudo apt update
-  cinnamon && chrome && code
+  chrome && code
   sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y language-pack-gnome-ja
 }
@@ -43,7 +38,7 @@ jammy() {
 # Ubuntu 20.04
 focal() {
   sudo apt update
-  cinnamon && chrome && code
+  chrome && code
   sudo apt install -y terminator ibus-mozc conky gdm3
   sudo apt install -y language-pack-gnome-ja
 }

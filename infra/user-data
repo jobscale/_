@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eux
+set -eu
 
 userData() {
   curl -sL jsx.jp/s/stable | bash

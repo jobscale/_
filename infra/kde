@@ -1,0 +1,14 @@
+sudo apt update && sudo apt install -y \
+kde-baseapps \
+kde-cli-tools \
+kde-cli-tools-data \
+kde-config-gtk-style \
+kde-config-mailtransport \
+kde-config-screenlocker \
+kde-config-sddm \
+kde-config-updates \
+kde-plasma-desktop \
+kde-spectacle \
+kde-standard \
+kde-style-breeze \
+kde-style-oxygen-qt5
