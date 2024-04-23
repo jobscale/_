@@ -1,4 +1,4 @@
-# Shoten URL Installer
+# Shorten URL Installer
 
 ## examples
 
@@ -16,7 +16,7 @@ curl -Ls jsx.jp/s/graphical | sudo bash
 ## install before
 
 ```
-apt update && apt install -y vim curl git
+sudo apt update && sudo apt install -y curl
 ```
 
 ## shorten
@@ -25,6 +25,11 @@ apt update && apt install -y vim curl git
 # stable = curl -sL jsx.jp/s/stable
 # docker = curl -sL jsx.jp/s/docker
 # graphical = curl -sL jsx.jp/s/graphical
+# cinnamon = curl -sL jsx.jp/s/cinnamon
+# kde = curl -sL jsx.jp/s/kde
+# chrome = curl -sL jsx.jp/s/chrome
+# code = curl -sL jsx.jp/s/code
+# nodejs = curl -sL jsx.jp/s/nodejs
 # user-data = curl -sL jsx.jp/s/user-data
 # user-add = curl -sL jsx.jp/s/user-add
 # ja-jp = curl -sL jsx.jp/s/ja-jp
