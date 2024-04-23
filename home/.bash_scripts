@@ -51,6 +51,12 @@ VBoxManage() {
 
 savestate() {
   VBoxManage controlvm local-stack savestate
+  echo "lo-stack saved state"
+}
+
+lo-stack() {
+  VBoxManage startvm --type headless local-stack
+  echo "lo-stack start headless"
 }
 
 git() {
