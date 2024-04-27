@@ -307,6 +307,7 @@ createReverse() {
   kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
   kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
+  kubectl -n reverse apply -f backend/wetty-lo && waitFor wetty-lo
 }
 
 createCodeServer() {
