@@ -85,7 +85,7 @@ inAllInOne() {
   createStandard
 
   [[ $KINDNAME == production ]] && createCodeServer
-  # [[ $KINDNAME == production ]] && createWetty
+  [[ $KINDNAME == production ]] && createWetty
   [[ $KINDNAME == production ]] && cronJob
   [[ $KINDNAME == production ]] && deployWordpress
   [[ $KINDNAME == production ]] && deployBitnami
@@ -130,7 +130,8 @@ createKind() {
   sed -i -e 's/0\.0\.0\.0/kubernetes/' $HOME/.kube/config
 
   echo -n "        wait for nodes system pods initializing"
-  for i in {1..99}
+  loop 10
+  for i in {1..20}
   do
     loop 5
     [[ $(kubectl get all -A | grep -e 0/1 | wc -l) == 0 ]] && break
@@ -176,7 +177,7 @@ token() {
 
 networkService() {
   kubectl create namespace net-apps
-  kubectl -n net-apps apply -f backend/limitrange-limits.yaml
+  # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl apply -f backend/net-apps
   waitFor bind9 && waitFor squid
 }
@@ -307,7 +308,6 @@ createReverse() {
   kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
   kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
-  kubectl -n reverse apply -f backend/wetty-lo && waitFor wetty-lo
 }
 
 createCodeServer() {
@@ -318,6 +318,12 @@ createCodeServer() {
 }
 
 createWetty() {
+  if [[ true ]]
+  then
+    kubectl -n reverse apply -f backend/wetty-lo && waitFor wetty-lo
+    return
+  fi
+
   kubectl create namespace wetty
   # kubectl -n wetty apply -f backend/limitrange-limits.yaml
   ingressSecret wetty
