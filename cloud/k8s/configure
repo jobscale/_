@@ -49,6 +49,7 @@ defaultImage() {
     ghcr.io/jobscale/bind9
     ghcr.io/jobscale/squid:secure
     ghcr.io/jobscale/mqtt-c-pub-sub
+    ghcr.io/jobscale/reverse-proxy
   )
   for i in ${IMG_LIST[@]}
   do
@@ -308,6 +309,7 @@ createReverse() {
   kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
   kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
+  kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
 }
 
 createCodeServer() {
