@@ -16,7 +16,7 @@ spec:
         name: lo-stack
         env:
         - name: BACKEND
-          value: http://lo-stack.x.jsx.jp:10456
+          value: http://lo-stack.x.jsx.jp:4566
         - name: HEADERS
           value: '{"authorization":"AWS4-HMAC-SHA256 Credential="}'
 ---
