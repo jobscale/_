@@ -69,7 +69,7 @@ spec:
         persistentVolumeClaim:
           claimName: wetty-store-pv-claim
       containers:
-      - image: ghcr.io/jobscale/wetty:dind
+      - image: ghcr.io/jobscale/wetty
         name: wetty
         securityContext:
           privileged: true
