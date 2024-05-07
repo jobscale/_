@@ -343,7 +343,7 @@ makePasswd() {
 genPasswd() {
   GEN_PASSWD="$1"
   [[ "$GEN_PASSWD" == "" ]] && echo -e "failed password.\nusage:\n\n  GEN_PASSWD='$(makePasswd)' genPasswd\n" && return
-  kubectl -n wetty exec -i svc/wetty -- bash -c "echo bullseye:$GEN_PASSWD | chpasswd"
+  kubectl -n wetty exec -i svc/wetty -- bash -c "echo bookworm:$GEN_PASSWD | chpasswd"
 }
 
 cronJob() {
