@@ -16,7 +16,7 @@ spec:
         name: wetty-lo
         env:
         - name: BACKEND
-          value: http://kde.x.jsx.jp:2998
+          value: http://wetty.x.jsx.jp:2998
 ---
 apiVersion: v1
 kind: Service
@@ -46,7 +46,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["kde.jsx.jp", "kde.x.jsx.jp"]
+    hosts: ["wetty.jsx.jp", "wetty.x.jsx.jp"]
   rules:
   - host: wetty.jsx.jp
     http:

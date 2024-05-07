@@ -103,9 +103,19 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["wetty.jsx.jp"]
+    hosts: ["wetty.jsx.jp", "wetty.x.jsx.jp"]
   rules:
   - host: wetty.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: wetty
+            port:
+              number: 80
+  - host: wetty.x.jsx.jp
     http:
       paths:
       - pathType: Prefix
