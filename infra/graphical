@@ -27,6 +27,14 @@ bookworm() {
   sudo apt install -y task-japanese-desktop
 }
 
+# Ubuntu 24.04
+noble() {
+  sudo apt update
+  chrome && code
+  sudo apt install -y terminator ibus-mozc conky gdm3
+  sudo apt install -y language-pack-gnome-ja
+}
+
 # Ubuntu 22.04
 jammy() {
   sudo apt update

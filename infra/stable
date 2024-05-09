@@ -51,6 +51,11 @@ buster() {
   apt-get install -y network-manager
 }
 
+# Ubuntu 24.04
+noble() {
+  stable-2023
+}
+
 # Ubuntu 22.04
 jammy() {
   stable

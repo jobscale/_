@@ -63,6 +63,11 @@ buster() {
   debian
 }
 
+# Ubuntu 24.04
+noble() {
+  ubuntu
+}
+
 # Ubuntu 22.04
 jammy() {
   ubuntu
