@@ -3,14 +3,11 @@ cinnamon \
 cinnamon-common \
 cinnamon-control-center \
 cinnamon-control-center-data \
-cinnamon-control-center-goa \
 cinnamon-core \
 cinnamon-desktop-data \
 cinnamon-desktop-environment \
-cinnamon-doc \
 cinnamon-l10n \
 cinnamon-screensaver \
 cinnamon-session \
 cinnamon-session-common \
-cinnamon-settings-daemon \
-cinnamon-settings-daemon-dev
+cinnamon-settings-daemon
