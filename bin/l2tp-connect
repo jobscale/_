@@ -12,7 +12,7 @@ configure() {
 add() {
   VPN_DATA="gateway = ${VPN_GATEWAY}, ipsec-enabled = yes, ipsec-psk = ${VPN_IPSEC_PSK}, user = ${VPN_USER}, password-flags = 0"
 
-  sudo nmcli connection add connection.id VPNName con-name "${VPN_NAME}" type VPN vpn-type l2tp ifname \
+  nmcli connection add connection.id VPNName con-name "${VPN_NAME}" type VPN vpn-type l2tp ifname \
   -- vpn.data "${VPN_DATA}" vpn.secrets password="${VPN_PASSWORD}"
 }
 
