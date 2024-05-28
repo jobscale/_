@@ -217,6 +217,14 @@ ingressSecret() {
   --key=tls/jsx.jp/privkey.pem
 }
 
+ingressUpdateSecret() {
+  NAMESPACE=$1
+  kubectl -n $NAMESPACE create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem \
+  --dry-run -o yaml | kubectl apply -f -
+}
+
 ingressNginxSecure() {
   kubectl create namespace ingress-nginx
   kubectl -n ingress-nginx create configmap modsecurity-config \
