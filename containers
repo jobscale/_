@@ -15,6 +15,14 @@ rotate-logs() {
   -d blacklabelops/logrotate
 }
 
+ls-logs() {
+  LIST=($(sudo ls /var/lib/docker/containers))
+  for i in ${LIST[@]}
+  do
+    sudo ls -ltr /var/lib/docker/containers/$i
+  done
+}
+
 squid() {
   docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
