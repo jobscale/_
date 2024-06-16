@@ -1,9 +1,7 @@
 export DEBIAN_FRONTEND=noninteractive
 eval $(cat /etc/os-release)
-sudo apt clean
-sudo apt update
-echo
-apt list --upgradable
+sudo apt update && apt list --upgradable
 echo
 sudo apt full-upgrade -y
 sudo apt autoremove -y
+sudo apt clean
