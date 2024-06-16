@@ -4,47 +4,70 @@ network() {
   [[ $(docker network list | grep standard | wc -l) == 0 ]] && docker network create standard
 }
 
+rotate-logs() {
+  docker pull blacklabelops/logrotate
+  docker rm -f logrotate
+  docker run --name logrotate --restart always \
+  -v /var/lib/docker/containers:/var/lib/docker/containers \
+  -e "LOGS_DIRECTORIES=/var/lib/docker/containers" \
+  -e "LOGROTATE_INTERVAL=daily" \
+  -e "LOGROTATE_COPIES=20" \
+  -d blacklabelops/logrotate
+}
+
 squid() {
   docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
-  docker run --name squid --restart always -p 3128:3128 -d ghcr.io/jobscale/squid:main
+  docker run --name squid --restart always \
+  -p 3128:3128 \
+  -d ghcr.io/jobscale/squid:main
 }
 
 bind9() {
   docker pull ghcr.io/jobscale/bind9
   docker rm -f bind9
-  docker run --name bind9 --restart always -p 53:53 -p 53:53/udp -d ghcr.io/jobscale/bind9
+  docker run --name bind9 --restart always \
+  -p 53:53 -p 53:53/udp \
+  -d ghcr.io/jobscale/bind9
 }
 
 partner() {
   docker pull ghcr.io/jobscale/partner
   docker rm -f partner.credentials.svc.cluster.local
-  docker run --name partner.credentials.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/partner
+  docker run --name partner.credentials.svc.cluster.local --restart always \
+  --network standard -d ghcr.io/jobscale/partner
 }
 
 jsxjp() {
   docker pull ghcr.io/jobscale/jsxjp
   docker rm -f jsxjp.jsxjp.svc.cluster.local
-  docker run --name jsxjp.jsxjp.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/jsxjp
+  docker run --name jsxjp.jsxjp.svc.cluster.local --restart always \
+  --network standard -d ghcr.io/jobscale/jsxjp
 }
 
 tanpo() {
   docker pull ghcr.io/jobscale/tanpo
   docker rm -f tanpo.standard.svc.cluster.local
-  docker run --name tanpo.standard.svc.cluster.local --restart always --network standard -d ghcr.io/jobscale/tanpo
+  docker run --name tanpo.standard.svc.cluster.local --restart always \
+  --network standard -d ghcr.io/jobscale/tanpo
 }
 
 web() {
   docker pull ghcr.io/jobscale/web
   docker rm -f web
-  docker run --name web --restart always --network standard -p 80:80 -p 443:443 -d ghcr.io/jobscale/web
+  docker run --name web --restart always \
+  --network standard \
+  -p 80:80 -p 443:443 \
+  -d ghcr.io/jobscale/web
 }
 
 wetty() {
   sudo mkdir -p /var/lib/wetty
   docker pull ghcr.io/jobscale/wetty:dind
   docker rm -f wetty.standard.svc.cluster.local
-  docker run --name wetty.standard.svc.cluster.local --restart always --network standard --privileged -v /var/lib/wetty:/var/lib/docker -d ghcr.io/jobscale/wetty:dind
+  docker run --name wetty.standard.svc.cluster.local --restart always \
+  --network standard --privileged -v /var/lib/wetty:/var/lib/docker \
+  -d ghcr.io/jobscale/wetty:dind
 }
 
 inet() {
