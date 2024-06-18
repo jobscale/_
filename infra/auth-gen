@@ -9,8 +9,8 @@ set -eu
   cat $HOME/.ssh/id_ed255.pub >> $HOME/.ssh/authorized_keys
   GIP=$(curl -s https://inet-ip.info/ip)
   DATA=$(cat $HOME/.ssh/id_ed255 | sed -z -e 's/\n/\\n/g')
-  curl -s -X POST -H 'Content-Type: application/json' \
-  https://jsx.jp/api/slack \
-  --data "{\"icon_emoji\":\":violin:\",\"username\":\"Virtual Machine\",\"text\":\"$NAME@$GIP\\n$DATA\"}" \
+  curl -s https://jsx.jp/api/slack \
+  -X POST -H 'Content-Type: application/json' \
+  --data "{\"icon_emoji\":\":violin:\",\"username\":\"Virtual Machine\",\"text\":\"$NAME@$GIP\\n$DATA\",\"channel\":\"infra\"}" \
   && echo " OK"
 }

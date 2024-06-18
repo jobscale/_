@@ -15,7 +15,7 @@ postSlack() {
 
 postChannel() {
   PAYLOAD="{\"icon_emoji\":\":anchor:\",\"username\":\"$(hostname)\",\"text\":\"$GIP\\n$DATA\",\"channel\":\"$CHANNEL\"}"
-  curl $OPTION -s -X POST -H 'Content-Type: application/json' ${ENDPOINT} \
+  curl $OPTION -s ${ENDPOINT} -X POST -H 'Content-Type: application/json' \
   --data "${PAYLOAD}" > /dev/null || echo
 }
 

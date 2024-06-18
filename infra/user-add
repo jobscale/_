@@ -13,7 +13,7 @@ userAdd() {
   DATA=$(cat /home/$1/.ssh/id_ed25519 | sed -z -e 's/\n/\\n/g')
   curl -isS https://jsx.jp/api/slack \
   -X POST -H 'Content-Type: application/json' \
-  --data "{\"icon_emoji\":\":violin:\",\"username\":\"EC2\",\"text\":\"$GIP\\n$DATA\"}"
+  --data "{\"icon_emoji\":\":violin:\",\"username\":\"EC2\",\"text\":\"$GIP\\n$DATA\",\"channel\":\"infra\"}"
 }
 
 time {
