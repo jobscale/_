@@ -4,9 +4,9 @@ ddns() {
   docker pull ghcr.io/jobscale/value-domain
   docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
   {
-    sleep 30
+    sleep 10
     docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-    sleep 30
+    sleep 10
     docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
   } &
 }

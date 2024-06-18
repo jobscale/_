@@ -6,13 +6,17 @@ userData() {
   curl -sL jsx.jp/s/docker | bash
   curl -sL jsx.jp/s/ja-jp | bash
   curl -sL jsx.jp/s/user-add | bash
+}
+
+userHome() {
   usermod -aG docker $1
   sudo -i -u $1 git clone https://github.com/jobscale/_.git
 }
 
 time {
   echo "START  user-data $(date --rfc-3339=seconds)"
-  time userData jobscale
+  userData
+  userHome jobscale
   echo "FINISH user-data $(date --rfc-3339=seconds)"
   {
     sleep 30
