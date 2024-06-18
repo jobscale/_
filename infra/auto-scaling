@@ -22,14 +22,15 @@ ddns-prod() {
 update-infra() {
   cd /root/_ && git pull
   cd /home/jobscale/_ && sudo -u jobscale git pull
-}
-
-{
-  MESSAGE="AutoScaling EC2 - ${ENV} $(TZ=Asia/Tokyo date -Iseconds)"
-  echo "${MESSAGE}"
-  update-infra
   hostname "$ENV"
   echo "$ENV" | tee /etc/hostname
-  CHANNEL=infra /root/_/bin/post-slack "${MESSAGE}" &
+}
+
+time {
+  MESSAGE="AutoScaling EC2 - ${ENV} $(TZ=Asia/Tokyo date -Iseconds)"
+  echo "${MESSAGE}"
+  which docker || curl -sL jsx.jp/s/user-data | bash
   ddns-${ENV}
+  update-infra
+  CHANNEL=infra /root/_/bin/post-slack "${MESSAGE}" &
 }

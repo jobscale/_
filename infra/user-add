@@ -16,8 +16,8 @@ userAdd() {
   --data "{\"icon_emoji\":\":violin:\",\"username\":\"EC2\",\"text\":\"$GIP\\n$DATA\"}"
 }
 
-{
+time {
   echo "START  user-add $(date --rfc-3339=seconds)"
-  time userAdd jobscale
+  id jobscale || userAdd jobscale
   echo "FINISH user-add $(date --rfc-3339=seconds)"
 }
