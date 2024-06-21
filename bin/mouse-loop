@@ -1,10 +1,21 @@
+loop() {
+  for i in $(seq $1 -1 1)
+  do
+    printf '\r%5d ' $i
+    sleep 1
+  done
+  printf '\r%5d\n' 0
+}
+
+unit() {
+  xdotool mousemove $(( 400 + $1 * 10 )) 200
+  loop 100
+}
+
 while true
 do
   xdotool getmouselocation
-  xdotool mousemove 400 200
-  sleep 20
-  xdotool mousemove 600 200
-  sleep 20
-  xdotool mousemove 800 200
-  sleep 30
+  unit 3
+  unit 2
+  unit 1
 done
