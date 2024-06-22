@@ -22,7 +22,7 @@ whileCheck() {
   while true
   do
     REMOTE=$(dig us.jsx.jp | grep -1 "ANSWER SECTION" | tail -1 | awk '{print $5}')
-    PRINT="$(date -Iseconds) backdoor - ${REMOTE} - $(hostname) connected"
+    PRINT="backdoor - ${REMOTE} from $(hostname) connected in $(date -Iseconds)"
     echo "$PRINT"
     CHANNEL=secure timeout 10 post-slack "$PRINT"
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "bastion.us.jsx.jp"
