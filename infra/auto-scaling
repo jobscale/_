@@ -22,6 +22,8 @@ ddns-prod() {
 update-infra() {
   cd /root/_ && git pull
   cd /home/jobscale/_ && sudo -u jobscale git pull
+  cat /home/jobscale/.ssh/authorized_keys | tee -a /root/.ssh/authorized_keys
+  echo 'GatewayPorts yes' | tee -a /etc/ssh/sshd_config
   hostname "$ENV"
   echo "$ENV" | tee /etc/hostname
 }
