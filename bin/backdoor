@@ -10,9 +10,7 @@ whileCheck() {
   while true
   do
     sleep 60
-    nc -vz -w 1 bastion.us.jsx.jp 2022
-    [[ $(echo $?) == 0 ]] || cleanZonbi && continue
-    timeout 15 ssh bastion.us.jsx.jp -p 2022 date +%s
+    nc -vz -w 1 us.jsx.jp 443
     [[ $(echo $?) == 0 ]] || cleanZonbi && continue
   done
 }
@@ -25,7 +23,7 @@ whileCheck() {
     PRINT="backdoor - ${REMOTE} from $(hostname) connected in $(date -Iseconds)"
     echo "$PRINT"
     CHANNEL=secure timeout 10 post-slack "$PRINT"
-    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "bastion.us.jsx.jp"
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "us.jsx.jp"
     ssh us-watch
     sleep 300
   done

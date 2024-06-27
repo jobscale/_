@@ -79,7 +79,7 @@ ${template1 eth0}\
 ${color5}Storage         $stippled_hr \
 ${if_match "$nodename" == "dark"}\
 ${template0 / nvme0n1 NVMe}\
-${template0 /media/jobscale/795d8d85-a925-41f6-bb9b-4a72410d015e sda SSD}\
+${template0 /media/jobscale/bc195335-7fc7-45eb-bda1-d1c488695df3 sda SSD}\
 ${template0 /media/jobscale/8f1ced4c-becb-4256-9554-9477d143be65 sdb SSD}\
 ${template0 /media/jobscale/bf45adae-828d-45bc-850e-b1f57aba80cf sdc NVMe}\
 ${template0 /media/jobscale/058cb442-261f-4a79-96ae-614d8663475b sdd SSD}\
