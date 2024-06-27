@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+cleanZonbi() {
+  PID=$(ps auxf | grep "ssh [n]oble-watch" | awk '{print $2}')
+  [[ "$PID" == "" ]] || kill $PID
+}
+
+whileCheck() {
+  cleanZonbi
+  while true
+  do
+    sleep 60
+    nc -vz -w 1 vpn.jsx.jp 2022
+    [[ $(echo $?) == 0 ]] || cleanZonbi && continue
+    timeout 15 ssh vpn.jsx.jp -p 2022 date +%s
+    [[ $(echo $?) == 0 ]] || cleanZonbi && continue
+  done
+}
+
+{
+  whileCheck &
+  while true
+  do
+    REMOTE=$(dig vpn.jsx.jp | grep -1 "ANSWER SECTION" | tail -1 | awk '{print $5}')
+    PRINT="backdoor-noble - ${REMOTE} from $(hostname) connected in $(date -Iseconds)"
+    echo "$PRINT"
+    CHANNEL=secure timeout 10 post-slack "$PRINT"
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp"
+    ssh noble-watch
+    sleep 300
+  done
+}
