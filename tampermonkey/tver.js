@@ -13,17 +13,19 @@ setTimeout(() => {
   const logger = console;
   let idVideo;
   const setVideo = () => {
-    const who = document.querySelector('[class^="player_"] video');
+    const who = document.querySelector('[class^="player_"] [class^="player_"] video');
     if (!who) {
       idVideo = setTimeout(setVideo, 1000);
       return;
     }
     clearTimeout(idVideo);
-    document.querySelector('[class^="companion-ad-slot_host"]').remove();
+    const ad = document.querySelector('[class^="companion-ad-slot_host"]');
+    if (ad) ad.remove();
     who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
-    document.querySelector('[class^="cross-column-layout_container"]')
-    .style = 'margin-top:95vh;';
-    document.querySelector('.cross-column-layout_main__w0npD').style = 'z-index: 10;';
+    const container = document.querySelector('[class^="cross-column-layout_container"]')
+    if (container) container.style = 'margin-top:95vh;';
+    const main = document.querySelector('.cross-column-layout_main__w0npD');
+    if (main) main.style = 'z-index: 10;';
   };
 
   let idClick;
