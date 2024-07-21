@@ -5,9 +5,10 @@ export DEBIAN_FRONTEND=noninteractive
 
 simple() {
   apt-get update
-  apt-get install -y apt-transport-https
+  apt-get install -y --no-install-recommends apt-transport-https
   apt-get update
-  apt-get install -y curl git vim tmux htop expect \
+  apt-get install -y --no-install-recommends \
+    curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
     nmap traceroute procps whois progress \
     python3-pip bc jq zip unzip tree colordiff \

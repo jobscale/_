@@ -1,7 +1,14 @@
-export DEBIAN_FRONTEND=noninteractive
-eval $(cat /etc/os-release)
-sudo apt update && apt list --upgradable
-echo
-sudo apt full-upgrade -y
-sudo apt autoremove -y
-sudo apt clean
+{
+  export DEBIAN_FRONTEND=noninteractive
+  cat /etc/os-release
+  eval $(cat /etc/os-release)
+  echo
+  sudo apt update && apt list --upgradable
+  echo
+  sudo apt upgrade -y --no-install-recommends
+  sudo apt update && apt list --upgradable
+  echo
+  sudo apt full-upgrade -y --no-install-recommends
+  sudo apt autoremove -y
+  sudo apt clean
+}

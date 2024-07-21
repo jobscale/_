@@ -83,15 +83,16 @@ system() {
 
 minimum() {
   export DEBIAN_FRONTEND=noninteractive
-  apt update && apt install -y git vim tmux curl zip unzip iproute2 dnsutils procps iputils-ping
+  apt update && apt install -y --no-install-recommends \
+    git vim tmux curl zip unzip iproute2 dnsutils procps iputils-ping
 }
 
 db() {
-  apt install -y mariadb-server
+  apt install -y --no-install-recommends mariadb-server
 }
 
 cli() {
-  apt install -y \
+  apt install -y --no-install-recommends \
     curl whois nmap traceroute iproute2 \
     nfs-common cifs-utils exfat-utils sshfs \
     git subversion vim tmux dstat peco \

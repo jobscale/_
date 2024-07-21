@@ -4,47 +4,59 @@ set -eux
 export DEBIAN_FRONTEND=noninteractive
 
 debian() {
-  apt-get update && apt-get install -y apt-transport-https
-  apt-get update && apt-get install -y software-properties-common ca-certificates gnupg
+  apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https
+  apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common ca-certificates gnupg
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
   add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
-  apt-get update && apt-get install -y docker-ce
+  apt-get update && apt-get install -y --no-install-recommends \
+    docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
 debian-2023() {
-  apt-get update && apt-get install -y apt-transport-https
-  apt-get update && apt-get install -y software-properties-common ca-certificates gnupg
+  apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https
+  apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common ca-certificates gnupg
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian ${VERSION_CODENAME} stable" | tee /etc/apt/sources.list.d/docker-${VERSION_CODENAME}.list > /dev/null 
-  apt update && apt-get install -y docker-ce
+  apt update && apt-get install -y --no-install-recommends \
+    docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
 ubuntu() {
-  apt-get update && apt-get install -y apt-transport-https
-  apt-get update && apt-get install -y software-properties-common ca-certificates gnupg
+  apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https
+  apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common ca-certificates gnupg
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | apt-key add -
   add-apt-repository "deb https://download.docker.com/linux/${ID,,} ${VERSION_CODENAME} stable"
-  apt-get update && apt-get install -y docker-ce
+  apt-get update && apt-get install -y --no-install-recommends \
+    docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
 kali-rolling() {
-  apt-get update && apt-get install -y apt-transport-https
-  apt-get update && apt-get install -y software-properties-common ca-certificates gnupg
+  apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https
+  apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common ca-certificates gnupg
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   add-apt-repository "deb https://download.docker.com/linux/ubuntu jammy stable"
   apt-get update
-  apt-get install -y docker-ce
+  apt-get install -y --no-install-recommends \
+    docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 

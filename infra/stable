@@ -5,10 +5,11 @@ export DEBIAN_FRONTEND=noninteractive
 
 stable() {
   apt-get update
-  apt-get install -y apt-transport-https
+  apt-get install -y --no-install-recommends apt-transport-https
   apt-get update
-  apt-get full-upgrade -y
-  apt-get install -y curl git vim tmux htop expect \
+  apt-get full-upgrade -y --no-install-recommends
+  apt-get install -y --no-install-recommends \
+    curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat iputils-ping \
     nmap traceroute procps whois progress \
     python3-pip bc jq zip unzip tree colordiff \
@@ -20,10 +21,11 @@ stable() {
 
 stable-2023() {
   apt-get update
-  apt-get install -y apt-transport-https
+  apt-get install -y --no-install-recommends apt-transport-https
   apt-get update
-  apt-get full-upgrade -y
-  apt-get install -y curl git vim tmux htop expect \
+  apt-get full-upgrade -y --no-install-recommends
+  apt-get install -y --no-install-recommends \
+    curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
     nmap traceroute procps whois progress \
     python3-pip bc jq zip unzip tree colordiff \
@@ -36,19 +38,19 @@ stable-2023() {
 # Debian 12
 bookworm() {
   stable-2023
-  apt-get install -y network-manager
+  apt-get install -y --no-install-recommends network-manager
 }
 
 # Debian 11
 bullseye() {
   stable
-  apt-get install -y network-manager
+  apt-get install -y --no-install-recommends network-manager
 }
 
 # Debian 10
 buster() {
   stable
-  apt-get install -y network-manager
+  apt-get install -y --no-install-recommends network-manager
 }
 
 # Ubuntu 24.04

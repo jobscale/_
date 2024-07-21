@@ -15,40 +15,50 @@ code() {
 bullseye() {
   sudo apt update
   chrome && code
-  sudo apt install -y terminator ibus-mozc conky gdm3
-  sudo apt install -y task-japanese-desktop
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3
+  sudo apt install -y --no-install-recommends \
+    task-japanese-desktop
 }
 
 # Debian 12
 bookworm() {
   sudo apt update
   chrome && code
-  sudo apt install -y terminator ibus-mozc conky gdm3
-  sudo apt install -y task-japanese-desktop
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3
+  sudo apt install -y --no-install-recommends \
+    task-japanese-desktop
 }
 
 # Ubuntu 24.04
 noble() {
   sudo apt update
   chrome && code
-  sudo apt install -y terminator ibus-mozc conky gdm3
-  sudo apt install -y language-pack-gnome-ja
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3
+  sudo apt install -y --no-install-recommends \
+    language-pack-gnome-ja
 }
 
 # Ubuntu 22.04
 jammy() {
   sudo apt update
   chrome && code
-  sudo apt install -y terminator ibus-mozc conky gdm3
-  sudo apt install -y language-pack-gnome-ja
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3
+  sudo apt install -y --no-install-recommends \
+    language-pack-gnome-ja
 }
 
 # Ubuntu 20.04
 focal() {
   sudo apt update
   chrome && code
-  sudo apt install -y terminator ibus-mozc conky gdm3
-  sudo apt install -y language-pack-gnome-ja
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3
+  sudo apt install -y --no-install-recommends \
+    language-pack-gnome-ja
 }
 
 # Kali
@@ -57,14 +67,17 @@ kali-rolling() {
   cd /tmp
   chrome && code
   cd -
-  sudo apt install -y terminator ibus-mozc conky gdm3
-  sudo apt install -y task-japanese-desktop
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3
+  sudo apt install -y --no-install-recommends \
+    task-japanese-desktop
   sudo dpkg-reconfigure locales
   sudo systemctl enable ssh --now
 }
 
 extra() {
-  sudo apt install -y kazam copyq
+  sudo apt install -y --no-install-recommends \
+    kazam copyq
 }
 
 {
