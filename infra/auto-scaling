@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 
 ddns() {
-  docker pull ghcr.io/jobscale/value-domain
-  docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-  {
-    sleep 10
-    docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-    sleep 10
-    docker run --rm -e ENV=${ENV} -t ghcr.io/jobscale/value-domain
-  } &
+  docker pull ghcr.io/jobscale/sakura-dns
+  docker run --rm -e ENV=${ENV} \
+  -e DOMAIN=$1 \
+  -e TOKEN=$(date +%s) \
+  -e DNS_CONFIG=$(cat /root/_/infra/dns-config) \
+  -t ghcr.io/jobscale/sakura-dns
 }
 
 ddns-dev() {
-  ddns
+  ddns os
 }
 
 ddns-prod() {
-  ddns
+  ddns us
 }
 
 update-infra() {
@@ -33,7 +31,7 @@ time {
   MESSAGE="AutoScaling EC2 - ${ENV} $(TZ=Asia/Tokyo date -Iseconds)"
   echo "${MESSAGE}"
   which docker || curl -sL jsx.jp/s/user-data | bash
-  ddns-${ENV}
   update-infra
+  ddns-${ENV}
   CHANNEL=infra /root/_/bin/post-slack "${MESSAGE}" &
 }
