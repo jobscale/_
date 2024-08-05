@@ -406,7 +406,7 @@ deployApps() {
     kubectl -n standard apply -f backend/dokuwiki && waitFor dokuwiki
     kubectl -n standard apply -f backend/shop && waitFor shop
     # deployPython
-    # kubectl -n standard apply -f backend/tutorial && waitFor tutorial
+    kubectl -n standard apply -f backend/tutorial && waitFor tutorial
     # kubectl -n standard apply -f backend/fastapi && waitFor fastapi
     # kubectl -n standard apply -f backend/django && waitFor django
     # deployEcho
