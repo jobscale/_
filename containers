@@ -36,6 +36,15 @@ ls-logs() {
   done
 }
 
+squid-secure() {
+  docker pull ghcr.io/jobscale/squid:secure
+  docker rm -f squid
+  docker run --name squid --restart always \
+  --memory 1g \
+  -p 3128:3128 \
+  -d ghcr.io/jobscale/squid:secure
+}
+
 squid() {
   docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
