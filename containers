@@ -8,11 +8,23 @@ rotate-logs() {
   docker pull blacklabelops/logrotate
   docker rm -f logrotate
   docker run --name logrotate --restart always \
+  --memory 128m \
   -v /var/lib/docker/containers:/var/lib/docker/containers \
   -e "LOGS_DIRECTORIES=/var/lib/docker/containers" \
   -e "LOGROTATE_INTERVAL=daily" \
   -e "LOGROTATE_COPIES=20" \
   -d blacklabelops/logrotate
+}
+
+lo-stack() {
+  docker pull ghcr.io/jobscale/localstack:debian
+  docker rm -f lo-stack
+  docker run --name lo-stack --restart always \
+  --memory 1g \
+  -e PERSISTENCE=1 \
+  -v $HOME/lo-stack-volume:/var/lib/localstack \
+  -p 4566:4566 \
+  -d ghcr.io/jobscale/localstack:debian
 }
 
 ls-logs() {
@@ -28,6 +40,7 @@ squid() {
   docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
   docker run --name squid --restart always \
+  --memory 1g \
   -p 3128:3128 \
   -d ghcr.io/jobscale/squid:main
 }
@@ -93,8 +106,7 @@ webtop-kde() {
   -e USER=jobscale \
   -p 2999:2999 \
   -p 2997:8000 \
-  --memory="2gb" \
-  --shm-size="1gb" \
+  --memory 2g \
   -v /home/webtop/debian-kde:/config \
   -d ghcr.io/jobscale/docker-webtop
 
