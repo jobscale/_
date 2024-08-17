@@ -16,6 +16,9 @@ IMAGE=$INAME:$TAG
 echo "Image = $IMAGE"
 
 config() {
+  echo
+  echo "=== MANIFEST $i ==="
+  echo
   DOCKER_MANIFESTS=$(docker manifest inspect ghcr.io/jobscale/$IMAGE)
   echo $DOCKER_MANIFESTS
   ARCH0=$(echo $DOCKER_MANIFESTS | jp --unquoted manifests[0].platform.architecture)
@@ -44,7 +47,20 @@ deploy() {
   docker manifest inspect jobscale/$IMAGE
 }
 
+clean() {
+  docker rmi ghcr.io/jobscale/$INAME@$DIGEST0
+  docker rmi ghcr.io/jobscale/$INAME@$DIGEST1
+  docker rmi jobscale/$INAME:$TAG-$ARCH0
+  docker rmi jobscale/$INAME:$TAG-$ARCH1
+
+  echo "CLEAN image ghcr.io/jobscale/$INAME@$DIGEST0"
+  echo "CLEAN image ghcr.io/jobscale/$INAME@$DIGEST1"
+  echo "CLEAN image jobscale/$INAME:$TAG-$ARCH0"
+  echo "CLEAN image jobscale/$INAME:$TAG-$ARCH1"
+}
+
 {
   config
   deploy
+  clean
 }
