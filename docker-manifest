@@ -9,7 +9,7 @@ then
   exit 127
 fi
 
-SP=($(echo "$1" | awk -F: '{print $1" "$2}'))
+SP=($(echo "$1" | tr A-Z a-z | awk -F: '{print $1" "$2}'))
 INAME="${SP[0]}"
 TAG="${SP[1]:-latest}"
 IMAGE=$INAME:$TAG
@@ -17,7 +17,7 @@ echo "Image = $IMAGE"
 
 config() {
   echo
-  echo "=== MANIFEST $i ==="
+  echo "=== MANIFEST $IMAGE ==="
   echo
   DOCKER_MANIFESTS=$(docker manifest inspect ghcr.io/jobscale/$IMAGE)
   echo $DOCKER_MANIFESTS
