@@ -20,20 +20,11 @@ lo-stack() {
   docker pull ghcr.io/jobscale/localstack:debian
   docker rm -f lo-stack
   docker run --name lo-stack --restart always \
-  --memory 1g \
+  --memory 800m \
   -e PERSISTENCE=1 \
   -v $HOME/lo-stack-volume:/var/lib/localstack \
   -p 4566:4566 \
   -d ghcr.io/jobscale/localstack:debian
-}
-
-ls-logs() {
-  LIST=($(sudo ls /var/lib/docker/containers))
-  for i in ${LIST[@]}
-  do
-    sudo jq .Name /var/lib/docker/containers/$i/config.v2.json
-    sudo ls -ltr /var/lib/docker/containers/$i
-  done
 }
 
 squid-secure() {
@@ -49,7 +40,7 @@ squid() {
   docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
   docker run --name squid --restart always \
-  --memory 1g \
+  --memory 400m \
   -p 3128:3128 \
   -d ghcr.io/jobscale/squid:main
 }
@@ -58,6 +49,7 @@ bind9() {
   docker pull ghcr.io/jobscale/bind9
   docker rm -f bind9
   docker run --name bind9 --restart always \
+  --memory 50m \
   -p 53:53 -p 53:53/udp \
   -d ghcr.io/jobscale/bind9
 }
@@ -115,12 +107,21 @@ webtop-kde() {
   -e USER=jobscale \
   -p 2999:2999 \
   -p 2997:8000 \
-  --memory 3g \
-  --shm-size 2g \
+  --memory 4g \
+  --shm-size 4g \
   -v /home/webtop/debian-kde:/config \
   -d ghcr.io/jobscale/docker-webtop
 
   # lscr.io/linuxserver/webtop:debian-kde
+}
+
+ls-logs() {
+  LIST=($(sudo ls /var/lib/docker/containers))
+  for i in ${LIST[@]}
+  do
+    sudo jq .Name /var/lib/docker/containers/$i/config.v2.json
+    sudo ls -ltr /var/lib/docker/containers/$i
+  done
 }
 
 inet() {
