@@ -31,7 +31,7 @@ squid-secure() {
   docker pull ghcr.io/jobscale/squid:secure
   docker rm -f squid
   docker run --name squid --restart always \
-  --memory 1g \
+  --memory 400m \
   -p 3128:3128 \
   -d ghcr.io/jobscale/squid:secure
 }
@@ -98,6 +98,8 @@ webtop-kde() {
   docker rm -f webtop-kde
   docker run --name webtop-kde --restart always \
   --privileged \
+  --memory 4g \
+  --shm-size 4g \
   -e PUID=1000 \
   -e PGID=1000 \
   -e TZ=Asia/Tokyo \
@@ -107,8 +109,6 @@ webtop-kde() {
   -e USER=jobscale \
   -p 2999:2999 \
   -p 2997:8000 \
-  --memory 4g \
-  --shm-size 4g \
   -v /home/webtop/debian-kde:/config \
   -d ghcr.io/jobscale/docker-webtop
 
