@@ -23,7 +23,7 @@
     { name: 'refresh', token: 'CAZ' },
   ];
 
-  const authInput = () => document.querySelector('#mfacode') // AWS
+  const authInput = () => document.querySelector('#mfacode, #mfaCode') // AWS
   || document.querySelector('input[name="otc"]') // MS
   || document.querySelector('#app_totp') // GitHub
   || document.querySelector('#login_otp') // npm

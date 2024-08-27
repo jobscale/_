@@ -22,7 +22,7 @@ setTimeout(() => {
     const ad = document.querySelector('[class^="companion-ad-slot_host"]');
     if (ad) ad.remove();
     who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
-    const container = document.querySelector('[class^="cross-column-layout_container"]')
+    const container = document.querySelector('[class^="cross-column-layout_container"]');
     if (container) container.style = 'margin-top:95vh;';
     const main = document.querySelector('.cross-column-layout_main__w0npD');
     if (main) main.style = 'z-index: 10;';
