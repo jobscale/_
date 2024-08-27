@@ -3,7 +3,7 @@ closeBrowser() {
   BROWSER_PID=$(ps auxf | grep google/chrome/chrom[e] | awk '{print $2}')
   [[ "$BROWSER_PID" == "" ]] || kill $BROWSER_PID
   echo "kill firefox"
-  BROWSER_PID=$(ps auxf | grep firefox/firefo[x] | awk '{print $2}')
+  BROWSER_PID=$(ps auxf | grep firefox-esr/firefo[x] | awk '{print $2}')
   [[ "$BROWSER_PID" == "" ]] || kill $BROWSER_PID
 }
 
