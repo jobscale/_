@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -eu
+
+eval $(xdotool getmouselocation --shell) && echo " $X $Y"

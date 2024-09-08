@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -eu
+
+EXECUTION=$(date +%s)
+loop() {
+  local end_time=$(( $(date +%s) + $1 ))
+  while [ $(date +%s) -lt $end_time ]
+  do
+    printf '\r%5d ' $(( end_time - $(date +%s) ))
+    if [[ $(( $(date +%s) - $EXECUTION )) -ge 100 ]]
+    then
+      EXECUTION=$(date +%s)
+      xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 300
+      sleep 0.2
+      xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 200
+    fi
+    ./check-color
+    sleep 1
+  done
+  printf '\r%5d\n' 0
+}
+
+ADDING=$1
+COUNT=$2
+DURATION=$3
+XX=$4
+YY=$5
+INTERVAL=8
+fire() {
+  xdotool mousemove $XX $YY
+  sleep 2
+  echo './get-point'
+  ./get-point
+  xdotool mousedown 1
+  sleep 0.2
+  xdotool mouseup 1
+}
+
+for i in $(seq 1 $COUNT)
+do
+  INTERVAL=$(( $INTERVAL + $ADDING ))
+  WAIT_TIME=$(( $INTERVAL + $DURATION ))
+  fire && echo "Step $i ... next $(( $COUNT - $i ))"
+  loop $WAIT_TIME
+done

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -eu
+
+loop() {
+  local end_time=$(( $(date +%s) + $1 ))
+  while [ $(date +%s) -lt $end_time ]
+  do
+    local remaining_time=$(( end_time - $(date +%s) ))
+    printf '\r%5d ' $remaining_time
+    if [[ $(( remaining_time % 60 )) == "0" ]]
+    then
+      xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 300
+      sleep 0.2
+      xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 200
+    fi
+    ./check-color
+    sleep 1
+  done
+  printf '\r%5d\n' 0
+}
+
+while true
+do
+  echo "./get-point"
+  ./get-point
+  loop 100
+  echo -ne "\033[A"
+  loop 100
+  echo -ne "\033[A"
+  loop 100
+done
