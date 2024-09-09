@@ -10,9 +10,9 @@ loop() {
     if [[ $(( $(date +%s) - $EXECUTION )) -ge 100 ]]
     then
       EXECUTION=$(date +%s)
-      xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 300
+      xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 400
       sleep 0.2
-      xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 200
+      xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 200
     fi
     ./check-color
     sleep 1
@@ -26,6 +26,7 @@ DURATION=$3
 XX=$4
 YY=$5
 INTERVAL=8
+
 fire() {
   xdotool mousemove $XX $YY
   sleep 2

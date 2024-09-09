@@ -7,14 +7,17 @@ play() {
 
 check-color() {
   color_info=$(xwd -root -silent | convert xwd:- -crop 1x1+$1+$2 txt:- | grep -o '([0-9]*,[0-9]*,[0-9]*)' | head -1)
+  # xdotool mousemove $1 $2
+  # sleep 0.2
 
   R=$(echo $color_info | grep -oP '\(\K[0-9]+')
   G=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=,)')
   B=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=\))')
 
-  if [[ $R -le 15 ]] && [[ $G -le 15 ]] && [[ $B -le 15 ]]
+  if [[ $R -le 20 ]] && [[ $G -le 20 ]] && [[ $B -le 20 ]]
   then
     echo "NG"
+    # echo "$R $G $B" 1>&2
   else
     # echo "$R $G $B" 1>&2
     echo "OK"
@@ -22,10 +25,12 @@ check-color() {
 }
 
 {
-  RES1=$(check-color 200 300)
-  RES2=$(check-color 190 400)
-  RES3=$(check-color 180 500)
-  if [[ "$RES1 $RES2 $RES3" != "OK OK OK" ]]
+  RES1=$(check-color 210 200)
+  RES2=$(check-color 180 300)
+  RES3=$(check-color 150 400)
+  RES4=$(check-color 120 500)
+  # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
+  if [[ "$RES1 $RES2 $RES3 $RES4" != "OK OK OK OK" ]]
   then
     play >/dev/null 2>&1
   fi
