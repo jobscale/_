@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 set -eu
 
+EXECUTION=$(date +%s)
 loop() {
   local end_time=$(( $(date +%s) + $1 ))
   while [ $(date +%s) -lt $end_time ]
   do
-    local remaining_time=$(( end_time - $(date +%s) ))
-    printf '\r%5d ' $remaining_time
-    if [[ $(( remaining_time % 60 )) == "0" ]]
+    printf '\r%5d ' $(( end_time - $(date +%s) ))
+    if [[ $(( $(date +%s) - $EXECUTION )) -ge 100 ]]
     then
+      EXECUTION=$(date +%s)
       xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 300
       sleep 0.2
       xdotool mousemove $(( 200 + $(( $(date +%s%3N) % 100 )) )) 200
@@ -23,9 +24,5 @@ while true
 do
   echo "./get-point"
   ./get-point
-  loop 100
-  echo -ne "\033[A"
-  loop 100
-  echo -ne "\033[A"
-  loop 100
+  loop 600
 done

@@ -29,6 +29,7 @@ INTERVAL=8
 fire() {
   xdotool mousemove $XX $YY
   sleep 2
+  echo -ne "\033[A"
   echo './get-point'
   ./get-point
   xdotool mousedown 1
@@ -40,6 +41,7 @@ for i in $(seq 1 $COUNT)
 do
   INTERVAL=$(( $INTERVAL + $ADDING ))
   WAIT_TIME=$(( $INTERVAL + $DURATION ))
-  fire && echo "Step $i ... next $(( $COUNT - $i ))"
+  fire
+  echo "Step $i ... next $(( $COUNT - $i ))"
   loop $WAIT_TIME
 done
