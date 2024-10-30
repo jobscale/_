@@ -48,7 +48,11 @@ setTimeout(() => {
   const appendData = data => {
     const list = fetchData();
     list.unshift(data);
-    localStorage.setItem('a-list', JSON.stringify(list));
+    const active = list.filter(item => {
+      const ts = Date.now() - (30 * 24 * 60 * 60 + 1000);
+      return item.ts > ts;
+    });
+    localStorage.setItem('a-list', JSON.stringify(active));
   };
 
   const changeStyle = () => {
@@ -84,14 +88,12 @@ setTimeout(() => {
     el.textContent = '🍺';
     el.addEventListener('click', event => {
       event.preventDefault();
-      const { target } = event;
-      const parent = target.parentNode;
       const data = {
-        href: parent.querySelector('a').href,
+        href: content.href,
         ts: new Date().toISOString(),
       };
       appendData(data);
-      parent.remove();
+      content.remove();
     });
     content.append(el);
   };
@@ -133,7 +135,7 @@ setTimeout(() => {
       Array.from(document.querySelectorAll('[class^="mypage-content-item_container"]'))
       .filter(content => {
         if (content.textContent.match(/年放送/)) return true;
-        const exist = list.find(data => data.href === content.querySelector('a').href);
+        const exist = list.find(data => data.href === content.href);
         if (exist) return true;
         setEvent(content);
         return content.querySelector('div[class^="progress-bar_progressBar"]');
