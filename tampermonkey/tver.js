@@ -37,8 +37,10 @@ setTimeout(() => {
       return;
     }
     clearTimeout(idClick);
+    document.body.append(who);
     who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;';
     who.onclick = () => setTimeout(setVideo, 500);
+    document.querySelector('footer')?.remove();
   };
 
   setTimeout(setClick, 1000);
@@ -80,7 +82,6 @@ setTimeout(() => {
     if (el1) el1.style.visibility = 'hidden';
     const el2 = document.querySelector('div[class^="companion-ad-slot"]');
     if (el2) el2.style.visibility = 'hidden';
-    document.querySelector('footer')?.remove();
   };
 
   const setEvent = content => {
