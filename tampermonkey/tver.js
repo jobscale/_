@@ -50,7 +50,7 @@ setTimeout(() => {
     list.unshift(data);
     const active = list.filter(item => {
       const ts = Date.now() - (30 * 24 * 60 * 60 + 1000);
-      return item.ts > ts;
+      return new Date(item.ts) > ts;
     });
     localStorage.setItem('a-list', JSON.stringify(active));
   };
@@ -80,6 +80,7 @@ setTimeout(() => {
     if (el1) el1.style.visibility = 'hidden';
     const el2 = document.querySelector('div[class^="companion-ad-slot"]');
     if (el2) el2.style.visibility = 'hidden';
+    document.querySelector('footer')?.remove();
   };
 
   const setEvent = content => {
