@@ -51,7 +51,8 @@ setTimeout(() => {
     const list = fetchData();
     list.unshift(data);
     const active = list.filter(item => {
-      const ts = Date.now() - (30 * 24 * 60 * 60 + 1000);
+      const ts = new Date();
+      ts.setDate(ts.getDate() - 180);
       return new Date(item.ts) > ts;
     });
     localStorage.setItem('a-list', JSON.stringify(active));
