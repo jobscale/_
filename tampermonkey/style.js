@@ -9,6 +9,13 @@
 // @exclude      *://172.16.6.1/*
 // @exclude      *://jsx.jp/*
 // @exclude      *://*.jsx.jp/*
+// @exclude      *://tver.jp/*
+// @exclude      *://chatgpt.com/*
+// @exclude      *://gemini.google.com/*
+// @exclude      *://dashboard.render.com/*
+// @exclude      *://www.amazon.co.jp/gp/video/*
+// @exclude      *://*.amazonaws.com/*
+// @exclude      *://*.console.aws.amazon.com/*
 // @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=playcode.io
 // @grant        none
