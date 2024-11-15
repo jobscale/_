@@ -37,8 +37,10 @@ setTimeout(() => {
       return;
     }
     clearTimeout(idClick);
+    document.body.append(who);
     who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;';
     who.onclick = () => setTimeout(setVideo, 500);
+    document.querySelector('footer')?.remove();
   };
 
   setTimeout(setClick, 1000);
@@ -49,8 +51,9 @@ setTimeout(() => {
     const list = fetchData();
     list.unshift(data);
     const active = list.filter(item => {
-      const ts = Date.now() - (30 * 24 * 60 * 60 + 1000);
-      return item.ts > ts;
+      const ts = new Date();
+      ts.setDate(ts.getDate() - 180);
+      return new Date(item.ts) > ts;
     });
     localStorage.setItem('a-list', JSON.stringify(active));
   };

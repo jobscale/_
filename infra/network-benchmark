@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -eu
+
+time {
+  dd if=/dev/zero bs=10M count=10 \
+  | ssh x.jsx.jp 'cat > /tmp/network_test-transfer-$(date +%s)'
+}
