@@ -134,7 +134,7 @@ loop() {
     sleep 1
   done
   printf '\r%5d\n' 0
-  (which ffplay && ffplay -nodisp -autoexit -ss 0 -t 2 /home/jobscale/_/quest/sand.mp3) > /dev/null 2>&1
+  (which ffplay && ffplay -nodisp -autoexit -ss 0 -t 2 $HOME/_/quest/sand.mp3) > /dev/null 2>&1
 }
 
 gff() {
