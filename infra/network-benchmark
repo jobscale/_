@@ -1,7 +1,25 @@
 #!/usr/bin/env bash
 set -eu
 
+HOST=${1:-x.jsx.jp}
+FILE="/tmp/network_test-transfer-$(date +%s)"
+BLOCK_SIZE=20M
+BLOCK_COUNT=5
+
+cleanup() {
+  ssh ${HOST} "rm -f '$FILE'"
+}
+
+trap cleanup EXIT
+
 time {
-  dd if=/dev/zero bs=10M count=10 \
-  | ssh x.jsx.jp 'cat > /tmp/network_test-transfer-$(date +%s)'
+  echo -e "\n=== Upload benchmark"
+  dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} status=progress \
+  | ssh -o Compression=no ${HOST} "cat > '$FILE'"
+}
+
+time {
+  echo -e "\n=== Download benchmark"
+  ssh -o Compression=no ${HOST} "cat '$FILE'" \
+  | dd of=/dev/null bs=${BLOCK_SIZE} status=progress
 }

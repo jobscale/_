@@ -9,10 +9,14 @@
 // @exclude      *://172.16.6.1/*
 // @exclude      *://jsx.jp/*
 // @exclude      *://*.jsx.jp/*
-// @exclude      *://tver.jp/*
+// @exclude      *://navy.quest/*
 // @exclude      *://chatgpt.com/*
 // @exclude      *://gemini.google.com/*
 // @exclude      *://dashboard.render.com/*
+// @exclude      *://teams.microsoft.com/*
+// @exclude      *://outlook.office.com/*
+// @exclude      *://teams.live.com/*
+// @exclude      *://outlook.live.com/*
 // @exclude      *://www.amazon.co.jp/gp/video/*
 // @exclude      *://*.amazonaws.com/*
 // @exclude      *://*.console.aws.amazon.com/*
