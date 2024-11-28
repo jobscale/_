@@ -29,7 +29,7 @@ upload_benchmark() {
   scp -o Compression=no ${FILE} ${HOST}:${FILE}.copied
   local duration=$(( $($DATE +%s%3N) - start ))
   local speed=$(echo "scale=2; $SIZE / $duration" | bc)
-  echo "Upload Speed: $speed MiB/s"
+  printf "Upload Speed: %.2f MiB/s\n" "$speed"
 }
 
 download_benchmark() {
@@ -38,7 +38,7 @@ download_benchmark() {
   scp -o Compression=no ${HOST}:${FILE}.copied ${FILE}
   local duration=$(( $($DATE +%s%3N) - start ))
   local speed=$(echo "scale=2; $SIZE / $duration" | bc)
-  echo "Download Speed: $speed MiB/s"
+  printf "Download Speed: %.2f MiB/s\n" "$speed"
 }
 
 upload_benchmark
