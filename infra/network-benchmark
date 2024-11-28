@@ -4,6 +4,10 @@ set -eu
 HOST=${1:-x.jsx.jp}
 BLOCK_COUNT=${2:-5}
 BLOCK_SIZE=${3:-20}M
+if [[ "$(uname | tr '[:upper:]' '[:lower:]')" == darwin]]
+then
+  BLOCK_SIZE=${3:-20}m
+fi
 SIZE=$(( BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 ))
 FILE="/tmp/network_test-transfer-$(date +%s%3N)"
 
