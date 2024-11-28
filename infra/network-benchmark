@@ -4,15 +4,15 @@ set -eu
 HOST=${1:-x.jsx.jp}
 BLOCK_COUNT=${2:-5}
 BLOCK_SIZE=${3:-20}M
+SIZE=$(( BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 ))
 if [[ "$(uname | tr '[:upper:]' '[:lower:]')" == darwin ]]
 then
   BLOCK_SIZE=${3:-20}m
   alias date='gdate'
 fi
-SIZE=$(( BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 ))
 FILE="/tmp/network_test-transfer-$(date +%s%3N)"
 
-dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} of=${FILE} status=none
+dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} of=${FILE} | tail -1
 cleanup() {
   rm -f ${FILE}
   if ! ssh ${HOST} "rm -f '${FILE}.copied'"; then
