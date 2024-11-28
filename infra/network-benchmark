@@ -11,7 +11,7 @@ then
   BLOCK_SIZE=${3:-20}m
   DATE='gdate'
 fi
-FILE="/tmp/network_test-transfer-$(date +%s%3N)"
+FILE="/tmp/network_test-transfer-$($DATE +%s%3N)"
 
 dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} of=${FILE} 2>&1 | tail -1
 cleanup() {
