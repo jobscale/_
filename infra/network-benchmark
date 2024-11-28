@@ -2,24 +2,39 @@
 set -eu
 
 HOST=${1:-x.jsx.jp}
-FILE="/tmp/network_test-transfer-$(date +%s)"
-BLOCK_SIZE=20M
-BLOCK_COUNT=5
+BLOCK_SIZE=${2:-20M}
+BLOCK_COUNT=${3:-5}
+FILE="/tmp/network_test-transfer-$(date +%s%3N)"
 
 cleanup() {
-  ssh ${HOST} "rm -f '$FILE'"
+  if ! ssh ${HOST} "rm -f '$FILE'"; then
+    echo "Warning: Failed to remove remote file '$FILE'" >&2
+  fi
 }
 
 trap cleanup EXIT
 
-time {
+upload_benchmark() {
   echo -e "\n=== Upload benchmark"
+  local start=$(date +%s%3N)
   dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} status=progress \
   | ssh -o Compression=no ${HOST} "cat > '$FILE'"
+  local end=$(date +%s%3N)
+  local duration=$((end - start))
+  local speed=$(echo "scale=2; $BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 / $duration" | bc)
+  echo "Upload Speed: $speed MB/s"
 }
 
-time {
+download_benchmark() {
   echo -e "\n=== Download benchmark"
+  local start=$(date +%s%3N)
   ssh -o Compression=no ${HOST} "cat '$FILE'" \
   | dd of=/dev/null bs=${BLOCK_SIZE} status=progress
+  local end=$(date +%s%3N)
+  local duration=$((end - start))
+  local speed=$(echo "scale=2; $BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 / $duration" | bc)
+  echo "Download Speed: $speed MB/s"
 }
+
+upload_benchmark
+download_benchmark
