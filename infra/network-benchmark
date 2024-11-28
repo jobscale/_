@@ -5,14 +5,15 @@ HOST=${1:-x.jsx.jp}
 BLOCK_COUNT=${2:-5}
 BLOCK_SIZE=${3:-20}M
 SIZE=$(( BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 ))
+DATE=date
 if [[ "$(uname | tr '[:upper:]' '[:lower:]')" == darwin ]]
 then
   BLOCK_SIZE=${3:-20}m
-  alias date='gdate'
+  DATE='gdate'
 fi
 FILE="/tmp/network_test-transfer-$(date +%s%3N)"
 
-dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} of=${FILE} | tail -1
+dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} of=${FILE} 2>&1 | tail -1
 cleanup() {
   rm -f ${FILE}
   if ! ssh ${HOST} "rm -f '${FILE}.copied'"; then
@@ -24,18 +25,18 @@ trap cleanup EXIT
 
 upload_benchmark() {
   echo -e "\n=== Upload benchmark"
-  local start=$(date +%s%3N)
+  local start=$($DATE +%s%3N)
   scp -o Compression=no ${FILE} ${HOST}:${FILE}.copied
-  local duration=$(( $(date +%s%3N) - start ))
+  local duration=$(( $($DATE +%s%3N) - start ))
   local speed=$(echo "scale=2; $SIZE / $duration" | bc)
   echo "Upload Speed: $speed MiB/s"
 }
 
 download_benchmark() {
   echo -e "\n=== Download benchmark"
-  local start=$(date +%s%3N)
+  local start=$($DATE +%s%3N)
   scp -o Compression=no ${HOST}:${FILE}.copied ${FILE}
-  local duration=$(( $(date +%s%3N) - start ))
+  local duration=$(( $($DATE +%s%3N) - start ))
   local speed=$(echo "scale=2; $SIZE / $duration" | bc)
   echo "Download Speed: $speed MiB/s"
 }
