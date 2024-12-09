@@ -14,13 +14,13 @@ check-color() {
   G=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=,)')
   B=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=\))')
 
-  if [[ $R -le 20 ]] && [[ $G -le 20 ]] && [[ $B -le 20 ]]
+  if [[ $R -ge 20 ]] && [[ $G -ge 20 ]] && [[ $B -ge 20 ]]
   then
-    echo "NG"
+    echo "OK"
     # echo "$R $G $B" 1>&2
   else
+    echo "NG"
     # echo "$R $G $B" 1>&2
-    echo "OK"
   fi
 }
 
