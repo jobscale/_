@@ -152,6 +152,10 @@ setTimeout(() => {
     document.querySelectorAll('[class^="episode-pattern-c_container"]')
     .forEach(content => setEvent(content));
     const areaMenu = document.querySelector('[class^="mypage-sub-header_standard"]');
+    if (!areaMenu) {
+      document.querySelectorAll('header').forEach(el => { el.remove(); });
+      return;
+    }
     setMenu1(areaMenu);
     setMenu2(areaMenu);
   };
