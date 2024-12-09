@@ -151,7 +151,7 @@ setTimeout(() => {
   const setContentEvent = () => {
     document.querySelectorAll('[class^="episode-pattern-c_container"]')
     .forEach(content => setEvent(content));
-    const areaMenu = document.querySelector('[class^="mypage-sub-header_standard"]');
+    const areaMenu = document.querySelector('ul[class^="MyPage_tabList"]');
     if (!areaMenu) {
       document.querySelectorAll('header').forEach(el => { el.remove(); });
       return;
