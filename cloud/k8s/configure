@@ -30,6 +30,16 @@ allInOne() {
   echo -n "setup '$KINDNAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
+  [[ $(grep fs.inotify.max_user /etc/sysctl.conf | wc -l) -ne 2 ]] && {
+    echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512K'
+    echo '
+fs.inotify.max_user_watches=524288
+fs.inotify.max_user_instances=8192' | sudo tee -a /etc/sysctl.conf
+    sudo sysctl -p
+    echo
+    sleep 3
+  }
+
   cleanKind
   LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time inAllInOne 2>&1 | tee $LOGFILE

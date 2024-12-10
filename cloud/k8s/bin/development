@@ -3,7 +3,7 @@ set -eu
 
 if [[ $(kind get clusters | grep development) != '' ]]
 then
-  echo -e 'create before executetion\n - kind delete cluster --name development'
+  echo -e 'create before execution\n - kind delete cluster --name development'
   exit 1
 fi
 
