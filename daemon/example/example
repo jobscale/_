@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eu
+
+while true
+do
+  TZ=Asia/Tokyo echo "$(date -Iseconds) Daemon is running..." >> /var/log/example/example-${SYSTEMD_EXEC_PID:-0}.log
+  sleep 10
+done

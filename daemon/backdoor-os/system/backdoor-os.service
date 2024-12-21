@@ -1,0 +1,13 @@
+[Unit]
+Description=backdoor-os Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/backdoor-os
+Restart=always
+StandardOutput=append:/var/log/backdoor-os/backdoor-os.log
+StandardError=append:/var/log/backdoor-os/backdoor-os_error.log
+
+[Install]
+WantedBy=multi-user.target

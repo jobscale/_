@@ -1,0 +1,13 @@
+[Unit]
+Description=backdoor-k8s Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/backdoor-k8s
+Restart=always
+StandardOutput=append:/var/log/backdoor-k8s/backdoor-k8s.log
+StandardError=append:/var/log/backdoor-k8s/backdoor-k8s_error.log
+
+[Install]
+WantedBy=multi-user.target
