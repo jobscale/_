@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cleanZombie() {
-  PID=$(ps auxf | grep "ssh [u]s-watch" | awk '{print $2}')
+  PID=$(ps auxf | grep "ssh -N -T [u]s-watch" | awk '{print $2}')
   [[ "$PID" == "" ]] || {
     kill $PID
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
