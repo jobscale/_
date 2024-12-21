@@ -23,7 +23,7 @@ whileCheck() {
     PRINT="backdoor-os - ${REMOTE} from $(hostname) connected in $(date -Iseconds)"
     echo "$PRINT"
     CHANNEL=secure timeout 10 /home/jobscale/bin/post-slack "$PRINT"
-    sudo -u jobscale ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp"
+    sudo -u jobscale ssh-keygen -f "/home/jobscale/.ssh/known_hosts" -R "vpn.jsx.jp"
     sleep 2
     sudo -u jobscale ssh noble-watch
     sleep 120
