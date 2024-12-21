@@ -95,7 +95,7 @@ git() {
   then
     cmd="git $@"
     command $cmd
-    [[ ! -s $@ ]] && {
+    [[ ! -s "$2" ]] && {
       cmd="git pull"
       echo "$cmd"
       command $cmd
