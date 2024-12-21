@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
-cleanZonbi() {
+cleanZombie() {
   PID=$(ps auxf | grep "ssh [u]s-watch" | awk '{print $2}')
-  [[ "$PID" == "" ]] || kill $PID
+  [[ "$PID" == "" ]] || {
+    kill $PID
+    echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
+  }
 }
 
 whileCheck() {
-  cleanZonbi
+  cleanZombie
   while true
   do
     sleep 60
-    nc -vz -w 1 us.jsx.jp 443
-    [[ $(echo $?) == 0 ]] || cleanZonbi && continue
+    nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1
+    [[ $(echo $?) == 0 ]] || cleanZombie && continue
   done
 }
 
@@ -20,12 +23,11 @@ whileCheck() {
   while true
   do
     REMOTE=$(dig us.jsx.jp | grep -1 "ANSWER SECTION" | tail -1 | awk '{print $5}')
-    PRINT="backdoor-k8s - ${REMOTE} from $(hostname) connected in $(date -Iseconds)"
+    PRINT="backdoor-k8s - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
     echo "$PRINT"
     CHANNEL=secure timeout 10 /home/jobscale/bin/post-slack "$PRINT"
     sudo -u jobscale ssh-keygen -f "/home/jobscale/.ssh/known_hosts" -R "us.jsx.jp"
-    sleep 2
     sudo -u jobscale ssh -N -T us-watch
-    sleep 120
+    sleep 60
   done
 }
