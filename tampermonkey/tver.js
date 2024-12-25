@@ -52,7 +52,7 @@ setTimeout(() => {
     list.unshift(data);
     const active = list.filter(item => {
       const ts = new Date();
-      ts.setDate(ts.getDate() - 180);
+      ts.setDate(ts.getDate() - 360);
       return new Date(item.ts) > ts;
     });
     localStorage.setItem('a-list', JSON.stringify(active));
