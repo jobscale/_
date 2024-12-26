@@ -1,21 +1,36 @@
 closeBrowser() {
-  echo "kill google chrome"
-  BROWSER_PID=$(ps auxf | grep google/chrome/chrom[e] | awk '{print $2}')
-  [[ "$BROWSER_PID" == "" ]] || kill $BROWSER_PID
-  echo "kill firefox"
-  BROWSER_PID=$(ps auxf | grep firefox-esr/firefo[x] | awk '{print $2}')
-  [[ "$BROWSER_PID" == "" ]] || kill $BROWSER_PID
+  echo "Killing Google Chrome"
+  BROWSER_PIDS=$(ps auxf | grep google/chrome/chrom[e] | awk '{print $2}')
+  if [[ -n "$BROWSER_PIDS" ]]; then
+    kill $BROWSER_PIDS
+    echo "Killed Chrome processes: $BROWSER_PIDS"
+  else
+    echo "No Chrome processes found"
+  fi
+
+  echo "Killing Firefox"
+  BROWSER_PIDS=$(ps auxf | grep firefox-esr/firefo[x] | awk '{print $2}')
+  if [[ -n "$BROWSER_PIDS" ]]; then
+    kill $BROWSER_PIDS
+    echo "Killed Firefox processes: $BROWSER_PIDS"
+  else
+    echo "No Firefox processes found"
+  fi
 }
 
 checkMemory() {
   sleep 2.2
+  threshold=200
   while true
   do
-    FREE=$(free | head -2 | tail -1 | awk '{print $4}')
-    echo "$(date -Iseconds) watch memory $FREE"
-    if [[ $FREE -le 100000 ]]
+    echo -n "$(TZ=Asia/Tokyo date -Iseconds) "
+    free_mem=$(free -m | awk '/^Mem:/ {print $4}')
+    if [[ "$free_mem" -lt "$threshold" ]]
     then
+      echo "Free memory is less than $threshold MiB: ${free_mem}MiB"
       closeBrowser
+    else
+      echo "Free memory is sufficient: ${free_mem}MiB"
     fi
     sleep 12.34
   done
