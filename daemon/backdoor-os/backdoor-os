@@ -26,9 +26,9 @@ whileCheck() {
     REMOTE=$(dig vpn.jsx.jp | grep -1 "ANSWER SECTION" | tail -1 | awk '{print $5}')
     PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
     echo "$PRINT"
-    CHANNEL=secure timeout 10 /home/jobscale/bin/post-slack "$PRINT"
-    sudo -u jobscale ssh-keygen -f "/home/jobscale/.ssh/known_hosts" -R "vpn.jsx.jp"
-    sudo -u jobscale ssh -N -T noble-watch
+    CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp"
+    ssh -N -T noble-watch
     sleep 60
   done
 }

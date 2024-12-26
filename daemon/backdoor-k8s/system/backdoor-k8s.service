@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/backdoor-k8s
+ExecStart=bash -c "sudo -u jobscale /usr/local/bin/backdoor-k8s"
 Restart=always
 StandardOutput=append:/var/log/backdoor-k8s.log
 StandardError=append:/var/log/backdoor-k8s_error.log
