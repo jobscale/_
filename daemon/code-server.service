@@ -1,0 +1,13 @@
+[Unit]
+Description=code-server Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=bash -c "sleep 300 && sudo -u jobscale code-server"
+Restart=always
+StandardOutput=append:/var/log/code-server_std.log
+StandardError=append:/var/log/code-server_std_error.log
+
+[Install]
+WantedBy=multi-user.target
