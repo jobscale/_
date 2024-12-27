@@ -13,8 +13,18 @@ whileCheck() {
   while true
   do
     sleep 60
-    nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1
-    [[ $(echo $?) == 0 ]] || cleanZombie && continue
+    if ! nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo date -Iseconds) connection failed" 1>&2
+      cleanZombie
+      continue
+    fi
+    if ! timeout 10 curl -I https://us.jsx.jp > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo date -Iseconds) hangup failed" 1>&2
+      cleanZombie
+      continue
+    fi
   done
 }
 
@@ -23,7 +33,13 @@ whileCheck() {
   whileCheck &
   while true
   do
-    REMOTE=$(dig us.jsx.jp | grep -1 "ANSWER SECTION" | tail -1 | awk '{print $5}')
+    REMOTE=$(dig +short us.jsx.jp)
+    if [[ -z "$REMOTE" ]]
+    then
+      echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
+      sleep 300
+      continue
+    fi
     PRINT="backdoor-k8s - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
     echo "$PRINT"
     CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
