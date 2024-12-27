@@ -19,7 +19,7 @@ whileCheck() {
       cleanZombie
       continue
     fi
-    if ! timeout 10 curl -I https://us.jsx.jp > /dev/null 2>&1
+    if ! timeout 10 curl -I https://www.jsx.jp > /dev/null 2>&1
     then
       echo "$(TZ=Asia/Tokyo date -Iseconds) hangup failed" 1>&2
       cleanZombie
