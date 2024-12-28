@@ -8,8 +8,16 @@ cleanZombie() {
   }
 }
 
+nextTime() {
+  while [[ ${NEXT_TICK:-23456789012} -ge $(date +%s) ]]
+  do
+    sleep 1
+  done
+}
+
 whileCheck() {
   cleanZombie
+  nextTime
   while true
   do
     sleep 60
@@ -28,23 +36,38 @@ whileCheck() {
   done
 }
 
+waitForPort() {
+  while nc -vz -w 1 vpn.jsx.jp 2022 > /dev/null 2>&1
+  do
+    sleep 3
+  done
+  sleep 3
+}
+
+waitForResolver() {
+  REMOTE=$(dig +short vpn.jsx.jp)
+  if [[ -z "$REMOTE" ]]
+  then
+    echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
+    sleep 300
+    continue
+  fi
+  PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
+  echo "$PRINT"
+  CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
+}
+
 {
-  sleep 10 # wait for resolve
+  sleep 10 # wait for resolver
   whileCheck &
   while true
   do
-    REMOTE=$(dig +short vpn.jsx.jp)
-    if [[ -z "$REMOTE" ]]
-    then
-      echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
-      sleep 300
-      continue
-    fi
-    PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
-    echo "$PRINT"
-    CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
+    waitForResolver
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp"
+    waitForPort
+    NEXT_TICK=$(( $(date +%s) + 10 ))
     ssh -N -T noble-watch
+    echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 60
   done
 }
