@@ -63,7 +63,7 @@ waitForResolver() {
   while true
   do
     waitForResolver
-    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp"
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort
     NEXT_TICK=$(( $(date +%s) + 10 ))
     ssh -N -T noble-watch
