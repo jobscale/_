@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
 
+NEXT_TICK=23456789012
+updateNextTick() {
+  NEXT_TICK=$(( $(date +%s) + 10 ))
+}
+
+getNextTick() {
+  echo $NEXT_TICK
+}
+
+nextTime() {
+  while [[ $(getNextTick) -ge $(date +%s) ]]
+  do
+    sleep 1
+  done
+}
+
 cleanZombie() {
   PID=$(ps auxf | grep "[s]sh -N -T noble-watch" | awk '{print $2}')
   [[ "$PID" == "" ]] || {
     kill $PID
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
   }
-}
-
-NEXT_TICK=23456789012
-updateNextTime() {
-  NEXT_TICK=$(( $(date +%s) + 10 ))
-}
-
-nextTime() {
-  while [[ $NEXT_TICK -ge $(date +%s) ]]
-  do
-    sleep 1
-  done
 }
 
 whileCheck() {
@@ -70,7 +74,7 @@ waitForResolver() {
     waitForResolver
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort
-    updateNextTime
+    updateNextTick
     ssh -N -T noble-watch
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 60
