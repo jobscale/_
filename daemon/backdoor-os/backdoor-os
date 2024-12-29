@@ -8,8 +8,9 @@ cleanZombie() {
   }
 }
 
+NEXT_TICK=23456789012
 nextTime() {
-  while [[ ${NEXT_TICK:-23456789012} -ge $(date +%s) ]]
+  while [[ $NEXT_TICK -ge $(date +%s) ]]
   do
     sleep 1
   done
