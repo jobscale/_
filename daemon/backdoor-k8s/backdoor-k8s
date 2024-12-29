@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 
-NEXT_TICK=23456789012
+TICK_FILE="/tmp/tick-k8s"
+LOCK_FILE="/tmp/tick-k8s.lock"
+
 updateNextTick() {
-  NEXT_TICK=$(( $(date +%s) + 10 ))
+  (
+    flock -x 200
+    echo $(( $(date +%s) + 10 )) > "$TICK_FILE"
+  ) 200>"$LOCK_FILE"
 }
 
 getNextTick() {
-  echo $NEXT_TICK
+  (
+    flock -s 200
+    if [[ -f "$TICK_FILE" && -s "$TICK_FILE" ]]
+    then
+      cat "$TICK_FILE"
+    else
+      echo "9223372036854775807"
+    fi
+  ) 200<"$LOCK_FILE"
 }
 
 nextTime() {
@@ -26,10 +39,10 @@ cleanZombie() {
 
 whileCheck() {
   cleanZombie
-  nextTime
   while true
   do
     sleep 60
+    nextTime
     if ! nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1
     then
       echo "$(TZ=Asia/Tokyo date -Iseconds) connection failed" 1>&2
