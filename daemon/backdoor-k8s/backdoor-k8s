@@ -9,6 +9,10 @@ cleanZombie() {
 }
 
 NEXT_TICK=23456789012
+updateNextTime() {
+  NEXT_TICK=$(( $(date +%s) + 10 ))
+}
+
 nextTime() {
   while [[ $NEXT_TICK -ge $(date +%s) ]]
   do
@@ -66,7 +70,7 @@ waitForResolver() {
     waitForResolver
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "us.jsx.jp" > /dev/null 2>&1
     waitForPort
-    NEXT_TICK=$(( $(date +%s) + 10 ))
+    updateNextTime
     ssh -N -T us-watch
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 60
