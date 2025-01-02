@@ -1,25 +1,26 @@
 const { Client } = require('ssh2');
 const net = require('net');
 const fs = require('fs');
+const path = require('path');
 
 const logger = console;
 
 // SSH 接続設定
 const sshConfig = {
-  host: 'vpn.jsx.jp',                      // 接続先ホスト
-  port: 22,                                // SSH デフォルトポート
-  username: 'jobscale',                    // SSH ユーザー名
-  privateKey: fs.readFileSync('openssh-ed25519.pem') // 秘密鍵
+  host: 'vpn.jsx.jp',            // 接続先ホスト
+  port: 22,                      // SSH デフォルトポート
+  username: 'jobscale',          // SSH ユーザー名
+  privateKey: fs.readFileSync(path.resolve(__dirname, 'openssh-ed25519.pem')),
 };
 
 // 転送設定
 const listen = {
-  addr: '0.0.0.0',  // リモート側が待ち受けるアドレス
-  port: 2025        // リモート側が待ち受けるポート
+  addr: '0.0.0.0',   // リモート側が待ち受けるアドレス
+  port: 2025,        // リモート側が待ち受けるポート
 };
 const bind = {
   addr: '127.0.0.1', // ローカル側の接続先アドレス
-  port: 22           // ローカル側の接続先ポート
+  port: 22,          // ローカル側の接続先ポート
 };
 
 const setupSshForwarding = () => {
