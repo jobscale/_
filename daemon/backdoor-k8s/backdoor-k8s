@@ -30,11 +30,14 @@ nextTime() {
 }
 
 cleanZombie() {
-  PID=$(ps auxf | grep "[s]sh -N -T us-watch" | awk '{print $2}')
-  [[ "$PID" == "" ]] || {
+  PID=$(ps auxf | pgrep -f "ssh -N -T us-watch")
+  if [[ "$PID" != "" ]]
+  then
     kill $PID
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
-  }
+  else
+    echo "$(TZ=Asia/Tokyo date -Iseconds) ssh process notfound" 1>&2
+  fi
 }
 
 whileCheck() {
@@ -61,6 +64,7 @@ whileCheck() {
 waitForPort() {
   while nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1
   do
+    echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
     sleep 3
   done
   sleep 3
@@ -90,6 +94,6 @@ waitForResolver() {
     updateNextTick
     ssh -N -T us-watch
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
-    sleep 60
+    sleep 10
   done
 }
