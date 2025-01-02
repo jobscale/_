@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+TICK_FILE="/tmp/tick-nodejs"
+LOCK_FILE="/tmp/tick-nodejs.lock"
+
+updateNextTick() {
+  (
+    flock -x 200
+    echo $(( $(date +%s) + 10 )) > "$TICK_FILE"
+  ) 200>"$LOCK_FILE"
+}
+
+getNextTick() {
+  (
+    flock -s 200
+    if [[ -f "$TICK_FILE" && -s "$TICK_FILE" ]]
+    then
+      cat "$TICK_FILE"
+    else
+      echo "9223372036854775807"
+    fi
+  ) 200<"$LOCK_FILE"
+}
+
+nextTime() {
+  while [[ $(getNextTick) -ge $(date +%s) ]]
+  do
+    sleep 1
+  done
+}
+
+cleanZombie() {
+  PID=$(ps auxf | pgrep -f "node /usr/local/port-forwarding")
+  if [[ "$PID" != "" ]]
+  then
+    kill $PID
+    echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
+  else
+    echo "$(TZ=Asia/Tokyo date -Iseconds) ssh process notfound" 1>&2
+  fi
+}
+
+whileCheck() {
+  cleanZombie
+  while true
+  do
+    sleep 60
+    nextTime
+    if ! nc -vz -w 1 vpn.jsx.jp 2025 > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo date -Iseconds) connection failed" 1>&2
+      cleanZombie
+      continue
+    fi
+    if ! timeout 10 ssh -T -p 2025 vpn.jsx.jp echo health-check > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo date -Iseconds) hangup failed" 1>&2
+      cleanZombie
+      continue
+    fi
+  done
+}
+
+waitForPort() {
+  while nc -vz -w 1 vpn.jsx.jp 2025 > /dev/null 2>&1
+  do
+    echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
+    sleep 3
+  done
+  sleep 3
+}
+
+waitForResolver() {
+  REMOTE=$(dig +short vpn.jsx.jp)
+  if [[ -z "$REMOTE" ]]
+  then
+    echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
+    sleep 300
+    continue
+  fi
+  PRINT="backdoor-nodejs - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
+  echo "$PRINT"
+  CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
+}
+
+{
+  sleep 10 # wait for resolver
+  whileCheck &
+  while true
+  do
+    waitForResolver
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
+    waitForPort
+    updateNextTick
+    node /usr/local/port-forwarding
+    echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
+    sleep 10
+  done
+}
