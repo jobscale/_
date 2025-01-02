@@ -2,6 +2,9 @@
 set -eu
 
 HOST=${1:-x.jsx.jp}
+PORT=${HOST#*:}
+HOST=${HOST%%:*}  # ホスト名部分を抽出
+PORT=${PORT:-22}  # ポートが指定されていない場合はデフォルトの22を使用
 BLOCK_COUNT=${2:-5}
 BLOCK_SIZE=${3:-20}M
 SIZE=$(( BLOCK_COUNT * ${BLOCK_SIZE%M} * 1024 ))
@@ -16,7 +19,8 @@ FILE="/tmp/network_test-transfer-$($DATE +%s%3N)"
 dd if=/dev/zero bs=${BLOCK_SIZE} count=${BLOCK_COUNT} of=${FILE} 2>&1 | tail -1
 cleanup() {
   rm -f ${FILE}
-  if ! ssh ${HOST} "rm -f '${FILE}.copied'"; then
+  if ! ssh -p ${PORT} ${HOST} "rm -f '${FILE}.copied'"
+  then
     echo "Warning: Failed to remove remote file '$FILE.copied'" >&2
   fi
 }
@@ -26,7 +30,7 @@ trap cleanup EXIT
 upload_benchmark() {
   echo -e "\n=== Upload benchmark"
   local start=$($DATE +%s%3N)
-  scp -o Compression=no ${FILE} ${HOST}:${FILE}.copied
+  scp -P ${PORT} -o Compression=no ${FILE} ${HOST}:${FILE}.copied
   local duration=$(( $($DATE +%s%3N) - start ))
   local speed=$(echo "scale=2; $SIZE / $duration" | bc)
   printf "Upload Speed: %.2f MiB/s\n" "$speed"
@@ -35,7 +39,7 @@ upload_benchmark() {
 download_benchmark() {
   echo -e "\n=== Download benchmark"
   local start=$($DATE +%s%3N)
-  scp -o Compression=no ${HOST}:${FILE}.copied ${FILE}
+  scp -P ${PORT} -o Compression=no ${HOST}:${FILE}.copied ${FILE}
   local duration=$(( $($DATE +%s%3N) - start ))
   local speed=$(echo "scale=2; $SIZE / $duration" | bc)
   printf "Download Speed: %.2f MiB/s\n" "$speed"
