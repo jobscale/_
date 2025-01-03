@@ -1,29 +1,35 @@
-const { Client } = require('ssh2');
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
+const { Client } = require('ssh2');
+const { Logger } = require('@jobscale/logger');
 
-const logger = console;
+const {
+  LOG_LEVEL, HOST, PORT, USER, FPEM, LISTEN_PORT,
+} = process.env;
 
-// SSH 接続設定
+const logger = new Logger({
+  logLevel: LOG_LEVEL,
+  timestamp: true,
+  noPathName: true,
+});
+
 const sshConfig = {
-  host: 'vpn.jsx.jp',            // 接続先ホスト
-  port: 22,                      // SSH デフォルトポート
-  username: 'jobscale',          // SSH ユーザー名
-  privateKey: fs.readFileSync(path.resolve(__dirname, 'openssh-ed25519.pem')),
+  host: HOST || 'vpn.jsx.jp',
+  port: PORT || 22,
+  username: USER || 'jobscale',
+  privateKey: fs.readFileSync(path.resolve(__dirname, FPEM || 'openssh-ed25519.pem')),
 };
-
-// 転送設定
 const listen = {
-  addr: '0.0.0.0',   // リモート側が待ち受けるアドレス
-  port: 2025,        // リモート側が待ち受けるポート
+  addr: '0.0.0.0',
+  port: LISTEN_PORT || 2025,
 };
 const bind = {
-  addr: '127.0.0.1', // ローカル側の接続先アドレス
-  port: 22,          // ローカル側の接続先ポート
+  addr: '127.0.0.1',
+  port: 22,
 };
 
-const setupSshForwarding = () => {
+const portForwarding = () => {
   const conn = new Client();
   conn.on('ready', () => {
     logger.info('SSH connection established.');
@@ -54,9 +60,7 @@ const setupSshForwarding = () => {
     logger.info('SSH connection closed.');
   });
 
-  // SSH 接続開始
   conn.connect(sshConfig);
 }
 
-// 実行
-setupSshForwarding();
+portForwarding();

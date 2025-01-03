@@ -62,12 +62,13 @@ whileCheck() {
 }
 
 waitForPort() {
+  updateNextTick
   while nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1
   do
     echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
-    sleep 3
+    sleep 5
+    updateNextTick
   done
-  sleep 3
 }
 
 waitForResolver() {
@@ -80,7 +81,7 @@ waitForResolver() {
   fi
   PRINT="backdoor-k8s - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
-  CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
+  CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
 }
 
 {
@@ -91,9 +92,8 @@ waitForResolver() {
     waitForResolver
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "us.jsx.jp" > /dev/null 2>&1
     waitForPort
-    updateNextTick
     ssh -N -T us-watch
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
-    sleep 10
+    waitForPort
   done
 }
