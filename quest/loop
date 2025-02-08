@@ -14,8 +14,11 @@ loop() {
       sleep 0.2
       xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 200
     fi
-    ./check-color
     sleep 1
+    while [[ "$(./check-color)"  != "ALL OK" ]]
+    do
+      sleep 3
+    done
   done
   printf '\r%5d\n' 0
 }

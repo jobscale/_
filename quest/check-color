@@ -14,7 +14,7 @@ check-color() {
   G=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=,)')
   B=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=\))')
 
-  if [[ $R -ge 20 ]] && [[ $G -ge 20 ]] && [[ $B -ge 20 ]]
+  if [[ $R -ge 11 ]] && [[ $G -ge 11 ]] && [[ $B -ge 6 ]]
   then
     echo "OK"
     # echo "$R $G $B" 1>&2
@@ -33,5 +33,7 @@ check-color() {
   if [[ "$RES1 $RES2 $RES3 $RES4" != "OK OK OK OK" ]]
   then
     play >/dev/null 2>&1
+  else
+    echo "ALL OK"
   fi
 }

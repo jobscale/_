@@ -30,11 +30,11 @@ nextTime() {
 }
 
 cleanZombie() {
-  PID=$(ps auxf | pgrep -f "node /usr/local/port-forwarding")
-  if [[ "$PID" != "" ]]
+  local PID=$(ps auxf | pgrep -f "node /usr/local/port-forwarding")
+  if [[ ! -z "$PID" ]]
   then
-    kill $PID
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
+    kill $PID
   else
     echo "$(TZ=Asia/Tokyo date -Iseconds) ssh process notfound" 1>&2
   fi
@@ -62,25 +62,34 @@ whileCheck() {
 }
 
 waitForPort() {
+  updateNextTick
   while nc -vz -w 1 vpn.jsx.jp 2025 > /dev/null 2>&1
   do
     echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
-    sleep 3
+    local PID=$(ssh noble sudo ss -tunlp | grep "0.0.0.0:2025 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
+    if [[ ! -z "$PID" ]]
+    then
+      ssh noble sudo kill $PID
+    fi
+    sleep 5
+    updateNextTick
   done
-  sleep 3
 }
 
 waitForResolver() {
-  REMOTE=$(dig +short vpn.jsx.jp)
-  if [[ -z "$REMOTE" ]]
-  then
+  while true
+  do
+    local REMOTE=$(dig +short vpn.jsx.jp)
+    if [[ ! -z "$REMOTE" ]]
+    then
+      break
+    fi
     echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
     sleep 300
-    continue
-  fi
+  done
   PRINT="backdoor-nodejs - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
-  CHANNEL=secure timeout 10 $HOME/bin/post-slack "$PRINT"
+  CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
 }
 
 {
@@ -91,9 +100,8 @@ waitForResolver() {
     waitForResolver
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort
-    updateNextTick
     node /usr/local/port-forwarding
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
-    sleep 10
+    waitForPort
   done
 }
