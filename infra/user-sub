@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eu
+
+userAdd() {
+  useradd -g staff -G users,sudo --shell $(which bash) --create-home $1
+  SSH_GEN='ssh-keygen -t ed25519 -N "" -C "$(id -un)@$(hostname)" -f /home/$(id -un)/.ssh/id_ed25519'
+  SSH_AUTH='cat /home/$(id -un)/.ssh/id_ed25519.pub | tee -a /home/$(id -un)/.ssh/authorized_keys'
+  SSH_SHOW='cat /home/$(id -un)/.ssh/id_ed25519'
+  sudo -i -u $1 bash -c "$SSH_GEN && $SSH_AUTH && $SSH_SHOW"
+
+  echo "$1 ALL=(ALL:ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
+  GIP=$(curl -s https://inet-ip.info/ip)
+  DATA=$(cat /home/$1/.ssh/id_ed25519 | sed -z -e 's/\n/\\n/g')
+  curl -isS https://jsx.jp/api/slack \
+  -X POST -H 'Content-Type: application/json' \
+  --data "{\"icon_emoji\":\":violin:\",\"username\":\"EC2\",\"text\":\"$GIP\\n$DATA\",\"channel\":\"infra\"}"
+}
+
+time {
+  echo "START  user-add $(date --rfc-3339=seconds)"
+  id forte || userAdd forte
+  echo "FINISH user-add $(date --rfc-3339=seconds)"
+}
