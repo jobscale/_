@@ -24,7 +24,7 @@ docker run --name mysql \
 -d mysql:8-debian
 
 SCHEMA=schema
-SB_USER=user
+DB_USER=user
 echo "[Example]"
 echo <<EOF
 mysql -h 127.0.0.1 --default-character-set=utf8mb4 -u root -psecret-root
