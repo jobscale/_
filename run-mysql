@@ -14,6 +14,7 @@ default-character-set = utf8mb4
 EOF
 
 sudo chown -R 1000:50 /usr/local/mysql
+sudo chmod -R go+rX /usr/local/mysql
 docker pull mysql:8-debian
 docker run --name mysql \
 --restart always \
@@ -26,7 +27,7 @@ docker run --name mysql \
 SCHEMA=schema
 DB_USER=user
 echo "[Example]"
-echo <<EOF
+echo <<-EOF
 mysql -h 127.0.0.1 --default-character-set=utf8mb4 -u root -psecret-root
 
 CREATE DATABASE ${SCHEMA} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
