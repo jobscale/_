@@ -1,0 +1,38 @@
+docker rm -f mysql
+sudo mkdir -p /usr/local/mysql/data
+sudo mkdir -p /usr/local/mysql/conf.d
+cat <<EOF | sudo tee /usr/local/mysql/conf.d/custom.cnf > /dev/null
+[mysqld]
+character-set-server = utf8mb4
+collation-server = utf8mb4_general_ci
+
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+EOF
+
+sudo chown -R 1000:50 /usr/local/mysql
+docker pull mysql:8-debian
+docker run --name mysql \
+--restart always \
+-v /usr/local/mysql/conf.d:/etc/mysql/conf.d \
+-v /usr/local/mysql/data:/var/lib/mysql \
+-p 3306:3306 \
+-e MYSQL_ROOT_PASSWORD=secret-root \
+-d mysql:8-debian
+
+SCHEMA=schema
+SB_USER=user
+echo "[Example]"
+echo <<EOF
+mysql -h 127.0.0.1 --default-character-set=utf8mb4 -u root -psecret-root
+
+CREATE DATABASE ${SCHEMA} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE USER '${DB_USER}'@'%' IDENTIFIED BY 'secret-${DB_USER}';
+GRANT ALL PRIVILEGES ON ${SCHEMA}.* TO '${DB_USER}'@'%';
+FLUSH PRIVILEGES;
+
+mysql -h 127.0.0.1 --default-character-set=utf8mb4 -u ${DB_USER} -psecret-${DB_USER} ${SCHEMA}
+EOF
