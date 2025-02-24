@@ -91,6 +91,6 @@ else
 fi
 
 notification() {
-  TIMEOUT=1 CHANNEL="secure" post-slack "Logged in $(hostname)"
+  TIMEOUT=1 CHANNEL="secure" post-slack "Logged in $(id -un)@$(hostname)"
 }
 notification
