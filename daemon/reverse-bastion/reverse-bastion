@@ -2,7 +2,7 @@
 
 cleanZombie() {
   echo "$(TZ=Asia/Tokyo date -Iseconds) $1" 1>&2
-  local PID=$(ps -ax | pgrep -f "ssh revers-rem-watch")
+  local PID=$(ps -ax | pgrep -f "ssh -N -T revers-rem-watch")
   echo "$(TZ=Asia/Tokyo date -Iseconds) cleanZombie $PID" 1>&2
   [[ -z "$PID" ]] || kill $PID
 }
@@ -29,7 +29,7 @@ whileCheck() {
     PRINT="$(TZ=Asia/Tokyo date -Iseconds) mac"
     echo -e "\n$PRINT\n"
     timeout 10 /Users/$(ls /Users | grep ok)/bin/post-slack "$PRINT"
-    sudo -u $(ls /Users | grep ok) ssh revers-rem-watch
+    sudo -u $(ls /Users | grep ok) ssh -N -T revers-rem-watch
     sleep 10
   done
 }
