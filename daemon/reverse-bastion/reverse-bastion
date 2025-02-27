@@ -15,7 +15,7 @@ whileCheck() {
     echo -e "\n\r"
     nc -vz -w 2 jp.jsx.jp 80 || cleanZombie "connection failed"
     echo -e "\r"
-    timeout 10 ssh mac date || cleanZombie "busy failed"
+    timeout 10 sudo -u $(ls /Users | grep ok) ssh mac date || cleanZombie "hangup failed"
   done
 }
 
