@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+cleanZombie() {
+  echo "$(TZ=Asia/Tokyo date -Iseconds) $1" 1>&2
+  local PID=$(ps -ax | pgrep -f "ssh revers-rem-watch")
+  echo "$(TZ=Asia/Tokyo date -Iseconds) cleanZombie $PID" 1>&2
+  [[ -z "$PID" ]] || kill $PID
+}
+
+whileCheck() {
+  cleanZombie "initialize clean"
+  while true
+  do
+    sleep 300
+    echo -e "\n\r"
+    nc -vz -w 2 jp.jsx.jp 80 || cleanZombie "connection failed"
+    echo -e "\r"
+    timeout 10 ssh mac date || cleanZombie "busy failed"
+  done
+}
+
+{
+  echo "Start bastion"
+  sleep 10
+  whileCheck &
+  while true
+  do
+    sleep 10
+    PRINT="$(TZ=Asia/Tokyo date -Iseconds) mac"
+    echo -e "\n$PRINT\n"
+    timeout 10 /Users/$(ls /Users | grep ok)/bin/post-slack "$PRINT"
+    sudo -u $(ls /Users | grep ok) ssh revers-rem-watch
+    sleep 10
+  done
+}
