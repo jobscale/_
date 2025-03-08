@@ -17,7 +17,7 @@ loop() {
     sleep 1
     while [[ "$(./check-color)"  != "ALL OK" ]]
     do
-      sleep 3
+      sleep 6
     done
   done
   printf '\r%5d\n' 0

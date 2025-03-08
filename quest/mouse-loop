@@ -10,11 +10,11 @@ loop() {
     if [[ $(( $(date +%s) - $EXECUTION )) -ge 100 ]]
     then
       EXECUTION=$(date +%s)
-      xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 400
+      xdotool mousemove 180 800
       sleep 0.2
-      xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 200
+      xdotool mousemove 180 500
     fi
-    ./check-color
+    RES=$(./check-color)
     sleep 1
   done
   printf '\r%5d\n' 0
