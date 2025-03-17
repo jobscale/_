@@ -10,9 +10,10 @@ rotate-logs() {
   docker run --name logrotate --restart always \
   --memory 128m \
   -v /var/lib/docker/containers:/var/lib/docker/containers \
-  -e "LOGS_DIRECTORIES=/var/lib/docker/containers" \
+  -v /var/log/daemon:/var/log/daemon \
+  -e "LOGS_DIRECTORIES=/var/lib/docker/containers /var/log/daemon" \
   -e "LOGROTATE_INTERVAL=daily" \
-  -e "LOGROTATE_COPIES=20" \
+  -e "LOGROTATE_COPIES=90" \
   -d blacklabelops/logrotate
 }
 
