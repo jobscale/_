@@ -59,6 +59,7 @@ whileCheck() {
       continue
     fi
   done
+  echo "GlobalIP $(curl https://inet-ip.info/ip)"
 }
 
 waitForPort() {
@@ -98,10 +99,10 @@ waitForResolver() {
   while true
   do
     waitForResolver
-    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
+    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort
     ssh -N -T noble-watch
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
-    waitForPort
+    sleep 11.1
   done
 }

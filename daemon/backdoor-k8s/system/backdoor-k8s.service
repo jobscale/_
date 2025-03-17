@@ -6,8 +6,8 @@ After=network.target
 Type=simple
 ExecStart=bash -c "sudo -u jobscale /usr/local/bin/backdoor-k8s"
 Restart=always
-StandardOutput=append:/var/log/backdoor-k8s.log
-StandardError=append:/var/log/backdoor-k8s_error.log
+StandardOutput=append:/var/log/daemon/backdoor-k8s.log
+StandardError=append:/var/log/daemon/backdoor-k8s_error.log
 
 [Install]
 WantedBy=multi-user.target

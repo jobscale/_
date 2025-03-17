@@ -74,6 +74,7 @@ waitForPort() {
     sleep 5
     updateNextTick
   done
+  echo "GlobalIP $(curl https://inet-ip.info/ip)"
 }
 
 waitForResolver() {
@@ -98,10 +99,10 @@ waitForResolver() {
   while true
   do
     waitForResolver
-    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
+    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort
     node /usr/local/port-forwarding
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
-    waitForPort
+    sleep 11.1
   done
 }
