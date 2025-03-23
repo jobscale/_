@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 
+play() {
+  ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
+}
+
 EXECUTION=$(date +%s)
 loop() {
   local end_time=$(( $(date +%s) + $1 ))
@@ -49,3 +53,5 @@ do
   echo "Step $i ... next $(( $COUNT - $i ))"
   loop $WAIT_TIME
 done
+
+play
