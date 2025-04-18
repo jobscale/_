@@ -3,12 +3,12 @@
 ## Initial Setup
 ```
 sudo ln -s $HOME/_/daemon/reverse-bastion/reverse-bastion /usr/local/bin
-sudo ln -s $HOME/_/daemon/reverse-bastion/plist/com.reverse-bastion.plist /Library/LaunchDaemons
+sudo cp $HOME/_/daemon/reverse-bastion/plist/com.reverse-bastion.plist /Library/LaunchDaemons
 ```
 
 ## List Daemons
 ```
-launchctl list | grep -v apple | sort
+sudo launchctl list | grep -v apple
 ```
 
 ## Start Daemon

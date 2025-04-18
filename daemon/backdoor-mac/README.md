@@ -8,7 +8,7 @@ sudo cp $HOME/_/daemon/backdoor-mac/plist/com.backdoor-mac.plist /Library/Launch
 
 ## List Daemons
 ```
-launchctl list | grep -v apple | sort
+sudo launchctl list | grep -v apple
 ```
 
 ## Start Daemon

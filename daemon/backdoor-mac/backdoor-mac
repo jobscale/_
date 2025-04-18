@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 cleanZombie() {
-  echo "$(TZ=Asia/Tokyo date -Iseconds) $1" 1>&2
+  echo "$(TZ=Asia/Tokyo date) $1" 1>&2
   local PID=$(ps -ax | pgrep -f "ssh -N -T mac-watch")
-  echo "$(TZ=Asia/Tokyo date -Iseconds) cleanZombie $PID" 1>&2
+  echo "$(TZ=Asia/Tokyo date) cleanZombie $PID" 1>&2
   [[ -z "$PID" ]] || kill $PID
 }
 
@@ -26,7 +26,7 @@ whileCheck() {
   while true
   do
     sleep 10
-    PRINT="$(TZ=Asia/Tokyo date -Iseconds) mac"
+    PRINT="$(TZ=Asia/Tokyo date) mac"
     echo -e "\n$PRINT\n"
     timeout 10 /Users/jobscale/bin/post-slack "$PRINT"
     sudo -u jobscale ssh -N -T mac-watch
