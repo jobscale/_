@@ -15,7 +15,7 @@ whileCheck() {
     echo -e "\n\r"
     nc -vz -w 2 vpn.jsx.jp 2088 || cleanZombie "connection failed"
     echo -e "\r"
-    timeout 10 sudo -u jobscale ssh mac date || cleanZombie "hangup failed"
+    timeout 10 ssh mac date || cleanZombie "hangup failed"
   done
 }
 
@@ -26,10 +26,11 @@ whileCheck() {
   while true
   do
     sleep 10
-    PRINT="$(TZ=Asia/Tokyo date) mojave"
+    code_name="$(~/bin/mac-version)"
+    PRINT="$(TZ=Asia/Tokyo date) ${code_name}"
     echo -e "\n$PRINT\n"
-    timeout 10 /Users/jobscale/bin/post-slack "$PRINT"
-    sudo -u jobscale ssh -N -T mac-watch
+    timeout 10 ~/bin/post-slack "$PRINT"
+    ssh -N -T mac-watch
     sleep 10
   done
 }

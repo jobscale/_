@@ -15,7 +15,7 @@ whileCheck() {
     echo -e "\n\r"
     nc -vz -w 2 jp.jsx.jp 80 || cleanZombie "connection failed"
     echo -e "\r"
-    timeout 10 sudo -u $(ls /Users | grep ok) ssh mac date || cleanZombie "hangup failed"
+    timeout 10 ssh mac date || cleanZombie "hangup failed"
   done
 }
 
@@ -26,10 +26,11 @@ whileCheck() {
   while true
   do
     sleep 10
-    PRINT="$(TZ=Asia/Tokyo date) mac"
+    code_name="$(~/bin/mac-version)"
+    PRINT="$(TZ=Asia/Tokyo date) ${code_name}"
     echo -e "\n$PRINT\n"
-    timeout 10 /Users/$(ls /Users | grep ok)/bin/post-slack "$PRINT"
-    sudo -u $(ls /Users | grep ok) ssh -N -T revers-rem-watch
+    timeout 10 ~/bin/post-slack "$PRINT"
+    ssh -N -T revers-rem-watch
     sleep 10
   done
 }

