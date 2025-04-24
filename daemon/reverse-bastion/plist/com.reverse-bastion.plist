@@ -10,7 +10,7 @@
       <string>sudo</string>
       <string>-u</string>
       <string>okutani</string>
-      <string>/usr/local/bin/backdoor-mac</string>
+      <string>/usr/local/bin/reverse-bastion</string>
     </array>
 
     <key>RunAtLoad</key>
