@@ -4,10 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=bash -c "sleep 300 && sudo -u jobscale code-server"
+ExecStartPre=mkdir -p /var/log/code-server
+ExecStartPre=sleep 300
+ExecStart=bash -c "sudo -u jobscale code-server"
 Restart=always
-StandardOutput=append:/var/log/code-server_std.log
-StandardError=append:/var/log/code-server_std_error.log
+StandardOutput=append:/var/log/code-server/code-server.log
+StandardError=append:/var/log/code-server/code-server_error.log
 
 [Install]
 WantedBy=multi-user.target

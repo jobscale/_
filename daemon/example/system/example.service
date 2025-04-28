@@ -4,10 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
+ExecStartPre=mkdir -p /var/log/example
 ExecStart=/usr/local/bin/example
 Restart=always
-StandardOutput=append:/var/log/example.log
-StandardError=append:/var/log/example_error.log
+StandardOutput=append:/var/log/example/example.log
+StandardError=append:/var/log/example/example_error.log
 
 [Install]
 WantedBy=multi-user.target
