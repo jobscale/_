@@ -4,9 +4,13 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStartPre=mkdir -p /var/log/daemon
-ExecStart=bash -c "sudo -u jobscale /usr/local/bin/backdoor-k8s"
+User=jobscale
+ExecStart=/usr/local/bin/backdoor-k8s
 Restart=always
+RestartSec=5s
+RuntimeDirectory=daemon
+StateDirectory=daemon
+LogsDirectory=daemon
 StandardOutput=append:/var/log/daemon/backdoor-k8s.log
 StandardError=append:/var/log/daemon/backdoor-k8s_error.log
 

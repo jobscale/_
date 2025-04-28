@@ -4,9 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStartPre=mkdir -p /var/log/example
-ExecStart=/usr/local/bin/example
+ExecStart=bash -c "sudo -u $(ls /home | grep job) /usr/local/bin/example"
 Restart=always
+RestartSec=5s
+RuntimeDirectory=example
+StateDirectory=example
+LogsDirectory=example
 StandardOutput=append:/var/log/example/example.log
 StandardError=append:/var/log/example/example_error.log
 
