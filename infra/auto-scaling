@@ -2,7 +2,7 @@
 
 ddns() {
   docker pull ghcr.io/jobscale/sakura-dns
-  docker run --rm -e ENV=${ENV} \
+  docker run --rm -e ENV=${ENV:-dev} \
   -e DOMAIN=$1 \
   -e TOKEN=$(date +%s) \
   -e DNS_CONFIG=$(cat /root/_/infra/dns-config) \
