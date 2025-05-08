@@ -2,6 +2,11 @@
 set -eu
 
 local() {
+  if [[ $(uname -s) == "Darwin" ]]
+  then
+    ifconfig | grep broadcast | grep -v '\.1 ' | awk '{print $2}'
+    return 0
+  fi
   if [[ "$(which ip 2> /dev/null)" != "" ]]
   then
     ip addr | grep "inet " | grep "global" | grep "dynamic" | awk -F'[ /]+' '{print $3}'
