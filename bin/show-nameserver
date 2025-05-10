@@ -5,5 +5,5 @@ if [[ $(uname) == Darwin ]]
 then
   scutil --dns
 else
-  systemd-resolve --status || cat /etc/resolv.conf
+  which systemd-resolve && systemd-resolve --status || cat /etc/resolv.conf
 fi
