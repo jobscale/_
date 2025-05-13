@@ -13,13 +13,11 @@ wait-of-busy() {
     idle=($(mpstat 1 1 | grep all | awk '/^[0-9]/ {print $NF}'))
     idle_int=${idle%.*}
     (( idle_int >= 85 )) && idle_cd=$(( idle_cd - 1 )) || {
-      idle_cd=5
-      sleep 2
-    }
-    (( idle_cd <= 0 )) && break || {
       calm && echo "$(TZ=Asia/Tokyo date -Ins) wait for busy CPU ${idle_int} ${idle_cd}"
-      sleep 1
+      idle_cd=5
+      sleep 3
     }
+    (( idle_cd <= 0 )) && break || sleep 0.1
   done
 }
 
