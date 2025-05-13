@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eu
+
+wait-of-busy() {
+  idle_cd=5 # count down
+  while true
+  do
+    idle=($(mpstat 1 1 | grep all | awk '/^[0-9]/ {print $NF}'))
+    idle_int=${idle%.*}
+    (( idle_int >= 85 )) && idle_cd=$(( idle_cd - 1 )) || idle_cd=5
+    (( idle_cd <= 0 )) && break || echo "$(TZ=Asia/Tokyo date -Ins) wait for busy CPU ${idle_int} ${idle_cd}"
+    sleep 2
+  done
+}
+
+wait-of-busy
