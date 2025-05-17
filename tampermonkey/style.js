@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      2025-05-17
 // @description  try to take over the world!
 // @author       jobscale
 // @exclude      *://127.0.0.1:*/*

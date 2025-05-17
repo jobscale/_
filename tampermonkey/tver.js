@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      2025-05-17
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp/*/*

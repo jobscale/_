@@ -44,4 +44,3 @@ ${idna} ${appName} (${num})`;
 
   observer.observe(document.body, { childList: true, subtree: true });
 }, 33000);
-
