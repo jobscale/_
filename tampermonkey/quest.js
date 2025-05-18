@@ -26,8 +26,8 @@ const action = () => {
   background-color: black;
   color: white;
   position: fixed;
-  left: 22em;
-  bottom: 3em;
+  right: 12em;
+  bottom: 49em;
   padding: 0.3em;
   z-index: 1000001;
   font-size: 1.2rem;
