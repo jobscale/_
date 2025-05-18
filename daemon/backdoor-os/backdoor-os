@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 
 TICK_FILE="/tmp/tick-os"
-LOCK_FILE="/tmp/tick-os.lock"
 
 updateNextTick() {
   (
     flock -x 200
-    echo $(( $(date +%s) + 10 )) > "$TICK_FILE"
-  ) 200>"$LOCK_FILE"
+    printf '%s\n' $(( $(date +%s) + 10 )) > "$TICK_FILE"
+  ) 200>"$TICK_FILE"
+}
+
+clearTick() {
+  (
+    flock -x 200
+    : > "$TICK_FILE"
+  ) 200>"$TICK_FILE"
 }
 
 getNextTick() {
+  # The INFINITE if without TICK_FILE
+  [[ -f "$TICK_FILE" ]] || { echo 9223372036854775807; return; }
   (
     flock -s 200
-    if [[ -f "$TICK_FILE" && -s "$TICK_FILE" ]]
-    then
-      cat "$TICK_FILE"
-    else
-      echo "9223372036854775807"
-    fi
-  ) 200<"$LOCK_FILE"
+    [[ -s "$TICK_FILE" ]] && cat "$TICK_FILE" || echo 9223372036854775807
+  ) 200<"$TICK_FILE"
 }
 
 nextTime() {
@@ -59,11 +62,10 @@ whileCheck() {
       continue
     fi
   done
-  echo "GlobalIP $(curl https://inet-ip.info/ip)"
 }
 
 waitForPort() {
-  updateNextTick
+  clearTick
   while nc -vz -w 1 vpn.jsx.jp 2022 > /dev/null 2>&1
   do
     echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
@@ -73,11 +75,12 @@ waitForPort() {
       ssh noble sudo kill $PID
     fi
     sleep 5
-    updateNextTick
   done
+  updateNextTick
 }
 
 waitForResolver() {
+  clearTick
   while true
   do
     local REMOTE=$(dig +short vpn.jsx.jp)
@@ -91,6 +94,7 @@ waitForResolver() {
   PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
+  echo "GlobalIP $(curl https://inet-ip.info/ip)"
 }
 
 {
