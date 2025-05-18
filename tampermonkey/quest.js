@@ -27,7 +27,7 @@ const action = () => {
   color: white;
   position: fixed;
   left: 22em;
-  bottom: 0;
+  bottom: 3em;
   padding: 0.3em;
   z-index: 1000001;
   font-size: 1.2rem;
