@@ -1,36 +1,79 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
+TICK_FILE="/tmp/tick-os"          # 次実行時刻保存ファイル
+
+# ---------- lock 操作 ----------
+lockEx()        { lockf -k 200 "$TICK_FILE" "$@"; }
+lockShared()    { lockf -k 200 "$TICK_FILE" "$@"; }
+
+updateNextTick(){ lockEx sh -c "printf '%s\n' \$(( \$(date +%s) + 60 )) > '$TICK_FILE'"; }
+clearTick()     { lockEx sh -c ": > '$TICK_FILE'"; }
+
+getNextTick() {
+  [[ -f "$TICK_FILE" ]] || { echo 9223372036854775807; return; }
+  lockShared sh -c "[[ -s '$TICK_FILE' ]] && cat '$TICK_FILE' || echo 9223372036854775807"
+}
+waitUntilNext() { while [[ $(getNextTick) -ge $(date +%s) ]]; do sleep 1; done; }
+
+# ---------- 監視 ----------
 cleanZombie() {
-  echo "$(TZ=Asia/Tokyo date) $1" 1>&2
-  local PID=$(ps -ax | pgrep -f "ssh -N -T mac-watch")
-  echo "$(TZ=Asia/Tokyo date) cleanZombie $PID" 1>&2
-  [[ -z "$PID" ]] || kill $PID
+  if pkill -f "ssh -N -T mac-watch" 2>/dev/null; then
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) processes killed" >&2
+  else
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) ssh process notfound" >&2
+  fi
 }
 
-whileCheck() {
-  cleanZombie "initialize clean"
-  while true
-  do
+healthLoop() {
+  cleanZombie
+  while true; do
+    sleep 60
+    waitUntilNext
+
+    if ! nc -w 2 -z vpn.jsx.jp 2088 2>/dev/null; then
+      echo "$(TZ=Asia/Tokyo gdate -Iseconds) connection failed" >&2
+      cleanZombie; continue
+    fi
+
+    if ! gtimeout 30s ssh -o BatchMode=yes -o ConnectTimeout=5 -p 2022 vpn.jsx.jp echo ok >/dev/null 2>&1; then
+      echo "$(TZ=Asia/Tokyo gdate -Iseconds) hangup failed" >&2
+      cleanZombie; continue
+    fi
+  done
+}
+
+waitForPortFree() {
+  clearTick
+  while nc -w 1 -z vpn.jsx.jp 2022 2>/dev/null; do
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) wait for terminate zombie" >&2
+    if PID=$(ssh -o BatchMode=yes noble "sudo lsof -nP -iTCP:2022 -sTCP:LISTEN -t" 2>/dev/null | head -n1); then
+      ssh -o BatchMode=yes noble sudo kill "$PID" || true
+    fi
+    sleep 5
+  done
+  updateNextTick
+}
+
+waitForResolver() {
+  clearTick
+  while true; do
+    REMOTE=$(dig +short +timeout=5 +tries=1 vpn.jsx.jp | head -n1 || true)
+    [[ -n "$REMOTE" ]] && break
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) DNS resolve failed" >&2
     sleep 300
-    echo -e "\n\r"
-    nc -vz -w 2 vpn.jsx.jp 2088 || cleanZombie "connection failed"
-    echo -e "\r"
-    timeout 10 ssh mac date || cleanZombie "hangup failed"
   done
+  MSG="backdoor-os(mac) - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo gdate -Iseconds)"
+  echo "$MSG"
+  CHANNEL=infra gtimeout 10s "$HOME/bin/post-slack" "$MSG" || true
+  echo "GlobalIP $(curl -s --max-time 5 https://inet-ip.info/ip || echo unknown)"
 }
 
-{
-  echo "Start bastion"
-  sleep 10
-  whileCheck &
-  while true
-  do
-    sleep 10
-    code_name="$(~/bin/mac-version)"
-    PRINT="$(TZ=Asia/Tokyo date) ${code_name}"
-    echo -e "\n$PRINT\n"
-    timeout 10 ~/bin/post-slack "$PRINT"
-    ssh -N -T mac-watch
-    sleep 10
-  done
-}
+# ---------- メイン ----------
+sleep 10
+healthLoop &
+while true; do
+  waitForResolver
+  waitForPortFree
+  ssh -N -T mac-watch || { echo "$(TZ=Asia/Tokyo gdate -Iseconds) SSH broken pipe" >&2; exit 1; }
+done
