@@ -2,7 +2,7 @@
 
 cleanZombie() {
   echo "$(TZ=Asia/Tokyo date) $1" 1>&2
-  local PID=$(ps -ax | pgrep -f "ssh -N -T revers-rem-watch")
+  local PID=$(pgrep -f "ssh -N -T revers-rem-watch")
   echo "$(TZ=Asia/Tokyo date) cleanZombie $PID" 1>&2
   [[ -z "$PID" ]] || kill $PID
 }

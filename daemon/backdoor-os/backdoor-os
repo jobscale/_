@@ -33,7 +33,7 @@ nextTime() {
 }
 
 cleanZombie() {
-  local PID=$(ps auxf | pgrep -f "ssh -N -T noble-watch")
+  local PID=$(pgrep -f "ssh -N -T noble-watch")
   if [[ ! -z "$PID" ]]
   then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
@@ -94,7 +94,7 @@ waitForResolver() {
   PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
-  echo "GlobalIP $(curl https://inet-ip.info/ip)"
+  echo "GlobalIP $(curl -s https://inet-ip.info/ip)"
 }
 
 {
