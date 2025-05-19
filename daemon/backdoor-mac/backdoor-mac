@@ -1,54 +1,78 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
-TICK_FILE="/tmp/tick-os"          # 次実行時刻保存ファイル
+TICK_FILE="/tmp/tick-mac"
 
-# ---------- lock 操作 ----------
-lockEx()        { lockf -k 200 "$TICK_FILE" "$@"; }
-lockShared()    { lockf -k 200 "$TICK_FILE" "$@"; }
+updateNextTick() {
+  (
+    flock -x 200
+    printf '%s\n' $(( $(date +%s) + 10 )) > "$TICK_FILE"
+  ) 200>"$TICK_FILE"
+}
 
-updateNextTick(){ lockEx sh -c "printf '%s\n' \$(( \$(date +%s) + 60 )) > '$TICK_FILE'"; }
-clearTick()     { lockEx sh -c ": > '$TICK_FILE'"; }
+clearTick() {
+  (
+    flock -x 200
+    : > "$TICK_FILE"
+  ) 200>"$TICK_FILE"
+}
 
 getNextTick() {
+  # The INFINITE if without TICK_FILE
   [[ -f "$TICK_FILE" ]] || { echo 9223372036854775807; return; }
-  lockShared sh -c "[[ -s '$TICK_FILE' ]] && cat '$TICK_FILE' || echo 9223372036854775807"
+  (
+    flock -s 200
+    [[ -s "$TICK_FILE" ]] && cat "$TICK_FILE" || echo 9223372036854775807
+  ) 200<"$TICK_FILE"
 }
-waitUntilNext() { while [[ $(getNextTick) -ge $(date +%s) ]]; do sleep 1; done; }
 
-# ---------- 監視 ----------
+nextTime() {
+  while [[ $(getNextTick) -ge $(date +%s) ]]
+  do
+    sleep 1
+  done
+}
+
 cleanZombie() {
-  if pkill -f "ssh -N -T mac-watch" 2>/dev/null; then
-    echo "$(TZ=Asia/Tokyo gdate -Iseconds) processes killed" >&2
+  local PID=$(ps auxf | pgrep -f "ssh -N -T mac-watch")
+  if [[ ! -z "$PID" ]]
+  then
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) process killing $PID" 1>&2
+    kill $PID
   else
-    echo "$(TZ=Asia/Tokyo gdate -Iseconds) ssh process notfound" >&2
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) ssh process notfound" 1>&2
   fi
 }
 
-healthLoop() {
+whileCheck() {
   cleanZombie
-  while true; do
+  while true
+  do
     sleep 60
-    waitUntilNext
-
-    if ! nc -w 2 -z vpn.jsx.jp 2088 2>/dev/null; then
-      echo "$(TZ=Asia/Tokyo gdate -Iseconds) connection failed" >&2
-      cleanZombie; continue
+    nextTime
+    if ! nc -vz -w 2 vpn.jsx.jp 2088 > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo gdate -Iseconds) connection failed" 1>&2
+      cleanZombie
+      continue
     fi
-
-    if ! gtimeout 30s ssh -o BatchMode=yes -o ConnectTimeout=5 -p 2022 vpn.jsx.jp echo ok >/dev/null 2>&1; then
-      echo "$(TZ=Asia/Tokyo gdate -Iseconds) hangup failed" >&2
-      cleanZombie; continue
+    if ! gtimeout 20 ssh -T -p 2022 vpn.jsx.jp echo health-check > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo gdate -Iseconds) hangup failed" 1>&2
+      cleanZombie
+      continue
     fi
   done
 }
 
-waitForPortFree() {
+waitForPort() {
   clearTick
-  while nc -w 1 -z vpn.jsx.jp 2022 2>/dev/null; do
-    echo "$(TZ=Asia/Tokyo gdate -Iseconds) wait for terminate zombie" >&2
-    if PID=$(ssh -o BatchMode=yes noble "sudo lsof -nP -iTCP:2022 -sTCP:LISTEN -t" 2>/dev/null | head -n1); then
-      ssh -o BatchMode=yes noble sudo kill "$PID" || true
+  while nc -vz -w 1 vpn.jsx.jp 2022 > /dev/null 2>&1
+  do
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) wait for terminate zombie" 1>&2
+    local PID=$(ssh noble sudo ss -tunlp | grep "0.0.0.0:2022 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
+    if [[ ! -z "$PID" ]]
+    then
+      ssh noble sudo kill $PID
     fi
     sleep 5
   done
@@ -57,23 +81,32 @@ waitForPortFree() {
 
 waitForResolver() {
   clearTick
-  while true; do
-    REMOTE=$(dig +short +timeout=5 +tries=1 vpn.jsx.jp | head -n1 || true)
-    [[ -n "$REMOTE" ]] && break
-    echo "$(TZ=Asia/Tokyo gdate -Iseconds) DNS resolve failed" >&2
+  while true
+  do
+    local REMOTE=$(dig +short vpn.jsx.jp)
+    if [[ ! -z "$REMOTE" ]]
+    then
+      break
+    fi
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) DNS resolve failed" 1>&2
     sleep 300
   done
-  MSG="backdoor-os(mac) - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo gdate -Iseconds)"
-  echo "$MSG"
-  CHANNEL=infra gtimeout 10s "$HOME/bin/post-slack" "$MSG" || true
-  echo "GlobalIP $(curl -s --max-time 5 https://inet-ip.info/ip || echo unknown)"
+  PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo gdate -Iseconds)"
+  echo "$PRINT"
+  CHANNEL=infra gtimeout 10 $HOME/bin/post-slack "$PRINT"
+  echo "GlobalIP $(curl https://inet-ip.info/ip)"
 }
 
-# ---------- メイン ----------
-sleep 10
-healthLoop &
-while true; do
-  waitForResolver
-  waitForPortFree
-  ssh -N -T mac-watch || { echo "$(TZ=Asia/Tokyo gdate -Iseconds) SSH broken pipe" >&2; exit 1; }
-done
+{
+  sleep 10 # wait for resolver
+  whileCheck &
+  while true
+  do
+    waitForResolver
+    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
+    waitForPort
+    ssh -N -T mac-watch
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) SSH broken pipe" 1>&2
+    sleep 11.1
+  done
+}
