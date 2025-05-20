@@ -1,36 +1,112 @@
 #!/usr/bin/env bash
 
-cleanZombie() {
-  echo "$(TZ=Asia/Tokyo date) $1" 1>&2
-  local PID=$(pgrep -f "ssh -N -T revers-rem-watch")
-  echo "$(TZ=Asia/Tokyo date) cleanZombie $PID" 1>&2
-  [[ -z "$PID" ]] || kill $PID
+TICK_FILE="/tmp/tick-ventura"
+
+updateNextTick() {
+  (
+    flock -x 200
+    printf '%s\n' $(( $(date +%s) + 10 )) > "$TICK_FILE"
+  ) 200>"$TICK_FILE"
 }
 
-whileCheck() {
-  cleanZombie "initialize clean"
-  while true
+clearTick() {
+  (
+    flock -x 200
+    : > "$TICK_FILE"
+  ) 200>"$TICK_FILE"
+}
+
+getNextTick() {
+  # The INFINITE if without TICK_FILE
+  [[ -f "$TICK_FILE" ]] || { echo 9223372036854775807; return; }
+  (
+    flock -s 200
+    [[ -s "$TICK_FILE" ]] && cat "$TICK_FILE" || echo 9223372036854775807
+  ) 200<"$TICK_FILE"
+}
+
+nextTime() {
+  while [[ $(getNextTick) -ge $(date +%s) ]]
   do
-    sleep 300
-    echo -e "\n\r"
-    nc -vz -w 2 jp.jsx.jp 80 || cleanZombie "connection failed"
-    echo -e "\r"
-    timeout 10 ssh mac date || cleanZombie "hangup failed"
+    sleep 1
   done
 }
 
+cleanZombie() {
+  local PID=$(pgrep -f "ssh -N -T revers-rem-watch")
+  if [[ ! -z "$PID" ]]
+  then
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) process killing $PID" 1>&2
+    kill $PID
+  else
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) ssh process notfound" 1>&2
+  fi
+}
+
+whileCheck() {
+  cleanZombie
+  while true
+  do
+    sleep 60
+    nextTime
+    if ! nc -vz -w 2 vpn.jsx.jp 2088 > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo gdate -Iseconds) connection failed" 1>&2
+      cleanZombie
+      continue
+    fi
+    if ! gtimeout 20 ssh -T -p 2088 vpn.jsx.jp echo health-check > /dev/null 2>&1
+    then
+      echo "$(TZ=Asia/Tokyo gdate -Iseconds) hangup failed" 1>&2
+      cleanZombie
+      continue
+    fi
+  done
+}
+
+waitForPort() {
+  clearTick
+  while nc -vz -w 1 vpn.jsx.jp 2088 > /dev/null 2>&1
+  do
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) wait for terminate zombie" 1>&2
+    local PID=$(ssh bastion sudo ss -tunlp | grep "0.0.0.0:2088 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
+    if [[ ! -z "$PID" ]]
+    then
+      ssh bastion sudo kill $PID
+    fi
+    sleep 5
+  done
+  updateNextTick
+}
+
+waitForResolver() {
+  clearTick
+  while true
+  do
+    local REMOTE=$(dig +short vpn.jsx.jp)
+    if [[ ! -z "$REMOTE" ]]
+    then
+      break
+    fi
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) DNS resolve failed" 1>&2
+    sleep 300
+  done
+  PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo gdate -Iseconds)"
+  echo "$PRINT"
+  CHANNEL=infra gtimeout 10 $HOME/bin/post-slack "$PRINT"
+  echo "GlobalIP $(curl -s https://inet-ip.info/ip)"
+}
+
 {
-  echo "Start bastion"
-  sleep 10
+  sleep 10 # wait for resolver
   whileCheck &
   while true
   do
-    sleep 10
-    code_name="$(~/bin/mac-version)"
-    PRINT="$(TZ=Asia/Tokyo date) ${code_name}"
-    echo -e "\n$PRINT\n"
-    timeout 10 ~/bin/post-slack "$PRINT"
+    waitForResolver
+    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
+    waitForPort
     ssh -N -T revers-rem-watch
-    sleep 10
+    echo "$(TZ=Asia/Tokyo gdate -Iseconds) SSH broken pipe" 1>&2
+    sleep 11.1
   done
 }
