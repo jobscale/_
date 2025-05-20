@@ -49,13 +49,13 @@ whileCheck() {
   do
     sleep 60
     nextTime
-    if ! nc -vz -w 2 vpn.jsx.jp 2088 > /dev/null 2>&1
+    if ! nc -vz -w 2 jp.jsx.jp 80 > /dev/null 2>&1
     then
       echo "$(TZ=Asia/Tokyo gdate -Iseconds) connection failed" 1>&2
       cleanZombie
       continue
     fi
-    if ! gtimeout 20 ssh -T -p 2088 vpn.jsx.jp echo health-check > /dev/null 2>&1
+    if ! gtimeout 20 ssh -T -p 80 jp.jsx.jp echo health-check > /dev/null 2>&1
     then
       echo "$(TZ=Asia/Tokyo gdate -Iseconds) hangup failed" 1>&2
       cleanZombie
@@ -66,10 +66,10 @@ whileCheck() {
 
 waitForPort() {
   clearTick
-  while nc -vz -w 1 vpn.jsx.jp 2088 > /dev/null 2>&1
+  while nc -vz -w 1 jp.jsx.jp 80 > /dev/null 2>&1
   do
     echo "$(TZ=Asia/Tokyo gdate -Iseconds) wait for terminate zombie" 1>&2
-    local PID=$(ssh bastion sudo ss -tunlp | grep "0.0.0.0:2088 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
+    local PID=$(ssh bastion sudo ss -tunlp | grep "0.0.0.0:80 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
     if [[ ! -z "$PID" ]]
     then
       ssh bastion sudo kill $PID
