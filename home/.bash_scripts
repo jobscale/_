@@ -59,7 +59,7 @@ lo-stack() {
   echo "lo-stack start headless"
 }
 
-git() {
+echo $SHELL | grep zsh || git() {
   if [[ $1 == "clone" && $2 == "--depth" ]]
   then
     shift
