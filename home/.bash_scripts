@@ -28,7 +28,7 @@ docker() {
     bash -c "$cmd"
     return
   fi
-  bash -c docker "$@"
+  command docker "$@"
 }
 
 VBoxManage() {
@@ -43,10 +43,10 @@ VBoxManage() {
   then
     echo VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
     echo VBoxManage controlvm jammy natpf1 delete ssh
-    bash -c VBoxManage "$@"
+    command VBoxManage "$@"
     return
   fi
-  bash -c VBoxManage "$@"
+  command VBoxManage "$@"
 }
 
 savestate() {
@@ -65,7 +65,7 @@ echo $SHELL | grep zsh || git() {
     shift
     cmd="git clone --depth 1 $4"
     echo "$cmd"
-    bash -c "$cmd"
+    command $cmd
     return
   fi
   if [[ $1 == "sort" ]]
@@ -79,10 +79,10 @@ echo $SHELL | grep zsh || git() {
   then
     cmd="git fetch --all --prune --tags"
     echo "$cmd"
-    bash -c "$cmd"
+    command $cmd
     cmd="git branch -a -vv"
     echo "$cmd"
-    bash -c "$cmd"
+    command $cmd
     return
   fi
   if [[ $@ == "log --all" ]]
@@ -94,15 +94,15 @@ echo $SHELL | grep zsh || git() {
   if [[ $1 == "checkout" ]]
   then
     cmd="git $@"
-    bash -c "$cmd"
+    command $cmd
     [[ ! -s "$2" ]] && {
       cmd="git pull"
       echo "$cmd"
-      bash -c "$cmd"
+      command $cmd
     }
     return
   fi
-  bash -c git "$@"
+  command git "$@"
 }
 
 realdir() {
