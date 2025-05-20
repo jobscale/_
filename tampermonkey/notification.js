@@ -24,8 +24,7 @@ setTimeout(() => {
 
     const idna = document.querySelector('[id^="idna-me"]').textContent;
     const appName = window.location.href.match('teams') ? 'Teams' : 'Other';
-    const text = `notification message
-${idna} ${appName} (${num})`;
+    const text = `${idna} ${appName} (${num}) notification`;
     logger.info(text);
     if (num > opts.num) {
       fetch('https://jsx.jp/api/slack', {
