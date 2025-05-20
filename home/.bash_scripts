@@ -102,7 +102,7 @@ echo $SHELL | grep zsh || git() {
     }
     return
   fi
-  bash -c git "$@"
+  bash -c "git $@"
 }
 
 realdir() {
