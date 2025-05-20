@@ -91,7 +91,7 @@ waitForResolver() {
     echo "$(TZ=Asia/Tokyo gdate -Iseconds) DNS resolve failed" 1>&2
     sleep 300
   done
-  PRINT="backdoor-os - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo gdate -Iseconds)"
+  PRINT="backdoor-mac - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo gdate -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra gtimeout 10 $HOME/bin/post-slack "$PRINT"
   echo "GlobalIP $(curl -s https://inet-ip.info/ip)"
