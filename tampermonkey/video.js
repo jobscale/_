@@ -14,29 +14,33 @@
 
   let idVideo;
   const setVideo = () => {
-    const who = document.querySelector('#html5video video');
+    const who = document.querySelector('#video-player-bg');
     if (!who) {
       idVideo = setTimeout(setVideo, 1000);
       return;
     }
     clearTimeout(idVideo);
-    who.style = 'position:fixed;left:0;top:0;width:100%;height:auto;display:flex;';
-    document.querySelector('#page').style = 'margin-top:100vh;';
-    document.querySelector('.input-group').style = 'display: none;';
+    who.style = `
+    overflow: hidden;
+    background: #000;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+`;
+    document.body.style = 'margin-top:100vh;';
   };
 
   let idClick;
   const setClick = () => {
-    const who = document.querySelector('#footer p');
+    const who = document.querySelector('.slogan.mobile-hide');
     if (!who) {
       logger.info('footer_copyright not found');
       idClick = setTimeout(setClick, 500);
       return;
     }
     clearTimeout(idClick);
-    document.querySelector('div#page.video-page').style = 'z-index: 250;';
-    document.querySelector('.head__top').style = 'display: none';
-    document.querySelector('.head__menu-line').style = 'display: none';
     who.style = 'position:fixed;right:0;bottom:0;cursor:pointer;';
     who.onclick = () => setTimeout(setVideo, 500);
   };
