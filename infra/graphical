@@ -16,7 +16,7 @@ bullseye() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3
+    terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     task-japanese-desktop
 }
@@ -26,7 +26,7 @@ bookworm() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3
+    terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     task-japanese-desktop
 }
@@ -36,7 +36,7 @@ noble() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3
+    terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     language-pack-gnome-ja
 }
@@ -46,7 +46,7 @@ jammy() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3
+    terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     language-pack-gnome-ja
 }
@@ -56,7 +56,7 @@ focal() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3
+    terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     language-pack-gnome-ja
 }
@@ -68,7 +68,7 @@ kali-rolling() {
   chrome && code
   cd -
   sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3
+    terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     task-japanese-desktop
   sudo dpkg-reconfigure locales
