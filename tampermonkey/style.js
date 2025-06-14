@@ -20,6 +20,8 @@
 // @exclude      *://www.amazon.co.jp/gp/video/*
 // @exclude      *://*.amazonaws.com/*
 // @exclude      *://*.console.aws.amazon.com/*
+// @exclude      *://tver.jp/*
+// @exclude      *://remotedesktop.google.com/*
 // @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=playcode.io
 // @grant        none
@@ -52,6 +54,7 @@ video, img { filter: invert(1); }
 }`,
 
   add(css, no) {
+    const elm = document.querySelector(`.btn-custom-css-${no}`);
     const style = document.createElement('style');
     style.innerHTML = css;
     style.id = `custom-css-${no}`;
@@ -59,14 +62,17 @@ video, img { filter: invert(1); }
     const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
     customCss.push(no);
     localStorage.setItem('custom-css', JSON.stringify(customCss));
+    elm.textContent = `*${elm.textContent}*`;
   },
 
   toggle(css, no) {
+    const elm = document.querySelector(`.btn-custom-css-${no}`);
     const exist = document.querySelector(`#custom-css-${no}`);
     const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
     if (customCss.includes(no)) {
       if (exist) exist.remove();
       localStorage.setItem('custom-css', JSON.stringify(customCss.filter(v => v !== no)));
+      elm.textContent = `_type ${no}_`;
     } else if (!exist) {
       this.add(css, no);
     }
@@ -81,7 +87,7 @@ video, img { filter: invert(1); }
     this.toggle(css, no);
   },
 
-  setting() {
+  btnSetting() {
     const style = document.createElement('style');
     style.innerText = this.style;
     document.head.append(style);
@@ -98,32 +104,51 @@ video, img { filter: invert(1); }
     });
     div.append(el);
 
-    const el1 = document.createElement('button');
-    el1.type = 'button';
-    el1.textContent = 'type 1';
-    el1.addEventListener('click', event => {
-      event.preventDefault();
-      this.update(1);
-    });
-    div.append(el1);
+    const createButton = no => {
+      const elm = document.createElement('button');
+      elm.type = 'button';
+      elm.textContent = `type ${no}`;
+      elm.classList.add(`btn-custom-css-${no}`);
+      elm.addEventListener('click', event => {
+        event.preventDefault();
+        this.update(no, undefined);
+      });
+      div.append(elm);
+    };
+    createButton(1);
+    createButton(2);
+    createButton(3);
 
-    const el2 = document.createElement('button');
-    el2.type = 'button';
-    el2.textContent = 'type 2';
-    el2.addEventListener('click', event => {
+    const elVideo = document.createElement('button');
+    elVideo.type = 'button';
+    elVideo.textContent = 'video';
+    elVideo.addEventListener('click', event => {
       event.preventDefault();
-      this.update(2);
+      const video = document.querySelector('.player-block')
+        || document.querySelector('#video-player-bg');
+      if (!video) return;
+      const custom = [
+        'background: #000',
+        'left: 0',
+        'right: 0',
+        'top: 0',
+        'bottom: 0',
+        'position: fixed',
+      ];
+      custom.forEach(elm => {
+        const [key, value] = elm.split(': ');
+        video.style[key] = value;
+      });
+      const headers = [
+        document.body,
+        document.querySelector('.main-header'),
+      ];
+      headers.forEach(elm => {
+        if (!elm) return;
+        elm.style['margin-top'] = '100vh';
+      });
     });
-    div.append(el2);
-
-    const el3 = document.createElement('button');
-    el3.type = 'button';
-    el3.textContent = 'type 3';
-    el3.addEventListener('click', event => {
-      event.preventDefault();
-      this.update(3);
-    });
-    div.append(el3);
+    div.append(elVideo);
 
     document.body.append(div);
   },
@@ -133,11 +158,11 @@ video, img { filter: invert(1); }
     const conf = JSON.parse(localStorage.getItem('custom-css-conf') ?? '{}');
     localStorage.setItem('custom-css-conf', JSON.stringify({ expired: ts + 1000 }));
     if (conf.expired && conf.expired > ts) return;
+    this.btnSetting();
     const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
     if (customCss.includes(1)) this.update(1, true);
     if (customCss.includes(2)) this.update(2, true);
     if (customCss.includes(3)) this.update(3, true);
-    this.setting();
   },
 
   main() {
