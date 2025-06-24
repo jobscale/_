@@ -38,7 +38,7 @@ loop() {
     git diff
     sleep 3
     git add .github
-    git commit . -m "github/workflow updated" -n || echo "NO commit change" | grep --color=auto "NO commit change"
+    git commit -m "github/workflow updated" -n || echo "NO commit change" | grep --color=auto "NO commit change"
     git push > /dev/null 2>&1
     cd - > /dev/null
     echo
