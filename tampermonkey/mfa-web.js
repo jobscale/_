@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      2025-06-24
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://*.signin.aws.amazon.com/oauth?*
@@ -12,6 +12,7 @@
 // @match        https://www.npmjs.com/login/otp?next=*
 // @match        https://www.npmjs.com/escalate/otp?next=*
 // @match        https://bitflyer.com/*/ex/twofactorauth
+// @match        https://accounts.google.com/v3/signin/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        none
 // ==/UserScript==

@@ -141,7 +141,7 @@ video, img { filter: invert(1); }
       });
       const headers = [
         document.body,
-        document.querySelector('.main-header'),
+        ...document.querySelectorAll('.main-header'),
       ];
       headers.forEach(elm => {
         if (!elm) return;

@@ -20,10 +20,10 @@ setTimeout(() => {
     }
     clearTimeout(idVideo);
     document.body.style = 'margin-top: 100vh';
-    const ad = document.querySelector('div[class^="Episode_companionAd"] div');
-    if (ad) ad.remove();
-    const player = document.querySelector('div[class^="PlayerLayout_jail"]');
-    if (player) player.style = 'position: fixed; width: 100vw; height: auto; left: 0; top: 0';
+    document.querySelector('div[class^="Episode_companionAd"] div')?.remove();
+    const player = document.querySelector('div[class^="player_aspectRatioWrapper"]')
+    || document.querySelector('div[class^="PlayerLayout_jail"]');
+    player.style = 'position: fixed; width: 100vw; height: auto; left: 0; top: 0; z-index: 99999;';
   };
 
   let idClick;
@@ -65,13 +65,13 @@ setTimeout(() => {
     width: 1.2em;
     height: 1.2em;
     cursor: cell;
-    filter: invert(1);
   }
   .btn-button {
     width: 15em;
     cursor: pointer;
     border-radius: 1em;
     margin: auto;
+    color: #777;
   }
   `;
     const style = document.createElement('style');
