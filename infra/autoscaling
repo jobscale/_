@@ -17,6 +17,16 @@ ddns-prod() {
   ddns us
 }
 
+type-a-proxy() {
+  docker run --rm -e ENV=${ENV:-dev} \
+  -e DOMAIN=proxy \
+  -e TYPE=A \
+  -e R_DATA=172.16.6.66 \
+  -e TOKEN=$(date +%s) \
+  -e DNS_CONFIG=$(cat /root/_/infra/dns-config) \
+  -t ghcr.io/jobscale/sakura-dns
+}
+
 update-infra() {
   cd /root/_ && git pull
   cd /home/jobscale/_ && sudo -u jobscale git pull
