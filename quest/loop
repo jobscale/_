@@ -6,12 +6,13 @@ play() {
 }
 
 EXECUTION=$(date +%s)
+
 loop() {
   local end_time=$(( $(date +%s) + $1 ))
   while [ $(date +%s) -lt $end_time ]
   do
     printf '\r%5d ' $(( end_time - $(date +%s) ))
-    if [[ $(( $(date +%s) - $EXECUTION )) -ge 100 ]]
+    if [[ $(( $(date +%s) - EXECUTION )) -ge 100 ]]
     then
       EXECUTION=$(date +%s)
       xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 400
@@ -27,31 +28,34 @@ loop() {
   printf '\r%5d\n' 0
 }
 
-ADDING=$1
-COUNT=$2
+readonly ADDING=$1
+readonly COUNT=$2
 DURATION=$3
-XX=$4
-YY=$5
-INTERVAL=8
+readonly XX=$4
+readonly YY=$5
+readonly INTERVAL=8
 
 fire() {
   xdotool mousemove $XX $YY
   sleep 2
   echo -ne "\033[A"
-  echo './get-point'
-  ./get-point
+  echo "  xy $(./get-point)"
   xdotool mousedown 1
   sleep 0.2
   xdotool mouseup 1
 }
 
-for i in $(seq 1 $COUNT)
-do
-  INTERVAL=$(( $INTERVAL + $ADDING ))
-  WAIT_TIME=$(( $INTERVAL + $DURATION ))
-  fire
-  echo "Step $i ... next $(( $COUNT - $i ))"
-  loop $WAIT_TIME
-done
+main() {
+  for i in $(seq 1 $COUNT)
+  do
+    DURATION=$(( DURATION + ADDING ))
+    local WAIT_TIME=$(( INTERVAL + DURATION ))
+    fire
+    echo "Step $i ... ( next time ) ( $(( COUNT - i )) ${DURATION} )"
+    loop $WAIT_TIME
+  done
 
-play
+  play
+}
+
+main
