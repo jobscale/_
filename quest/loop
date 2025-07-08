@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+# dependent on bash >= 5.2
+
 play() {
   ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
 }
@@ -38,22 +40,25 @@ readonly INTERVAL=8
 fire() {
   xdotool mousemove $XX $YY
   sleep 2
-  echo -ne "\033[A"
-  echo "  xy $(./get-point)"
   xdotool mousedown 1
   sleep 0.2
   xdotool mouseup 1
 }
 
 main() {
+  echo
   for i in $(seq 1 $COUNT)
   do
     DURATION=$(( DURATION + ADDING ))
     local WAIT_TIME=$(( INTERVAL + DURATION ))
     fire
-    echo "Step $i ... ( next time ) ( $(( COUNT - i )) ${DURATION} )"
+    echo -ne "\e[A\r\e[2K"
+    echo " Step $i ... ( next time ) ( $(( COUNT - i )) ${DURATION} )"
+    printf '%8s ' ' '
+    echo -n "  xy $(./get-point)"
     loop $WAIT_TIME
   done
+  echo
 
   play
 }
