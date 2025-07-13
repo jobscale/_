@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navy Quest
 // @namespace    http://tampermonkey.net/
-// @version      2025-05-17
+// @version      2025-07-13
 // @description  try to take over the world!
 // @author       You
 // @match        https://navy.quest/*
@@ -9,15 +9,15 @@
 // @grant        none
 // ==/UserScript==
 
-const getNow = () => new Intl.DateTimeFormat('ja-JP', {
-  timeZone: 'Europe/Paris', // CET/CEST を自動判定
+const getNow = () => new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Europe/Paris', // CET/CEST
   year: 'numeric',
   month: '2-digit',
   day: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
   second: '2-digit',
-}).format(new Date()).replace(/\//g, '-');
+}).format(new Date());
 
 const action = () => {
   const style = document.createElement('style');
@@ -82,16 +82,16 @@ const drawCanvas = canvas => {
   const gridRadius = { x: 80, y: 85 };
   const spacing = gridRadius.x - radius;
 
-  // 六角形の実際のサイズより少し大きめに距離を取る
-  const verticalStep = gridRadius.y * 1.5; // 隙間を縦に追加
-  const horizontalStep = gridRadius.x * Math.sqrt(3) - spacing; // 隙間を横に追加
+  // drawHexagon
+  const verticalStep = gridRadius.y * 1.5; // step Y
+  const horizontalStep = gridRadius.x * Math.sqrt(3) - spacing; // step X
 
   const drawHexagon = (cx, cy) => {
     ctx.beginPath();
     fn(ctx);
     ctx.lineWidth = 1;
     for (let i = 0; i < 6; i++) {
-      const angle = Math.PI / 3 * i; // flat-topped（回転なし）
+      const angle = Math.PI / 3 * i; // flat-topped
       const x = cx + radius * Math.cos(angle);
       const y = cy + radius * Math.sin(angle) * 0.8;
       if (i === 0) ctx.moveTo(x, y);
@@ -125,7 +125,7 @@ const drawCanvas = canvas => {
 };
 
 const createCanvas = () => {
-  // canvas 作成と追加
+  // Create canvas
   const canvas = document.createElement('canvas');
   canvas.id = 'custom-canvas';
   canvas.width = window.innerWidth;
@@ -139,7 +139,7 @@ const createCanvas = () => {
   canvas.style.zIndex = '1000000';
   document.body.append(canvas);
 
-  // 描画処理
+  // Draw canvas
   drawCanvas(canvas);
 };
 
