@@ -31,6 +31,7 @@ const action = () => {
   padding: 0.3em;
   z-index: 1000001;
   font-size: 1.2rem;
+  pointer-events: none;
 }
 `;
   document.head.append(style);
@@ -44,4 +45,115 @@ const action = () => {
   setInterval(loop, 1000);
 };
 
-setTimeout(action, 3300);
+const opts = {
+  setup: [{
+    fn: ctx => {
+      ctx.strokeStyle = 'white';
+      ctx.setLineDash([4, 4]);
+    },
+  }, {
+    fn: ctx => {
+      ctx.strokeStyle = 'white';
+      ctx.setLineDash([]);
+    },
+  }, {
+    fn: ctx => {
+      ctx.strokeStyle = 'black';
+      ctx.setLineDash([4, 4]);
+    },
+  }, {
+    fn: ctx => {
+      ctx.strokeStyle = 'black';
+      ctx.setLineDash([]);
+    },
+  }, {}],
+  current: 0,
+};
+
+const drawCanvas = canvas => {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const { fn } = opts.setup[opts.current];
+  opts.current = (opts.current + 1) % opts.setup.length;
+  if (!fn) return;
+
+  const radius = 70;
+  const gridRadius = { x: 80, y: 85 };
+  const spacing = gridRadius.x - radius;
+
+  // 六角形の実際のサイズより少し大きめに距離を取る
+  const verticalStep = gridRadius.y * 1.5; // 隙間を縦に追加
+  const horizontalStep = gridRadius.x * Math.sqrt(3) - spacing; // 隙間を横に追加
+
+  const drawHexagon = (cx, cy) => {
+    ctx.beginPath();
+    fn(ctx);
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI / 3 * i; // flat-topped（回転なし）
+      const x = cx + radius * Math.cos(angle);
+      const y = cy + radius * Math.sin(angle) * 0.8;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  const hexQueue = [];
+
+  for (let row = 0; row < canvas.height / verticalStep + 2; row++) {
+    for (let col = 0; col < canvas.width / horizontalStep + 2; col++) {
+      const offsetY = (col % 2 === 0) ? 0 : verticalStep / 2;
+      const x = col * horizontalStep;
+      const y = row * verticalStep + offsetY;
+      hexQueue.push({ x, y });
+    }
+  }
+
+  const drawNext = () => {
+    for (let i = 10; i; i--) {
+      if (!hexQueue.length) return;
+      const { x, y } = hexQueue.shift();
+      drawHexagon(x, y);
+    }
+    requestAnimationFrame(drawNext);
+  };
+
+  requestAnimationFrame(drawNext);
+};
+
+const createCanvas = () => {
+  // canvas 作成と追加
+  const canvas = document.createElement('canvas');
+  canvas.id = 'custom-canvas';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.pointerEvents = 'none';
+  canvas.style.backgroundColor = 'transparent';
+  // canvas.style.opacity = '0.9';
+  canvas.style.zIndex = '1000000';
+  document.body.append(canvas);
+
+  // 描画処理
+  drawCanvas(canvas);
+};
+
+document.addEventListener('keydown', e => {
+  if (opts.redraw) return;
+  opts.redraw = true;
+  setTimeout(() => { delete opts.redraw; }, 500);
+  if (e.key === 'o' || e.key === 'O') {
+    const canvas = document.querySelector('#custom-canvas');
+    if (canvas) drawCanvas(canvas);
+  }
+});
+
+window.addEventListener('load', () => {
+  setTimeout(createCanvas, 2200);
+  setTimeout(action, 3300);
+});
