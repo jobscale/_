@@ -19,15 +19,15 @@ const getNow = () => new Intl.DateTimeFormat('sv-SE', {
   second: '2-digit',
 }).format(new Date());
 
-const action = () => {
+const createTime = () => {
   const style = document.createElement('style');
   style.innerText = `
 .time {
   background-color: black;
   color: white;
   position: fixed;
-  right: 12em;
-  bottom: 49em;
+  right: 1em;
+  bottom: 1em;
   padding: 0.3em;
   z-index: 1000001;
   font-size: 1.2rem;
@@ -48,22 +48,22 @@ const action = () => {
 const opts = {
   setup: [{
     fn: ctx => {
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = 'black';
       ctx.setLineDash([4, 4]);
     },
   }, {
     fn: ctx => {
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = 'black';
       ctx.setLineDash([]);
     },
-  }, {
+  }, {}, {
     fn: ctx => {
-      ctx.strokeStyle = 'black';
+      ctx.strokeStyle = 'white';
       ctx.setLineDash([4, 4]);
     },
   }, {
     fn: ctx => {
-      ctx.strokeStyle = 'black';
+      ctx.strokeStyle = 'white';
       ctx.setLineDash([]);
     },
   }, {}],
@@ -155,5 +155,5 @@ document.addEventListener('keydown', e => {
 
 window.addEventListener('load', () => {
   setTimeout(createCanvas, 2200);
-  setTimeout(action, 3300);
+  setTimeout(createTime, 3300);
 });
