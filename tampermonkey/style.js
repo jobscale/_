@@ -9,6 +9,8 @@
 // @grant        none
 // ==/UserScript==
 
+const logger = console;
+
 const app = {
   css1: `/* Custom Scheme */
 @media (prefers-color-scheme: dark) {
@@ -187,6 +189,11 @@ div.b-area {
   },
 
   mounted() {
+    if (document.querySelector('meta[name="color-scheme"]')) {
+      logger.info('color-scheme supported');
+      return;
+    }
+
     const ts = Date.now();
     const conf = JSON.parse(localStorage.getItem('custom-css-conf') ?? '{}');
     localStorage.setItem('custom-css-conf', JSON.stringify({ expired: ts + 1000 }));
@@ -198,9 +205,7 @@ div.b-area {
       if (customCss.includes(no)) this.update(no, true);
     });
 
-    if (!document.querySelector('meta[name="color-scheme"]')) {
-      this.btnScheme(div);
-    }
+    this.btnScheme(div);
     this.btnHide(div);
     this.btnVideo(div);
   },
@@ -208,10 +213,14 @@ div.b-area {
   main() {
     if (this.init) return;
     this.init = true;
-    const result = this.getBackgroundColorBrightness('body > div')
-      || this.getBackgroundColorBrightness('body');
 
-    if (result?.isDark) return;
+    const result = this.getBackgroundColorBrightness('div')
+      || this.getBackgroundColorBrightness('body')
+      || this.getBackgroundColorBrightness('html');
+    if (result?.isDark) {
+      logger.info('This is Dark');
+      return;
+    }
 
     setTimeout(() => this.mounted(), 0);
   },
