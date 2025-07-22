@@ -1,29 +1,11 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2025-05-17
+// @version      2025-07-22
 // @description  try to take over the world!
 // @author       jobscale
-// @exclude      *://127.0.0.1:*/*
-// @exclude      *://172.16.6.22:*/*
-// @exclude      *://172.16.6.1/*
-// @exclude      *://jsx.jp/*
-// @exclude      *://*.jsx.jp/*
-// @exclude      *://navy.quest/*
-// @exclude      *://chatgpt.com/*
-// @exclude      *://gemini.google.com/*
-// @exclude      *://dashboard.render.com/*
-// @exclude      *://teams.microsoft.com/*
-// @exclude      *://outlook.office.com/*
-// @exclude      *://teams.live.com/*
-// @exclude      *://outlook.live.com/*
-// @exclude      *://www.amazon.co.jp/gp/video/*
-// @exclude      *://*.amazonaws.com/*
-// @exclude      *://*.console.aws.amazon.com/*
-// @exclude      *://tver.jp/*
-// @exclude      *://remotedesktop.google.com/*
 // @match        *://*/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=playcode.io
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
 // ==/UserScript==
 
@@ -46,17 +28,18 @@ html { height: 100vh; background-color: #ddd }
 video, img { filter: invert(1); }
 `,
 
-  style: `div.b-area {
+  style: `/* Button Area */
+div.b-area {
   position: fixed;
   right: 2em;
   bottom: 5em;
   z-index: 1000001;
 }`,
 
-  add(css, no) {
+  add(no) {
     const elm = document.querySelector(`.btn-custom-css-${no}`);
     const style = document.createElement('style');
-    style.innerHTML = css;
+    style.innerHTML = this[`css${no}`];
     style.id = `custom-css-${no}`;
     document.head.append(style);
     const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
@@ -65,7 +48,7 @@ video, img { filter: invert(1); }
     elm.textContent = `*${elm.textContent}*`;
   },
 
-  toggle(css, no) {
+  toggle(no) {
     const elm = document.querySelector(`.btn-custom-css-${no}`);
     const exist = document.querySelector(`#custom-css-${no}`);
     const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
@@ -74,17 +57,16 @@ video, img { filter: invert(1); }
       localStorage.setItem('custom-css', JSON.stringify(customCss.filter(v => v !== no)));
       elm.textContent = `_type ${no}_`;
     } else if (!exist) {
-      this.add(css, no);
+      this.add(no);
     }
   },
 
   update(no, force) {
-    const css = this[`css${no}`];
     if (force) {
-      this.add(css, no);
+      this.add(no);
       return;
     }
-    this.toggle(css, no);
+    this.toggle(no);
   },
 
   btnSetting() {
@@ -94,15 +76,6 @@ video, img { filter: invert(1); }
 
     const div = document.createElement('div');
     div.classList.add('b-area');
-
-    const el = document.createElement('button');
-    el.type = 'button';
-    el.textContent = 'hide';
-    el.addEventListener('click', event => {
-      event.preventDefault();
-      div.remove();
-    });
-    div.append(el);
 
     const createButton = no => {
       const elm = document.createElement('button');
@@ -115,25 +88,56 @@ video, img { filter: invert(1); }
       });
       div.append(elm);
     };
-    createButton(1);
-    createButton(2);
-    createButton(3);
+    [1, 2, 3].forEach(no => createButton(no));
 
-    const elVideo = document.createElement('button');
-    elVideo.type = 'button';
-    elVideo.textContent = 'video';
-    elVideo.addEventListener('click', event => {
+    document.body.append(div);
+
+    return div;
+  },
+
+  btnHide(div) {
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.textContent = 'hide';
+    el.addEventListener('click', event => {
+      event.preventDefault();
+      div.remove();
+    });
+    div.prepend(el);
+  },
+
+  btnScheme(div) {
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.textContent = 'scheme';
+    el.addEventListener('click', event => {
+      event.preventDefault();
+      const id = 'custom-scheme';
+      const scheme = document.querySelector(`#${id}`);
+      if (scheme) {
+        scheme.remove();
+        return;
+      }
+      const meta = document.createElement('meta');
+      meta.id = id;
+      meta.name = 'color-scheme';
+      meta.content = 'dark light';
+      document.head.prepend(meta);
+    });
+    div.prepend(el);
+  },
+
+  btnVideo(div) {
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.textContent = 'video';
+    el.addEventListener('click', event => {
       event.preventDefault();
       const video = document.querySelector('.player-block')
         || document.querySelector('#video-player-bg');
       if (!video) return;
       const custom = [
-        'background: #000',
-        'left: 0',
-        'right: 0',
-        'top: 0',
-        'bottom: 0',
-        'position: fixed',
+        'position: fixed', 'top: 0', 'right: 0', 'bottom: 0', 'left: 0',
       ];
       custom.forEach(elm => {
         const [key, value] = elm.split(': ');
@@ -148,9 +152,38 @@ video, img { filter: invert(1); }
         elm.style['margin-top'] = '100vh';
       });
     });
-    div.append(elVideo);
+    div.append(el);
+  },
 
-    document.body.append(div);
+  getEffectiveBackgroundColor(el) {
+    while (el) {
+      const bg = getComputedStyle(el).backgroundColor;
+      if (bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return bg;
+      el = el.parentElement;
+    }
+    return undefined;
+  },
+
+  getBackgroundColorBrightness(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return undefined;
+
+    const bg = this.getEffectiveBackgroundColor(el);
+    if (!bg) return undefined;
+
+    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return undefined;
+
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+
+    const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+    const isBright = brightness > 136;
+
+    return {
+      r, g, b, brightness, isBright, isDark: !isBright,
+    };
   },
 
   mounted() {
@@ -158,16 +191,34 @@ video, img { filter: invert(1); }
     const conf = JSON.parse(localStorage.getItem('custom-css-conf') ?? '{}');
     localStorage.setItem('custom-css-conf', JSON.stringify({ expired: ts + 1000 }));
     if (conf.expired && conf.expired > ts) return;
-    this.btnSetting();
+
+    const div = this.btnSetting();
     const customCss = JSON.parse(localStorage.getItem('custom-css') ?? '[]');
-    if (customCss.includes(1)) this.update(1, true);
-    if (customCss.includes(2)) this.update(2, true);
-    if (customCss.includes(3)) this.update(3, true);
+    [1, 2, 3].forEach(no => {
+      if (customCss.includes(no)) this.update(no, true);
+    });
+
+    if (!document.querySelector('meta[name="color-scheme"]')) {
+      this.btnScheme(div);
+    }
+    this.btnHide(div);
+    this.btnVideo(div);
   },
 
   main() {
-    this.mounted();
+    if (this.init) return;
+    this.init = true;
+    const result = this.getBackgroundColorBrightness('body > div')
+      || this.getBackgroundColorBrightness('body');
+
+    if (result?.isDark) return;
+
+    setTimeout(() => this.mounted(), 0);
   },
 };
 
-setTimeout(() => app.main(), 0);
+window.addEventListener('load', () => {
+  setTimeout(() => app.main(), 0);
+});
+
+setTimeout(() => app.main(), 1000);
