@@ -116,6 +116,16 @@ webtop-kde() {
   # lscr.io/linuxserver/webtop:debian-kde
 }
 
+llama-cpp() {
+  docker pull ghcr.io/jobscale/llama.cpp
+  docker rm -f llama.cpp
+  docker run --name llama.cpp --restart always \
+  --memory 8g \
+  --shm-size 8g \
+  -p 2880:8080 \
+  -d ghcr.io/jobscale/llama.cpp
+}
+
 ls-logs() {
   LIST=($(sudo ls /var/lib/docker/containers))
   for i in ${LIST[@]}
