@@ -24,7 +24,7 @@ checkMemory() {
   while true
   do
     echo -n "$(TZ=Asia/Tokyo date -Iseconds) "
-    available=$(free -m | awk '/^Mem:/ {print $47')
+    available=$(free -m | awk '/^Mem:/ {print $7}')
     if [[ "$available" -lt "$threshold" ]]
     then
       echo "Available memory is less than $threshold MiB: ${available}MiB"
