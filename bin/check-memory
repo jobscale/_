@@ -24,13 +24,13 @@ checkMemory() {
   while true
   do
     echo -n "$(TZ=Asia/Tokyo date -Iseconds) "
-    free_mem=$(free -m | awk '/^Mem:/ {print $4}')
-    if [[ "$free_mem" -lt "$threshold" ]]
+    available=$(free -m | awk '/^Mem:/ {print $47')
+    if [[ "$available" -lt "$threshold" ]]
     then
-      echo "Free memory is less than $threshold MiB: ${free_mem}MiB"
+      echo "Available memory is less than $threshold MiB: ${available}MiB"
       closeBrowser
     else
-      echo "Free memory is sufficient: ${free_mem}MiB"
+      echo "Available memory is sufficient: ${available}MiB"
     fi
     sleep 12.34
   done
