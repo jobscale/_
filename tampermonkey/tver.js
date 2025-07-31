@@ -86,26 +86,26 @@ setTimeout(() => {
     if (el2) el2.style.visibility = 'hidden';
   };
 
-  const setEvent = content => {
+  const setEvent = (content, wrap) => {
     const el = document.createElement('div');
     el.classList.add('btn-close');
     el.textContent = '🍺';
     el.addEventListener('click', event => {
       event.preventDefault();
       const data = {
-        href: content.querySelector('a')?.href,
+        href: content.href,
         ts: new Date().toISOString(),
       };
       appendData(data);
-      content.remove();
+      (wrap || content).remove();
     });
-    content.querySelector('a')?.append(el);
+    content.append(el);
   };
 
   const setMenu1 = areaMenu => {
     const el = document.createElement('button');
     el.classList.add('btn-button');
-    el.textContent = '番組名を非表示';
+    el.textContent = 'キャプションを非表示';
     el.addEventListener('click', event => {
       event.preventDefault();
       [...document.querySelectorAll('div[class^="Caption_caption"]')]
@@ -126,10 +126,19 @@ setTimeout(() => {
     el.addEventListener('click', event => {
       event.preventDefault();
       const list = fetchData();
-      Array.from(document.querySelectorAll('[class*="FavoriteListCarousel_item"]'))
+      [...document.querySelectorAll('[class*="FavoriteListCarousel_item"]')]
       .filter(content => {
         if (content.textContent.match(/年放送/)) return true;
-        const exist = list.find(data => data.href === content.querySelector('a')?.href);
+        const exist = list.find(data => data.href === content.querySelector('a').href);
+        if (exist) return true;
+        setEvent(content.querySelector('a'), content);
+        return false;
+      })
+      .forEach(content => content.remove());
+      [...document.querySelectorAll('[class^="FavoriteList_container"] > a')]
+      .filter(content => {
+        if (content.textContent.match(/年放送/)) return true;
+        const exist = list.find(data => data.href === content.href);
         if (exist) return true;
         setEvent(content);
         return false;
