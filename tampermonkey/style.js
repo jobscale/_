@@ -189,11 +189,6 @@ div.b-area {
   },
 
   mounted() {
-    if (document.querySelector('meta[name="color-scheme"]')) {
-      logger.info('color-scheme supported');
-      return;
-    }
-
     const ts = Date.now();
     const conf = JSON.parse(localStorage.getItem('custom-css-conf') ?? '{}');
     localStorage.setItem('custom-css-conf', JSON.stringify({ expired: ts + 1000 }));
@@ -214,12 +209,21 @@ div.b-area {
     if (this.init) return;
     this.init = true;
 
+    const video = document.querySelector('video');
+
     const result = this.getBackgroundColorBrightness('div')
       || this.getBackgroundColorBrightness('body')
       || this.getBackgroundColorBrightness('html');
-    if (result?.isDark) {
-      logger.info('This is Dark');
-      return;
+
+    if (!video) {
+      if (document.querySelector('meta[name="color-scheme"]')) {
+        logger.info('color-scheme supported');
+        return;
+      }
+      if (result?.isDark) {
+        logger.info('This is Dark');
+        return;
+      }
     }
 
     setTimeout(() => this.mounted(), 0);

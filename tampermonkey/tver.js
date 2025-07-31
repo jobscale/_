@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      2025-05-17
+// @version      2025-07-31
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp/*/*
@@ -28,9 +28,9 @@ setTimeout(() => {
 
   let idClick;
   const setClick = () => {
-    const who = document.querySelector('[class^="footer_copyright"]');
+    const who = document.querySelector('[class^="Footer_copyright"]');
     if (!who) {
-      logger.info('footer_copyright not found');
+      logger.info('Footer_copyright not found');
       idClick = setTimeout(setClick, 500);
       return;
     }
@@ -38,7 +38,6 @@ setTimeout(() => {
     document.body.append(who);
     who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;';
     who.onclick = () => setTimeout(setVideo, 500);
-    document.querySelector('footer')?.remove();
   };
 
   setTimeout(setClick, 1000);
@@ -58,6 +57,10 @@ setTimeout(() => {
 
   const changeStyle = () => {
     const css = `
+  div[class^="FavoriteList"] > div {
+    padding: 0 1em;
+    margin: 0 1em;
+  }
   .btn-close {
     position: absolute;
     top: -1em;
@@ -90,38 +93,28 @@ setTimeout(() => {
     el.addEventListener('click', event => {
       event.preventDefault();
       const data = {
-        href: content.href,
+        href: content.querySelector('a')?.href,
         ts: new Date().toISOString(),
       };
       appendData(data);
       content.remove();
     });
-    content.append(el);
+    content.querySelector('a')?.append(el);
   };
 
   const setMenu1 = areaMenu => {
     const el = document.createElement('button');
     el.classList.add('btn-button');
-    el.textContent = 'ダイジェストを非表示';
+    el.textContent = '番組名を非表示';
     el.addEventListener('click', event => {
       event.preventDefault();
-      Array.from(document.querySelectorAll('[class^="mypage-content-item_container"]'))
-      .filter(content => {
-        if (content.textContent.match(/ダイジェスト/)) return true;
-        if (content.textContent.match(/振り返り/)) return true;
-        if (content.textContent.match(/解説放送/)) return true;
-        if (content.textContent.match(/分でわかる/)) return true;
-        if (content.textContent.match(/【予告】/)) return true;
-        if (content.textContent.match(/【PR】/)) return true;
-        if (content.textContent.match(/放送直前/)) return true;
-        if (content.textContent.match(/制作発表/)) return true;
-        if (content.textContent.match(/完成披露/)) return true;
-        if (content.textContent.match(/見どころ/)) return true;
-        const n = Number.parseInt(content.querySelector('a > div:nth-child(2)').textContent, 10);
-        if (n < 10) return true;
-        return false;
-      })
-      .forEach(content => content.remove());
+      [...document.querySelectorAll('div[class^="Caption_caption"]')]
+      .forEach(content => {
+        const parent = content.parentElement;
+        [...content.childNodes].reverse().forEach(child => child.remove());
+        const { childElementCount } = parent.querySelector('section > ul');
+        if (!childElementCount) parent.remove();
+      });
     });
     areaMenu.append(el);
   };
@@ -133,13 +126,13 @@ setTimeout(() => {
     el.addEventListener('click', event => {
       event.preventDefault();
       const list = fetchData();
-      Array.from(document.querySelectorAll('[class^="mypage-content-item_container"]'))
+      Array.from(document.querySelectorAll('[class*="FavoriteListCarousel_item"]'))
       .filter(content => {
         if (content.textContent.match(/年放送/)) return true;
-        const exist = list.find(data => data.href === content.href);
+        const exist = list.find(data => data.href === content.querySelector('a')?.href);
         if (exist) return true;
         setEvent(content);
-        return content.querySelector('div[class^="progress-bar_progressBar"]');
+        return false;
       })
       .forEach(content => content.remove());
     });
@@ -147,18 +140,13 @@ setTimeout(() => {
   };
 
   const setContentEvent = () => {
-    document.querySelectorAll('[class^="episode-pattern-c_container"]')
-    .forEach(content => setEvent(content));
-    const areaMenu = document.querySelector('ul[class^="MyPage_tabList"]');
-    if (!areaMenu) {
-      document.querySelectorAll('header').forEach(el => { el.remove(); });
-      return;
-    }
+    const areaMenu = document.querySelector('[class*="MyPage_list"]');
+    if (!areaMenu) return;
     setMenu1(areaMenu);
     setMenu2(areaMenu);
   };
 
   changeStyle();
-  setTimeout(() => changeStyle(), 2900);
-  setTimeout(() => setContentEvent(), 4000);
+  setTimeout(() => changeStyle(), 2000);
+  setTimeout(() => setContentEvent(), 2500);
 }, 1500);
