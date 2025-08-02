@@ -1,36 +1,39 @@
+#!/usr/bin/env bash
+set -eu
+
 closeBrowser() {
-  echo "Killing Google Chrome"
-  BROWSER_PIDS=$(ps auxf | grep google/chrome/chrom[e] | awk '{print $2}')
-  if [[ -n "$BROWSER_PIDS" ]]; then
-    kill $BROWSER_PIDS
-    echo "Killed Chrome processes: $BROWSER_PIDS"
+  echo "Try killing Chrome"
+  local BROWSER_PIDS=( $(pgrep -f '/google-chrome' || true) )
+  if [[ ${#BROWSER_PIDS[@]} -gt 0 ]]; then
+    kill ${BROWSER_PIDS[@]} || echo "Warning: Failed to kill Chrome"
+    echo "Killed Chrome processes: ${BROWSER_PIDS[@]}"
   else
     echo "No Chrome processes found"
   fi
 
-  echo "Killing Firefox"
-  BROWSER_PIDS=$(ps auxf | grep firefox-esr/firefo[x] | awk '{print $2}')
-  if [[ -n "$BROWSER_PIDS" ]]; then
-    kill $BROWSER_PIDS
-    echo "Killed Firefox processes: $BROWSER_PIDS"
+  echo "Try killing FireFox"
+  local BROWSER_PIDS=( $(pgrep -f '/firefox' || true) )
+  if [[ ${#BROWSER_PIDS[@]} -gt 0 ]]; then
+    kill ${BROWSER_PIDS[@]} || echo "Warning: Failed to kill FireFox"
+    echo "Killed FireFox processes: ${BROWSER_PIDS[@]}"
   else
-    echo "No Firefox processes found"
+    echo "No FireFox processes found"
   fi
 }
 
 checkMemory() {
   sleep 2.2
-  threshold=200
+  threshold=300
   while true
   do
     echo -n "$(TZ=Asia/Tokyo date -Iseconds) "
-    available=$(free -m | awk '/^Mem:/ {print $7}')
-    if [[ "$available" -lt "$threshold" ]]
+    read -r mib gib <<< "$(free -m | awk '/^Mem:/ {printf "%d %.2f", $7, $7 / 1024}')"
+    if [[ "${mib}" -lt "$threshold" ]]
     then
-      echo "Available memory is less than $threshold MiB: ${available}MiB"
+      echo "Available memory is less than $threshold MiB: ${mib} MiB ${gib} GiB"
       closeBrowser
     else
-      echo "Available memory is sufficient: ${available}MiB"
+      echo "Available memory is sufficient: ${mib} MiB ${gib} GiB"
     fi
     sleep 12.34
   done
