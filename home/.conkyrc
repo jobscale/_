@@ -93,19 +93,8 @@ ${template1 wlan0}\
 ${template1 eth0}\
 \
 ${color5}Storage         $stippled_hr \
-${if_match "$nodename" == "dark"}\
-${template0 / nvme0n1 NVMe}\
-${template0 /media/jobscale/bf45adae-828d-45bc-850e-b1f57aba80cf sda NVMe}\
-${template0 /media/jobscale/bc195335-7fc7-45eb-bda1-d1c488695df3 sdb SSD}\
-${template0 /media/jobscale/8f1ced4c-becb-4256-9554-9477d143be65 sdc SSD}\
-${template0 /media/jobscale/058cb442-261f-4a79-96ae-614d8663475b sdd SSD}\
-$endif\
-\
-${if_match "$nodename" == "bookworm"}\
-${template0 /                  sda SSD}\
-${template0 /task              sdb SSD}\
-${template0 /var/lib/docker    sdc SSD}\
-$endif\
+${template0 / nvme0n1p2 nvme}\
+${template0 /media/jobscale/bf45adae-828d-45bc-850e-b1f57aba80cf sda1 sda1}\
 
 ${color5}Date         $stippled_hr
 ${voffset  0}${color2}      ${time %A  %e  %B}

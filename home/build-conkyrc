@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -eu
+
+# 元ファイル
+CONKYRC=".conkyrc"
+# 一時ファイル
+TMP1=$(mktemp)
+TMP2=$(mktemp)
+TMP3=$(mktemp)
+
+df-show() {
+  if [[ $# == 1 ]]; then
+    df | grep -v boot | awk -v mount_point="$1" '/^\// && $6 == mount_point {
+      split($1, parts, "/")
+      printf "%s\n", parts[length(parts)]
+    }'
+  else
+    df | grep -v boot | awk '/^\// {
+      split($1, parts, "/")
+      printf "%s %s\n", $6, parts[length(parts)]
+    }'
+  fi
+}
+
+# 1. 最初に `${template0` が現れる前まで抽出 (1)
+awk '
+  # フラグが立ったら終了
+  index($0, "${template0") {
+    exit
+  }
+  # フラグ立つまでは出力
+  {
+    print
+  }
+' "$CONKYRC" > "$TMP1"
+
+# 2. 最後に `${template0` が現れた後を抽出 (2)
+# いったん全行を配列に読み込み、最後の `${template0` の行番号を探す
+awk '
+  {
+    lines[NR] = $0
+    if (index($0, "${template0") > 0) {
+      last = NR
+    }
+  }
+  END {
+    # last行の次から最後までを出力
+    for (i = last + 1; i <= NR; i++) {
+      print lines[i]
+    }
+  }
+' "$CONKYRC" > "$TMP2"
+
+# 3. df-show の実行結果を保存 (3)
+df-show $@ | awk \
+'{
+    mount_point = $1;
+    device_name = $2;
+    display_name = substr(device_name, 1, 4);
+    printf "${template0 %s %s %s}\\\n", mount_point, device_name, display_name
+ }' > "$TMP3"
+
+# 4. (1)+(3)+(2) をつなげて .conkyrc に書き戻し
+cat "$TMP1" "$TMP3" "$TMP2" > "${CONKYRC}"
+
+# 一時ファイル削除
+rm "$TMP1" "$TMP2" "$TMP3"
