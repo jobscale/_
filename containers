@@ -116,31 +116,40 @@ webtop-kde() {
   # lscr.io/linuxserver/webtop:debian-kde
 }
 
+llama-gemma-3n() {
+  docker rm -f llama.gemma-3n
+  docker run --name llama.gemma-3n \
+  --memory 12g \
+  --shm-size 12g \
+  -p 2880:8080 \
+  -d ghcr.io/jobscale/llama.cpp:gemma-3n
+}
+
 llama-gemma-3() {
   docker rm -f llama.gemma-3
   docker run --name llama.gemma-3 \
-  --memory 8g \
-  --shm-size 8g \
-  -p 2880:8080 \
+  --memory 12g \
+  --shm-size 12g \
+  -p 2881:8080 \
   -d ghcr.io/jobscale/llama.cpp:gemma-3
+}
+
+llama-gemma-3-Q5() {
+  docker rm -f llama.gemma-3-Q5
+  docker run --name llama.gemma-3-Q5 \
+  --memory 12g \
+  --shm-size 12g \
+  -p 2882:8080 \
+  -d ghcr.io/jobscale/llama.cpp:gemma-3-Q5
 }
 
 llama-Phi-4() {
   docker rm -f llama.Phi-4
   docker run --name llama.Phi-4 \
-  --memory 8g \
-  --shm-size 8g \
-  -p 2881:8080 \
-  -d ghcr.io/jobscale/llama.cpp:Phi-4
-}
-
-llama-calm2() {
-  docker rm -f llama.calm2
-  docker run --name llama.calm2 \
   --memory 12g \
   --shm-size 12g \
-  -p 2882:8080 \
-  -d ghcr.io/jobscale/llama.cpp:calm2
+  -p 2887:8080 \
+  -d ghcr.io/jobscale/llama.cpp:Phi-4
 }
 
 llama-ELYZA() {
@@ -148,7 +157,7 @@ llama-ELYZA() {
   docker run --name llama.ELYZA \
   --memory 16g \
   --shm-size 16g \
-  -p 2883:8080 \
+  -p 2888:8080 \
   -d ghcr.io/jobscale/llama.cpp:ELYZA
 }
 
