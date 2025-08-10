@@ -130,7 +130,7 @@ llama-gemma-3n-Q4() {
   docker run --name llama.gemma-3n-Q4 \
   --memory 4g \
   --shm-size 4g \
-  -p 2880:8080 \
+  -p 2881:8080 \
   -d ghcr.io/jobscale/llama.cpp:gemma-3n-Q4
 }
 
@@ -139,7 +139,7 @@ llama-gemma-3() {
   docker run --name llama.gemma-3 \
   --memory 4g \
   --shm-size 4g \
-  -p 2881:8080 \
+  -p 2882:8080 \
   -d ghcr.io/jobscale/llama.cpp:gemma-3
 }
 
@@ -148,7 +148,7 @@ llama-gemma-3-Q5() {
   docker run --name llama.gemma-3-Q5 \
   --memory 4g \
   --shm-size 4g \
-  -p 2882:8080 \
+  -p 2883:8080 \
   -d ghcr.io/jobscale/llama.cpp:gemma-3-Q5
 }
 
