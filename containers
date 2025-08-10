@@ -116,58 +116,58 @@ webtop-kde() {
   # lscr.io/linuxserver/webtop:debian-kde
 }
 
-llama-gemma-3n() {
-  docker rm -f llama.gemma-3n
-  docker run --name llama.gemma-3n \
+llm-gemma-3n-E4B-Q5() {
+  docker rm -f llm.gemma-3n-E4B-Q5
+  docker run --name llm.gemma-3n-E4B-Q5 \
   --memory 4g \
   --shm-size 4g \
   -p 2880:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3n
+  -d ghcr.io/jobscale/llm.cpp:gemma-3n-E4B-Q5
 }
 
-llama-gemma-3n-Q4() {
-  docker rm -f llama.gemma-3n-Q4
-  docker run --name llama.gemma-3n-Q4 \
+llm-gemma-3n-E4B-Q4() {
+  docker rm -f llm.gemma-3n-E4B-Q4
+  docker run --name llm.gemma-3n-E4B-Q4 \
   --memory 4g \
   --shm-size 4g \
   -p 2881:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3n-Q4
+  -d ghcr.io/jobscale/llm.cpp:gemma-3n-E4B-Q4
 }
 
-llama-gemma-3() {
-  docker rm -f llama.gemma-3
-  docker run --name llama.gemma-3 \
+llm-gemma-3n-E2B-Q5() {
+  docker rm -f llm.gemma-3n-E2B-Q5
+  docker run --name llm.gemma-3n-E2B-Q5 \
   --memory 4g \
   --shm-size 4g \
   -p 2882:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3
+  -d ghcr.io/jobscale/llm.cpp:gemma-3n-E2B-Q5
 }
 
-llama-gemma-3-Q5() {
-  docker rm -f llama.gemma-3-Q5
-  docker run --name llama.gemma-3-Q5 \
+llm-gemma-3n-E2B-Q4() {
+  docker rm -f llm.gemma-3n-E2B-Q4
+  docker run --name llm.gemma-3n-E2B-Q4 \
   --memory 4g \
   --shm-size 4g \
   -p 2883:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3-Q5
+  -d ghcr.io/jobscale/llm.cpp:gemma-3n-E2B-Q4
 }
 
-llama-Phi-4() {
-  docker rm -f llama.Phi-4
-  docker run --name llama.Phi-4 \
+llm-Phi-4() {
+  docker rm -f llm.Phi-4
+  docker run --name llm.Phi-4 \
   --memory 4g \
   --shm-size 4g \
   -p 2887:8080 \
-  -d ghcr.io/jobscale/llama.cpp:Phi-4
+  -d ghcr.io/jobscale/llm.cpp:Phi-4
 }
 
-llama-ELYZA() {
-  docker rm -f llama.ELYZA
-  docker run --name llama.ELYZA \
+llm-Llama-3() {
+  docker rm -f llm.Llama-3
+  docker run --name llm.Llama-3 \
   --memory 4g \
   --shm-size 4g \
   -p 2888:8080 \
-  -d ghcr.io/jobscale/llama.cpp:ELYZA
+  -d ghcr.io/jobscale/llm.cpp:Llama-3
 }
 
 ls-logs() {
