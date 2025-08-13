@@ -8,7 +8,7 @@ N100-cpu-info() {
 
 mac-cpu-info() {
   sudo powermetrics -n 1 --samplers smc 2>/dev/null | grep 'CPU die temperature:' | awk '{printf "%.1f℃\n", $4}'
-  iostat | grep '[0-9]$' | awk '{printf "%d\n", 100 - $6}'
+  iostat -w 1 -c 2 | tail -1 | awk '{printf "%d\n", 100 - $6}'
 }
 
 $(uname -n)-cpu-info
