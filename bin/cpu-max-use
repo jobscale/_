@@ -1,0 +1,8 @@
+LANG=C mpstat -P ALL 1 1 | awk '
+/Average/ && $2 ~ /^[0-9]$/ {
+    used = 100 - $NF
+    if (used > max) max = used
+  }
+  END {
+    print max
+  }'
