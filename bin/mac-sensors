@@ -1,2 +1,13 @@
-sudo powermetrics -n 1 --samplers smc 2>/dev/null | grep 'CPU die temperature:' | awk '{printf "%.1f℃\n", $4}'
-iostat | grep '[0-9]$' | awk '{printf "%d%%\n", 100 - $6}'
+#!/usr/bin/env bash
+set -eu
+
+get-sensors() {
+  nohup $HOME/bin/mac-sensors-async >/dev/null 2>&1 &
+}
+
+get-sensors
+if [[ -s $HOME/mac-cpu ]]; then
+  cat $HOME/mac-cpu
+else
+  echo -e '0/n0'
+fi
