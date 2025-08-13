@@ -1,0 +1,4 @@
+ssh n100 bin/linux-sensors > $HOME/.n100-cpu
+ssh mac bin/mac-sensors > $HOME/.mac-cpu
+mv $HOME/.n100-cpu $HOME/n100-cpu
+mv $HOME/.mac-cpu $HOME/mac-cpu
