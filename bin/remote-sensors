@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eu
+
+N100-cpu-info() {
+  LANG=ja_JP.UTF-8 sensors | awk '/Package/ {print $4}'
+  LANG=C mpstat 1 1 | awk '/Average/ {printf "%d\n", 100 - $NF}'
+}
+
+mac-cpu-info() {
+  sudo powermetrics -n 1 --samplers smc 2>/dev/null | grep 'CPU die temperature:' | awk '{printf "%.1f℃\n", $4}'
+  iostat | grep '[0-9]$' | awk '{printf "%d\n", 100 - $6}'
+}
+
+$(uname -n)-cpu-info

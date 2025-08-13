@@ -1,4 +1,22 @@
-ssh n100 bin/linux-sensors > $HOME/.n100-cpu
-ssh mac bin/mac-sensors > $HOME/.mac-cpu
-mv $HOME/.n100-cpu $HOME/n100-cpu
-mv $HOME/.mac-cpu $HOME/mac-cpu
+#!/usr/bin/env bash
+set -eu
+
+n100-cpu() {
+  ssh n100 bin/remote-sensors > $HOME/.n100-cpu
+  mv $HOME/.n100-cpu $HOME/n100-cpu
+}
+
+mac-cpu() {
+  ssh mac bin/remote-sensors > $HOME/.mac-cpu
+  mv $HOME/.mac-cpu $HOME/mac-cpu
+}
+
+STEP=0
+while true; do
+  n100-cpu
+  if (( STEP == 0 )); then
+    mac-cpu
+  fi
+  (( STEP = (STEP + 1) % 3 ))
+  sleep 2.2
+done

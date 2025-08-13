@@ -109,6 +109,7 @@ ${alignr}${color2}PID   CPU%   MEM%$color5
 \
 ${voffset  6}\
 ${if_match "$nodename" == "dark"}\
-${color2}n100 ${alignr}${color6}${exec tail -1 /home/jobscale/n100-cpu}   ${color5}${execgraph "head -1 /home/jobscale/n100-cpu" 15,220 212121 80a000}
+${color2}n100 ${alignr}${color6}${exec head -1 /home/jobscale/n100-cpu}   ${color5}${execgraph "tail -1 /home/jobscale/n100-cpu" 15,220 212121 80a000}
+${color2}mac ${alignr}${color6}${exec head -1 /home/jobscale/mac-cpu}   ${color5}${execgraph "tail -1 /home/jobscale/mac-cpu" 15,220 212121 80a000}
 $endif\
 ]]
