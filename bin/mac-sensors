@@ -1,0 +1,2 @@
+sudo powermetrics -n 1 --samplers smc 2>/dev/null | grep 'CPU die temperature:' | awk '{printf "%.1f℃\n", $4}'
+iostat | grep '[0-9]$' | awk '{printf "%d%%\n", 100 - $6}'
