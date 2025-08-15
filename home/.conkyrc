@@ -110,6 +110,8 @@ ${alignr}${color2}PID   CPU%   MEM%$color5
 ${voffset  6}\
 ${if_match "$nodename" == "dark"}\
 ${color2}n100 ${alignr}${color6}${exec "head -1 $HOME/.work/n100-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 $HOME/.work/n100-cpu | awk '{print $2}'" 15,220 212121 80a000}
+${color2} ${alignr}${color6}${exec "head -1 $HOME/.work/n100-cpu | awk '{print $3}'"}   ${color5}${execgraph "head -1 $HOME/.work/n100-cpu | awk '{print $4}'" 15,220 212121 80a000}
 ${color2}mac ${alignr}${color6}${exec "head -1 $HOME/.work/mac-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 $HOME/.work/mac-cpu | awk '{print $2}'" 15,220 212121 80a000}
+${color2}${alignr}${color2}recv  ${color1}${exec "head -1 $HOME/.work/mac-cpu | awk '{print $3}'"}   ${color2}send  ${color1}${exec "head -1 $HOME/.work/mac-cpu | awk '{print $4}'"}
 $endif\
 ]]

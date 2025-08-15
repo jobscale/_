@@ -4,17 +4,20 @@ set -eu
 WORKDIR="${HOME:-/tmp}/.work"
 
 n100-cpu() {
-  ssh n100 bin/remote-sensors > ${WORKDIR}/.n100-cpu 2>&1
+  ssh n100 bin/remote-sensors > ${WORKDIR}/.n100-cpu
+  echo 'not' >> ${WORKDIR}/.n100-cpu
   mv ${WORKDIR}/.n100-cpu ${WORKDIR}/n100-cpu
 }
 
 mac-cpu() {
-  ssh mac bin/remote-sensors > ${WORKDIR}/.mac-cpu 2>&1
+  ssh mac bin/remote-sensors > ${WORKDIR}/.mac-cpu
+  echo 'not' >> ${WORKDIR}/.n100-cpu
   mv ${WORKDIR}/.mac-cpu ${WORKDIR}/mac-cpu
 }
 
 dark-cpu() {
-  bin/remote-sensors > ${WORKDIR}/.dark-cpu 2>&1
+  bin/remote-sensors > ${WORKDIR}/.dark-cpu
+  echo 'not' >> ${WORKDIR}/.n100-cpu
   mv ${WORKDIR}/.dark-cpu ${WORKDIR}/dark-cpu
 }
 

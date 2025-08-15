@@ -13,13 +13,13 @@ dark-cpu-info() {
       printf "%s %s %s %s\n", cpu, (nvme1 > nvme2) ? nvme1 : nvme2, wifi, gpu
     }'
   LANG=C mpstat 1 1 | awk '/Average/ {printf "%d\n", 100 - $NF}'
-  LANG=C sar -n DEV --iface=wlp3s0 1 1 | tail -1 | awk '{printf "%.2f_MiB/s %d\n", $5 / 1024, $NF * 2}'
+  LANG=C sar -n DEV --iface=wlp3s0 1 1 | tail -1 | awk '{printf "%.2fMiB %d\n", $5 / 1024, $NF * 2}'
 }
 
 N100-cpu-info() {
   LANG=ja_JP.UTF-8 sensors | awk '/Package/ {print $4}'
   LANG=C mpstat 1 1 | awk '/Average/ {printf "%d\n", 100 - $NF}'
-  LANG=C sar -n DEV --iface=enp1s0 1 1 | tail -1 | awk '{printf "%.2f_MiB/s %d\n", $5 / 1024, $NF * 2}'
+  LANG=C sar -n DEV --iface=enp1s0 1 1 | tail -1 | awk '{printf "%.2fMiB %d\n", $5 / 1024, $NF * 2}'
 }
 
 mac-traffic() {
@@ -34,8 +34,8 @@ mac-traffic() {
   rx_rate=$(echo "scale=3; ($rx_bytes_2 - $rx_bytes_1) / 1024 / 1024" | bc)
   tx_rate=$(echo "scale=3; ($tx_bytes_2 - $tx_bytes_1) / 1024 / 1024" | bc)
 
-  printf "%.2f_MiB/s(dn)\n" "$rx_rate"
-  printf "%.2f_MiB/s(up)\n" "$tx_rate"
+  printf "%.2fMiB\n" "$rx_rate"
+  printf "%.2fMiB\n" "$tx_rate"
 }
 
 mac-cpu-info() {
