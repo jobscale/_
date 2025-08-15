@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.31.2"
+IMAGE="kindest/node:v1.33.2"
 
 production() {
   export KINDNAME=production
@@ -117,6 +117,8 @@ inAllInOne() {
 
   ingressSecret kubernetes-dashboard
   sleep 30
+  echo "kubectl -n kubernetes-dashboard apply -f backend/k8s"
+  sleep 10
   kubectl -n kubernetes-dashboard apply -f backend/k8s
   sleep 10
 
