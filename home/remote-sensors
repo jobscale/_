@@ -1,22 +1,36 @@
 #!/usr/bin/env bash
 set -eu
 
+WORKDIR="${HOME:-/tmp}/.work"
+
 n100-cpu() {
-  ssh n100 bin/remote-sensors > $HOME/.n100-cpu
-  mv $HOME/.n100-cpu $HOME/n100-cpu
+  ssh n100 bin/remote-sensors > ${WORKDIR}/.n100-cpu
+  mv ${WORKDIR}/.n100-cpu ${WORKDIR}/n100-cpu
 }
 
 mac-cpu() {
-  ssh mac bin/remote-sensors > $HOME/.mac-cpu
-  mv $HOME/.mac-cpu $HOME/mac-cpu
+  ssh mac bin/remote-sensors > ${WORKDIR}/.mac-cpu
+  mv ${WORKDIR}/.mac-cpu ${WORKDIR}/mac-cpu
 }
 
-STEP=0
-while true; do
-  n100-cpu
-  if (( STEP == 0 )); then
-    mac-cpu
-  fi
-  (( STEP = (STEP + 1) % 3 ))
-  sleep 2.2
-done
+dark-cpu() {
+  bin/remote-sensors > ${WORKDIR}/.dark-cpu
+  mv ${WORKDIR}/.dark-cpu ${WORKDIR}/dark-cpu
+}
+
+main() {
+  mkdir -p "${WORKDIR}"
+  local STEP=0
+  while true
+  do
+    dark-cpu || echo "$(TZ=Asia/Tokyo date -Iseconds) [FAIL]: dark-cpu"
+    n100-cpu || echo "$(TZ=Asia/Tokyo date -Iseconds) [FAIL]: n100-cpu"
+    if (( STEP == 0 )); then
+      mac-cpu || echo "$(TZ=Asia/Tokyo date -Iseconds) [FAIL]: mac-cpu"
+    fi
+    (( STEP = (STEP + 1) % 3 )) || :
+    sleep 2.2
+  done
+}
+
+main

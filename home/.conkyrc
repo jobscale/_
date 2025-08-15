@@ -51,11 +51,11 @@ ${voffset -3}${color2}Load   $color1$loadavg ${alignr}${color2}Uptime   $color1$
 ${voffset  0}${color2}DDR ${alignr}${color1}$memperc% $memmax ${voffset 2} ${alignr}${color4}${membar 8,200}
 ${voffset -3}${color2}Swap ${alignr}${color1}$swapperc% $swapmax ${voffset 2} ${alignr}${color4}${swapbar 8,200}
 ${voffset -3}${color2}CPU     ${color1}$cpu%    \
-${color6}    ${execi 60 sensors | awk '/^Tctl/ {print $2}'}   ${alignr}  ${color2}Freq   $color1${freq_g}GHz
+${color6}    ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $1}'"}   ${alignr}  ${color2}Freq   $color1${freq_g}GHz
 ${voffset -3}${alignr} \
-${color2}   NVMe${color6}  ${execi 60 "/home/jobscale/bin/remote-sensors | awk '{print $2}'"} \
-${color2}   GPU${color6}  ${execi 60 "/home/jobscale/bin/remote-sensors | awk '{print $4}'"} \
-${color2}   WiFi${color6}  ${execi 60 "/home/jobscale/bin/remote-sensors | awk '{print $3}'"}
+${color2}   NVMe${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $2}'"} \
+${color2}   GPU${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $4}'"} \
+${color2}   WiFi${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $3}'"}
 ${voffset  6}\
 ${template2 cpu1 cpu2}
 ${if_match "${exec nproc --all}" >= "04"}\
@@ -109,7 +109,7 @@ ${alignr}${color2}PID   CPU%   MEM%$color5
 \
 ${voffset  6}\
 ${if_match "$nodename" == "dark"}\
-${color2}n100 ${alignr}${color6}${exec "head -1 /home/jobscale/n100-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 /home/jobscale/n100-cpu | awk '{print $2}'" 15,220 212121 80a000}
-${color2}mac ${alignr}${color6}${exec "head -1 /home/jobscale/mac-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 /home/jobscale/mac-cpu | awk '{print $2}'" 15,220 212121 80a000}
+${color2}n100 ${alignr}${color6}${exec "head -1 $HOME/.work/n100-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 $HOME/.work/n100-cpu | awk '{print $2}'" 15,220 212121 80a000}
+${color2}mac ${alignr}${color6}${exec "head -1 $HOME/.work/mac-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 $HOME/.work/mac-cpu | awk '{print $2}'" 15,220 212121 80a000}
 $endif\
 ]]
