@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 set -eu
 
+dark-cpu-info() {
+  LANG=ja_JP.UTF-8 sensors | awk '/Package/ {print $4}'
+  LANG=ja_JP.UTF-8 sensors | awk '
+    /Tctl/ { cpu = $2 }
+    /Sensor 1/ { nvme1 = $3 }
+    /Sensor 2/ { nvme2 = $3 }
+    /temp1/ { wifi = $2 }
+    /edge/ { gpu = $2 }
+    END {
+      printf "%s %s %s %s\n", cpu, (nvme1 > nvme2) ? nvme1 : nvme2, wifi, gpu
+    }'
+  LANG=C mpstat 1 1 | awk '/Average/ {printf "%d\n", 100 - $NF}'
+}
+
 N100-cpu-info() {
   LANG=ja_JP.UTF-8 sensors | awk '/Package/ {print $4}'
   LANG=C mpstat 1 1 | awk '/Average/ {printf "%d\n", 100 - $NF}'
@@ -11,4 +25,8 @@ mac-cpu-info() {
   iostat -w 1 -c 2 | tail -1 | awk '{printf "%d\n", 100 - $6}'
 }
 
-$(uname -n)-cpu-info
+DATA=(
+  $($(uname -n)-cpu-info)
+)
+
+echo ${DATA[@]}

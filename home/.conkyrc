@@ -53,9 +53,9 @@ ${voffset -3}${color2}Swap ${alignr}${color1}$swapperc% $swapmax ${voffset 2} ${
 ${voffset -3}${color2}CPU     ${color1}$cpu%    \
 ${color6}    ${execi 60 sensors | awk '/^Tctl/ {print $2}'}   ${alignr}  ${color2}Freq   $color1${freq_g}GHz
 ${voffset -3}${alignr} \
-${color2}   NVMe${color6}  ${execi 60 sensors | awk '/^Composite/ {print $2}'} \
-${color2}   GPU${color6}  ${execi 60 sensors | awk '/^edge/ {print $2}'} \
-${color2}   WiFi${color6}  ${execi 60 sensors | awk '/^temp1/ {print $2}'}
+${color2}   NVMe${color6}  ${execi 60 "/home/jobscale/bin/remote-sensors | awk '{print $2}'"} \
+${color2}   GPU${color6}  ${execi 60 "/home/jobscale/bin/remote-sensors | awk '{print $4}'"} \
+${color2}   WiFi${color6}  ${execi 60 "/home/jobscale/bin/remote-sensors | awk '{print $3}'"}
 ${voffset  6}\
 ${template2 cpu1 cpu2}
 ${if_match "${exec nproc --all}" >= "04"}\
@@ -109,7 +109,7 @@ ${alignr}${color2}PID   CPU%   MEM%$color5
 \
 ${voffset  6}\
 ${if_match "$nodename" == "dark"}\
-${color2}n100 ${alignr}${color6}${exec head -1 /home/jobscale/n100-cpu}   ${color5}${execgraph "tail -1 /home/jobscale/n100-cpu" 15,220 212121 80a000}
-${color2}mac ${alignr}${color6}${exec head -1 /home/jobscale/mac-cpu}   ${color5}${execgraph "tail -1 /home/jobscale/mac-cpu" 15,220 212121 80a000}
+${color2}n100 ${alignr}${color6}${exec "head -1 /home/jobscale/n100-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 /home/jobscale/n100-cpu | awk '{print $2}'" 15,220 212121 80a000}
+${color2}mac ${alignr}${color6}${exec "head -1 /home/jobscale/mac-cpu | awk '{print $1}'"}   ${color5}${execgraph "head -1 /home/jobscale/mac-cpu | awk '{print $2}'" 15,220 212121 80a000}
 $endif\
 ]]
