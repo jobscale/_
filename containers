@@ -116,22 +116,13 @@ webtop-kde() {
   # lscr.io/linuxserver/webtop:debian-kde
 }
 
-llm-gemma-3n-E4B-Q6() {
-  docker rm -f llm.gemma-3n-E4B-Q6
-  docker run --name llm.gemma-3n-E4B-Q6 \
+llm-gemma-3n-E2B-Q5() {
+  docker rm -f llm.gemma-3n-E2B-Q5
+  docker run --name llm.gemma-3n-E2B-Q5 \
   --memory 4g \
   --shm-size 4g \
   -p 2880:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E4B-Q6
-}
-
-llm-gemma-3n-E4B-Q5() {
-  docker rm -f llm.gemma-3n-E4B-Q5
-  docker run --name llm.gemma-3n-E4B-Q5 \
-  --memory 4g \
-  --shm-size 4g \
-  -p 2881:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E4B-Q5
+  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E2B-Q5
 }
 
 llm-gemma-3n-E2B-Q6() {
@@ -139,17 +130,26 @@ llm-gemma-3n-E2B-Q6() {
   docker run --name llm.gemma-3n-E2B-Q6 \
   --memory 4g \
   --shm-size 4g \
-  -p 2882:8080 \
+  -p 2881:8080 \
   -d ghcr.io/jobscale/llama.cpp:gemma-3n-E2B-Q6
 }
 
-llm-gemma-3n-E2B-Q5() {
-  docker rm -f llm.gemma-3n-E2B-Q5
-  docker run --name llm.gemma-3n-E2B-Q5 \
+llm-gemma-3n-E4B-Q5() {
+  docker rm -f llm.gemma-3n-E4B-Q5
+  docker run --name llm.gemma-3n-E4B-Q5 \
+  --memory 4g \
+  --shm-size 4g \
+  -p 2882:8080 \
+  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E4B-Q5
+}
+
+llm-gemma-3n-E4B-Q6() {
+  docker rm -f llm.gemma-3n-E4B-Q6
+  docker run --name llm.gemma-3n-E4B-Q6 \
   --memory 4g \
   --shm-size 4g \
   -p 2883:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E2B-Q5
+  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E4B-Q6
 }
 
 llm-Phi-4() {
