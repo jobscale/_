@@ -58,25 +58,25 @@ ${color2}   GPU${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print
 ${color2}   WiFi${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $3}'"}
 ${voffset  6}\
 ${template2 cpu1 cpu2}
-${if_match "${exec nproc --all}" >= "04"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "04"}\
 ${template2 cpu3 cpu4}
 $endif\
-${if_match "${exec nproc --all}" >= "06"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "06"}\
 ${template2 cpu5 cpu6}
 $endif\
-${if_match "${exec nproc --all}" >= "08"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "08"}\
 ${template2 cpu7 cpu8}
 $endif\
-${if_match "${exec nproc --all}" >= "10"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "10"}\
 ${template2 cpu9 cpu10}
 $endif\
-${if_match "${exec nproc --all}" >= "12"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "12"}\
 ${template2 cpu11 cpu12}
 $endif\
-${if_match "${exec nproc --all}" >= "14"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "14"}\
 ${template2 cpu13 cpu14}
 $endif\
-${if_match "${exec nproc --all}" >= "16"}\
+${if_match "${exec printf "%02d" $(nproc --all)}" >= "16"}\
 ${template2 cpu15 cpu16}
 $endif\
 \
