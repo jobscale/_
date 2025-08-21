@@ -87,8 +87,16 @@ echo $SHELL | grep zsh || git() {
   fi
   if [[ $@ == "log --all" ]]
   then
-    cmd="git --no-pager log --simplify-by-decoration --tags --branches --remotes --date-order --decorate --pretty=tformat:'%Cblue %h %Creset %<(25)%ci %C(auto)%d%Creset %s'"
+    cmd="git --no-pager log --simplify-by-decoration --tags --branches --remotes --date-order --decorate --pretty=\"tformat:%Cblue %h %Creset %<(25)%ci %C(auto)%d%Creset %s\""
     echo "$cmd"
+    eval "$cmd"
+    return
+  fi
+  if [[ $@ == "log" ]]
+  then
+    cmd="git log --date=iso-strict"
+    echo "$cmd"
+    command $cmd
     return
   fi
   if [[ $1 == "checkout" ]]
