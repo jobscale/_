@@ -3,7 +3,7 @@ set -eu
 
 closeBrowser() {
   echo "Try killing Chrome"
-  local BROWSER_PIDS=( $(pgrep -f '/google-chrome' || true) )
+  local BROWSER_PIDS=( $(pgrep -f '/google/chrome' || true) )
   if [[ ${#BROWSER_PIDS[@]} -gt 0 ]]; then
     kill ${BROWSER_PIDS[@]} || echo "Warning: Failed to kill Chrome"
     echo "Killed Chrome processes: ${BROWSER_PIDS[@]}"

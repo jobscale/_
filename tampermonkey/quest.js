@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navy Quest
 // @namespace    http://tampermonkey.net/
-// @version      2025-07-13
+// @version      2025-08-25
 // @description  try to take over the world!
 // @author       You
 // @match        https://navy.quest/*
@@ -46,7 +46,7 @@ const createTime = () => {
 };
 
 const opts = {
-  setup: [{
+  setup: [{}, {
     fn: ctx => {
       ctx.strokeStyle = 'black';
       ctx.setLineDash([4, 4]);
@@ -66,7 +66,7 @@ const opts = {
       ctx.strokeStyle = 'white';
       ctx.setLineDash([]);
     },
-  }, {}],
+  }],
   current: 0,
 };
 
