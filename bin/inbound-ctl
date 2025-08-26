@@ -1,42 +1,43 @@
 #!/usr/bin/env bash
 set -u
 
-SWITCH=${1:-on}
-DEVICE=${2:-enp4s0}
-RATE=${3:-5000k}
-
-tryOff() {
-   echo "--- Initialize $DEVICE and ifb0 ---"
-   sudo tc qdisc del dev $DEVICE ingress handle ffff:
-   sudo tc qdisc del dev ifb0 root handle 1: htb
-   sleep 2
-   sudo rmmod ifb
-}
-
-tryOn() {
-   echo "--- Load ifb module ---"
-   sleep 2
-   sudo modprobe ifb
-   sleep 2
-   sudo ip link set dev ifb0 up
-
-   echo "--- Mirror $DEVICE to ifb0 ---"
-   sleep 2
-   sudo modprobe act_mirred
-   sleep 2
-   sudo tc qdisc add dev $DEVICE ingress handle ffff:
-   sudo tc filter add dev $DEVICE parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
-
-   echo "--- Traffic Shape ifb0 ---"
-   sudo tc qdisc add dev ifb0 root handle 1: htb default 10
-   sudo tc class add dev ifb0 parent 1:1 classid 1:10 htb rate ${RATE}bit
-}
+DEVICE=eno1
 
 main() {
-  [[ $SWITCH != on && $SWITCH != off ]] && echo "Usage: $0 <on|off> <interface> <rate>" && return 1
-  tryOff
-  [[ $SWITCH != on ]] && return 0
-  tryOn
+  # ifb モジュールをロード
+  sudo modprobe ifb numifbs=1 # or - sudo modprobe ifb
+
+  # ifb0 を有効化
+  sudo ip link set dev ifb0 up
+
+  # qdisc ingress を追加
+  sudo tc qdisc add dev ${DEVICE} ingress
+  # eth0（例）から ifb0 に受信トラフィックをリダイレクト
+  sudo tc filter add dev ${DEVICE} parent ffff: \
+    protocol ip u32 match u32 0 0 \
+    action mirred egress redirect dev ifb0
+
+  # ifb0 に帯域制限を設定（2MiB/sec）
+  sudo tc qdisc add dev ifb0 root tbf rate 32Mbit burst 64kbit limit 128kbit
+}
+
+show() {
+  sudo tc qdisc show dev ifb0
+}
+
+update() {
+  sudo tc qdisc change dev ifb0 root tbf rate 72Mbit burst 256kbit limit 512kbit
+}
+
+clean() {
+  # 制限を削除
+  sudo tc qdisc del dev ifb0 root
+  # リダイレクト・フィルターを削除
+  sudo tc filter del dev eno1 parent ffff:
+  # qdisc ingress を削除
+  sudo tc qdisc del dev eno1 ingress
+  # ifb0 を削除
+  sudo ip link set dev ifb0 down
 }
 
 main

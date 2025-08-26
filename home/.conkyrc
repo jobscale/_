@@ -92,6 +92,7 @@ ${template1 ens9}\
 ${template1 enp0s3}\
 ${template1 wlan0}\
 ${template1 eth0}\
+${template1 ifb0}\
 \
 ${color5}Storage         $stippled_hr \
 ${template0 / nvme0n1p2 nvme}\
