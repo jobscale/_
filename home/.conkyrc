@@ -52,10 +52,12 @@ ${voffset  0}${color2}DDR ${alignr}${color1}$memperc% $memmax ${voffset 2} ${ali
 ${voffset -3}${color2}Swap ${alignr}${color1}$swapperc% $swapmax ${voffset 2} ${alignr}${color4}${swapbar 8,200}
 ${voffset -3}${color2}CPU     ${color1}$cpu%    \
 ${color6}    ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $1}'"}   ${alignr}  ${color2}Freq   $color1${freq_g}GHz
+${if_match "$nodename" == "dark"}\
 ${voffset -3}${alignr} \
 ${color2}   NVMe${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $2}'"} \
 ${color2}   GPU${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $4}'"} \
 ${color2}   WiFi${color6}  ${execi 10 "head -1 $HOME/.work/dark-cpu | awk '{print $3}'"}
+$endif\
 ${voffset  6}\
 ${template2 cpu1 cpu2}
 ${if_match "${exec printf "%02d" $(nproc --all)}" >= "04"}\

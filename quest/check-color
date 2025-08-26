@@ -25,10 +25,10 @@ check-color() {
 }
 
 {
-  RES1=$(check-color 110 200)
   RES2=$(check-color 80 300)
   RES3=$(check-color 50 400)
   RES4=$(check-color 20 500)
+  RES1=$(check-color 110 600)
   # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
   if [[ "$RES1 $RES2 $RES3 $RES4" != "OK OK OK OK" ]]
   then
