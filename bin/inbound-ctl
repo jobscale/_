@@ -33,9 +33,9 @@ clean() {
   # 制限を削除
   sudo tc qdisc del dev ifb0 root
   # リダイレクト・フィルターを削除
-  sudo tc filter del dev eno1 parent ffff:
+  sudo tc filter del dev ${DEVICE} parent ffff:
   # qdisc ingress を削除
-  sudo tc qdisc del dev eno1 ingress
+  sudo tc qdisc del dev ${DEVICE} ingress
   # ifb0 を削除
   sudo ip link set dev ifb0 down
 }
