@@ -3,21 +3,56 @@ set -eu
 
 SWITCH=${1:-on}
 DEVICE=${2:-enp4s0}
-RATE=${3:-2000Kbit}
+RATE=${3:-7200kbit}
 
-FIRST_DEVICE=$(ip a | grep BROADCAST | awk '{print $2}' | awk -F: '{print $1}' | head -1)
+active-device() {
+  for dev in $(ls /sys/class/net); do
+    if [[ -e /sys/class/net/$dev/device ]]; then
+      if [[ "$(cat /sys/class/net/$dev/carrier 2>/dev/null)" == "1" ]]; then
+        echo "$dev"
+      fi
+    fi
+  done
+}
+
+FIRST_DEVICE=$(active-device | head -1)
+
+check-device() {
+  if ! ip link show "$DEVICE" &>/dev/null; then
+    echo "Error: device '$DEVICE' not found"
+    exit 1
+  fi
+}
+
+rate-on() {
+  echo "[INFO]: $DEVICE RATE: $RATE create qdisc"
+  sudo tc qdisc add dev ${DEVICE} root tbf rate ${RATE} burst 256kbit limit 512kbit
+}
+
+rate-off() {
+  echo "[INFO]: $DEVICE delete qdisc"
+  sudo tc qdisc del dev $DEVICE root || echo "no device"
+}
+
+rate-update() {
+  echo "[INFO]: $DEVICE RATE: $RATE update qdisc"
+  sudo tc qdisc change dev ${DEVICE} root tbf rate ${RATE} burst 256kbit limit 512kbit
+}
+
+rate-show() {
+  echo "[INFO]: $DEVICE show qdisc"
+  sudo tc qdisc show dev ${DEVICE} root
+}
 
 main() {
-  echo -n "INTERFACE OUTBOUND LIMMITER: [$SWITCH] TARGET: [$FIRST_DEVICE] "
-  [[ $SWITCH != on && $SWITCH != off ]] && echo -e "\n  Usage: $0 <on|off> <interface> <rate>" && return 1
-  [[ "$DEVICE" != "$FIRST_DEVICE" ]] && echo -en "\n  WARN: diff [$DEVICE] [$FIRST_DEVICE] "
-  echo "initialize.."
-  sudo tc qdisc del dev $DEVICE root || echo "no device"
-  [[ $SWITCH != on ]] && return 0
-  echo -n "TARGET: [$DEVICE] RATE: [$RATE] "
-  sleep 2
-  echo -n "qdisc add.. "
-  sudo tc qdisc add dev $DEVICE root tbf limit 1MB burst 20Kb rate $RATE
+  echo "NETWORK INTERFACE OUTBOUND LIMITER: $SWITCH '$DEVICE'"
+  if [[ "${SWITCH}" != "on" && "${SWITCH}" != "off" && "${SWITCH}" != "update" && "${SWITCH}" != "show" ]]; then
+    echo -e "Usage:\n  $0 <on|off|update|show> <interface> <rate>"
+    return 1
+  fi
+  [[ "${DEVICE}" != "$FIRST_DEVICE" ]] && echo "[WARN]: is not first device '${DEVICE}' via ${FIRST_DEVICE} " && sleep 2
+  check-device
+  rate-${SWITCH}
   echo "done."
 }
 

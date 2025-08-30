@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eu
+
+LINK_NO=$(docker exec -u 0 -it squid ip -o link | grep "BROADCAST" | awk -F'(@if|:)' '{print $3}')
+echo "Device Link number via container: ${LINK_NO}"
+
+VIRTUAL_DEVICE=$(ip -o link | grep "^${LINK_NO}:" | awk -F'@if' '{print $1}' | awk '{print $2}')
+echo "Virtual device via Host: ${VIRTUAL_DEVICE}"
+
+outbound-ctl on "${VIRTUAL_DEVICE}" 7200kbit || echo "maybe Exclusivity exists."
+
+echo
+outbound-ctl show ${VIRTUAL_DEVICE}
+echo
+echo -e "update rate limit:\n  Usage: outbound-ctl update ${VIRTUAL_DEVICE} 9400kbit"
