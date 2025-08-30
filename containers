@@ -99,8 +99,8 @@ webtop-kde() {
   docker rm -f webtop-kde
   docker run --name webtop-kde --restart always \
   --privileged \
-  --memory 4g \
-  --shm-size 4g \
+  --memory 8g \
+  --shm-size 8g \
   -e PUID=1000 \
   -e PGID=50 \
   -e TZ=Europe/Paris \
@@ -117,12 +117,13 @@ webtop-kde() {
 }
 
 llm-gemma-3() {
+  # docker pull ghcr.io/jobscale/llama.cpp:gemma-3-4B-Q3
   docker rm -f llm.gemma-3
   docker run --name llm.gemma-3 \
   --memory 8g \
   --shm-size 8g \
   -p 2880:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3n-E2B-Q8
+  -d ghcr.io/jobscale/llama.cpp:gemma-3-4B-Q3
 }
 
 ls-logs() {
