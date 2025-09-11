@@ -7,9 +7,9 @@ echo "Device Link number via container: ${LINK_NO}"
 VIRTUAL_DEVICE=$(ip -o link | grep "^${LINK_NO}:" | awk -F'@if' '{print $1}' | awk '{print $2}')
 echo "Virtual device via Host: ${VIRTUAL_DEVICE}"
 
-outbound-ctl on "${VIRTUAL_DEVICE}" 7200kbit || echo "maybe Exclusivity exists."
+outbound-ctl on "${VIRTUAL_DEVICE}" 3600kbit || echo "maybe Exclusivity exists."
 
 echo
 outbound-ctl show ${VIRTUAL_DEVICE}
 echo
-echo -e "update rate limit:\n  Usage: outbound-ctl update ${VIRTUAL_DEVICE} 9400kbit"
+echo -e "update rate limit:\n  Usage: outbound-ctl update ${VIRTUAL_DEVICE} 7200kbit"
