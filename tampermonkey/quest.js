@@ -156,8 +156,15 @@ class App {
     return fetch(url, options);
   }
 
-  watchOnline() {
-    const area = document.querySelector('table.allyprofil');
+  async onlineUsers() {
+    const url = 'https://navy.quest/ally';
+    const res = await (await fetch(url, {
+      mode: 'cors',
+      credentials: 'include',
+    })).text();
+    const html = document.createElement('html');
+    html.innerHTML = res;
+    const area = html.querySelector('table.allyprofil');
     if (!area) return;
     const table = {
       name: [...area.querySelectorAll('td:nth-child(2)')],
@@ -202,7 +209,35 @@ class App {
         text: ['```', ...online, '```'].join('\n'),
       }).catch(e => logger.warn(JSON.stringify(e)));
     }
-    setTimeout(() => window.location.reload(), 10000);
+  }
+
+  async battleReport() {
+    const name = 'BLACKD';
+    const url = new RegExp(`https://navy.quest/gold\\?b=3&o3=[0-9a-f]+${name}`);
+    if (!window.location.href.match(url)) return false;
+    const report = [...document.querySelectorAll('table table tr:nth-child(1) td')].map(el => el.textContent).join('\n');
+    if (!report) return false;
+    const known = localStorage.getItem('report');
+    if (known !== report) {
+      localStorage.setItem('report', report);
+      this.postSlack({
+        channel: '#push',
+        icon_emoji: ':video_game:',
+        username: 'Navy Quest',
+        text: ['```', report, '```'].join('\n'),
+      }).catch(e => logger.warn(JSON.stringify(e)));
+    }
+    return true;
+  }
+
+  async watchOnline() {
+    logger.info(JSON.stringify({ date: new Date().toLocaleString() }));
+    if (!await this.battleReport()) {
+      logger.warn('re login needed');
+      return;
+    }
+    await this.onlineUsers();
+    setTimeout(() => window.location.reload(), 5 * 60 * 1000);
   }
 }
 
