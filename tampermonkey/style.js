@@ -5,6 +5,10 @@
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
+// @exclude      https://navy.quest/*
+// @exclude      https://www.amazon.co.jp/*
+// @exclude      https://*.amazonaws.com/*
+// @exclude      http://*.*.*.*:*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
 // ==/UserScript==
@@ -166,28 +170,6 @@ div.b-area {
     return undefined;
   },
 
-  getBackgroundColorBrightness(selector) {
-    const el = document.querySelector(selector);
-    if (!el) return undefined;
-
-    const bg = this.getEffectiveBackgroundColor(el);
-    if (!bg) return undefined;
-
-    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!match) return undefined;
-
-    const r = parseInt(match[1], 10);
-    const g = parseInt(match[2], 10);
-    const b = parseInt(match[3], 10);
-
-    const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-    const isBright = brightness > 136;
-
-    return {
-      r, g, b, brightness, isBright, isDark: !isBright,
-    };
-  },
-
   mounted() {
     const ts = Date.now();
     const conf = JSON.parse(localStorage.getItem('custom-css-conf') ?? '{}');
@@ -205,6 +187,28 @@ div.b-area {
     this.btnVideo(div);
   },
 
+  getBackgroundColorBrightness(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return undefined;
+
+    const bg = this.getEffectiveBackgroundColor(el);
+    if (!bg) return undefined;
+
+    const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return undefined;
+
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+
+    const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+    const isBright = brightness > 100;
+
+    return {
+      r, g, b, brightness, isBright, isDark: !isBright,
+    };
+  },
+
   main() {
     if (this.init) return;
     this.init = true;
@@ -212,6 +216,7 @@ div.b-area {
     const video = document.querySelector('video');
 
     const result = this.getBackgroundColorBrightness('div')
+      || this.getBackgroundColorBrightness('div:nth-child(2)')
       || this.getBackgroundColorBrightness('body')
       || this.getBackgroundColorBrightness('html');
 

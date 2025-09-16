@@ -50,21 +50,32 @@ class App {
   createTime() {
     const style = document.createElement('style');
     style.innerText = `
-  .time {
-    background-color: black;
-    color: white;
-    position: fixed;
-    right: 1em;
-    bottom: 1em;
-    padding: 0.3em;
-    z-index: 1000001;
-    font-size: 1.2rem;
-    pointer-events: none;
-  }
-  `;
+.time {
+  position: fixed;
+  right: 1em;
+  bottom: 1em;
+  padding: 0.3em;
+  z-index: 1000001;
+  font-family: Tahoma;
+  font-size: 2.2rem;
+  pointer-events: none;
+}
+.outlined-text {
+  color: white;
+  font-weight: bold;
+  -webkit-text-stroke: 1px black;
+  text-shadow:
+    0 0 2px black,
+    1px 1px 2px black,
+   -1px 1px 2px black,
+    1px -1px 2px black,
+   -1px -1px 2px black;
+}
+`;
     document.head.append(style);
     const div = document.createElement('div');
     div.classList.add('time');
+    div.classList.add('outlined-text');
     document.body.append(div);
 
     const loop = () => {
@@ -157,14 +168,14 @@ class App {
   }
 
   async onlineUsers() {
-    const url = 'https://navy.quest/ally';
-    const res = await (await fetch(url, {
-      mode: 'cors',
-      credentials: 'include',
-    })).text();
-    const html = document.createElement('html');
-    html.innerHTML = res;
-    const area = html.querySelector('table.allyprofil');
+    // const url = 'https://navy.quest/ally';
+    // const res = await (await fetch(url, {
+    //   mode: 'cors',
+    //   credentials: 'include',
+    // })).text();
+    // const html = document.createElement('html');
+    // html.innerHTML = res;
+    const area = document.querySelector('table.allyprofil');
     if (!area) return;
     const table = {
       name: [...area.querySelectorAll('td:nth-child(2)')],
@@ -199,14 +210,24 @@ class App {
     const before = saveNames.split(' ').length;
     const after = names.split(' ').length;
     if (before < after) {
-      const online = users.map(
-        item => `${item.name.padStart(15)} ${item.online.padStart(8)} ${item.point.toString().padStart(8)}`,
-      );
+      const blocks = users.map(item => {
+        const text = `${item.name.padStart(15)} ${item.point.toString().padStart(8)} ${item.online.padStart(8)}`;
+        return {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: ['```', text, '```'].join('\n') },
+          ],
+        };
+      });
+      const online = users.map(item => {
+        return `${item.name} (${item.point})`;
+      });
       this.postSlack({
         channel: '#push',
         icon_emoji: ':video_game:',
         username: 'Navy Quest',
-        text: ['```', ...online, '```'].join('\n'),
+        text: online.join(' '),
+        blocks,
       }).catch(e => logger.warn(JSON.stringify(e)));
     }
   }
@@ -231,13 +252,11 @@ class App {
   }
 
   async watchOnline() {
+    const url = 'https://navy.quest/ally?b=33';
+    if (window.location.href !== url) return;
     logger.info(JSON.stringify({ date: new Date().toLocaleString() }));
-    if (!await this.battleReport()) {
-      logger.warn('re login needed');
-      return;
-    }
     await this.onlineUsers();
-    setTimeout(() => window.location.reload(), 5 * 60 * 1000);
+    setTimeout(() => window.location.reload(), 15 * 60 * 1000);
   }
 }
 

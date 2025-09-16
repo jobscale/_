@@ -14,6 +14,7 @@ module.exports = {
     'no-mixed-operators': 'off',
     'no-param-reassign': 'off',
     'no-restricted-syntax': 'off',
+    'arrow-body-style': 'off',
     'object-curly-newline': ['error', {
       ObjectExpression: { minProperties: 6, multiline: true, consistent: true },
       ObjectPattern: { minProperties: 6, multiline: true, consistent: true },
