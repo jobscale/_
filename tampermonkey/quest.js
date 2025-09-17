@@ -210,24 +210,25 @@ class App {
     const before = saveNames.split(' ').length;
     const after = names.split(' ').length;
     if (before < after) {
-      const blocks = users.map(item => {
-        const text = `${item.name.padStart(15)} ${item.point.toString().padStart(8)} ${item.online.padStart(8)}`;
-        return {
-          type: 'section',
-          fields: [
-            { type: 'mrkdwn', text: ['```', text, '```'].join('\n') },
-          ],
-        };
-      });
       const online = users.map(item => {
-        return `${item.name} (${item.point})`;
+        const text = `${item.name.padStart(15)} ${item.point.toString().padStart(8)} ${item.online.padStart(8)}`;
+        return text;
       });
+      const block = {
+        type: 'section',
+        fields: [
+          { type: 'mrkdwn', text: ['```', ...online, '```'].join('\n') },
+        ],
+      };
+      const text = users.map(item => {
+        return `${item.name} (${item.point})`;
+      }).join(' \n');
       this.postSlack({
         channel: '#push',
         icon_emoji: ':video_game:',
         username: 'Navy Quest',
-        text: online.join(' '),
-        blocks,
+        text,
+        blocks: [block],
       }).catch(e => logger.warn(JSON.stringify(e)));
     }
   }
@@ -252,7 +253,7 @@ class App {
   }
 
   async watchOnline() {
-    const url = 'https://navy.quest/ally?b=33';
+    const url = 'https://navy.quest/ally.php?b=33';
     if (window.location.href !== url) return;
     logger.info(JSON.stringify({ date: new Date().toLocaleString() }));
     await this.onlineUsers();
