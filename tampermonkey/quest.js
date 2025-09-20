@@ -80,8 +80,9 @@ class App {
 
     const loop = () => {
       [, div.textContent] = getNow().split(' ');
+      setTimeout(loop, 1000 - (Date.now() % 1000));
     };
-    setInterval(loop, 1000);
+    loop();
   }
 
   drawCanvas(canvas) {
