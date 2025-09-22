@@ -383,7 +383,7 @@ cronJob() {
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
 
-  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='7-59/11 * * * *'
+  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='11-55/11 * * * *'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/news-top
   # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
