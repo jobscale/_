@@ -18,6 +18,11 @@ tanpo() {
   echo https://tanpo.jsx.jp
 }
 
+dns-nodejs() {
+  docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/dns-nodejs
+  kubectl rollout restart deployment -n net-apps dns-nodejs
+}
+
 bind9() {
   docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/bind9
   kubectl rollout restart deployment -n net-apps bind9
