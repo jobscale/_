@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.33.2"
+IMAGE="kindest/node:v1.34.0"
 
 production() {
   export KINDNAME=production
@@ -56,7 +56,7 @@ defaultImage() {
   IMG_LIST=(
     ghcr.io/jobscale/jsxjp
     ghcr.io/jobscale/wetty:dind
-    ghcr.io/jobscale/bind9
+    ghcr.io/jobscale/dns-nodejs
     ghcr.io/jobscale/squid:secure
     ghcr.io/jobscale/mqtt-c-pub-sub
     ghcr.io/jobscale/reverse-proxy
@@ -192,7 +192,7 @@ networkService() {
   kubectl create namespace net-apps
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl apply -f backend/net-apps
-  waitFor bind9 && waitFor squid
+  waitFor dns-nodejs && waitFor squid
 }
 
 deployDatabase() {

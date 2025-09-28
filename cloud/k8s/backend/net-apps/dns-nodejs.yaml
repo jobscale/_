@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dns-nodejs
+  namespace: net-apps
+spec:
+  selector:
+    matchLabels:
+      app: dns-nodejs
+  template:
+    metadata:
+      labels:
+        app: dns-nodejs
+    spec:
+      containers:
+      - name: dns-nodejs
+        image: ghcr.io/jobscale/dns-nodejs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dns-nodejs
+  namespace: net-apps
+spec:
+  selector:
+    app: dns-nodejs
+  type: LoadBalancer
+  ports:
+  - name: udp
+    nodePort: 30053
+    port: 53
+    targetPort: 53
+    protocol: UDP
+  - name: tcp
+    nodePort: 30053
+    port: 53
+    targetPort: 53
+    protocol: TCP
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dns-nodejs
+  namespace: net-apps
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dns-nodejs
+  maxReplicas: 20
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50
