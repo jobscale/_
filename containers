@@ -48,15 +48,17 @@ squid() {
 
 dns-nodejs() {
   docker pull ghcr.io/jobscale/dns-nodejs
+  docker rm -f bind9 # Alt
   docker rm -f dns-nodejs
   docker run --name dns-nodejs --restart always \
-  --memory 50m \
+  --memory 150m \
   -p 53:53 -p 53:53/udp \
   -d ghcr.io/jobscale/dns-nodejs
 }
 
 bind9() {
   docker pull ghcr.io/jobscale/bind9
+  docker rm -f dns-nodejs # Alt
   docker rm -f bind9
   docker run --name bind9 --restart always \
   --memory 50m \
