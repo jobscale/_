@@ -8,6 +8,8 @@
 // @exclude      https://navy.quest/*
 // @exclude      https://www.amazon.co.jp/*
 // @exclude      https://*.amazonaws.com/*
+// @exclude      https://mail.google.com/mail/*
+// @exclude      https://*.jsx.jp/*
 // @exclude      http://*.*.*.*:*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
