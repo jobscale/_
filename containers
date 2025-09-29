@@ -51,7 +51,8 @@ dns-nodejs() {
   docker rm -f bind9 # Alt
   docker rm -f dns-nodejs
   docker run --name dns-nodejs --restart always \
-  --memory 150m \
+  --memory 256m \
+  --shm-size 256m \
   -p 53:53 -p 53:53/udp \
   -d ghcr.io/jobscale/dns-nodejs
 }
