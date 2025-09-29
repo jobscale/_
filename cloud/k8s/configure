@@ -371,7 +371,7 @@ cronJob() {
   [[ "$KINDNAME" != production ]] && return
   # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='6/7 * * * *'
   kubectl create namespace health-check
-  kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='6/7 * * * *'
+  kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *'
   # kubectl create job -n health-check health-check-$(date +%s%3N) --from=cronjob.batch/health-check
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-check.yaml
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-healthy.yaml
