@@ -11,7 +11,7 @@
 
 const logger = console;
 
-const getNow = () => new Intl.DateTimeFormat('sv-SE', {
+const formatTimestamp = (ts = new Date()) => new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'Europe/Paris', // CET/CEST
   year: 'numeric',
   month: '2-digit',
@@ -19,7 +19,9 @@ const getNow = () => new Intl.DateTimeFormat('sv-SE', {
   hour: '2-digit',
   minute: '2-digit',
   second: '2-digit',
-}).format(new Date());
+}).format(ts);
+
+const NEXT_TICK = 12 * 60;
 
 const opts = {
   setup: [{}, {
@@ -79,7 +81,7 @@ class App {
     document.body.append(div);
 
     const loop = () => {
-      [, div.textContent] = getNow().split(' ');
+      [, div.textContent] = formatTimestamp().split(' ');
       setTimeout(loop, 1000 - (Date.now() % 1000));
     };
     loop();
@@ -256,9 +258,13 @@ class App {
   async watchOnline() {
     const url = 'https://navy.quest/ally.php?b=33';
     if (window.location.href !== url) return;
-    logger.info(JSON.stringify({ date: new Date().toLocaleString() }));
+    const next = new Date();
+    next.setSeconds(next.getSeconds() + NEXT_TICK);
+    logger.info(JSON.stringify({
+      date: formatTimestamp(), next: formatTimestamp(next),
+    }, null, 2));
     await this.onlineUsers();
-    setTimeout(() => window.location.reload(), 15 * 60 * 1000);
+    setTimeout(() => window.location.reload(), NEXT_TICK * 1000);
   }
 }
 
