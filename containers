@@ -8,7 +8,7 @@ rotate-logs() {
   docker pull blacklabelops/logrotate
   docker rm -f logrotate
   docker run --name logrotate --restart always \
-  --memory 128m \
+  --memory 64m \
   -v /var/lib/docker/containers:/var/lib/docker/containers \
   -v /var/log/daemon:/var/log/daemon \
   -e "LOGS_DIRECTORIES=/var/lib/docker/containers /var/log/daemon" \
@@ -32,7 +32,7 @@ squid-secure() {
   docker pull ghcr.io/jobscale/squid:secure
   docker rm -f squid
   docker run --name squid --restart always \
-  --memory 400m \
+  --memory 320m \
   -p 3128:3128 \
   -d ghcr.io/jobscale/squid:secure
 }
@@ -41,7 +41,7 @@ squid() {
   docker pull ghcr.io/jobscale/squid:main
   docker rm -f squid
   docker run --name squid --restart always \
-  --memory 400m \
+  --memory 320m \
   -p 3128:3128 \
   -d ghcr.io/jobscale/squid:main
 }
@@ -51,8 +51,8 @@ dns-nodejs() {
   docker rm -f bind9 # Alt
   docker rm -f dns-nodejs
   docker run --name dns-nodejs --restart always \
-  --memory 256m \
-  --shm-size 256m \
+  --memory 128m \
+  --shm-size 128m \
   -p 53:53 -p 53:53/udp \
   -d ghcr.io/jobscale/dns-nodejs
 }
@@ -62,7 +62,7 @@ bind9() {
   docker rm -f dns-nodejs # Alt
   docker rm -f bind9
   docker run --name bind9 --restart always \
-  --memory 50m \
+  --memory 54m \
   -p 53:53 -p 53:53/udp \
   -d ghcr.io/jobscale/bind9
 }
