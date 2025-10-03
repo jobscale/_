@@ -37,10 +37,13 @@ EOF
 }
 
 start() {
+  docker rm -f l2tp
   docker run --name l2tp \
   --privileged \
   --restart always \
   -v /lib/modules:/lib/modules:ro \
+  --memory 32m \
+  --shm-size 32m \
   -p 500:500/udp -p 4500:4500/udp \
   --env-file $HOME/l2tp.env \
   -it hwdsl2/ipsec-vpn-server:debian
