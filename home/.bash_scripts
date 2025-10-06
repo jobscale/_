@@ -136,15 +136,40 @@ skip() {
 }
 
 loop() {
-  local end_time=$(( $(date +%s) + $1 ))
-  while [ $(date +%s) -lt $end_time ]
-  do
-    local remaining_time=$(( end_time - $(date +%s) ))
-    printf '\r%5d ' $remaining_time
-    sleep 1
+  local duration_ms=$(( $1 * 1000 ))
+  local start_time=$(date +%s%3N)
+  local end_time=$(( start_time + duration_ms ))
+  local step=${3:-1}
+  local tick_ms=$(( 1000 / step ))
+
+  while true; do
+    local now=$(date +%s%3N)
+    local left=$(( end_time - now ))
+    if [ $left -le 0 ]; then
+      break
+    fi
+
+    if [[ $step == 1 ]]; then
+      local remaining_sec=$(printf "%d" "$(( left / 1000 + 1 ))")
+      printf "\r%5s " "$remaining_sec"
+    else
+      local remaining_sec=$(printf "%.2f" "$(echo "$left / 1000" | bc -l)")
+      printf "\r%8s " "$remaining_sec"
+    fi
+
+    # nextTick = ceil((left % 1000) % tick) || tick
+    local mod1=$(( left % 1000 ))
+    local mod2=$(( mod1 % tick_ms ))
+    local next_tick=$(( mod2 > 0 ? mod2 : tick_ms ))
+    sleep $(printf "%.3f" "$(echo "$next_tick / 1000" | bc -l)")
   done
-  printf '\r%5d\n' 0
-  ([[ "$2" != "silent" ]] && which ffplay && ffplay -nodisp -autoexit -ss 0 -t 2 $HOME/_/quest/sand.mp3) > /dev/null 2>&1
+
+  local actual_elapsed=$(printf "%.3f" "$(echo "($(date +%s%3N) - $start_time) / 1000" | bc -l)")
+  printf "\r%5s    (%s)\n" "0" "$actual_elapsed"
+
+  if [[ "$2" != "silent" ]] && which ffplay > /dev/null; then
+    ffplay -nodisp -autoexit -ss 0 -t 2 "$HOME/_/quest/sand.mp3" > /dev/null 2>&1
+  fi
 }
 
 gff() {
