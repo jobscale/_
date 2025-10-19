@@ -3,7 +3,7 @@ set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 
-debian() {
+debian-2022() {
   apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https
   apt-get update && apt-get install -y --no-install-recommends \
@@ -74,45 +74,40 @@ kali-rolling() {
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
-# Debian 13
-trixie() {
-  debian-2025
+main() {
+  start() {
+    echo "$(date --rfc-3339=seconds) [INFO] START  docker for $VERSION_CODENAME"
+  }
+  finish() {
+    echo "$(date --rfc-3339=seconds) [INFO] FINISH docker for $VERSION_CODENAME"
+  }
+  trap 'finish' EXIT
+  start
+
+  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
+  . /etc/os-release
+
+  case "$VERSION_CODENAME" in
+    trixie)
+      debian-2025
+      ;;
+    bookworm)
+      debian-2023
+      ;;
+    bullseye|buster)
+      debian-2022
+      ;;
+    noble|jammy|focal)
+      ubuntu
+      ;;
+    kali-rolling)
+      kali-rolling
+      ;;
+    *)
+      echo "$(date --rfc-3339=seconds) [FAIL] Unsupported distribution: $VERSION_CODENAME"
+      exit 1
+      ;;
+  esac
 }
 
-# Debian 12
-bookworm() {
-  debian-2023
-}
-
-# Debian 11
-bullseye() {
-  debian
-}
-
-# Debian 10
-buster() {
-  debian
-}
-
-# Ubuntu 24.04
-noble() {
-  ubuntu
-}
-
-# Ubuntu 22.04
-jammy() {
-  ubuntu
-}
-
-# Ubuntu 20.04
-focal() {
-  ubuntu
-}
-
-{
-  echo "START  docker $(date --rfc-3339=seconds)"
-  which lsb_release && lsb_release -cs || echo "no lsb_release"
-  eval $(cat /etc/*release)
-  $VERSION_CODENAME
-  echo "FINISH docker $(date --rfc-3339=seconds)"
-}
+main "$@"

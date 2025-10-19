@@ -11,10 +11,16 @@ code() {
   curl -sL jsx.jp/s/code | bash
 }
 
-# Debian 13
-trixie() {
+debian-2022() {
   sudo apt update
-  chrome && code
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky gdm3 libsecret-tools
+  sudo apt install -y --no-install-recommends \
+    task-japanese-desktop
+}
+
+debian-2025() {
+  sudo apt update
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky-all gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
@@ -22,62 +28,16 @@ trixie() {
   sudo dpkg-reconfigure gdm3
 }
 
-# Debian 12
-bookworm() {
+ubuntu() {
   sudo apt update
-  chrome && code
-  sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
-    task-japanese-desktop
-}
-
-# Debian 11
-bullseye() {
-  sudo apt update
-  chrome && code
-  sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
-    task-japanese-desktop
-}
-
-# Ubuntu 24.04
-noble() {
-  sudo apt update
-  chrome && code
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
     language-pack-gnome-ja
 }
 
-# Ubuntu 22.04
-jammy() {
-  sudo apt update
-  chrome && code
-  sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
-    language-pack-gnome-ja
-}
-
-# Ubuntu 20.04
-focal() {
-  sudo apt update
-  chrome && code
-  sudo apt install -y --no-install-recommends \
-    terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
-    language-pack-gnome-ja
-}
-
-# Kali
 kali-rolling() {
   sudo apt update
-  cd /tmp
-  chrome && code
-  cd -
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 libsecret-tools
   sudo apt install -y --no-install-recommends \
@@ -91,8 +51,39 @@ extra() {
     kazam copyq
 }
 
-{
-  which lsb_release && lsb_release -cs || echo "no lsb_release"
-  eval $(cat /etc/*release)
-  $VERSION_CODENAME
+main() {
+  start() {
+    echo "$(date --rfc-3339=seconds) [INFO] START  graphical for $VERSION_CODENAME"
+  }
+  finish() {
+    echo "$(date --rfc-3339=seconds) [INFO] FINISH graphical for $VERSION_CODENAME"
+  }
+  trap 'finish' EXIT
+  start
+
+  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
+  . /etc/os-release
+
+  chrome && code
+
+  case "$VERSION_CODENAME" in
+    trixie)
+      debian-2025
+      ;;
+    bookworm|bullseye|buster)
+      debian-2022
+      ;;
+    noble|jammy|focal)
+      ubuntu
+      ;;
+    kali-rolling)
+      kali-rolling
+      ;;
+    *)
+      echo "$(date --rfc-3339=seconds) [FAIL] Unsupported distribution: $VERSION_CODENAME"
+      exit 1
+      ;;
+  esac
 }
+
+main "$@"

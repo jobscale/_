@@ -2,7 +2,10 @@
 set -eu
 
 {
+  cd /tmp
+  sudo apt update
   curl -sSL -o code-stable-linux.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
   sudo apt install -y ./code-stable-linux.deb
   rm code-stable-linux.deb
+  cd -
 }

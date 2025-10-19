@@ -3,7 +3,7 @@ set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 
-stable() {
+debian-2022() {
   apt-get update
   apt-get install -y --no-install-recommends apt-transport-https
   apt-get update
@@ -15,11 +15,10 @@ stable() {
     python3-pip bc jq zip unzip tree colordiff \
     openssh-server bash-completion
   apt-get autoremove -y
-
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
-stable-2023() {
+debian-2023() {
   apt-get update
   apt-get install -y --no-install-recommends apt-transport-https
   apt-get update
@@ -31,73 +30,40 @@ stable-2023() {
     python3-pip bc jq zip unzip tree colordiff \
     openssh-server bash-completion
   apt-get autoremove -y
-
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
-# Debian 13
-trixie() {
-  stable-2023
+network-manager() {
   apt-get install -y --no-install-recommends network-manager
 }
 
-# Debian 12
-bookworm() {
-  stable-2023
-  apt-get install -y --no-install-recommends network-manager
+main() {
+  start() {
+    echo "$(date --rfc-3339=seconds) [INFO] START  stable for $VERSION_CODENAME"
+  }
+  finish() {
+    echo "$(date --rfc-3339=seconds) [INFO] FINISH stable for $VERSION_CODENAME"
+  }
+  trap 'finish' EXIT
+  start
+
+  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
+  . /etc/os-release
+
+  case "$VERSION_CODENAME" in
+    trixie|bookworm|noble|kali-rolling)
+      debian-2023
+      network-manager
+      ;;
+    bullseye|buster|focal|bionic|xenial|trusty|jammy)
+      debian-2022
+      [[ "$VERSION_CODENAME" =~ ^(bullseye|buster)$ ]] && network-manager
+      ;;
+    *)
+      echo "$(date --rfc-3339=seconds) [FAIL] Unsupported distribution: $VERSION_CODENAME"
+      exit 1
+      ;;
+  esac
 }
 
-# Debian 11
-bullseye() {
-  stable
-  apt-get install -y --no-install-recommends network-manager
-}
-
-# Debian 10
-buster() {
-  stable
-  apt-get install -y --no-install-recommends network-manager
-}
-
-# Ubuntu 24.04
-noble() {
-  stable-2023
-}
-
-# Ubuntu 22.04
-jammy() {
-  stable
-}
-
-# Ubuntu 20.04
-focal() {
-  stable
-}
-
-# Ubuntu 18.04
-bionic() {
-  stable
-}
-
-# Ubuntu 16.04
-xenial() {
-  stable
-}
-
-# Ubuntu 14.04
-trusty() {
-  stable
-}
-
-# kali
-kali-rolling() {
-  stable-2023
-}
-
-{
-  echo "START  stable $(date --rfc-3339=seconds)"
-  which lsb_release && lsb_release -cs || echo "no lsb_release"
-  eval $(cat /etc/*release)
-  $VERSION_CODENAME
-  echo "FINISH stable $(date --rfc-3339=seconds)"
-}
+main "$@"
