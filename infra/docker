@@ -75,6 +75,9 @@ kali-rolling() {
 }
 
 main() {
+  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
+  . /etc/os-release
+
   start() {
     echo "$(date --rfc-3339=seconds) [INFO] START  docker for $VERSION_CODENAME"
   }
@@ -83,9 +86,6 @@ main() {
   }
   trap 'finish' EXIT
   start
-
-  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
-  . /etc/os-release
 
   case "$VERSION_CODENAME" in
     trixie)

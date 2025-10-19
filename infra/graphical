@@ -52,6 +52,9 @@ extra() {
 }
 
 main() {
+  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
+  . /etc/os-release
+
   start() {
     echo "$(date --rfc-3339=seconds) [INFO] START  graphical for $VERSION_CODENAME"
   }
@@ -60,9 +63,6 @@ main() {
   }
   trap 'finish' EXIT
   start
-
-  echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
-  . /etc/os-release
 
   chrome && code
 
