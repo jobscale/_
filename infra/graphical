@@ -11,8 +11,19 @@ code() {
   curl -sL jsx.jp/s/code | bash
 }
 
-# Debian 11
-bullseye() {
+# Debian 13
+trixie() {
+  sudo apt update
+  chrome && code
+  sudo apt install -y --no-install-recommends \
+    terminator ibus-mozc conky-all gdm3 libsecret-tools
+  sudo apt install -y --no-install-recommends \
+    task-japanese-desktop
+  sudo dpkg-reconfigure gdm3
+}
+
+# Debian 12
+bookworm() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \
@@ -21,8 +32,8 @@ bullseye() {
     task-japanese-desktop
 }
 
-# Debian 12
-bookworm() {
+# Debian 11
+bullseye() {
   sudo apt update
   chrome && code
   sudo apt install -y --no-install-recommends \

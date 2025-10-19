@@ -35,6 +35,12 @@ stable-2023() {
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
 }
 
+# Debian 13
+trixie() {
+  stable-2023
+  apt-get install -y --no-install-recommends network-manager
+}
+
 # Debian 12
 bookworm() {
   stable-2023

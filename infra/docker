@@ -25,7 +25,21 @@ debian-2023() {
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian ${VERSION_CODENAME} stable" | tee /etc/apt/sources.list.d/docker-${VERSION_CODENAME}.list > /dev/null 
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian ${VERSION_CODENAME} stable" | tee /etc/apt/sources.list.d/docker-${VERSION_CODENAME}.list > /dev/null
+  apt update && apt-get install -y --no-install-recommends \
+    docker-ce
+  echo -- sudo usermod -aG docker \$\(whoami\)
+}
+
+debian-2025() {
+  apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https
+  apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates gnupg
+
+  echo ${ID,,} ${VERSION_CODENAME}
+  curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian ${VERSION_CODENAME} stable" | tee /etc/apt/sources.list.d/docker-${VERSION_CODENAME}.list > /dev/null
   apt update && apt-get install -y --no-install-recommends \
     docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
@@ -58,6 +72,11 @@ kali-rolling() {
   apt-get install -y --no-install-recommends \
     docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
+}
+
+# Debian 13
+trixie() {
+  debian-2025
 }
 
 # Debian 12
