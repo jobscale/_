@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: partner
+  namespace: credentials
+spec:
+  selector:
+    matchLabels:
+      app: partner
+  template:
+    metadata:
+      labels:
+        app: partner
+    spec:
+      containers:
+      - image: ghcr.io/jobscale/partner
+        name: partner
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: partner
+  namespace: credentials
+spec:
+  selector:
+    app: partner
+  type: ClusterIP
+  ports:
+  - name: tls
+    port: 443
+    protocol: TCP
+    targetPort: 443

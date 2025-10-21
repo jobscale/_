@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eu
+
+if [[ $(kind get clusters | grep production) != '' ]]
+then
+  echo -e 'create before execution\n - kind delete cluster --name production'
+  exit 1
+fi
+
+. configure
+production
+allInOne

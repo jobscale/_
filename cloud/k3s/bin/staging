@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eu
+
+if [[ $(kind get clusters | grep staging) != '' ]]
+then
+  echo -e 'create before execution\n - kind delete cluster --name staging'
+  exit 1
+fi
+
+. configure
+staging
+allInOne

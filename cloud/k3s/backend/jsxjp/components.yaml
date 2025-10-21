@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jsxjp
+  namespace: jsxjp
+spec:
+  selector:
+    matchLabels:
+      app: jsxjp
+  template:
+    metadata:
+      labels:
+        app: jsxjp
+    spec:
+      containers:
+      - image: ghcr.io/jobscale/jsxjp
+        name: jsxjp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jsxjp
+  namespace: jsxjp
+spec:
+  selector:
+    app: jsxjp
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jsxjp
+  namespace: jsxjp
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jsxjp
+  maxReplicas: 20
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: jsxjp
+  name: jsxjp
+  labels:
+    name: jsxjp
+spec:
+  ingressClassName: nginx
+  tls:
+  - secretName: jsxjp-tls
+    hosts: ["jsx.jp", "www.jsx.jp"]
+  rules:
+  - host: jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80
+  - host: www.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80

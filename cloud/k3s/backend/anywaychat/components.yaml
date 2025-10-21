@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anywaychat
+spec:
+  selector:
+    matchLabels:
+      app: anywaychat
+  template:
+    metadata:
+      labels:
+        app: anywaychat
+    spec:
+      containers:
+      - image: ghcr.io/jobscale/anywaychat-web
+        name: anywaychat
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: anywaychat
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: anywaychat
+  type: ClusterIP
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: anywaychat
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: anywaychat
+  maxReplicas: 3
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: anywaychat
+  labels:
+    name: anywaychat
+spec:
+  ingressClassName: nginx
+  tls:
+  - secretName: jsxjp-tls
+    hosts: ["anywaychat.jsx.jp"]
+  rules:
+  - host: anywaychat.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: anywaychat
+            port:
+              number: 80

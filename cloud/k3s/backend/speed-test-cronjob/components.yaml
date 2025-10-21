@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: speedtest-slack
+  namespace: health-check
+spec:
+  jobTemplate:
+    metadata:
+      name: speedtest-slack
+    spec:
+      template:
+        spec:
+          containers:
+          - image: jobscale/speedtest-slack
+            name: speedtest-slack
+          restartPolicy: OnFailure
+  schedule: 52 16,20,23,0,4,8,11,12 * * *

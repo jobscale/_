@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt
+spec:
+  selector:
+    matchLabels:
+      app: mqtt
+  template:
+    metadata:
+      labels:
+        app: mqtt
+    spec:
+      containers:
+      - name: mqtt
+        image: ghcr.io/jobscale/mqtt-c-pub-sub
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt
+spec:
+  selector:
+    app: mqtt
+  type: LoadBalancer
+  ports:
+  - name: web
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  - name: mqtts
+    nodePort: 30883
+    port: 8883
+    targetPort: 8883
+    protocol: TCP
+  - name: mqtt
+    nodePort: 31883
+    port: 1883
+    targetPort: 1883
+    protocol: TCP
+  - name: ws
+    nodePort: 30470
+    port: 12470
+    targetPort: 12470
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mqtt
+  labels:
+    name: mqtt
+spec:
+  ingressClassName: nginx
+  tls:
+  - secretName: jsxjp-tls
+    hosts: ["mqtt.jsx.jp"]
+  rules:
+  - host: mqtt.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: mqtt
+            port:
+              number: 80
+      - pathType: Prefix
+        path: /mqtt
+        backend:
+          service:
+            name: mqtt
+            port:
+              number: 12470
