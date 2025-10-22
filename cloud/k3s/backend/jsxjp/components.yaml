@@ -33,8 +33,9 @@ spec:
         app: jsxjp
     spec:
       containers:
-      - image: ghcr.io/jobscale/jsxjp
-        name: jsxjp
+      - name: jsxjp
+        image: ghcr.io/jobscale/jsxjp
+        imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
