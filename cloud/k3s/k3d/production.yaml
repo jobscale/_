@@ -1,13 +1,11 @@
 apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:
-  name: jsxjp
+  name: production
 servers: 1
 agents: 0
 ports:
 - port: 443:443
-  nodeFilters: [ loadbalancer ]
-- port: 80:80
   nodeFilters: [ loadbalancer ]
 - port: 8883:30883
   nodeFilters: [ loadbalancer ]
