@@ -2,7 +2,10 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: jsxjp
-  component: limits
+  labels:
+    app: jsxjp
+    component: limits
+spec:
   limits:
   - min:
       cpu: 50m
@@ -22,7 +25,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jsxjp
-  component: deployment
+  labels:
+    app: jsxjp
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -31,6 +36,7 @@ spec:
     metadata:
       labels:
         app: jsxjp
+        component: workload
     spec:
       containers:
       - name: jsxjp
@@ -41,7 +47,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jsxjp
-  component: service
+  labels:
+    app: jsxjp
+    component: service
 spec:
   selector:
     app: jsxjp
@@ -56,7 +64,9 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: jsxjp
-  component: autoscaler
+  labels:
+    app: jsxjp
+    component: autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -64,20 +74,26 @@ spec:
     name: jsxjp
   maxReplicas: 20
   minReplicas: 1
-  targetCPUUtilizationPercentage: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: jsxjp
   labels:
-    name: jsxjp
+    app: jsxjp
     component: ingress
 spec:
   ingressClassName: traefik
   tls:
   - secretName: jsxjp-tls
-    hosts: [ "jsx.jp", "www.jsx.jp", "mail.jsx.jp" ]
+    hosts: [ "jsx.jp", "www.jsx.jp", "x.jsx.jp", "mail.jsx.jp" ]
   rules:
   - host: jsx.jp
     http:
@@ -90,6 +106,16 @@ spec:
             port:
               number: 80
   - host: www.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80
+  - host: x.jsx.jp
     http:
       paths:
       - pathType: Prefix
