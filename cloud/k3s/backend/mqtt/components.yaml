@@ -59,6 +59,23 @@ spec:
     port: 80
     targetPort: 3000
     protocol: TCP
+  - name: ws
+    port: 12470
+    targetPort: 12470
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt-bind
+  labels:
+    app: mqtt
+    component: service
+spec:
+  selector:
+    app: mqtt
+  type: NodePort
+  ports:
   - name: mqtts
     nodePort: 38883
     port: 8883
@@ -68,10 +85,6 @@ spec:
     nodePort: 31883
     port: 1883
     targetPort: 1883
-    protocol: TCP
-  - name: ws
-    port: 12470
-    targetPort: 12470
     protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
