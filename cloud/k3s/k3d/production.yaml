@@ -5,9 +5,9 @@ metadata:
 servers: 1
 agents: 0
 ports:
-- port: 443:30443
+- port: 443:443
   nodeFilters: [ loadbalancer ]
-- port: 80:30080
+- port: 80:80
   nodeFilters: [ loadbalancer ]
 - port: 8883:30883
   nodeFilters: [ loadbalancer ]
@@ -19,6 +19,7 @@ ports:
   nodeFilters: [ loadbalancer ]
 - port: 53:30053/udp
   nodeFilters: [ loadbalancer ]
+volumes:
 - volume: /home/k8s/mnt/extra:/mnt/extra
   nodeFilters: [ all ]
 - volume: /home/k8s/mnt/var:/mnt/var
