@@ -53,7 +53,7 @@ metadata:
 spec:
   selector:
     app: mqtt
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: web
     port: 80
@@ -77,7 +77,7 @@ spec:
   type: NodePort
   ports:
   - name: mqtts
-    nodePort: 38883
+    nodePort: 30883
     port: 8883
     targetPort: 8883
     protocol: TCP

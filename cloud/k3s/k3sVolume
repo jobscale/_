@@ -1,0 +1,13 @@
+k3s-volume() {
+  for MNT_DIR in /home/k3s/mnt/var /home/k3s/mnt/extra
+  do
+    echo "Note: manual exec: sudo rm -fr $MNT_DIR"
+    sudo mkdir -p $MNT_DIR/_empty
+    sudo bash -c "chown -R root:adm $MNT_DIR"
+    sudo bash -c "chmod -R g+rX $MNT_DIR"
+  done
+  echo
+  sudo tree -h -L 2 /home/k3s/mnt
+}
+
+k3s-volume

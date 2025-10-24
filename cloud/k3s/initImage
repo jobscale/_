@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+initImage() {
+  loadImage ghcr.io/jobscale/jsxjp
+  loadImage ghcr.io/jobscale/mqtt-c-pub-sub
+  loadImage ghcr.io/jobscale/reverse-proxy
+  loadImage ghcr.io/jobscale/squid
+  loadImage ghcr.io/jobscale/dns-nodejs
+  loadImage ghcr.io/jobscale/news-top
+  loadImage ghcr.io/jobscale/kabuka
+}
+
+initImage

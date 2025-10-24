@@ -1,186 +1,77 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.34.0"
-
 production() {
-  export KINDNAME=production
-  export KINDCONFIG=kindest/production.yaml
-}
-staging() {
-  export KINDNAME=staging
-  export KINDCONFIG=kindest/staging.yaml
-}
-development() {
-  export KINDNAME=development
-  export KINDCONFIG=kindest/development.yaml
+  export CLUSTER_NAME=production
+  export CLUSTER_CONFIG=k3d/production.yaml
+
+  main
 }
 
-development
+main() {
+  sysctl
 
-k8sVolume() {
-  MNT_DIR=/home/k8s/mnt/var/lib
-  sudo mkdir -p $MNT_DIR/_empty
-  sudo bash -c "chown root:adm $MNT_DIR/*"
-  sudo bash -c "chmod g+rX $MNT_DIR/*"
-  sudo tree -h -L 2 $MNT_DIR
-}
+  . k3sVolume
 
-allInOne() {
-  k8sVolume
-  echo -n "setup '$KINDNAME' deployment "
+  echo -n "setup '$CLUSTER_NAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  [[ $(grep fs.inotify.max_user /etc/sysctl.conf | wc -l) -ne 2 ]] && {
-    echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512K'
-    echo '
-fs.inotify.max_user_watches=524288
-fs.inotify.max_user_instances=8192' | sudo tee -a /etc/sysctl.conf
-    sudo sysctl -p
-    echo
-    sleep 3
-  }
+  k3d cluster create --config $CLUSTER_CONFIG
 
-  cleanKind
-  LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
-  time inAllInOne 2>&1 | tee $LOGFILE
-}
+  . initImage
+  . metricsServer
+  . adminDashboard
+  . networkService
 
-cleanKind() {
-  sudo rm -fr /home/k8s/system
-  sudo rm -fr /home/k8s/mnt
-  sudo mkdir -p /home/k8s/logs
-  sudo chown -R $(id -un):$(id -gn) /home/k8s
-}
-
-defaultImage() {
-  IMG_LIST=(
-    ghcr.io/jobscale/jsxjp
-    ghcr.io/jobscale/wetty:dind
-    ghcr.io/jobscale/dns-nodejs
-    ghcr.io/jobscale/squid:secure
-    ghcr.io/jobscale/mqtt-c-pub-sub
-    ghcr.io/jobscale/reverse-proxy
-  )
-  for i in ${IMG_LIST[@]}
-  do
-    echo -n "$i "
-    time { docker exec -i $KINDNAME-control-plane crictl pull $i; } | xargs echo -n
-  done
-}
-
-initNetwork() {
-  sudo ln -sfn /usr/lib/systemd/resolv.conf /etc/resolv.conf
-  echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
-  sudo systemctl disable systemd-resolved --now
-  sudo systemctl mask systemd-resolved
-}
-
-inAllInOne() {
-  # initNetwork
-
-  createKind
-
+  createTlsSecret default
   kubectl -n default apply -f backend/limitrange-limits.yaml
-  ingressSecret default
 
-  # pullImages
-  defaultImage
+  kubectl create namespace jsxjp
+  createTlsSecret jsxjp
+  kubectl -n jsxjp apply -f backend/jsxjp/components.yaml 
 
-  k8sApps
-  # partnerContainer
-  jsxSite
-  networkService
+  kubectl create namespace mqtt
+  createTlsSecret mqtt
+  kubectl -n mqtt apply -f backend/mqtt/components.yaml 
 
-  deployDatabase
-  createReverse
-  createStandard
+  . createReverse
+  # . createDatabase
+  # . createStandard
 
-  [[ $KINDNAME == production ]] && createCodeServer
-  [[ $KINDNAME == production ]] && createWetty
-  [[ $KINDNAME == production ]] && cronJob
-  [[ $KINDNAME == production ]] && deployWordpress
-  [[ $KINDNAME == production ]] && deployBitnami
-  [[ $KINDNAME == production ]] && deployRedmine
+  createCronJob
+  createCodeServer
 
-  # metalLB
-  # ingressForward
-  ingressNginxSecure
-  loop 20
-  # ingressRestart
-
-  echo -n "        ending" && loop 20
+  echo -n "        ending" && loop 20 --silent
 
   kubectl get pods -A -o wide
   kubectl top pods -n standard --containers | sort -h -k 4
-  docker exec -i $KINDNAME-control-plane crictl images | sort > images-$KINDNAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
-  ingressSecret kubernetes-dashboard
+  createTlsSecret kubernetes-dashboard
   sleep 30
   echo "kubectl -n kubernetes-dashboard apply -f backend/k8s"
   sleep 10
   kubectl -n kubernetes-dashboard apply -f backend/k8s
   sleep 10
 
-  # Allow API
-  ingressNginxAllow
-
-  token && postSlack "url: https://k8s.jsx.jp token: $(token)"
+  token && post-slack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
 }
 
-check-wp() {
-  kubectl exec -n wetty -it svc/wetty -- bash -c "curl -I -s wordpress.wordpress.svc.cluster.local:80"
-  kubectl exec -n wetty -it svc/wetty -- bash -c "curl -I -s wp-bitnami.bitnami.svc.cluster.local:80"
+sysctl() {
+  [[ 2 -ge $(sudo grep fs.inotify.max_user /etc/sysctl.conf | wc -l) ]] && return 0
+  echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512M'
+  echo '
+fs.inotify.max_user_watches=524288
+fs.inotify.max_user_instances=8192' | sudo tee -a /etc/sysctl.conf
+  sudo sysctl -p
+  echo
+  sleep 2
 }
 
-createKind() {
-  DATE=$(date +'%Y-%m-%d_%H:%M:%S')
-  [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$DATE
-  docker pull "$IMAGE"
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image "$IMAGE"
-  cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
-  sed -i -e 's/0\.0\.0\.0/kubernetes/' $HOME/.kube/config
-
-  echo -n "        wait for nodes system pods initializing"
-  loop 10
-  for i in {1..20}
-  do
-    loop 5
-    [[ $(kubectl get all -A | grep -e 0/1 | wc -l) == 0 ]] && break
-    kubectl get all -A | grep -e 0/1 || echo
-  done
-}
-
-metricsServer() {
-  METRICS_SERVER_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes-sigs/metrics-server.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
-  echo "kubernetes-sigs metrics-server $METRICS_SERVER_VERSION"
-  METRICS_SERVER_VERSION=v0.4.1
-  # curl -sLo metrics-server/components.yaml https://github.com/kubernetes-sigs/metrics-server/releases/download/${METRICS_SERVER_VERSION}/components.yaml
-  kubectl apply -f metrics-server
-}
-
-metalLB() {
-  METAL_VERSION=$(git ls-remote --tags --refs https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
-  METAL_SECRET=$(openssl rand -base64 128 | xargs | sed -e 's/ //g')
-  echo -e "\n MetalLB ${METAL_VERSION} \n"
-  kubectl create namespace metallb-system
-  kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey=$METAL_SECRET
-  kubectl apply -f metalLB/metallb.yaml
-  kubectl apply -f metalLB/km-config.yaml
-  waitFor metallb-system
-}
-
-adminDashboard() {
-  DASHBOARD_VERSION=$(
-    git ls-remote --refs --tags https://github.com/kubernetes/dashboard.git | grep tags/v | sort -t '/' -k 3 -V | grep -v alpha | tail -1 | awk -F/ '{print $3}'
-  )
-  echo -e "\n Kubernetes Dashboard ${DASHBOARD_VERSION} \n"
-  curl -so dashboard/kubernetes-dashboard.yaml https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
-  kubectl apply -f dashboard/kubernetes-dashboard.yaml
-  kubectl apply -f dashboard/admin-user-service-account.yaml
-  kubectl apply -f dashboard/admin-user-secret.yaml
-  waitFor kubernetes-dashboard
+initNetwork() {
+  sudo systemctl disable systemd-resolved --now
+  sudo systemctl mask systemd-resolved
+  sudo apt purge -y systemd-resolved
 }
 
 token() {
@@ -188,173 +79,35 @@ token() {
   kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token | awk '{print $2}'
 }
 
-networkService() {
-  kubectl create namespace net-apps
-  # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
-  kubectl apply -f backend/net-apps
-  waitFor dns-nodejs && waitFor squid
-}
-
-deployDatabase() {
-  kubectl apply -f backend/mariadb && waitFor mariadb
-  kubectl apply -f backend/postgres && waitFor postgres
-  kubectl apply -f backend/mysql && waitFor mysql
-  kubectl get all -A | grep -e mariadb -e mysql
-}
-
-k8sApps() {
-  metricsServer
-  adminDashboard
-}
-
 partnerContainer() {
-  [[ $KINDNAME == production || $KINDNAME == staging ]] \
+  [[ $CLUSTER_NAME == production ]] \
   && backend/partner/create-secret.sh \
   && kubectl apply -f backend/partner && waitFor partner
 }
 
-jsxSite() {
-  kubectl create namespace jsxjp
-  kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
-  ingressSecret jsxjp
-  kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
-  kubectl -n jsxjp apply -f backend/mail/components.yaml
-}
-
-ingressSecret() {
-  NAMESPACE=$1
+createTlsSecret() {
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
-  kubectl -n $NAMESPACE create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
-}
-
-ingressUpdateSecret() {
-  NAMESPACE=$1
-  kubectl -n $NAMESPACE create secret tls jsxjp-tls \
+  kubectl create secret tls jsxjp-tls \
   --cert=tls/jsx.jp/fullchain.pem \
   --key=tls/jsx.jp/privkey.pem \
-  --dry-run -o yaml | kubectl apply -f -
+  --dry-run=client -o yaml | kubectl -n $1 apply -f -
 }
 
-ingressNginxSecure() {
-  kubectl create namespace ingress-nginx
-  kubectl -n ingress-nginx create configmap modsecurity-config \
-  --from-file=custom-modsecurity.conf=ingress-nginx/conf/custom-modsecurity.conf
-  kubectl apply -f ingress-nginx
-}
+. /etc/os-release
+BASIC_SECRET=$VERSION_CODENAME
 
-ingressNginxAllow() {
-  # default (Allow API)
-  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/aws/deploy.yaml
-}
-
-ingressForward() {
-  kubectl -n default apply -f backend/web && waitFor web
-  kubectl -n default exec -it svc/web -- bash -c "curl -I -s jsxjp.jsxjp.svc.cluster.local:3000"
-}
-
-ingressRestart() {
-  kubectl rollout restart deployment web
-}
-
-deployWordpress() {
-  SQL="CREATE DATABASE IF NOT EXISTS wordpress;
-CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
-GRANT ALL PRIVILEGES ON wordpress.* TO 'wp-user'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;"
-
-  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
-
-  kubectl create namespace wordpress
-  ingressSecret wordpress
-  kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
-}
-
-deployBitnami() {
-  SQL="CREATE DATABASE IF NOT EXISTS wp_bitnami;
-CREATE USER IF NOT EXISTS 'wp-user'@'%' IDENTIFIED BY 'wp-admin';
-GRANT ALL PRIVILEGES ON wp_bitnami.* TO 'wp-user'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;"
-
-  kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
-
-  kubectl create namespace bitnami
-  ingressSecret bitnami
-  kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
-}
-
-deployRedmine() {
-  SQL="CREATE DATABASE IF NOT EXISTS redmine;
-CREATE USER IF NOT EXISTS 'redmine-user'@'%' IDENTIFIED BY 'redmine-admin';
-GRANT ALL PRIVILEGES ON redmine.* TO 'redmine-user'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;"
-
-  kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
-
-  kubectl create namespace redmine
-  # kubectl -n redmine apply -f backend/limitrange-limits.yaml
-  ingressSecret redmine
-  kubectl -n redmine apply -f backend/redmine && waitFor redmine
-}
-
-createStandard() {
-  kubectl create namespace standard
-  # kubectl -n standard apply -f backend/limitrange-limits.yaml
-  # kubectl config set-context $(kubectl config current-context) --namespace standard
-  ingressSecret standard
-
-  kubectl -n standard apply -f backend/redis && waitFor redis
-  kubectl -n standard apply -f backend/mongo && waitFor mongo
-  # kubectl -n standard apply -f backend/ddb && waitFor ddb
-  kubectl -n standard apply -f backend/mqtt && waitFor mqtt
-
-  [[ $KINDNAME == production ]] && deployApps
-
-  kubectl describe nodes
-  # kubectl config set-context $(kubectl config current-context) --namespace default
-}
-
-generateBasicAuth() {
-  htpasswd -c auth-file bookworm
-  kubectl create secret generic basic-auth --from-file=auth-file
-  kubectl get secret basic-auth -o yaml
-}
-
-createReverse() {
-  kubectl create namespace reverse
-  kubectl -n reverse apply -f backend/limitrange-limits.yaml
-  ingressSecret reverse
-  kubectl -n reverse apply -f backend/basic-auth.yaml
-  kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
-  kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
-  kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
-  kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
-  kubectl -n reverse apply -f backend/llama-lo && waitFor llama-lo
+ingressBasicAuth() {
+  BASIC_CREDENTIALS=$(htpasswd -nb bookworm "${BASIC_SECRET}")
+  kubectl create secret generic basic-auth \
+  --from-literal=users="bookworm:${BASIC_CREDENTIALS}" \
+  --dry-run=client -o yaml | kubectl -n $1 apply -f -
 }
 
 createCodeServer() {
   kubectl create namespace code-server
-  ingressSecret code-server
-  kubectl -n code-server apply -f backend/basic-auth.yaml
+  createTlsSecret code-server
+  ingressBasicAuth code-server
   kubectl -n code-server apply -f backend/code-server && waitFor code-server
-}
-
-createWetty() {
-  if [[ true ]]
-  then
-    kubectl -n reverse apply -f backend/wetty-lo && waitFor wetty-lo
-    return
-  fi
-
-  kubectl create namespace wetty
-  # kubectl -n wetty apply -f backend/limitrange-limits.yaml
-  ingressSecret wetty
-  kubectl -n wetty apply -f backend/wetty && waitFor wetty
-  # TTY_PASSWD="$(makePasswd)"
-  # genPasswd "$TTY_PASSWD"
-  # echo "Initialized password: '$TTY_PASSWD'"
-  # postSlack "Initialized password: '$TTY_PASSWD'"
 }
 
 makePasswd() {
@@ -367,16 +120,14 @@ genPasswd() {
   kubectl -n wetty exec -i svc/wetty -- bash -c "echo bookworm:$GEN_PASSWD | chpasswd"
 }
 
-cronJob() {
-  [[ "$KINDNAME" != production ]] && return
-  # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='6/7 * * * *'
-  kubectl create namespace health-check
-  kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *'
-  # kubectl create job -n health-check health-check-$(date +%s%3N) --from=cronjob.batch/health-check
-  # kubectl apply -n health-check -f backend/cronjob/ec-cube-check.yaml
-  # kubectl apply -n health-check -f backend/cronjob/ec-cube-healthy.yaml
-
+createCronJob() {
+  [[ "$CLUSTER_NAME" != production ]] && return
   kubectl create namespace cron-job
+  # kubectl create cronjob -n cron-job value-domain --image ghcr.io/jobscale/value-domain --schedule='6/7 * * * *'
+
+  # kubectl create cronjob -n cron-job health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *'
+  # kubectl create job -n cron-job health-check-$(date +%s%3N) --from=cronjob.batch/health-check
+
   kubectl create cronjob -n cron-job remind --image ghcr.io/jobscale/remind --schedule='* * * * *'
 
   kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='33 0,6 * * 1-5'
@@ -399,74 +150,8 @@ cronJob() {
   # kubectl create job -n cron-job speedtest-$(date +%s%3N) --from=cronjob.batch/speedtest
 }
 
-deployApps() {
-  # deployNode
-  kubectl -n standard apply -f backend/tanpo && waitFor tanpo
-  kubectl -n standard apply -f backend/exp && waitFor exp
-  {
-    kubectl -n standard apply -f backend/todo && waitFor todo
-    kubectl -n standard apply -f backend/sshwifty && waitFor sshwifty
-    kubectl -n standard apply -f backend/zipcode && waitFor zipcode
-    kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
-    kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
-  } &
-  {
-    # deployNginx
-    kubectl -n standard apply -f backend/tetris && waitFor tetris
-    kubectl -n standard apply -f backend/anywaychat && waitFor anywaychat
-    kubectl -n standard apply -f backend/ramen-timer && waitFor ramen-timer
-    # deployPhp
-    kubectl -n standard apply -f backend/dokuwiki && waitFor dokuwiki
-    kubectl -n standard apply -f backend/shop && waitFor shop
-    # deployPython
-    kubectl -n standard apply -f backend/tutorial && waitFor tutorial
-    # kubectl -n standard apply -f backend/fastapi && waitFor fastapi
-    # kubectl -n standard apply -f backend/django && waitFor django
-    # deployEcho
-    # kubectl -n standard apply -f backend/echo && waitFor echo
-    kubectl -n standard apply -f backend/whoami && waitFor whoami
-  } &
-
-  wait
-}
-
-exposeLoadBalancer() {
-  local NAME_SPACE=$1
-  local NAME=$2
-  local IMAGE=$3
-  local PORT=$4
-  local TARGET=$5
-  local MIN_REPLICA=$6
-  local MIN_REPLICA=1 # kubernetes.io/limit-ranger: LimitRanger plugin set: cpu, memory request for container
-  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
-  kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type LoadBalancer --port $PORT --target-port $TARGET
-  [[ "$MIN_REPLICA" != "0" ]] && kubectl autoscale deployment -n $NAME_SPACE $NAME $NAME \
-  --cpu-percent 50 --min $MIN_REPLICA --max 20
-  waitFor $NAME
-}
-
-exposeCluster() {
-  local NAME_SPACE=$1
-  local NAME=$2
-  local IMAGE=$3
-  local PORT=$4
-  local TARGET=$5
-  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
-  kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
-  waitFor $NAME
-}
-
-postSlack() {
-  DATA="{\"username\":\"Kubernetes\",\"text\":\"$1\"}"
-  chSlack() {
-    . installation > /dev/null 2>&1
-    echo T$(chNote | base64 -d)TB
-  }
-  curl -s -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA" || echo
-}
-
 waitFor() {
-  echo -n "        waiting" && loop 10
+  echo -n "        waiting" && loop 10 --silent
   for limit in {3..1}
   do
     [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
@@ -483,78 +168,12 @@ waitFor() {
   done
 }
 
-delay() {
-  sleep 8
-}
-
-loop() {
-  for i in $(seq $1 -1 1)
-  do
-    printf '\r%5d ' $i
-    sleep 1
-  done
-  printf '\r%5d\n' 0
-}
-
-### unsupportd
-
-delAll() {
-  for app in laravel lumen blog simple-chat chat
-  do
-    kubectl delete svc $app
-    kubectl delete deployment $app
-  done
-}
-
-deployBacklog() {
-  [[ $(grep ""vm.max_map_count /etc/sysctl.d/99-sysctl.conf | wc -l) < 1 ]] \
-  && echo "vm.max_map_count = 262144" | sudo tee -a /etc/sysctl.d/99-sysctl.conf \
-  && sudo sysctl --system
-  kubectl run elasticsearch --env "http.host=0.0.0.0" --env "ES_JAVA_OPTS=-Xms512m -Xmx512m" --image docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.2
-  waitFor elasticsearch
-  kubectl run graylog --env GRAYLOG_HTTP_EXTERNAL_URI="/" --port 9000 --port 12201 --port 1514 --port 5555 --image graylog/graylog:3.1
-  kubectl expose deployment graylog --name graylog --type LoadBalancer--port 80 --target-port 9000
-  waitFor graylog
-}
-
-portForward() {
-  target_ns=standard
-  target_svc=profile
-  target_port=80
-  bind_addr=0.0.0.0
-  bind_port=3000
-  node_port=$(kubectl get service -n ${target_ns} ${target_svc} -o=jsonpath="{.spec.ports[?(@.port==${target_port})].nodePort}")
-  if [[ "$node_port" == "" ]]
-  then
-    kubectl get service -n ${target_ns} ${target_svc} -o wide
-    echo -e "\ncan not get node port. check type LoadBalancer status.\n"
-    kubectl port-forward -n ${target_ns} service/${target_svc} --address ${bind_addr} ${bind_port}:${target_port}
-    return 1
-  fi
-  node_addr=$(docker network inspect kind | jp "[?Name=='kind']|[0].Containers.*|[?Name=='production-control-plane']|[0].IPv4Address" | sed -e 's/"//g' | awk -F/ '{print $1}')
-  echo bind=$bind_addr:$bind_port node=$node_addr:$node_port
-  docker run --name kind-proxy-${bind_port} -p ${bind_addr}:${bind_port}:${bind_port} --network kind \
-    -d alpine/socat -dd tcp-listen:${bind_port},fork,reuseaddr tcp-connect:${node_addr}:${node_port}
-}
-
 loadImage() {
   docker pull $1
-  kind load docker-image $1 --name $KINDNAME
+  k3d image import $1 -c $CLUSTER_NAME
   delay
 }
 
-pullCrictl() {
-  echo "docker exec -i $KINDNAME-control-plane crictl pull $1"
-  docker exec -di $KINDNAME-control-plane crictl pull $1
-}
-
-pullImages() {
-  IMG_LIST=(
-    $(grep image: backend/*/components.yaml | awk -F'image:' '{print $2}')
-  )
-  for i in ${IMG_LIST[@]}
-  do
-    echo -n "$i "
-    time { docker exec -i $KINDNAME-control-plane crictl pull $i; } | xargs echo -n
-  done
+delay() {
+  sleep 8
 }

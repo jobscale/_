@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-lo
+  labels:
+    app: code-lo
+    component: deployment
+spec:
+  selector:
+    matchLabels:
+      app: code-lo
+  template:
+    metadata:
+      labels:
+        app: code-lo
+        component: workload
+    spec:
+      containers:
+      - image: ghcr.io/jobscale/reverse-proxy
+        name: code-lo
+        env:
+        - name: BACKEND
+          value: http://kde.x.jsx.jp:2997
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: code-lo
+  labels:
+    app: code-lo
+    component: service
+spec:
+  selector:
+    app: code-lo
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: code-lo
+  labels:
+    name: code-lo
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - secret'
+spec:
+  ingressClassName: nginx
+  tls:
+  - secretName: jsxjp-tls
+    hosts: [ "code.jsx.jp", "code.x.jsx.jp" ]
+  rules:
+  - host: code.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: code-lo
+            port:
+              number: 80
+  - host: code.x.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: code-lo
+            port:
+              number: 80

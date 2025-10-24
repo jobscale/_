@@ -2,6 +2,9 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: limits
+  labels:
+    app: default
+    component: limits
 spec:
   limits:
   - min:

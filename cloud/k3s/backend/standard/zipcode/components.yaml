@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zipcode-jp
+  labels:
+    app: zipcode-jp
+    component: deployment
+spec:
+  selector:
+    matchLabels:
+      app: zipcode-jp
+  template:
+    metadata:
+      labels:
+        app: zipcode-jp
+        component: workload
+    spec:
+      containers:
+      - image: ghcr.io/jobscale/zipcode-jp
+        name: zipcode-jp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipcode-jp
+  labels:
+    app: zipcode-jp
+    component: service
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: zipcode-jp
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: zipcode-jp
+  labels:
+    app: zipcode-jp
+    component: autoscaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: zipcode-jp
+  maxReplicas: 3
+  minReplicas: 1
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: zipcode-jp
+  labels:
+    name: zipcode-jp
+    component: ingress
+spec:
+  ingressClassName: nginx
+  tls:
+  - secretName: jsxjp-tls
+    hosts: [ "zipcode.jsx.jp" ]
+  rules:
+  - host: zipcode.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: zipcode-jp
+            port:
+              number: 80

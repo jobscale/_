@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redmine
+  labels:
+    app: redmine
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: redmine
+        component: workload
     spec:
       containers:
       - name: redmine
@@ -21,16 +25,18 @@ spec:
           value: redmine-user
         - name: REDMINE_DB_PASSWORD
           value: redmine-admin
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: redmine
+  labels:
+    app: redmine
+    component: service
 spec:
   selector:
     app: redmine
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: tcp
     port: 80
@@ -43,11 +49,12 @@ metadata:
   name: redmine
   labels:
     name: redmine
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["redmine.jsx.jp"]
+    hosts: [ "redmine.jsx.jp" ]
   rules:
   - host: redmine.jsx.jp
     http:

@@ -11,14 +11,14 @@ ports:
   nodeFilters: [ loadbalancer ]
 - port: 1883:31883
   nodeFilters: [ loadbalancer ]
-- port: 3128:30312
-  nodeFilters: [ loadbalancer ]
+    #- port: 3128:30312
+    #nodeFilters: [ loadbalancer ]
 - port: 53:30053
   nodeFilters: [ loadbalancer ]
 - port: 53:30053/udp
   nodeFilters: [ loadbalancer ]
 volumes:
-- volume: /home/k8s/mnt/extra:/mnt/extra
+- volume: /home/k3s/mnt/extra:/mnt/extra
   nodeFilters: [ all ]
-- volume: /home/k8s/mnt/var:/mnt/var
+- volume: /home/k3s/mnt/var:/mnt/var
   nodeFilters: [ all ]

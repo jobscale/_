@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+networkService() {
+  kubectl create namespace net-apps
+  kubectl -n net-apps apply -f backend/net-apps
+  waitFor dns-nodejs && waitFor squid
+}
+
+networkService

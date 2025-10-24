@@ -9,7 +9,6 @@ stern version 1.11.0
 kind v0.11.1
 
 ### install docker
-
 ```
 iDocker() {
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -20,7 +19,6 @@ iDocker() {
 ```
 
 ### install kubectl
-
 ```
 iKubectl() {
   setArch() {
@@ -65,8 +63,14 @@ iStern() {
 } && iStern
 ```
 
-### install kind
+### install k3d
+```
+iK3d() {
+  curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+}
+```
 
+### install kind
 ```
 iKind() {
   setArch() {
@@ -88,7 +92,6 @@ iKind() {
 ```
 
 ### install npm with nodejs
-
 ```
 iNodejs() {
   curl -fsSLo- https://raw.githubusercontent.com/creationix/nvm/$(
@@ -107,7 +110,6 @@ iNodejs() {
 ```
 
 ### create cluster
-
 ```
 kind create cluster --name multinode --config multinode.yaml
 cp $HOME/.kube/config $HOME/.kube/multinode-config
@@ -116,7 +118,6 @@ kubectl get pods -A -w
 ```
 
 ### kubectl config
-
 ```
 kubectl create namespace standard
 kubectl config set-context $(kubectl config current-context) --namespace standard
@@ -124,7 +125,6 @@ kubectl apply -f limitrange-limits.yaml
 ```
 
 ### setup metalLB system
-
 ```
 METAL_VERSION=$(git ls-remote --refs --tags https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
 kubectl apply -f https://raw.githubusercontent.com/google/metallb/${METAL_VERSION}/manifests/metallb.yaml
@@ -132,7 +132,6 @@ kubectl apply -f https://git.io/km-config.yaml
 ```
 
 ### deployment Dashboard
-
 ```
 DASHBOARD_VERSION=$(git ls-remote --refs --tags https://github.com/kubernetes/dashboard.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml
@@ -141,7 +140,6 @@ kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token
 ```
 
 ### kubectl proxy with Dashboard
-
 ```
 kubectl proxy &
 [[ -s "$(which xdg-open)" ]] && alias open='xdg-open'
@@ -149,7 +147,6 @@ open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https
 ```
 
 ### run deployment
-
 ```
 kubectl create deployment nginx --image nginx
 kubectl expose deployment nginx --name nginx --type LoadBalancer --port=443,80
@@ -157,14 +154,12 @@ kubectl get deployment,pods,svc
 ```
 
 ### ingress nginx
-
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
 ```
 
 ### kubectl port-forward
-
 ```
 sudo -E kubectl port-forward -n ingress-nginx --address 0.0.0.0 svc/ingress-nginx 443:443 80:80
 ```
@@ -187,7 +182,6 @@ svc() {
 ```
 
 ### tls termination
-
 ```
 kubectl create secret tls wildcard-tls --cert sslGen/wildcard.jsx.jp.cert --key sslGen/wildcard.jsx.jp.key
 echo 'apiVersion: extensions/v1beta1
@@ -202,7 +196,6 @@ kubectl apply -f ingress.yaml
 ```
 
 ### rollout deployment
-
 ```
 kubectl rollout restart deployment nginx
 kubectl get pods --watch
@@ -212,7 +205,6 @@ kubectl rollout history deployment nginx --revision 3
 ```
 
 ### rollback deployment
-
 ```
 kubectl rollout undo deployment web --to-revision 2
 kubectl get pods --watch

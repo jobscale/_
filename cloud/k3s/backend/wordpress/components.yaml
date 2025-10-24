@@ -2,13 +2,12 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: wordpress-pv
-  namespace: wordpress
 spec:
   storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/var/lib/wordpress"
 ---
@@ -16,11 +15,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: wordpress-pv-claim
-  namespace: wordpress
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -29,7 +27,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wordpress
-  namespace: wordpress
 spec:
   selector:
     matchLabels:
@@ -38,6 +35,7 @@ spec:
     metadata:
       labels:
         app: wordpress
+        component: workload
     spec:
       securityContext:
         runAsUser: 0
@@ -67,11 +65,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wordpress
-  namespace: wordpress
 spec:
   selector:
     app: wordpress
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: tcp
     port: 80
@@ -81,7 +78,6 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: wordpress
   name: wordpress
   labels:
     name: wordpress
@@ -89,7 +85,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["blog.jsx.jp"]
+    hosts: [ "blog.jsx.jp" ]
   rules:
   - host: blog.jsx.jp
     http:

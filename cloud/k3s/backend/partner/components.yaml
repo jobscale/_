@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: partner
-  namespace: credentials
 spec:
   selector:
     matchLabels:
@@ -11,6 +10,7 @@ spec:
     metadata:
       labels:
         app: partner
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/partner
@@ -22,11 +22,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: partner
-  namespace: credentials
 spec:
   selector:
     app: partner
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: tls
     port: 443

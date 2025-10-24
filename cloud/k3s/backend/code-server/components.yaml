@@ -7,7 +7,7 @@ spec:
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/extra/home/store"
 ---
@@ -18,7 +18,7 @@ metadata:
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -37,6 +37,7 @@ spec:
     metadata:
       labels:
         app: code-server
+        component: workload
     spec:
       volumes:
       - name: code-server-persistent-storage
@@ -53,20 +54,26 @@ apiVersion: v1
 kind: Service
 metadata:
   name: code-server
+  labels:
+    app: code-server
+    component: service
 spec:
   selector:
     app: code-server
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: tcp
     port: 80
     protocol: TCP
     targetPort: 3000
 ---
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: code-server
+  labels:
+    app: code-server
+    component: autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -74,31 +81,48 @@ spec:
     name: code-server
   maxReplicas: 3
   minReplicas: 1
-  targetCPUUtilizationPercentage: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
 metadata:
   name: code-server
   labels:
-    name: code-server
-  annotations:
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - secret'
+    app: code-server
+    component: middleware
 spec:
-  ingressClassName: nginx
+  basicAuth:
+    secret: basic-auth
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: code-server
+  labels:
+    app: code-server
+    component: ingress
+spec:
+  entryPoints: [ web, websecure ]
   tls:
-  - secretName: jsxjp-tls
-    hosts: ["code-server.jsx.jp"]
-  rules:
-  - host: code-server.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: code-server
-            port:
-              number: 80
+    secretName: jsxjp-tls
+  routes:
+  - match: Host('code-server.jsx.jp')
+    kind: Rule
+    middlewares:
+    - name: code-server
+    services:
+    - name: code-server
+      port: 80
+  - match: Host('code-server.x.jsx.jp')
+    kind: Rule
+    middlewares:
+    - name: code-server
+    services:
+    - name: code-server
+      port: 80

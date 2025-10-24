@@ -53,7 +53,7 @@ metadata:
 spec:
   selector:
     app: jsxjp
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: http
     port: 80

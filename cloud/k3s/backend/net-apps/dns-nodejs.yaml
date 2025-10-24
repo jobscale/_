@@ -3,7 +3,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dns-nodejs
-  namespace: net-apps
+  labels:
+    app: dns-nodejs
+    component: autoscaler
 spec:
   selector:
     matchLabels:
@@ -12,6 +14,7 @@ spec:
     metadata:
       labels:
         app: dns-nodejs
+        component: workload
     spec:
       containers:
       - name: dns-nodejs
@@ -21,11 +24,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: dns-nodejs
-  namespace: net-apps
+  labels:
+    app: dns-nodejs
+    component: service
 spec:
   selector:
     app: dns-nodejs
   type: LoadBalancer
+  loadBalancerSourceRanges:
+  - 0.0.0.0/0
   ports:
   - name: udp
     nodePort: 30053
@@ -38,11 +45,13 @@ spec:
     targetPort: 53
     protocol: TCP
 ---
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: dns-nodejs
-  namespace: net-apps
+  labels:
+    app: dns-nodejs
+    component: autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -50,4 +59,10 @@ spec:
     name: dns-nodejs
   maxReplicas: 20
   minReplicas: 1
-  targetCPUUtilizationPercentage: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50

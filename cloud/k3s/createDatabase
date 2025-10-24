@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+createDatabase() {
+  kubectl create namespace database
+  kubectl -n database apply -f backend/database/mariadb
+  kubectl -n database apply -f backend/database/mysql
+  kubectl -n database apply -f backend/database/postgres
+  waitFor mariadb && waitFor mysql && waitFor postgres
+  kubectl get all -A | grep -e mariadb -e mysql -e postgres
+}
+
+createDatabase
