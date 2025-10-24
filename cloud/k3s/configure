@@ -38,7 +38,7 @@ main() {
   # . createStandard
 
   createCronJob
-  createCodeServer
+  # createCodeServer
 
   echo -n "        ending" && loop 20 --silent
 
@@ -99,7 +99,7 @@ BASIC_SECRET=$VERSION_CODENAME
 ingressBasicAuth() {
   BASIC_CREDENTIALS=$(htpasswd -nb bookworm "${BASIC_SECRET}")
   kubectl create secret generic basic-auth \
-  --from-literal=users="bookworm:${BASIC_CREDENTIALS}" \
+  --from-literal=users="${BASIC_CREDENTIALS}" \
   --dry-run=client -o yaml | kubectl -n $1 apply -f -
 }
 

@@ -9,7 +9,7 @@ createReverse() {
   kubectl -n reverse apply -f backend/reverse/kde-lo && waitFor kde-lo
   kubectl -n reverse apply -f backend/reverse/lo-stack && waitFor lo-stack
   kubectl -n reverse apply -f backend/reverse/www-lo && waitFor www-lo
-  kubectl -n reverse apply -f backend/reverse/code-lo && waitFor code-lo
+  # kubectl -n reverse apply -f backend/reverse/code-lo && waitFor code-lo
   kubectl -n reverse apply -f backend/reverse/llama-lo && waitFor llama-lo
 }
 

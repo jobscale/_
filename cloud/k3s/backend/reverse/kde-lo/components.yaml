@@ -62,14 +62,14 @@ spec:
   tls:
     secretName: jsxjp-tls
   routes:
-  - match: Host('kde.jsx.jp')
+  - match: Host("kde.jsx.jp")
     kind: Rule
     middlewares:
     - name: kde-lo
     services:
     - name: kde-lo
       port: 80
-  - match: Host('kde.x.jsx.jp')
+  - match: Host("kde.x.jsx.jp")
     kind: Rule
     middlewares:
     - name: kde-lo

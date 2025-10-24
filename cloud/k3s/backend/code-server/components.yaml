@@ -112,14 +112,14 @@ spec:
   tls:
     secretName: jsxjp-tls
   routes:
-  - match: Host('code-server.jsx.jp')
+  - match: Host("code-server.jsx.jp")
     kind: Rule
     middlewares:
     - name: code-server
     services:
     - name: code-server
       port: 80
-  - match: Host('code-server.x.jsx.jp')
+  - match: Host("code-server.x.jsx.jp")
     kind: Rule
     middlewares:
     - name: code-server
