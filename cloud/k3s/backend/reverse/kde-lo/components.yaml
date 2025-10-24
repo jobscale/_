@@ -20,7 +20,7 @@ spec:
         name: kde-lo
         env:
         - name: BACKEND
-          value: http://kde.x.jsx.jp:2999
+          value: http://kde.n100.jsx.jp:2999
 ---
 apiVersion: v1
 kind: Service
@@ -62,14 +62,14 @@ spec:
   tls:
     secretName: jsxjp-tls
   routes:
-  - match: Host(`kde.jsx.jp`)
+  - match: Host('kde.jsx.jp')
     kind: Rule
     middlewares:
     - name: kde-lo
     services:
     - name: kde-lo
       port: 80
-  - match: Host(`kde.x.jsx.jp`)
+  - match: Host('kde.x.jsx.jp')
     kind: Rule
     middlewares:
     - name: kde-lo

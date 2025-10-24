@@ -20,7 +20,7 @@ spec:
         name: llama-lo
         env:
         - name: BACKEND
-          value: http://llama.x.jsx.jp:2880
+          value: http://llama.dark.jsx.jp:2880
 ---
 apiVersion: v1
 kind: Service
