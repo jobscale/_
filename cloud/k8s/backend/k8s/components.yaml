@@ -8,13 +8,24 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
   labels:
     name: k8s
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["k8s.jsx.jp"]
+    hosts: [ "k8s.jsx.jp", "k8s.x.jsx.jp" ]
   rules:
   - host: k8s.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port:
+              number: 443
+  - host: k8s.x.jsx.jp
     http:
       paths:
       - pathType: Prefix

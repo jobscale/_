@@ -44,7 +44,8 @@ kind: Ingress
 metadata:
   name: llama-lo
   labels:
-    name: llama-lo
+    app: llama-lo
+    component: ingress
   annotations:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"

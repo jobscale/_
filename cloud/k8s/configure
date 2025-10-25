@@ -333,10 +333,12 @@ ingressBasicAuth() {
 }
 
 generateBasicAuth() {
-  echo "${BASIC_SECRET:-bookworm}" | htpasswd -ci auth-file bookworm
-  kubectl create secret generic basic-auth --from-file=auth-file \
-  --dry-run=client -o yaml | tee backend/basic-auth-secret.yaml
-  rm auth-file
+  BASIC_CREDENTIALS=$(
+    echo "${BASIC_SECRET:-bookworm}" | htpasswd -ni bookworm
+  )
+  kubectl create secret generic basic-auth \
+  --from-literal=auth="${BASIC_CREDENTIALS}" \
+  --dry-run=client -o yaml | kubectl -n $1 apply -f -
 }
 
 createReverse() {

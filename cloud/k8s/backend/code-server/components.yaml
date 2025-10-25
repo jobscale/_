@@ -94,7 +94,8 @@ kind: Ingress
 metadata:
   name: code-server
   labels:
-    name: code-server
+    app: code-server
+    component: ingress
   annotations:
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: basic-auth

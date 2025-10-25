@@ -44,7 +44,8 @@ kind: Ingress
 metadata:
   name: kde-lo
   labels:
-    name: kde-lo
+    app: kde-lo
+    component: ingress
   annotations:
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: basic-auth
