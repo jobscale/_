@@ -50,15 +50,14 @@ EOF
       echo
     fi
   elif [[ $(sudo grep fs.inotify.max_user /etc/sysctl.conf | wc -l) -lt 2 ]]; then
-      echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512K'
-      cat <<EOF | sudo tee -a /etc/sysctl.conf
+    echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512K'
+    cat <<EOF | sudo tee -a /etc/sysctl.conf
 fs.inotify.max_user_watches=524288
 fs.inotify.max_user_instances=8192
 EOF
-      sudo chmod go+r /etc/sysctl.conf
-      sudo sysctl -p
-      echo
-    fi
+    sudo chmod go+r /etc/sysctl.conf
+    sudo sysctl -p
+    echo
   fi
 }
 
