@@ -9,6 +9,7 @@
 // @exclude      https://www.amazon.co.jp/*
 // @exclude      https://*.amazonaws.com/*
 // @exclude      https://mail.google.com/mail/*
+// @exclude      https://outlook.office.com/mail/*
 // @exclude      https://jsx.jp/*
 // @exclude      https://*.jsx.jp/*
 // @exclude      http://*.*.*.*:*/*
