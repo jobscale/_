@@ -104,7 +104,8 @@ inAllInOne() {
 
   # metalLB
   # ingressForward
-  ingressNginxSecure
+  # ingressNginxSecure
+  ingressNginxSimple
   loop.js 20 --silent
   # ingressRestart
 
@@ -123,7 +124,7 @@ inAllInOne() {
   loop.js 20 --silent
 
   # Allow API
-  ingressNginxAllow
+  # ingressNginxAllow
 
   token && postSlack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
@@ -245,6 +246,10 @@ ingressUpdateSecret() {
   --cert=tls/jsx.jp/fullchain.pem \
   --key=tls/jsx.jp/privkey.pem \
   --dry-run -o yaml | kubectl apply -f -
+}
+
+ingressNginxSimple() {
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 }
 
 ingressNginxSecure() {
