@@ -82,7 +82,7 @@ inAllInOne() {
   createKind
 
   kubectl -n default apply -f backend/limitrange-limits.yaml
-  ingressSecret default
+  ingressTlsSecret default
 
   # pullImages
   defaultImage
@@ -116,7 +116,7 @@ inAllInOne() {
   docker exec -i $CLUSTER_NAME-control-plane crictl images | sort > images-$CLUSTER_NAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
-  ingressSecret kubernetes-dashboard
+  ingressTlsSecret kubernetes-dashboard
   loop.js 20 --silent
   echo "kubectl -n kubernetes-dashboard apply -f backend/k8s"
   loop.js 20 --silent
@@ -221,18 +221,18 @@ partnerContainer() {
 createJsx() {
   kubectl create namespace jsxjp
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
-  ingressSecret jsxjp
+  ingressTlsSecret jsxjp
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
 }
 
 createMqtt() {
   kubectl create namespace mqtt
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
-  ingressSecret mqtt
+  ingressTlsSecret mqtt
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
 }
 
-ingressSecret() {
+ingressTlsSecret() {
   NAMESPACE=$1
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
   kubectl -n $NAMESPACE create secret tls jsxjp-tls \
@@ -278,7 +278,7 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace wordpress
-  ingressSecret wordpress
+  ingressTlsSecret wordpress
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
 
@@ -291,7 +291,7 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace bitnami
-  ingressSecret bitnami
+  ingressTlsSecret bitnami
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
 
@@ -305,7 +305,7 @@ FLUSH PRIVILEGES;"
 
   kubectl create namespace redmine
   # kubectl -n redmine apply -f backend/limitrange-limits.yaml
-  ingressSecret redmine
+  ingressTlsSecret redmine
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
@@ -313,7 +313,7 @@ createStandard() {
   kubectl create namespace standard
   # kubectl -n standard apply -f backend/limitrange-limits.yaml
   # kubectl config set-context $(kubectl config current-context) --namespace standard
-  ingressSecret standard
+  ingressTlsSecret standard
 
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
@@ -324,17 +324,22 @@ createStandard() {
   # kubectl config set-context $(kubectl config current-context) --namespace default
 }
 
+ingressBasicAuth() {
+  kubectl -n $1 apply -f backend/basic-auth-secret.yaml
+}
+
 generateBasicAuth() {
-  htpasswd -c auth-file bookworm
-  kubectl create secret generic basic-auth --from-file=auth-file
-  kubectl get secret basic-auth -o yaml
+  echo "${BASIC_SECRET:-bookworm}" | htpasswd -ci auth-file bookworm
+  kubectl create secret generic basic-auth --from-file=auth-file \
+  --dry-run=client -o yaml | tee backend/basic-auth-secret.yaml
+  rm auth-file
 }
 
 createReverse() {
   kubectl create namespace reverse
   kubectl -n reverse apply -f backend/limitrange-limits.yaml
-  ingressSecret reverse
-  kubectl -n reverse apply -f backend/basic-auth.yaml
+  ingressTlsSecret reverse
+  ingressBasicAuth reverse
   kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
   kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
@@ -344,8 +349,8 @@ createReverse() {
 
 createCodeServer() {
   kubectl create namespace code-server
-  ingressSecret code-server
-  kubectl -n code-server apply -f backend/basic-auth.yaml
+  ingressTlsSecret code-server
+  ingressBasicAuth code-server
   kubectl -n code-server apply -f backend/code-server && waitFor code-server
 }
 
@@ -358,7 +363,7 @@ createWetty() {
 
   kubectl create namespace wetty
   # kubectl -n wetty apply -f backend/limitrange-limits.yaml
-  ingressSecret wetty
+  ingressTlsSecret wetty
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
   # TTY_PASSWD="$(makePasswd)"
   # genPasswd "$TTY_PASSWD"
