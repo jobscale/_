@@ -68,7 +68,7 @@ account() {
   user=jobscale
   old=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
   sudo usermod -l $user -m -d /home/$user $old
-  echo "$user ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers.d/70-users
+  echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers.d/70-users
   sudo systemctl restart sshd
 }
 
@@ -102,7 +102,7 @@ cli() {
 
 account() {
   user=$(grep -w 1000 /etc/passwd | awk -F: '{print $1}')
-  echo "$user ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
+  echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/70-users
 }
 
 main() {
