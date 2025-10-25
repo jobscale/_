@@ -2,7 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jsxjp
-  namespace: jsxjp
+  labels:
+    app: jsxjp
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -11,6 +13,7 @@ spec:
     metadata:
       labels:
         app: jsxjp
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/jsxjp
@@ -20,11 +23,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jsxjp
-  namespace: jsxjp
+  labels:
+    app: jsxjp
+    component: service
 spec:
   selector:
     app: jsxjp
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - name: http
     port: 80
@@ -35,7 +40,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: jsxjp
-  namespace: jsxjp
+  labels:
+    app: jsxjp
+    component: autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -48,15 +55,15 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: jsxjp
   name: jsxjp
   labels:
-    name: jsxjp
+    app: jsxjp
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["jsx.jp", "www.jsx.jp"]
+    hosts: [ "jsx.jp", "www.jsx.jp", "x.jsx.jp" ]
   rules:
   - host: jsx.jp
     http:
@@ -73,6 +80,76 @@ spec:
       paths:
       - pathType: Prefix
         path: /
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80
+  - host: x.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: redirect-mail
+  labels:
+    app: jsxjp
+    component: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      return 307 $scheme://jsxjp.awsapps.com/mail$request_uri;
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - mail.jsx.jp
+    secretName: jsxjp-tls
+  rules:
+  - host: mail.jsx.jp
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxy-local
+  labels:
+    app: jsxjp
+    component: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/location-snippet: |
+      proxy_pass http://172.16.6.66:3000;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - proxy.jsx.jp
+    - proxy.x.jsx.jp
+    secretName: jsxjp-tls
+  rules:
+  - host: proxy.jsx.jp
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jsxjp
+            port:
+              number: 80
+  - host: proxy.x.jsx.jp
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: jsxjp

@@ -8,7 +8,7 @@ spec:
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/var/lib/wordpress"
 ---
@@ -20,7 +20,7 @@ metadata:
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -38,6 +38,7 @@ spec:
     metadata:
       labels:
         app: wordpress
+        component: workload
     spec:
       securityContext:
         runAsUser: 0
@@ -89,7 +90,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["blog.jsx.jp"]
+    hosts: [ "blog.jsx.jp" ]
   rules:
   - host: blog.jsx.jp
     http:

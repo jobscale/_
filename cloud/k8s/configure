@@ -3,16 +3,16 @@
 IMAGE="kindest/node:v1.34.0"
 
 production() {
-  export KINDNAME=production
-  export KINDCONFIG=kindest/production.yaml
+  export CLUSTER_NAME=production
+  export CLUSTER_CONFIG=kindest/production.yaml
 }
 staging() {
-  export KINDNAME=staging
-  export KINDCONFIG=kindest/staging.yaml
+  export CLUSTER_NAME=staging
+  export CLUSTER_CONFIG=kindest/staging.yaml
 }
 development() {
-  export KINDNAME=development
-  export KINDCONFIG=kindest/development.yaml
+  export CLUSTER_NAME=development
+  export CLUSTER_CONFIG=kindest/development.yaml
 }
 
 development
@@ -27,22 +27,39 @@ k8sVolume() {
 
 allInOne() {
   k8sVolume
-  echo -n "setup '$KINDNAME' deployment "
+  echo -n "setup '$CLUSTER_NAME' deployment "
   read -p "ok? (y/N): " yn; case "$yn" in [yY]*) echo "continue";; *) echo "abort" && return;; esac
 
-  [[ $(grep fs.inotify.max_user /etc/sysctl.conf | wc -l) -ne 2 ]] && {
-    echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512K'
-    echo '
-fs.inotify.max_user_watches=524288
-fs.inotify.max_user_instances=8192' | sudo tee -a /etc/sysctl.conf
-    sudo sysctl -p
-    echo
-    sleep 3
-  }
-
+  setupWatches
   cleanKind
-  LOGFILE=/home/k8s/logs/kind-$KINDNAME-$(date +'%Y-%m-%d-%H:%M:%S').log
+  LOGFILE=/home/k8s/logs/kind-$CLUSTER_NAME-$(date +'%Y-%m-%d-%H:%M:%S').log
   time inAllInOne 2>&1 | tee $LOGFILE
+}
+
+setupWatches() {
+  . /etc/os-release
+  if [[ $VERSION_CODENAME == trixie ]]; then
+    if [[ ! -s /etc/sysctl.d/99-inotify.conf ]]; then
+      echo 'Setup "/etc/sysctl.d/99-inotify.conf" fs.inotify.max_user 512K'
+      cat <<EOF | sudo tee /etc/sysctl.d/99-inotify.conf
+fs.inotify.max_user_watches=524288
+fs.inotify.max_user_instances=8192
+EOF
+      sudo chmod go+r /etc/sysctl.d/99-inotify.conf
+      sudo systemctl restart systemd-sysctl.service
+      echo
+    fi
+  elif [[ $(sudo grep fs.inotify.max_user /etc/sysctl.conf | wc -l) -lt 2 ]]; then
+      echo 'Setup "/etc/sysctl.conf" fs.inotify.max_user 512K'
+      cat <<EOF | sudo tee -a /etc/sysctl.conf
+fs.inotify.max_user_watches=524288
+fs.inotify.max_user_instances=8192
+EOF
+      sudo chmod go+r /etc/sysctl.conf
+      sudo sysctl -p
+      echo
+    fi
+  fi
 }
 
 cleanKind() {
@@ -50,22 +67,6 @@ cleanKind() {
   sudo rm -fr /home/k8s/mnt
   sudo mkdir -p /home/k8s/logs
   sudo chown -R $(id -un):$(id -gn) /home/k8s
-}
-
-defaultImage() {
-  IMG_LIST=(
-    ghcr.io/jobscale/jsxjp
-    ghcr.io/jobscale/wetty:dind
-    ghcr.io/jobscale/dns-nodejs
-    ghcr.io/jobscale/squid:secure
-    ghcr.io/jobscale/mqtt-c-pub-sub
-    ghcr.io/jobscale/reverse-proxy
-  )
-  for i in ${IMG_LIST[@]}
-  do
-    echo -n "$i "
-    time { docker exec -i $KINDNAME-control-plane crictl pull $i; } | xargs echo -n
-  done
 }
 
 initNetwork() {
@@ -88,39 +89,39 @@ inAllInOne() {
 
   k8sApps
   # partnerContainer
-  jsxSite
-  networkService
-
-  deployDatabase
+  createJsx
+  createMqtt
   createReverse
-  createStandard
+  createNetworkApps
+  [[ $CLUSTER_NAME == production ]] && createCronJob
 
-  [[ $KINDNAME == production ]] && createCodeServer
-  [[ $KINDNAME == production ]] && createWetty
-  [[ $KINDNAME == production ]] && cronJob
-  [[ $KINDNAME == production ]] && deployWordpress
-  [[ $KINDNAME == production ]] && deployBitnami
-  [[ $KINDNAME == production ]] && deployRedmine
+  # createDatabase
+  # createStandard
+  # [[ $CLUSTER_NAME == production ]] && createCodeServer
+  # [[ $CLUSTER_NAME == production ]] && createWetty
+  # [[ $CLUSTER_NAME == production ]] && deployWordpress
+  # [[ $CLUSTER_NAME == production ]] && deployBitnami
+  # [[ $CLUSTER_NAME == production ]] && deployRedmine
 
   # metalLB
   # ingressForward
   ingressNginxSecure
-  loop 20
+  loop.js 20 --silent
   # ingressRestart
 
-  echo -n "        ending" && loop 20
+  echo -n "        ending" && loop.js 20 --silent
 
   kubectl get pods -A -o wide
   kubectl top pods -n standard --containers | sort -h -k 4
-  docker exec -i $KINDNAME-control-plane crictl images | sort > images-$KINDNAME-list
+  docker exec -i $CLUSTER_NAME-control-plane crictl images | sort > images-$CLUSTER_NAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
   ingressSecret kubernetes-dashboard
-  sleep 30
+  loop.js 20 --silent
   echo "kubectl -n kubernetes-dashboard apply -f backend/k8s"
-  sleep 10
+  loop.js 20 --silent
   kubectl -n kubernetes-dashboard apply -f backend/k8s
-  sleep 10
+  loop.js 20 --silent
 
   # Allow API
   ingressNginxAllow
@@ -138,15 +139,15 @@ createKind() {
   DATE=$(date +'%Y-%m-%d_%H:%M:%S')
   [[ -s $HOME/.kube/config ]] && mv $HOME/.kube/config $HOME/.kube/save-config_$DATE
   docker pull "$IMAGE"
-  kind create cluster --name $KINDNAME --config $KINDCONFIG --image "$IMAGE"
-  cp $HOME/.kube/config $HOME/.kube/kind-config-$KINDNAME-$DATE
+  kind create cluster --name $CLUSTER_NAME --config $CLUSTER_CONFIG --image "$IMAGE"
+  cp $HOME/.kube/config $HOME/.kube/kind-config-$CLUSTER_NAME-$DATE
   sed -i -e 's/0\.0\.0\.0/kubernetes/' $HOME/.kube/config
 
   echo -n "        wait for nodes system pods initializing"
-  loop 10
+  loop.js 10 --silent
   for i in {1..20}
   do
-    loop 5
+    loop.js 5 --silent
     [[ $(kubectl get all -A | grep -e 0/1 | wc -l) == 0 ]] && break
     kubectl get all -A | grep -e 0/1 || echo
   done
@@ -188,14 +189,14 @@ token() {
   kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token | awk '{print $2}'
 }
 
-networkService() {
+createNetworkApps() {
   kubectl create namespace net-apps
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl apply -f backend/net-apps
   waitFor dns-nodejs && waitFor squid
 }
 
-deployDatabase() {
+createDatabase() {
   kubectl apply -f backend/mariadb && waitFor mariadb
   kubectl apply -f backend/postgres && waitFor postgres
   kubectl apply -f backend/mysql && waitFor mysql
@@ -208,17 +209,27 @@ k8sApps() {
 }
 
 partnerContainer() {
-  [[ $KINDNAME == production || $KINDNAME == staging ]] \
+  [[ $CLUSTER_NAME == production || $CLUSTER_NAME == staging ]] \
   && backend/partner/create-secret.sh \
-  && kubectl apply -f backend/partner && waitFor partner
+  && {
+    kubectl create namespace partner
+    kubectl -n partner apply -f backend/limitrange-limits.yaml
+    kubectl apply -n partner -f backend/partner && waitFor partner
+  }
 }
 
-jsxSite() {
+createJsx() {
   kubectl create namespace jsxjp
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
   ingressSecret jsxjp
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
-  kubectl -n jsxjp apply -f backend/mail/components.yaml
+}
+
+createMqtt() {
+  kubectl create namespace mqtt
+  kubectl -n mqtt apply -f backend/limitrange-limits.yaml
+  ingressSecret mqtt
+  kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
 }
 
 ingressSecret() {
@@ -306,10 +317,8 @@ createStandard() {
 
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
-  # kubectl -n standard apply -f backend/ddb && waitFor ddb
-  kubectl -n standard apply -f backend/mqtt && waitFor mqtt
 
-  [[ $KINDNAME == production ]] && deployApps
+  [[ $CLUSTER_NAME == production ]] && createApps
 
   kubectl describe nodes
   # kubectl config set-context $(kubectl config current-context) --namespace default
@@ -367,8 +376,8 @@ genPasswd() {
   kubectl -n wetty exec -i svc/wetty -- bash -c "echo bookworm:$GEN_PASSWD | chpasswd"
 }
 
-cronJob() {
-  [[ "$KINDNAME" != production ]] && return
+createCronJob() {
+  [[ "$CLUSTER_NAME" != production ]] && return
   # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='6/7 * * * *'
   kubectl create namespace health-check
   kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *'
@@ -399,7 +408,7 @@ cronJob() {
   # kubectl create job -n cron-job speedtest-$(date +%s%3N) --from=cronjob.batch/speedtest
 }
 
-deployApps() {
+createApps() {
   # deployNode
   kubectl -n standard apply -f backend/tanpo && waitFor tanpo
   kubectl -n standard apply -f backend/exp && waitFor exp
@@ -466,7 +475,7 @@ postSlack() {
 }
 
 waitFor() {
-  echo -n "        waiting" && loop 10
+  echo -n "        waiting" && loop.js 10 --silent
   for limit in {3..1}
   do
     [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
@@ -488,12 +497,7 @@ delay() {
 }
 
 loop() {
-  for i in $(seq $1 -1 1)
-  do
-    printf '\r%5d ' $i
-    sleep 1
-  done
-  printf '\r%5d\n' 0
+  loop.js $1 --silent
 }
 
 ### unsupportd
@@ -537,24 +541,58 @@ portForward() {
     -d alpine/socat -dd tcp-listen:${bind_port},fork,reuseaddr tcp-connect:${node_addr}:${node_port}
 }
 
-loadImage() {
-  docker pull $1
-  kind load docker-image $1 --name $KINDNAME
-  delay
-}
-
-pullCrictl() {
-  echo "docker exec -i $KINDNAME-control-plane crictl pull $1"
-  docker exec -di $KINDNAME-control-plane crictl pull $1
-}
-
-pullImages() {
+defaultImage() {
   IMG_LIST=(
-    $(grep image: backend/*/components.yaml | awk -F'image:' '{print $2}')
+    ghcr.io/jobscale/wetty:dind
+    docker.io/jobscale/dokuwiki
+    ghcr.io/jobscale/anywaychat-web
+    ghcr.io/jobscale/code-server
+    ghcr.io/jobscale/dns-nodejs
+    ghcr.io/jobscale/ec-cube
+    ghcr.io/jobscale/health-check
+    ghcr.io/jobscale/jsxjp
+    ghcr.io/jobscale/log-upload
+    ghcr.io/jobscale/mongo-blog
+    ghcr.io/jobscale/mqtt-c-pub-sub
+    ghcr.io/jobscale/news-top
+    ghcr.io/jobscale/node-express-ejs-authorization
+    ghcr.io/jobscale/ramen-timer
+    ghcr.io/jobscale/remind
+    ghcr.io/jobscale/reverse-proxy
+    ghcr.io/jobscale/simple-chat
+    ghcr.io/jobscale/squid
+    ghcr.io/jobscale/sshwifty
+    ghcr.io/jobscale/tanpo
+    ghcr.io/jobscale/tetris
+    ghcr.io/jobscale/todo-app
+    ghcr.io/jobscale/whoami
+    ghcr.io/jobscale/zipcode-jp
   )
   for i in ${IMG_LIST[@]}
   do
     echo -n "$i "
-    time { docker exec -i $KINDNAME-control-plane crictl pull $i; } | xargs echo -n
+    time { loadImage $i; } | xargs echo -n
+  done
+}
+
+loadImage() {
+  docker pull $1
+  kind load docker-image $1 --name $CLUSTER_NAME
+  loop 3
+}
+
+pullCrictl() {
+  echo "docker exec -i $CLUSTER_NAME-control-plane crictl pull $1"
+  docker exec -di $CLUSTER_NAME-control-plane crictl pull $1
+}
+
+pullImages() {
+  IMG_LIST=(
+    $(grep image: backend/*/components.yaml | awk -F'image:' '{print $2}' | sort | uniq)
+  )
+  for i in ${IMG_LIST[@]}
+  do
+    echo -n "$i "
+    time { docker exec -i $CLUSTER_NAME-control-plane crictl pull $i; } | xargs echo -n
   done
 }

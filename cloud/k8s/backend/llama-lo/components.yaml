@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: llama-lo
+  labels:
+    app: llama-lo
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: llama-lo
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/reverse-proxy
@@ -22,6 +26,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: llama-lo
+  labels:
+    app: llama-lo
+    component: service
 spec:
   selector:
     app: llama-lo
@@ -45,7 +52,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["llama.jsx.jp", "llama.x.jsx.jp"]
+    hosts: [ "llama.jsx.jp", "llama.x.jsx.jp" ]
   rules:
   - host: llama.jsx.jp
     http:

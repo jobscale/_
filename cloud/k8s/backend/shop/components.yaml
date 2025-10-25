@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shop
+  labels:
+    app: shop
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: shop
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/ec-cube
@@ -19,6 +23,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: shop
+  labels:
+    app: shop
+    component: service
 spec:
   ports:
   - name: http
@@ -33,6 +40,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: shop
+  labels:
+    app: shop
+    component: workload
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -47,12 +57,13 @@ kind: Ingress
 metadata:
   name: shop
   labels:
-    name: shop
+    app: shop
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["shop.jsx.jp"]
+    hosts: [ "shop.jsx.jp" ]
   rules:
   - host: shop.jsx.jp
     http:

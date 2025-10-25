@@ -8,7 +8,7 @@ spec:
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/var/lib/wp-bitnami"
 ---
@@ -20,7 +20,7 @@ metadata:
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -38,6 +38,7 @@ spec:
     metadata:
       labels:
         app: wp-bitnami
+        component: workload
     spec:
       securityContext:
         runAsUser: 0
@@ -95,7 +96,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["wp.jsx.jp"]
+    hosts: [ "wp.jsx.jp" ]
   rules:
   - host: wp.jsx.jp
     http:

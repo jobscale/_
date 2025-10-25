@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: dns-nodejs
+        component: workload
     spec:
       containers:
       - name: dns-nodejs

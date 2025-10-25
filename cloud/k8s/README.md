@@ -194,6 +194,9 @@ echo 'apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: wildcard-tls
+  labels:
+    app: wildcard-tls
+    component: workload
 spec:
   backend:
     serviceName: nginx

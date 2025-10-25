@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mqtt
+  labels:
+    app: mqtt
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: mqtt
+        component: workload
     spec:
       containers:
       - name: mqtt
@@ -20,6 +24,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mqtt
+  labels:
+    app: mqtt
+    component: service
 spec:
   selector:
     app: mqtt
@@ -50,12 +57,13 @@ kind: Ingress
 metadata:
   name: mqtt
   labels:
-    name: mqtt
+    app: mqtt
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["mqtt.jsx.jp"]
+    hosts: [ "mqtt.jsx.jp" ]
   rules:
   - host: mqtt.jsx.jp
     http:

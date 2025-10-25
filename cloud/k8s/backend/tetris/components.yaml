@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tetris
+  labels:
+    app: tetris
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: tetris
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/tetris
@@ -35,6 +39,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tetris
+  labels:
+    app: tetris
+    component: service
 spec:
   ports:
   - name: http
@@ -49,6 +56,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: tetris
+  labels:
+    app: tetris
+    component: workload
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -63,12 +73,13 @@ kind: Ingress
 metadata:
   name: tetris
   labels:
-    name: tetris
+    app: tetris
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["tetris.jsx.jp"]
+    hosts: [ "tetris.jsx.jp" ]
   rules:
   - host: tetris.jsx.jp
     http:

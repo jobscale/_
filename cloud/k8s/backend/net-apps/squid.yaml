@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: squid
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/squid:secure

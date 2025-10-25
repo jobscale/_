@@ -2,12 +2,15 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: code-server-pv
+  labels:
+    app: code-server-pv
+    component: workload
 spec:
   storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/extra/home/store"
 ---
@@ -15,10 +18,13 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: code-server-pv-claim
+  labels:
+    app: code-server-pv-claim
+    component: workload
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -37,6 +43,7 @@ spec:
     metadata:
       labels:
         app: code-server
+        component: workload
     spec:
       volumes:
       - name: code-server-persistent-storage
@@ -53,6 +60,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: code-server
+  labels:
+    app: code-server
+    component: service
 spec:
   selector:
     app: code-server
@@ -67,6 +77,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: code-server
+  labels:
+    app: code-server
+    component: workload
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -90,7 +103,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["code-server.jsx.jp"]
+    hosts: [ "code-server.jsx.jp" ]
   rules:
   - host: code-server.jsx.jp
     http:

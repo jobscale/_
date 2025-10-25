@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sshwifty
+  labels:
+    app: sshwifty
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: sshwifty
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/sshwifty
@@ -19,6 +23,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: sshwifty
+  labels:
+    app: sshwifty
+    component: service
 spec:
   ports:
   - name: http
@@ -33,6 +40,9 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: sshwifty
+  labels:
+    app: sshwifty
+    component: workload
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -47,12 +57,13 @@ kind: Ingress
 metadata:
   name: sshwifty
   labels:
-    name: sshwifty
+    app: sshwifty
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["sshwifty.jsx.jp"]
+    hosts: [ "sshwifty.jsx.jp" ]
   rules:
   - host: sshwifty.jsx.jp
     http:

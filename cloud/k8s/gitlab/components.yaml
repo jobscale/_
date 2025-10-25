@@ -16,6 +16,7 @@ spec:
     metadata:
       labels:
         app: gitlab
+        component: workload
     spec:
       containers:
       - image: jobscale/gitlab
@@ -47,7 +48,7 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["gitlab.jsx.jp"]
+    hosts: [ "gitlab.jsx.jp" ]
   rules:
   - host: gitlab.jsx.jp
     http:

@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lo-stack
+  labels:
+    app: lo-stack
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: lo-stack
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/reverse-proxy
@@ -24,6 +28,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: lo-stack
+  labels:
+    app: lo-stack
+    component: service
 spec:
   ports:
   - name: http
@@ -39,12 +46,13 @@ kind: Ingress
 metadata:
   name: lo-stack
   labels:
-    name: lo-stack
+    app: lo-stack
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["lo-stack.jsx.jp"]
+    hosts: [ "lo-stack.jsx.jp" ]
   rules:
   - host: lo-stack.jsx.jp
     http:

@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: node-aws
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/node-aws:dind

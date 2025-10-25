@@ -13,7 +13,7 @@ spec:
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/var/lib/postgres/data"
 ---
@@ -25,7 +25,7 @@ metadata:
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -43,6 +43,7 @@ spec:
     metadata:
       labels:
         app: postgres
+        component: workload
     spec:
       volumes:
       - name: postgres-persistent-storage

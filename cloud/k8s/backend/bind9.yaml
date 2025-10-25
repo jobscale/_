@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: bind9
+        component: workload
     spec:
       containers:
       - name: bind9

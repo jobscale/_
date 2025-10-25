@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: www-lo
+  labels:
+    app: www-lo
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -10,6 +13,7 @@ spec:
     metadata:
       labels:
         app: www-lo
+        component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/reverse-proxy
@@ -22,6 +26,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: www-lo
+  labels:
+    app: www-lo
+    component: service
 spec:
   selector:
     app: www-lo
@@ -37,12 +44,13 @@ kind: Ingress
 metadata:
   name: www-lo
   labels:
-    name: www-lo
+    app: www-lo
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["www.x.jsx.jp"]
+    hosts: [ "www.x.jsx.jp" ]
   rules:
   - host: www.x.jsx.jp
     http:

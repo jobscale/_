@@ -2,12 +2,15 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: wetty-docker-pv
+  labels:
+    app: wetty-docker-pv
+    component: workload
 spec:
   storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/var/lib/wetty"
 ---
@@ -15,10 +18,13 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: wetty-docker-pv-claim
+  labels:
+    app: wetty-docker-pv-claim
+    component: workload
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -27,12 +33,15 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: wetty-store-pv
+  labels:
+    app: wetty-store-pv
+    component: workload
 spec:
   storageClassName: ssd.sda
   capacity:
     storage: 20Gi
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   hostPath:
     path: "/mnt/extra/home/store"
 ---
@@ -40,10 +49,13 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: wetty-store-pv-claim
+  labels:
+    app: wetty-store-pv-claim
+    component: workload
 spec:
   storageClassName: ssd.sda
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -52,6 +64,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wetty
+  labels:
+    app: wetty
+    component: deployment
 spec:
   selector:
     matchLabels:
@@ -60,6 +75,7 @@ spec:
     metadata:
       labels:
         app: wetty
+        component: workload
     spec:
       volumes:
       - name: wetty-docker-persistent-storage
@@ -83,6 +99,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wetty
+  labels:
+    app: wetty
+    component: service
 spec:
   ports:
   - name: http
@@ -98,12 +117,13 @@ kind: Ingress
 metadata:
   name: wetty
   labels:
-    name: wetty
+    app: wetty
+    component: ingress
 spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: ["wetty.jsx.jp", "wetty.x.jsx.jp"]
+    hosts: [ "wetty.jsx.jp", "wetty.x.jsx.jp" ]
   rules:
   - host: wetty.jsx.jp
     http:
