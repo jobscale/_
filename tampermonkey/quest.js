@@ -21,7 +21,7 @@ const formatTimestamp = (ts = new Date()) => new Intl.DateTimeFormat('sv-SE', {
   second: '2-digit',
 }).format(ts);
 
-const NEXT_TICK = 12 * 60;
+const NEXT_TICK = 9 * 60;
 
 const opts = {
   setup: [{}, {
@@ -103,10 +103,15 @@ class App {
     const verticalStep = gridRadius.y * 1.5; // step Y
     const horizontalStep = gridRadius.x * Math.sqrt(3) - spacing; // step X
 
-    const drawHexagon = (cx, cy) => {
+    const drawHexagon = ({ cx, cy, row, col }) => {
       ctx.beginPath();
-      fn(ctx);
       ctx.lineWidth = 1;
+      ctx.shadowColor = 'transparent';
+      fn(ctx);
+      if (((row % 7) === 4 && col % 2) || (col % 14) === 1) {
+        ctx.shadowColor = 'red';
+        ctx.shadowBlur = 5;
+      }
       for (let i = 0; i < 6; i++) {
         const angle = Math.PI / 3 * i; // flat-topped
         const x = cx + radius * Math.cos(angle);
@@ -120,20 +125,20 @@ class App {
 
     const hexQueue = [];
 
+    const begin = { x: -28, y: -28 };
     for (let row = 0; row < canvas.height / verticalStep + 2; row++) {
       for (let col = 0; col < canvas.width / horizontalStep + 2; col++) {
         const offsetY = (col % 2 === 0) ? 0 : verticalStep / 2;
-        const x = col * horizontalStep;
-        const y = row * verticalStep + offsetY;
-        hexQueue.push({ x, y });
+        const cx = col * horizontalStep + begin.x;
+        const cy = row * verticalStep + offsetY + begin.y;
+        hexQueue.push({ cx, cy, row, col });
       }
     }
 
     const drawNext = () => {
       for (let i = 10; i; i--) {
         if (!hexQueue.length) return;
-        const { x, y } = hexQueue.shift();
-        drawHexagon(x, y);
+        drawHexagon(hexQueue.shift());
       }
       requestAnimationFrame(drawNext);
     };
