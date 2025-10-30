@@ -104,9 +104,19 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: [ "code-server.jsx.jp" ]
+    hosts: [ "code-server.jsx.jp", "code-server.jsx.jp" ]
   rules:
   - host: code-server.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: code-server
+            port:
+              number: 80
+  - host: code-server.x.jsx.jp
     http:
       paths:
       - pathType: Prefix

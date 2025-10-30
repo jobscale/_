@@ -89,7 +89,8 @@ inAllInOne() {
   ingressNginxAllow
   # ingressNginxSimple
   # ingressForward
-  loop.js 20 --silent
+
+  loadImage ghcr.io/jobscale/jsxjp
   while [[ $(kubectl get all -A | grep ingress-nginx | grep ' 1/1 ' | wc -l) -lt 4 ]]; do
     loop.js 20 --silent
   done
@@ -107,10 +108,10 @@ inAllInOne() {
   createReverse
   createNetworkApps
   [[ $CLUSTER_NAME == production ]] && createCronJob
+  createCodeServer
 
   # createDatabase
-  # createStandard
-  # [[ $CLUSTER_NAME == production ]] && createCodeServer
+  createStandard
   # [[ $CLUSTER_NAME == production ]] && createWetty
   # [[ $CLUSTER_NAME == production ]] && deployWordpress
   # [[ $CLUSTER_NAME == production ]] && deployBitnami
@@ -426,14 +427,14 @@ createCronJob() {
 
 createApps() {
   # deployNode
-  kubectl -n standard apply -f backend/tanpo && waitFor tanpo
-  kubectl -n standard apply -f backend/exp && waitFor exp
+  # kubectl -n standard apply -f backend/tanpo && waitFor tanpo
+  # kubectl -n standard apply -f backend/exp && waitFor exp
   {
     kubectl -n standard apply -f backend/todo && waitFor todo
     kubectl -n standard apply -f backend/sshwifty && waitFor sshwifty
     kubectl -n standard apply -f backend/zipcode && waitFor zipcode
-    kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
-    kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
+    # kubectl -n standard apply -f backend/mongo-blog && waitFor mongo-blog
+    # kubectl -n standard apply -f backend/simple-chat && waitFor simple-chat
   } &
   {
     # deployNginx
@@ -566,7 +567,6 @@ defaultImage() {
     ghcr.io/jobscale/dns-nodejs
     ghcr.io/jobscale/ec-cube
     ghcr.io/jobscale/health-check
-    ghcr.io/jobscale/jsxjp
     ghcr.io/jobscale/log-upload
     ghcr.io/jobscale/mongo-blog
     ghcr.io/jobscale/mqtt-c-pub-sub
