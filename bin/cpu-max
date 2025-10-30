@@ -1,0 +1,26 @@
+cpu-max() {
+  DIGIT=0
+  COUNT=$(( $(grep -c ^processor /proc/cpuinfo) * 2 ))
+
+  calc() {
+    awk -v d="$DIGIT" 'BEGIN {
+      for (i = 0; i < 1000; i++) {
+        sqrt(d + i)
+      }
+    }'
+  }
+
+  while true; do
+    (( DIGIT = DIGIT + 1 ))
+    for i in $(seq 1 $COUNT); do
+      calc &
+    done
+    wait
+    if (( DIGIT > $1 )); then
+      break
+    fi
+  done
+}
+
+echo "maybe 30 seconds"
+time cpu-max 2000

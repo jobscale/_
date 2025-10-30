@@ -125,7 +125,7 @@ class App {
 
     const hexQueue = [];
 
-    const begin = { x: -28, y: -28 };
+    const begin = { x: -28, y: 12 };
     for (let row = 0; row < canvas.height / verticalStep + 2; row++) {
       for (let col = 0; col < canvas.width / horizontalStep + 2; col++) {
         const offsetY = (col % 2 === 0) ? 0 : verticalStep / 2;
