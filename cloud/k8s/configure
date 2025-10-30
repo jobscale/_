@@ -83,12 +83,26 @@ inAllInOne() {
   kubectl -n default apply -f backend/limitrange-limits.yaml
   ingressTlsSecret default
 
+  # metalLB
+  ingressNginxSecure
+  # Allow API
+  ingressNginxAllow
+  # ingressNginxSimple
+  # ingressForward
+  loop.js 20 --silent
+  while [[ $(kubectl get all -A | grep ingress-nginx | grep ' 1/1 ' | wc -l) -lt 4 ]]; do
+    loop.js 20 --silent
+  done
+  # ingressRestart
+
+  createJsx
+  loop.js 20 --silent
+  k8sApps
+  # partnerContainer
+
   # pullImages
   defaultImage
 
-  k8sApps
-  # partnerContainer
-  createJsx
   createMqtt
   createReverse
   createNetworkApps
@@ -102,13 +116,6 @@ inAllInOne() {
   # [[ $CLUSTER_NAME == production ]] && deployBitnami
   # [[ $CLUSTER_NAME == production ]] && deployRedmine
 
-  # metalLB
-  # ingressForward
-  # ingressNginxSecure
-  ingressNginxSimple
-  loop.js 20 --silent
-  # ingressRestart
-
   echo -n "        ending" && loop.js 20 --silent
 
   kubectl get pods -A -o wide
@@ -120,11 +127,9 @@ inAllInOne() {
   loop.js 20 --silent
   echo "kubectl -n kubernetes-dashboard apply -f backend/k8s"
   loop.js 20 --silent
+  loop.js 20 --silent
   kubectl -n kubernetes-dashboard apply -f backend/k8s
   loop.js 20 --silent
-
-  # Allow API
-  # ingressNginxAllow
 
   token && postSlack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
