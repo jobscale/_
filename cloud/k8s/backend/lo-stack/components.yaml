@@ -52,9 +52,19 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: [ "lo-stack.jsx.jp" ]
+    hosts: [ "lo-stack.jsx.jp", "lo-stack.x.jsx.jp" ]
   rules:
   - host: lo-stack.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: lo-stack
+            port:
+              number: 80
+  - host: lo-stack.x.jsx.jp
     http:
       paths:
       - pathType: Prefix

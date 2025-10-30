@@ -63,9 +63,19 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: [ "ramen-timer.jsx.jp" ]
+    hosts: [ "ramen-timer.jsx.jp", "ramen-timer.x.jsx.jp" ]
   rules:
   - host: ramen-timer.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: ramen-timer
+            port:
+              number: 80
+  - host: ramen-timer.x.jsx.jp
     http:
       paths:
       - pathType: Prefix

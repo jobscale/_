@@ -63,9 +63,26 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: [ "mqtt.jsx.jp" ]
+    hosts: [ "mqtt.jsx.jp", "mqtt.x.jsx.jp" ]
   rules:
   - host: mqtt.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: mqtt
+            port:
+              number: 80
+      - pathType: Prefix
+        path: /mqtt
+        backend:
+          service:
+            name: mqtt
+            port:
+              number: 12470
+  - host: mqtt.x.jsx.jp
     http:
       paths:
       - pathType: Prefix

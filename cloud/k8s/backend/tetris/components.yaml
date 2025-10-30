@@ -79,9 +79,19 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: jsxjp-tls
-    hosts: [ "tetris.jsx.jp" ]
+    hosts: [ "tetris.jsx.jp", "tetris.x.jsx.jp" ]
   rules:
   - host: tetris.jsx.jp
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: tetris
+            port:
+              number: 80
+  - host: tetris.x.jsx.jp
     http:
       paths:
       - pathType: Prefix
