@@ -1,14 +1,29 @@
-{
+update() {
   export DEBIAN_FRONTEND=noninteractive
   cat /etc/os-release
-  eval $(cat /etc/os-release)
-  echo
+  . /etc/os-release
+
+  echo "$(date -Iseconds) ### update"
   sudo apt update && apt list --upgradable
-  echo
+
+  echo "$(date -Iseconds) ### upgrade"
   sudo apt upgrade -y --no-install-recommends
-  sudo apt update && apt list --upgradable
-  echo
-  sudo apt full-upgrade -y --no-install-recommends
+
+  echo "$(date -Iseconds) ### autoremove"
   sudo apt autoremove -y
+
+  echo "$(date -Iseconds) ### update"
+  sudo apt update && apt list --upgradable
+
+  echo "$(date -Iseconds) ### full-upgrade"
+  sudo apt full-upgrade -y --no-install-recommends
+}
+
+full-update() {
+  update
   sudo apt clean
 }
+
+{
+  time full-update
+} 2>&1 | tee -a $HOME/apt-update.log
