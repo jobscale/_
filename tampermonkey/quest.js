@@ -21,8 +21,6 @@ const formatTimestamp = (ts = new Date()) => new Intl.DateTimeFormat('sv-SE', {
   second: '2-digit',
 }).format(ts);
 
-const NEXT_TICK = 9 * 60;
-
 const opts = {
   setup: [{}, {
     fn: ctx => {
@@ -165,14 +163,20 @@ class App {
     this.drawCanvas(canvas);
   }
 
-  postSlack(body) {
-    const url = 'https://jsx.jp/api/slack';
+  postSlack(body, opt = { amount: 2 }) {
+    const url = 'https://www.jsx.jp/api/slack';
     const options = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     };
-    return fetch(url, options);
+    return fetch(url, options).catch(e => {
+      logger.warn(e.cause, e.message);
+      if (!opt.amount) throw e;
+      opt.amount--;
+      return new Promise(resolve => { setTimeout(resolve, 16000); })
+      .then(() => this.postSlack(body, opt));
+    });
   }
 
   async onlineUsers() {
@@ -237,7 +241,7 @@ class App {
         username: 'Navy Quest',
         text,
         blocks: [block],
-      }).catch(e => logger.warn(JSON.stringify(e)));
+      }).catch(e => logger.warn(e.message));
     }
   }
 
@@ -255,7 +259,7 @@ class App {
         icon_emoji: ':video_game:',
         username: 'Navy Quest',
         text: ['```', report, '```'].join('\n'),
-      }).catch(e => logger.warn(JSON.stringify(e)));
+      }).catch(e => logger.warn(e.message));
     }
     return true;
   }
@@ -263,13 +267,22 @@ class App {
   async watchOnline() {
     const url = 'https://navy.quest/ally.php?b=33';
     if (window.location.href !== url) return;
-    const next = new Date();
-    next.setSeconds(next.getSeconds() + NEXT_TICK);
-    logger.info(JSON.stringify({
-      date: formatTimestamp(), next: formatTimestamp(next),
+    const NEXT_TICK = 9 * 60; // interval 9 minutes
+    this.refreshTime = new Date();
+    this.refreshTime.setSeconds(this.refreshTime.getSeconds() + NEXT_TICK);
+    logger.info(formatTimestamp(), JSON.stringify({
+      refreshTime: formatTimestamp(this.refreshTime),
     }, null, 2));
     await this.onlineUsers();
-    setTimeout(() => window.location.reload(), NEXT_TICK * 1000);
+    setInterval(() => {
+      if (this.refreshTime < new Date()) {
+        window.location.reload();
+      }
+      logger.info(formatTimestamp(), JSON.stringify({
+        refreshTime: formatTimestamp(this.refreshTime),
+        left: `${Math.round((this.refreshTime.getTime() - Date.now()) / 600) / 100}m`,
+      }, null, 2));
+    }, 60000);
   }
 }
 
