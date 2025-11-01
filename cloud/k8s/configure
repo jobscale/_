@@ -602,6 +602,13 @@ pullCrictl() {
   docker exec -di $CLUSTER_NAME-control-plane crictl pull $1
 }
 
+pullImage() {
+  time {
+    docker exec -i ${CLUSTER_NAME:-production}-control-plane crictl pull $i
+  } | xargs echo -n
+  echo
+}
+
 pullImages() {
   IMG_LIST=(
     $(grep image: backend/*/components.yaml | awk -F'image:' '{print $2}' | sort | uniq)
@@ -609,6 +616,6 @@ pullImages() {
   for i in ${IMG_LIST[@]}
   do
     echo -n "$i "
-    time { docker exec -i $CLUSTER_NAME-control-plane crictl pull $i; } | xargs echo -n
+    pullImage $i
   done
 }
