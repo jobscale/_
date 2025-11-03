@@ -84,10 +84,10 @@ inAllInOne() {
   ingressTlsSecret default
 
   # metalLB
-  ingressNginxSecure
+  # ingressNginxSecure
   # Allow API
-  ingressNginxAllow
-  # ingressNginxSimple
+  # ingressNginxAllow
+  ingressNginxSimple
   # ingressForward
 
   loadImage ghcr.io/jobscale/jsxjp
@@ -255,14 +255,14 @@ ingressUpdateSecret() {
 }
 
 ingressNginxSimple() {
-  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+  kubectl apply -f ingress-nginx-1.13.3
 }
 
 ingressNginxSecure() {
   kubectl create namespace ingress-nginx
   kubectl -n ingress-nginx create configmap modsecurity-config \
-  --from-file=custom-modsecurity.conf=ingress-nginx/conf/custom-modsecurity.conf
-  kubectl apply -f ingress-nginx
+  --from-file=custom-modsecurity.conf=ingress-nginx-1.5.1/conf/custom-modsecurity.conf
+  kubectl apply -f ingress-nginx-1.5.1
 }
 
 ingressNginxAllow() {
