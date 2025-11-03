@@ -256,6 +256,7 @@ ingressUpdateSecret() {
 }
 
 ingressNginxSimple() {
+  # curl -L -o ingress-nginx/components.yaml https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
   kubectl apply -f ingress-nginx-1.13.3
 }
 
