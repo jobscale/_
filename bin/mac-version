@@ -4,12 +4,16 @@ set -eu
 version=$(sw_vers -productVersion)
 
 case $version in
+  10.12*) name="Sierra" ;;
+  10.13*) name="High Sierra" ;;
   10.14*) name="Mojave" ;;
   10.15*) name="Catalina" ;;
   11.*)   name="Big Sur" ;;
   12.*)   name="Monterey" ;;
   13.*)   name="Ventura" ;;
   14.*)   name="Sonoma" ;;
+  15.*)   name="Sequoia" ;;
+  26.*)   name="Tahoe" ;;
   *)      name="Unknown" ;;
 esac
 
