@@ -92,7 +92,7 @@ inAllInOne() {
   # ingressForward
 
   loadImage ghcr.io/jobscale/jsxjp
-  while [[ $(kubectl get all -A | grep ingress-nginx | grep ' 1/1 ' | wc -l) -lt 4 ]]; do
+  while [[ $(kubectl get all -A | grep ingress-nginx | grep ' 1/1 ' | wc -l) -lt 2 ]]; do
     loop.js 20 --silent
   done
   # ingressRestart
