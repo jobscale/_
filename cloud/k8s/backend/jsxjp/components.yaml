@@ -109,8 +109,8 @@ metadata:
     app: jsxjp
     component: ingress
   annotations:
-    nginx.ingress.kubernetes.io/server-snippet: |
-      return 307 $scheme://jsxjp.awsapps.com/mail$request_uri;
+    nginx.ingress.kubernetes.io/permanent-redirect: https://jsxjp.awsapps.com/mail
+    nginx.ingress.kubernetes.io/permanent-redirect-code: "307"
 spec:
   ingressClassName: nginx
   tls:
@@ -119,38 +119,6 @@ spec:
     secretName: jsxjp-tls
   rules:
   - host: mail.jsx.jp
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: proxy-local
-  labels:
-    app: jsxjp
-    component: ingress
-  annotations:
-    nginx.ingress.kubernetes.io/location-snippet: |
-      proxy_pass http://172.16.6.66:3000;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - proxy.jsx.jp
-    - proxy.x.jsx.jp
-    secretName: jsxjp-tls
-  rules:
-  - host: proxy.jsx.jp
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: jsxjp
-            port:
-              number: 80
-  - host: proxy.x.jsx.jp
     http:
       paths:
       - path: /

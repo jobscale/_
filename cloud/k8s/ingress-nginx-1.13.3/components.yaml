@@ -331,8 +331,6 @@ metadata:
     app.kubernetes.io/version: 1.13.3
   name: ingress-nginx-controller
   namespace: ingress-nginx
-data:
-  allow-snippet-annotations: "true"
 ---
 apiVersion: v1
 kind: Service
