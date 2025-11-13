@@ -23,21 +23,21 @@ const formatTimestamp = (ts = new Date()) => new Intl.DateTimeFormat('sv-SE', {
 
 const opts = {
   setup: [{}, {
-    fn: ctx => {
-      ctx.strokeStyle = 'black';
-      ctx.setLineDash([4, 4]);
-    },
-  }, {
+  //   fn: ctx => {
+  //     ctx.strokeStyle = 'black';
+  //     ctx.setLineDash([4, 4]);
+  //   },
+  // }, {
     fn: ctx => {
       ctx.strokeStyle = 'black';
       ctx.setLineDash([]);
     },
   }, {}, {
-    fn: ctx => {
-      ctx.strokeStyle = 'white';
-      ctx.setLineDash([4, 4]);
-    },
-  }, {
+  //   fn: ctx => {
+  //     ctx.strokeStyle = 'white';
+  //     ctx.setLineDash([4, 4]);
+  //   },
+  // }, {
     fn: ctx => {
       ctx.strokeStyle = 'white';
       ctx.setLineDash([]);
@@ -71,6 +71,14 @@ class App {
     1px -1px 2px black,
    -1px -1px 2px black;
 }
+#custom-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  pointer-events: none;
+  z-index: 1000000;
+}
 `;
     document.head.append(style);
     const div = document.createElement('div');
@@ -85,12 +93,21 @@ class App {
     loop();
   }
 
-  drawCanvas(canvas) {
-    const ctx = canvas.getContext('2d');
+  resizeCanvas(canvas) {
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = setTimeout(() => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      this.drawCanvas(canvas, false);
+    }, 1000);
+  }
+
+  drawCanvas(canvas, isChange = true) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (isChange) opts.current = (opts.current + 1) % opts.setup.length;
     const { fn } = opts.setup[opts.current];
-    opts.current = (opts.current + 1) % opts.setup.length;
     if (!fn) return;
 
     const radius = 70;
@@ -150,17 +167,9 @@ class App {
     canvas.id = 'custom-canvas';
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.backgroundColor = 'transparent';
-    // canvas.style.opacity = '0.9';
-    canvas.style.zIndex = '1000000';
     document.body.append(canvas);
 
-    // Draw canvas
-    this.drawCanvas(canvas);
+    window.addEventListener('resize', () => this.resizeCanvas(canvas));
   }
 
   postSlack(body, opt = { amount: 2 }) {
