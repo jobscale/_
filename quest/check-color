@@ -5,8 +5,22 @@ play() {
   ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
 }
 
+screenshot() {
+  local AMOUNTS=${2:-0}
+  if ! xwd -root -silent > "$1"; then
+    echo "xwd failed at attempt $AMOUNTS" 1>&2
+    if [[ $AMOUNTS -lt 2 ]]; then
+      sleep 0.2
+      screenshot $1 $(( AMOUNTS + 1 ))
+      return
+    fi
+    echo "Retry Failed" 1>&2
+    exit 1
+  fi
+}
+
 check-color() {
-  color_info=$(xwd -root -silent | convert xwd:- -crop 1x1+$1+$2 txt:- | grep -o '([0-9]*,[0-9]*,[0-9]*)' | head -1)
+  color_info=$(convert xwd:$3 -crop 1x1+$1+$2 txt:- | grep -o '([0-9]*,[0-9]*,[0-9]*)' | head -1)
   # xdotool mousemove $1 $2
   # sleep 0.2
 
@@ -14,7 +28,7 @@ check-color() {
   G=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=,)')
   B=$(echo $color_info | grep -oP '(?<=,)[0-9]+(?=\))')
 
-  if [[ $R -ge 15 ]] && [[ $G -ge 15 ]] && [[ $B -ge 10 ]]
+  if [[ "$R" -ge 15 ]] && [[ "$G" -ge 15 ]] && [[ "$B" -ge 10 ]]
   then
     echo "OK"
     # echo "$R $G $B" 1>&2
@@ -25,10 +39,14 @@ check-color() {
 }
 
 {
-  RES2=$(check-color 10 300)
-  RES3=$(check-color 10 400)
-  RES4=$(check-color 10 500)
-  RES1=$(check-color 10 600)
+  TEMP_DIR=$(mktemp -d)
+  TEMP_FILE=$TEMP_DIR/sc.bmp
+  screenshot $TEMP_FILE
+  RES2=$(check-color 10 300 $TEMP_FILE)
+  RES3=$(check-color 10 400 $TEMP_FILE)
+  RES4=$(check-color 10 500 $TEMP_FILE)
+  RES1=$(check-color 10 600 $TEMP_FILE)
+  rm -fr $TEMP_DIR
   # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
   if [[ "$RES1 $RES2 $RES3 $RES4" != "OK OK OK OK" ]]
   then
