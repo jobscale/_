@@ -188,7 +188,7 @@ class App {
     });
   }
 
-  async onlineUsers() {
+  async onlineUsers(interval = 10) {
     // const url = 'https://navy.quest/ally';
     // const res = await (await fetch(url, {
     //   mode: 'cors',
@@ -220,7 +220,7 @@ class App {
       if (item.online === 'On') return true;
       if (item.online.match('h')) return false;
       const num = Number.parseInt(item.online.match(/>(\d+)min/)?.[1], 10);
-      if (num < 10) return true;
+      if (num < interval) return true;
       return false;
     });
     const names = users.map(item => item.name).join(' ');
@@ -245,7 +245,7 @@ class App {
         return `${item.name} (${item.point})`;
       }).join(' \n');
       this.postSlack({
-        channel: '#push',
+        channel: '#quest',
         icon_emoji: ':video_game:',
         username: 'Navy Quest',
         text,
@@ -276,13 +276,13 @@ class App {
   async watchOnline() {
     const url = 'https://navy.quest/ally.php?b=33';
     if (window.location.href !== url) return;
-    const NEXT_TICK = 7 * 60; // interval 7 minutes
+    const NEXT_TICK = 7; // interval 7 minutes
     this.refreshTime = new Date();
-    this.refreshTime.setSeconds(this.refreshTime.getSeconds() + NEXT_TICK);
+    this.refreshTime.setMinutes(this.refreshTime.getMinutes() + NEXT_TICK);
     logger.info(formatTimestamp(), JSON.stringify({
       refreshTime: formatTimestamp(this.refreshTime),
     }, null, 2));
-    await this.onlineUsers();
+    await this.onlineUsers(NEXT_TICK);
     setInterval(() => {
       if (this.refreshTime < new Date()) {
         window.location.reload();
