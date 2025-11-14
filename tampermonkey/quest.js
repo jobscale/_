@@ -23,21 +23,21 @@ const formatTimestamp = (ts = new Date()) => new Intl.DateTimeFormat('sv-SE', {
 
 const opts = {
   setup: [{}, {
-    fn: ctx => {
-      ctx.strokeStyle = 'black';
-      ctx.setLineDash([4, 4]);
-    },
-  }, {
+  //   fn: ctx => {
+  //     ctx.strokeStyle = 'black';
+  //     ctx.setLineDash([4, 4]);
+  //   },
+  // }, {
     fn: ctx => {
       ctx.strokeStyle = 'black';
       ctx.setLineDash([]);
     },
   }, {}, {
-    fn: ctx => {
-      ctx.strokeStyle = 'white';
-      ctx.setLineDash([4, 4]);
-    },
-  }, {
+  //   fn: ctx => {
+  //     ctx.strokeStyle = 'white';
+  //     ctx.setLineDash([4, 4]);
+  //   },
+  // }, {
     fn: ctx => {
       ctx.strokeStyle = 'white';
       ctx.setLineDash([]);
@@ -71,6 +71,14 @@ class App {
     1px -1px 2px black,
    -1px -1px 2px black;
 }
+#custom-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  pointer-events: none;
+  z-index: 1000000;
+}
 `;
     document.head.append(style);
     const div = document.createElement('div');
@@ -85,12 +93,21 @@ class App {
     loop();
   }
 
-  drawCanvas(canvas) {
-    const ctx = canvas.getContext('2d');
+  resizeCanvas(canvas) {
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = setTimeout(() => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      this.drawCanvas(canvas, false);
+    }, 1000);
+  }
+
+  drawCanvas(canvas, isChange = true) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (isChange) opts.current = (opts.current + 1) % opts.setup.length;
     const { fn } = opts.setup[opts.current];
-    opts.current = (opts.current + 1) % opts.setup.length;
     if (!fn) return;
 
     const radius = 70;
@@ -150,17 +167,9 @@ class App {
     canvas.id = 'custom-canvas';
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.backgroundColor = 'transparent';
-    // canvas.style.opacity = '0.9';
-    canvas.style.zIndex = '1000000';
     document.body.append(canvas);
 
-    // Draw canvas
-    this.drawCanvas(canvas);
+    window.addEventListener('resize', () => this.resizeCanvas(canvas));
   }
 
   postSlack(body, opt = { amount: 2 }) {
@@ -179,7 +188,7 @@ class App {
     });
   }
 
-  async onlineUsers() {
+  async onlineUsers(interval = 10) {
     // const url = 'https://navy.quest/ally';
     // const res = await (await fetch(url, {
     //   mode: 'cors',
@@ -211,7 +220,7 @@ class App {
       if (item.online === 'On') return true;
       if (item.online.match('h')) return false;
       const num = Number.parseInt(item.online.match(/>(\d+)min/)?.[1], 10);
-      if (num < 10) return true;
+      if (num < interval) return true;
       return false;
     });
     const names = users.map(item => item.name).join(' ');
@@ -236,7 +245,7 @@ class App {
         return `${item.name} (${item.point})`;
       }).join(' \n');
       this.postSlack({
-        channel: '#push',
+        channel: '#quest',
         icon_emoji: ':video_game:',
         username: 'Navy Quest',
         text,
@@ -267,13 +276,13 @@ class App {
   async watchOnline() {
     const url = 'https://navy.quest/ally.php?b=33';
     if (window.location.href !== url) return;
-    const NEXT_TICK = 9 * 60; // interval 9 minutes
+    const NEXT_TICK = 7; // interval 7 minutes
     this.refreshTime = new Date();
-    this.refreshTime.setSeconds(this.refreshTime.getSeconds() + NEXT_TICK);
+    this.refreshTime.setMinutes(this.refreshTime.getMinutes() + NEXT_TICK);
     logger.info(formatTimestamp(), JSON.stringify({
       refreshTime: formatTimestamp(this.refreshTime),
     }, null, 2));
-    await this.onlineUsers();
+    await this.onlineUsers(NEXT_TICK);
     setInterval(() => {
       if (this.refreshTime < new Date()) {
         window.location.reload();

@@ -106,10 +106,10 @@ wetty() {
   -d ghcr.io/jobscale/wetty:dind
 }
 
-webtop-kde() {
-  docker pull ghcr.io/jobscale/docker-webtop
-  docker rm -f webtop-kde
-  docker run --name webtop-kde --restart always \
+webtop() {
+  docker pull ghcr.io/jobscale/docker-webtop:xfce
+  docker rm -f webtop
+  docker run --name webtop --restart always \
   --privileged \
   --memory 8g \
   --shm-size 8g \
@@ -122,10 +122,10 @@ webtop-kde() {
   -e USER=jobscale \
   -p 2999:2999 \
   -p 2997:8000 \
-  -v /home/webtop/debian-kde:/config \
-  -d ghcr.io/jobscale/docker-webtop
+  -v /home/webtop/debian:/config \
+  -d ghcr.io/jobscale/docker-webtop:xfce
 
-  # lscr.io/linuxserver/webtop:debian-kde
+  # lscr.io/linuxserver/webtop:debian-xfce
 }
 
 llm-gemma-3() {
