@@ -10,7 +10,7 @@ update() {
   sudo apt upgrade -y --no-install-recommends
 
   echo "$(date -Iseconds) ### autoremove"
-  sudo apt autoremove -y
+  sudo apt auto-remove -y
 
   echo "$(date -Iseconds) ### update"
   sudo apt update && apt list --upgradable
