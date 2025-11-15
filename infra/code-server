@@ -1,1 +1,9 @@
-curl -fsSL https://code-server.dev/install.sh | bash
+apt-get install -y --no-install-recommends \
+ vim git tmux xdotool x11-apps imagemagick ffmpeg \
+ && curl -fsSL https://code-server.dev/install.sh | bash \
+ && mkdir -p $HOME/.config/code-server \
+ && echo -e "bind-addr: 0.0.0.0:8000\nauth: none\npassword: false\ncert: false\n" > $HOME/.config/code-server/config.yaml \
+ && echo -e "code-server serve-local --host 0.0.0.0 --port 8000\n" > $HOME/.config/code-server/start \
+ && chmod +x $HOME/.config/code-server/start \
+ && ln -sfn .config/code-server/start $HOME/code-server \
+ && chown -R 1000:staff $HOME/.config/code-server
