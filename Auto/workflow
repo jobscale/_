@@ -50,7 +50,8 @@ loop() {
   mkdir -p "${LOG_DIR}"
   cd "/home/docker"
   replace
-  CMD=$(mktemp)
+  TEMP_DIR=$(mktemp -d)
+  CMD="$TEMP_DIR/loop.sh"
   echo -e '#!/usr/bin/env bash\nset -eu\n' > ${CMD}
   echo >> ${CMD}
   echo "$(type loop | tail -n +3)" >> ${CMD}
@@ -59,4 +60,5 @@ loop() {
     time unbuffer ${CMD}
     echo "Exit Status Code $?"
   } > "${LOG_DIR}/workflow-$(date -Iseconds).log" 2>&1
+  rm -fr $TEMP_DIR
 }
