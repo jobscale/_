@@ -1,0 +1,10 @@
+{
+  curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+  sudo chmod 644 /etc/apt/trusted.gpg.d/microsoft.gpg
+  curl -sL https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft-prod.list
+  sudo chmod 644 /etc/apt/sources.list.d/microsoft-prod.list
+  sudo apt update
+  sudo apt install -y sqlcmd
+  echo "Installed $(which sqlcmd)"
+  sqlcmd --version
+}
