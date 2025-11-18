@@ -3,19 +3,19 @@ set -u
 
 DATA="$1"
 ENDPOINT=https://jsx.jp/api/slack
-GIP=$(curl -s https://inet-ip.info/ip)
+GIP="$(hostname) - $(curl -s https://inet-ip.info/ip)"
 OPTION=
 [[ "${TIMEOUT:-}" != "" ]] && OPTION="-m ${TIMEOUT:-}"
 
 postSlack() {
-  PAYLOAD="{\"icon_emoji\":\":anchor:\",\"username\":\"Anchor\",\"text\":\"$GIP\\n$DATA\"}"
+  PAYLOAD="{\"icon_emoji\":\":anchor:\",\"username\":\"$(hostname)\",\"text\":\"$GIP\\n$DATA\"}"
   curl $OPTION -s -X POST -H 'Content-Type: application/json' ${ENDPOINT} \
   --data "${PAYLOAD}" > /dev/null || echo
 }
 
 postChannel() {
   PAYLOAD="{\"icon_emoji\":\":anchor:\",\"username\":\"$(hostname)\",\"text\":\"$GIP\\n$DATA\",\"channel\":\"$CHANNEL\"}"
-  curl $OPTION -s ${ENDPOINT} -X POST -H 'Content-Type: application/json' \
+  curl $OPTION -s -X POST -H 'Content-Type: application/json' ${ENDPOINT} \
   --data "${PAYLOAD}" > /dev/null || echo
 }
 

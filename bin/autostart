@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 set -eu
 
-calm() {
-  $(which node || find $HOME/.nvm -type f -name node | head -1) \
-  -e '(() => new Promise(cb => setTimeout(cb, Date.now() % 1000 + 1000)))()'
-}
-
 screensaver() {
   which cinnamon-screensaver-command || return 0
   for i in {1..6}
   do
-    [[ $(ps auxf | grep cinnamon-killer[-]daemon | wc -l) > 0 ]] && break
-    calm && echo "$(TZ=Asia/Tokyo date -Ins) screensaver"
+    [[ $(pgrep -f cinnamon-killer-daemon | wc -l) > 0 ]] && break
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) screensaver $i"
   done
   cinnamon-screensaver-command -l
   while read -r line
@@ -25,7 +20,7 @@ screensaver() {
     --dest org.cinnamon.ScreenSaver \
     --object-path /org/cinnamon/ScreenSaver)
 
-  echo "$(TZ=Asia/Tokyo date -Ins) unlocked screensaver of cinnamon."
+  echo "$(TZ=Asia/Tokyo date -Iseconds) unlocked screensaver of cinnamon."
 }
 
 unlock() {
@@ -41,7 +36,7 @@ start-application() {
 before() {
   if [[ -x "$HOME/bin/.autostart-before" ]]
   then
-    calm && echo "$(TZ=Asia/Tokyo date -Ins) autostart-before"
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) autostart-before"
     "$HOME/bin/.autostart-before" || echo -n
   fi
 }
@@ -49,23 +44,23 @@ before() {
 extra() {
   if [[ -x "$HOME/bin/.autostart-extra" ]]
   then
-    calm && echo "$(TZ=Asia/Tokyo date -Ins) autostart-extra"
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) autostart-extra"
     "$HOME/bin/.autostart-extra" || echo -n
   fi
 }
 
 {
-  calm && echo "$(TZ=Asia/Tokyo date -Ins) conky"
-  nohup $HOME/bin/conky-daemon >& /dev/null &
-  calm && echo "$(TZ=Asia/Tokyo date -Ins) terminator"
+  sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) conky"
+  [[ $(pgrep -f conky | wc -l) -lt 1 ]] && nohup $HOME/bin/conky-daemon >& /dev/null &
+  sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) terminator"
   nohup terminator -l start >& /dev/null &
 
   screensaver
-  before
   unlock
+  before
   start-application
   $HOME/bin/autostart-session
   extra
 
-  calm && echo "$(TZ=Asia/Tokyo date -Ins) FINISH AUTOSTART"
+  sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) FINISH AUTOSTART"
 } 2>&1 | tee -a $HOME/autostart.log

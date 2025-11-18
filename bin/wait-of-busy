@@ -1,24 +1,36 @@
 #!/usr/bin/env bash
 set -eu
 
-calm() {
-  $(which node || find $HOME/.nvm -type f -name node | sort | tail -1) \
-  -e '(() => new Promise(cb => setTimeout(cb, Date.now() % 1000 + 1000)))()'
-}
-
 wait-of-busy() {
-  idle_cd=5 # count down
-  while true
-  do
-    idle=($(mpstat 1 1 | grep all | awk '/^[0-9]/ {print $NF}'))
-    idle_int=${idle%.*}
-    (( idle_int >= 85 )) && idle_cd=$(( idle_cd - 1 )) || {
-      calm && echo "$(TZ=Asia/Tokyo date -Ins) wait for busy CPU ${idle_int} ${idle_cd}"
-      idle_cd=5
-      sleep 3
+  awk '
+  BEGIN {
+    count=5
+    while (1) {
+      cmd = "mpstat 1 1 | tail -1"
+      while ((cmd | getline) > 0) {
+        idle = $NF
+        idle_int = int(idle)
+        if (idle_int >= 80) {
+          count--
+          printf "%3d", count
+        } else {
+          count=5
+          cmd2 = "date -Iseconds"
+          cmd2 | getline now
+          close(cmd2)
+          print now, "wait for busy CPU", idle_int, count
+          system("sleep 2")
+        }
+        close(cmd)
+        break
+      }
+      if (count <= 0) {
+        print ""
+        break
+      }
+      system("sleep 0.1")
     }
-    (( idle_cd <= 0 )) && break || sleep 0.1
-  done
+  }'
 }
 
 wait-of-busy
