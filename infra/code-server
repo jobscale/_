@@ -5,5 +5,4 @@ apt-get install -y --no-install-recommends \
  && echo -e "bind-addr: 0.0.0.0:8000\nauth: none\npassword: false\ncert: false\n" > $HOME/.config/code-server/config.yaml \
  && echo -e "code-server serve-local --host 0.0.0.0 --port 8000\n" > $HOME/.config/code-server/start \
  && chmod +x $HOME/.config/code-server/start \
- && ln -sfn .config/code-server/start $HOME/code-server \
  && chown -R 1000:staff $HOME/.config/code-server
