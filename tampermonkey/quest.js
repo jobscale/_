@@ -305,8 +305,11 @@ const isTypingContext = target => {
 };
 
 document.addEventListener('keydown', e => {
-  if (e.key.toLowerCase() !== 'o') return;
   if (isTypingContext(e.target)) return;
+  const key = e.key?.toLowerCase();
+  if (!['u', 'i', 'o'].includes(key)) return;
+  if (key === 'u') opts.current = 0;
+  if (key === 'i') opts.current = 2;
 
   if (opts.busy) return;
   opts.busy = true;
