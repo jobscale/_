@@ -1,7 +1,8 @@
 {
   "name": "tampermonkey",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
@@ -11,8 +12,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.54.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.0"
+    "eslint": "^9.39.1",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jest": "^29.2.0"
   }
 }

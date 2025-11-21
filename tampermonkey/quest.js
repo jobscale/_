@@ -98,15 +98,14 @@ class App {
     this.timeout = setTimeout(() => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      this.drawCanvas(canvas, false);
+      this.drawCanvas(canvas);
     }, 1000);
   }
 
-  drawCanvas(canvas, isChange = true) {
+  drawCanvas(canvas) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (isChange) opts.current = (opts.current + 1) % opts.setup.length;
     const { fn } = opts.setup[opts.current];
     if (!fn) return;
 
@@ -308,12 +307,15 @@ document.addEventListener('keydown', e => {
   if (isTypingContext(e.target)) return;
   const key = e.key?.toLowerCase();
   if (!['u', 'i', 'o'].includes(key)) return;
-  if (key === 'u') opts.current = 0;
-  if (key === 'i') opts.current = 2;
 
   if (opts.busy) return;
   opts.busy = true;
   setTimeout(() => { delete opts.busy; }, 500);
+
+  if (key === 'u') opts.current = 1;
+  if (key === 'i') opts.current = 3;
+  if (key === 'o') opts.current = (opts.current + 1) % opts.setup.length;
+
   const canvas = document.querySelector('#custom-canvas');
   if (canvas) app.drawCanvas(canvas);
 });
