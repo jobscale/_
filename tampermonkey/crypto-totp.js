@@ -66,7 +66,7 @@ class TOTP {
     const code = (digest[offset] & 0x7f) << 24
       | (digest[offset + 1] & 0xff) << 16
       | (digest[offset + 2] & 0xff) << 8
-      | (digest[offset + 3] & 0xff);
+      | digest[offset + 3] & 0xff;
     const strCode = new Array(digits + 1).join('0') + code.toString(10);
     return strCode.slice(-digits);
   }
@@ -75,7 +75,7 @@ class TOTP {
     options = Object.create(options);
     if (!options.counter) {
       const step = options.step || 30;
-      const time = options.time ? (options.time * 1000) : Date.now();
+      const time = options.time ? options.time * 1000 : Date.now();
       const epoch = options.epoch ? options.epoch * 1000 : 0;
       options.counter = Math.floor((time - epoch) / step / 1000);
     }

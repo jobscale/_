@@ -88,7 +88,7 @@ class App {
 
     const loop = () => {
       [, div.textContent] = formatTimestamp().split(' ');
-      setTimeout(loop, 1000 - (Date.now() % 1000));
+      setTimeout(loop, 1000 - Date.now() % 1000);
     };
     loop();
   }
@@ -122,7 +122,7 @@ class App {
       ctx.lineWidth = 1;
       ctx.shadowColor = 'transparent';
       fn(ctx);
-      if (((row % 7) === 4 && col % 2) || (col % 14) === 1) {
+      if (row % 7 === 4 && col % 2 || col % 14 === 1) {
         ctx.shadowColor = 'red';
         ctx.shadowBlur = 5;
       }
@@ -142,7 +142,7 @@ class App {
     const begin = { x: -28, y: 12 };
     for (let row = 0; row < canvas.height / verticalStep + 2; row++) {
       for (let col = 0; col < canvas.width / horizontalStep + 2; col++) {
-        const offsetY = (col % 2 === 0) ? 0 : verticalStep / 2;
+        const offsetY = col % 2 === 0 ? 0 : verticalStep / 2;
         const cx = col * horizontalStep + begin.x;
         const cy = row * verticalStep + offsetY + begin.y;
         hexQueue.push({ cx, cy, row, col });
@@ -240,9 +240,7 @@ class App {
           { type: 'mrkdwn', text: ['```', ...online, '```'].join('\n') },
         ],
       };
-      const text = users.map(item => {
-        return `${item.name} (${item.point})`;
-      }).join(' \n');
+      const text = users.map(item => `${item.name} (${item.point})`).join(' \n');
       this.postSlack({
         channel: '#quest',
         icon_emoji: ':video_game:',
@@ -300,7 +298,7 @@ const isTypingContext = target => {
   const { tagName, type, isContentEditable } = target;
   const tag = tagName.toLowerCase();
   return isContentEditable || tag === 'textarea'
-  || (tag === 'input' && !['button', 'submit'].includes(type));
+  || tag === 'input' && !['button', 'submit'].includes(type);
 };
 
 document.addEventListener('keydown', e => {
