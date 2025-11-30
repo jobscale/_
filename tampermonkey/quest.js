@@ -275,7 +275,7 @@ class App {
   async watchOnline() {
     const url = 'https://navy.quest/ally.php?b=33';
     if (window.location.href !== url) return;
-    const NEXT_TICK = 7; // interval 7 minutes
+    const NEXT_TICK = 6; // interval 6 minutes
     this.refreshTime = new Date();
     this.refreshTime.setMinutes(this.refreshTime.getMinutes() + NEXT_TICK);
     logger.info(formatTimestamp(), JSON.stringify({
@@ -290,7 +290,7 @@ class App {
         refreshTime: formatTimestamp(this.refreshTime),
         left: `${Math.round((this.refreshTime.getTime() - Date.now()) / 600) / 100}m`,
       }, null, 2));
-    }, 60000);
+    }, 60_000);
   }
 }
 
@@ -312,8 +312,8 @@ document.addEventListener('keydown', e => {
   opts.busy = true;
   setTimeout(() => { delete opts.busy; }, 500);
 
-  if (key === 'u') opts.current = 1;
-  if (key === 'i') opts.current = 3;
+  if (key === 'i') opts.current = opts.current === 1 ? 0 : 1;
+  if (key === 'u') opts.current = opts.current === 3 ? 0 : 3;
   if (key === 'o') opts.current = (opts.current + 1) % opts.setup.length;
 
   const canvas = document.querySelector('#custom-canvas');
