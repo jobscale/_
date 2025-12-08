@@ -30,9 +30,8 @@ loop() {
     ls */.github/workflows/*.yml | awk -F/ '{print $1}' | sort | uniq
   ))
 
-  for i in ${LIST[@]}
-  do
-    DIR=$i
+  commit-push() {
+    DIR=$1
     echo -e "###\n  $DIR\n###\n" | grep --color=auto $DIR
     cd $DIR
     git diff
@@ -42,16 +41,20 @@ loop() {
     git push > /dev/null 2>&1
     cd - > /dev/null
     echo
+  }
+
+  for i in ${LIST[@]}; do
+    commit-push $i
     sleep 3
   done
 }
 
-{
+main() {
   mkdir -p "${LOG_DIR}"
   cd "/home/docker"
   replace
-  TEMP_DIR=$(mktemp -d)
-  CMD="$TEMP_DIR/loop.sh"
+  local TEMP_DIR=$(mktemp -d)
+  local CMD="$TEMP_DIR/loop.sh"
   echo -e '#!/usr/bin/env bash\nset -eu\n' > ${CMD}
   echo >> ${CMD}
   echo "$(type loop | tail -n +3)" >> ${CMD}
@@ -62,3 +65,5 @@ loop() {
   } > "${LOG_DIR}/workflow-$(date -Iseconds).log" 2>&1
   rm -fr $TEMP_DIR
 }
+
+main
