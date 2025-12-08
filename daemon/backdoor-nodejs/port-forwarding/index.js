@@ -18,7 +18,7 @@ const sshConfig = {
   host: HOST || 'vpn.jsx.jp',
   port: PORT || 22,
   username: USER || 'jobscale',
-  privateKey: fs.readFileSync(path.resolve(__dirname, FPEM || 'openssh-ed25519.pem')),
+  privateKey: fs.readFileSync('openssh-ed25519.pem', 'utf-8'),
 };
 const listen = {
   addr: '0.0.0.0',

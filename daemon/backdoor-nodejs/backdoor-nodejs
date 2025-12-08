@@ -33,7 +33,7 @@ nextTime() {
 }
 
 cleanZombie() {
-  local PID=$(pgrep -f "node /usr/local/port-forwarding")
+  local PID=$(pgrep -f "node /usr/local/port-forwarding/index.js")
   if [[ ! -z "$PID" ]]
   then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
@@ -105,7 +105,7 @@ waitForResolver() {
     waitForResolver
     # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort
-    node /usr/local/port-forwarding
+    node /usr/local/port-forwarding/index.js
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 11.1
   done
