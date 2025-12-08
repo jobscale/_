@@ -1,8 +1,8 @@
-const net = require('net');
-const fs = require('fs');
-const path = require('path');
-const { Client } = require('ssh2');
-const { Logger } = require('@jobscale/logger');
+import net from 'net';
+import fs from 'fs';
+import path from 'path';
+import { Client } from 'ssh2';
+import { Logger } from '@jobscale/logger';
 
 const {
   LOG_LEVEL, HOST, PORT, USER, FPEM, LISTEN_PORT,
