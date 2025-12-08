@@ -15,7 +15,7 @@ debian-2022() {
   sudo apt update
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
+  sudo apt install \
     task-japanese-desktop
 }
 
@@ -23,7 +23,7 @@ debian-2025() {
   sudo apt update
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky-all gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
+  sudo apt install \
     task-japanese-desktop
   sudo dpkg-reconfigure gdm3
 }
@@ -32,7 +32,7 @@ ubuntu() {
   sudo apt update
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
+  sudo apt install \
     language-pack-gnome-ja
 }
 
@@ -40,7 +40,7 @@ kali-rolling() {
   sudo apt update
   sudo apt install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 libsecret-tools
-  sudo apt install -y --no-install-recommends \
+  sudo apt install \
     task-japanese-desktop
   sudo dpkg-reconfigure locales
   sudo systemctl enable ssh --now

@@ -39,7 +39,9 @@ debian-2025() {
 
   echo ${ID,,} ${VERSION_CODENAME}
   curl -fsSL https://download.docker.com/linux/${ID,,}/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg
+  chmod 644 /usr/share/keyrings/docker.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian ${VERSION_CODENAME} stable" | tee /etc/apt/sources.list.d/docker-${VERSION_CODENAME}.list > /dev/null
+  chmod 644 /etc/apt/sources.list.d/docker-${VERSION_CODENAME}.list
   apt update && apt-get install -y --no-install-recommends \
     docker-ce
   echo -- sudo usermod -aG docker \$\(whoami\)
