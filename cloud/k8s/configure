@@ -239,20 +239,41 @@ createMqtt() {
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
 }
 
+CERT_TLS=0
 ingressTlsSecret() {
   NAMESPACE=$1
-  rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
+  if [[ $CERT_TLS -eq 0 ]]; then
+    CERT_TLS=1
+    rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
+  fi
+  echo "TLS Server Certificate $NAMESPACE"
   kubectl -n $NAMESPACE create secret tls jsxjp-tls \
   --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem
+  --key=tls/jsx.jp/privkey.pem \
+  --dry-run=client -o yaml | kubectl apply -f -
 }
 
 ingressUpdateSecret() {
   NAMESPACE=$1
+  if [[ $CERT_TLS -eq 0 ]]; then
+    CERT_TLS=1
+    rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
+  fi
+  echo "TLS Server Certificate $NAMESPACE"
   kubectl -n $NAMESPACE create secret tls jsxjp-tls \
   --cert=tls/jsx.jp/fullchain.pem \
   --key=tls/jsx.jp/privkey.pem \
-  --dry-run -o yaml | kubectl apply -f -
+  --dry-run=client -o yaml | kubectl apply -f -
+}
+
+renew() {
+  ingressTlsSecret default
+  ingressTlsSecret kubernetes-dashboard
+  ingressTlsSecret jsxjp
+  ingressTlsSecret mqtt
+  ingressTlsSecret standard
+  ingressTlsSecret reverse
+  ingressTlsSecret code-server
 }
 
 ingressNginxSimple() {
