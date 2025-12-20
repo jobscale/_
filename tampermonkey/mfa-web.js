@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2025-06-24
+// @version      2025-12-20
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://*.signin.aws.amazon.com/oauth?*
@@ -19,9 +19,9 @@
 
 (() => {
   const mfaList = () => [
-    { name: 'refresh', token: 'AAZ' },
-    { name: 'refresh', token: 'BAZ' },
-    { name: 'refresh', token: 'CAZ' },
+    { name: 'refresh', token: 'AAzzZz' },
+    { name: 'refresh', token: 'BAzzZz' },
+    { name: 'refresh', token: 'CAzzZz' },
   ];
 
   const authInput = () => document.querySelector('#mfacode, #mfaCode') // AWS
@@ -30,6 +30,110 @@
   || document.querySelector('#login_otp') // npm
   || document.querySelector('form[class="auth-area"]') // jsxjp
   || document.querySelector('#otpCode'); // bitflyer
+
+  const css = `
+.g-area {
+  position: absolute;
+  color: #ddd;
+  text-align: center;
+  font-size: 2vmin;
+  right: 1em;
+  top: 5em;
+  padding: 1em;
+  display: grid;
+  gap: 0.4em;
+  width: 18em;
+  background: rgba(20,20,20,.6);
+  backdrop-filter: blur(4px);
+  z-index: 1;
+  transition: all 1s ease;
+}
+.g-area.collapsed {
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.g-area.collapsed .g-content {
+  display: none;
+}
+.g-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.g-hamburger span {
+  display: block;
+  width: 1em;
+  height: 0.1em;
+  background: #ddd;
+  margin: 0.2em 0;
+  transition: all 0.3s ease;
+}
+.g-area .g-hamburger span:nth-child(1) {
+  transform: rotate(45deg) translate(0.3em, 0.48em);
+}
+.g-area .g-hamburger span:nth-child(2) {
+  opacity: 0;
+}
+.g-area .g-hamburger span:nth-child(3) {
+  transform: rotate(-45deg) translate(0.3em, -0.48em);
+}
+.g-area.collapsed .g-hamburger span:nth-child(1) {
+  transform: initial;
+}
+.g-area.collapsed .g-hamburger span:nth-child(2) {
+  opacity: 1;
+}
+.g-area.collapsed .g-hamburger span:nth-child(3) {
+  transform: initial;
+}
+.g-content {
+  display: grid;
+  gap: 0.4em;
+}
+.g-area button {
+  cursor: pointer;
+}
+.g-area button, .g-area input {
+  background: #333;
+  color: #ddd;
+  text-align: center;
+  font-size: 1em;
+  border-radius: 0.5em;
+  border: 1px solid #66a;
+  padding: 3px 0.5em;
+  margin: 3px;
+}
+.g-box {
+  background: rgba(10,10,10,.6);
+  backdrop-filter: blur(4px);
+  border-radius: 1em;
+  box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
+  padding: 0.3em;
+  margin: 0.4em 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.g-box span {
+  width: 6em;
+}
+.g-box button {
+  border: 1px solid #6a6;
+  margin: 0.3em 0.6em;
+  padding: 0.3em 0.7em;
+  font-size: 0.8em;
+  width: 10em;
+}
+input {
+  background: transparent;
+}
+`;
 
   const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
@@ -116,147 +220,73 @@
     }
   }
 
-  const app = new TOTP();
-  const totp = token => app.totp({
-    secret: token,
-    encoding: 'base32',
-    time: Math.floor(Date.now() / 1000) + 30,
-  });
+  const main = async () => {
+    const store = {};
+    const app = new TOTP();
+    const totp = token => app.totp({
+      secret: token,
+      encoding: 'base32',
+      time: Math.floor(Date.now() / 1000) + 30,
+    });
 
-  const render = async () => {
-    const old = document.querySelector('.g-base');
-    if (old) old.remove();
-    const area = document.createElement('div');
-    area.classList.add('g-area');
-    const getItem = () => {
-      const exist = localStorage.getItem('g-data');
-      const data = exist ? JSON.parse(exist) : { list: [] };
-      return data.list.length ? data.list : mfaList();
-    };
-    const items = getItem();
-    const ts = document.createElement('div');
-    setInterval(() => {
-      ts.textContent = 30 - Math.floor(Date.now() / 1000) % 30;
-    }, 1000);
-    area.append(ts);
-    const div = document.createElement('div');
-    area.append(div);
-    for (const item of items) {
-      const el = document.createElement('div');
-      el.classList.add('g-box');
-      const span = document.createElement('span');
-      el.append(span);
-      const btn = document.createElement('button');
-      btn.textContent = item.name;
-      el.append(btn);
-      div.append(el);
-      const update = async () => {
-        const mfaCode = await totp(item.token);
-        span.textContent = mfaCode;
-      };
-      btn.addEventListener('click', update);
-      await update();
-    }
-    const ctl = document.createElement('div');
-    ctl.classList.add('g-ctl');
-    const gName = document.createElement('input');
-    gName.placeholder = 'secret name';
-    ctl.append(gName);
-    const gToken = document.createElement('input');
-    gToken.placeholder = 'secret code';
-    gToken.type = 'password';
-    ctl.append(gToken);
-    const gBtn = document.createElement('button');
-    gBtn.textContent = 'add new';
-    ctl.append(gBtn);
-    area.append(ctl);
-    const addToken = () => {
-      if (!gName.value || !gToken.value) return;
-      const exist = localStorage.getItem('g-data');
-      const data = exist ? JSON.parse(exist) : { list: [] };
-      data.list.push({
-        name: gName.value,
-        token: gToken.value,
+    const render = async () => {
+      const old = document.querySelector('.g-area');
+      if (old) old.remove();
+      const area = document.createElement('div');
+      area.classList.add('g-area');
+      const hamburger = document.createElement('div');
+      hamburger.classList.add('g-hamburger');
+      hamburger.innerHTML = '<span></span><span></span><span></span>';
+      area.append(hamburger);
+      const content = document.createElement('div');
+      content.classList.add('g-content');
+      area.append(content);
+      const items = mfaList();
+      const ts = document.createElement('div');
+      if (store.intervalId) clearInterval(store.intervalId);
+      store.intervalId = setInterval(() => {
+        ts.textContent = 30 - Math.floor(Date.now() / 1000) % 30;
+      }, 1000);
+      content.append(ts);
+      const div = document.createElement('div');
+      content.append(div);
+      for (const item of items) {
+        const el = document.createElement('div');
+        el.classList.add('g-box');
+        const span = document.createElement('span');
+        el.append(span);
+        const btn = document.createElement('button');
+        btn.textContent = item.name;
+        el.append(btn);
+        div.append(el);
+        const update = async () => {
+          const mfaCode = await totp(item.token);
+          span.textContent = mfaCode;
+        };
+        btn.addEventListener('click', update);
+        await update();
+      }
+      hamburger.addEventListener('click', () => {
+        area.classList.toggle('collapsed');
       });
-      localStorage.setItem('g-data', JSON.stringify(data));
+      document.body.append(area);
+    };
+
+    const action = async () => {
+      const exists = authInput();
+      if (!exists) {
+        setTimeout(action, 1000);
+        return;
+      }
+
+      const style = document.createElement('style');
+      style.textContent = css;
+      document.head.append(style);
       render();
     };
-    gBtn.addEventListener('click', addToken);
 
-    document.body.append(area);
+    action();
   };
 
-  const action = async () => {
-    if (!authInput()) {
-      setTimeout(action, 1000);
-      return;
-    }
-
-    const style = document.createElement('style');
-    style.textContent = `
-.g-area {
-  position: absolute;
-  color: #ddd;
-  text-align: center;
-  font-size: 2vmin;
-  right: 1em;
-  top: 3em;
-  padding: 1em;
-  display: grid;
-  gap: 0.4em;
-  width: 18em;
-  background: rgba(20,20,20,.6);
-  backdrop-filter: blur(4px);
-  z-index: 1;
-}
-.g-area button {
-  cursor: pointer;
-}
-.g-area button, .g-area input {
-  background: #333;
-  color: #ddd;
-  text-align: center;
-  font-size: 1em;
-  border-radius: 0.5em;
-  border: 1px solid #66a;
-  padding: 3px 0.5em;
-  margin: 3px;
-}
-.g-box {
-  background: rgba(10,10,10,.6);
-  backdrop-filter: blur(4px);
-  border-radius: 1em;
-  box-shadow: 0 0 1.5em -0.25em rgba(226, 219, 219, 0.75);
-  padding: 0.3em;
-  margin: 0.4em 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.g-box span {
-  width: 6em;
-}
-.g-box button {
-  border: 1px solid #6a6;
-  margin: 0.3em 0.6em;
-  padding: 0.3em 0.7em;
-  font-size: 0.8em;
-  width: 10em;
-}
-.g-ctl {
-  padding: 0.3em 0;
-  background: #333;
-  border-radius: 1em;
-  border: 1px solid #66a;
-  box-shadow: 0 0 1.5em -0.25em rgba(35, 37, 146, 0.75);
-}
-input {
-  background: transparent;
-}
-`;
-    document.head.append(style);
-    render();
-  };
-
-  action();
+  main();
 })();
