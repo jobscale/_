@@ -18,14 +18,15 @@ rotate-logs() {
 }
 
 lo-stack() {
-  docker pull localstack/localstack
+  # docker pull localstack/localstack
+  docker pull ghcr.io/jobscale/localstack
   docker rm -f lo-stack
   docker run --name lo-stack --restart always \
   --memory 800m \
   -e PERSISTENCE=1 \
   -v $HOME/lo-stack-volume:/var/lib/localstack \
   -p 4566:4566 \
-  -d localstack/localstack
+  -d ghcr.io/jobscale/localstack
 }
 
 squid-secure() {
