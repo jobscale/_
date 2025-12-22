@@ -22,9 +22,9 @@ setTimeout(() => {
       ...document.querySelectorAll('.WIYG1.Mt2TB'),
     ].reduce((accel, el) => accel + (Number.parseInt(el.textContent, 10) || 0), 0) || 0;
 
-    const idna = document.querySelector('[id^="idna-me"]').textContent;
+    const organization = document.querySelector('[id^="idna-me"]').textContent;
     const appName = window.location.href.match('teams') ? 'Teams' : 'Other';
-    const text = `${idna} ${appName} (${num}) notification`;
+    const text = `${organization} ${appName} (${num}) notification`;
     logger.info(text);
     if (num > opts.num) {
       fetch('https://jsx.jp/api/slack', {
@@ -32,9 +32,17 @@ setTimeout(() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           icon_emoji: ':anchor:',
-          username: 'notification',
+          username: organization,
           text,
           channel: 'push',
+        }),
+      });
+      fetch('https://jsx.jp/api/webPush', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: organization,
+          body: text,
         }),
       });
     }
