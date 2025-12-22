@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eu
+
+BODY=${1:-}
+TITLE=${2:-}
+
+if [[ -z "$BODY" ]]; then
+  echo "body requires"
+  exit 1
+fi
+
+if [[ -z "$TITLE" ]]; then
+  TITLE="$(id -un)"
+fi
+
+curl -X POST https://jsx.jp/api/webPush -H "Content-Type: application/json" -d "{
+  \"title\": \"$TITLE - $(hostname)\",
+  \"body\": \"$BODY\"
+}"

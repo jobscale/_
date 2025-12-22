@@ -47,6 +47,12 @@ debian-2025() {
   echo -- sudo usermod -aG docker \$\(whoami\)
 }
 
+debian-2026() {
+  curl -sSL https://get.docker.com/ | CHANNEL=stable sh
+  systemctl enable --now docker
+  echo -- sudo usermod -aG docker \$\(whoami\)
+}
+
 ubuntu() {
   apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https
