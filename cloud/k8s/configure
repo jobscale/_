@@ -375,11 +375,12 @@ createReverse() {
   kubectl -n reverse apply -f backend/limitrange-limits.yaml
   ingressTlsSecret reverse
   ingressBasicAuth reverse
-  kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
   kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
   kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
+  kubectl -n reverse apply -f backend/mailu-lo && waitFor mailu-lo
   kubectl -n reverse apply -f backend/llama-lo && waitFor llama-lo
+  kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
 }
 
 createCodeServer() {
