@@ -42,12 +42,12 @@ readonly T_FILE="/tmp/quest-cursor.log"
 readonly ADDING=$1
 readonly COUNT=$2
 DURATION=$3
-if [[ -z "${4:-}" || -z "${5:-}" ]]; then
-  read -r XX YY <<< "$(./get-point)"
-  declare -r XX YY
+if [[ -z "${4:-}" ]]; then
+  IFS=, read -r XX YY <<< "$(./get-point)"
 else
-  declare -r XX="$4" YY="$5"
+  IFS=, read -r XX YY <<< "$4"
 fi
+declare -r XX YY
 echo "cursor $XX $YY" >> "${T_FILE}"
 readonly INTERVAL=8
 

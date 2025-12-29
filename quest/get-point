@@ -3,7 +3,7 @@ set -eu
 
 get-point() {
   if eval $(xdotool getmouselocation --shell); then
-    echo " $X $Y"
+    echo " $X,$Y"
   fi
 }
 
