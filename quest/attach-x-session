@@ -1,0 +1,8 @@
+# attach X Session
+
+attach-x-session() {
+  export DISPLAY=:0
+  export XAUTHORITY=$HOME/.Xauthority
+}
+
+attach-x-session
