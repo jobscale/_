@@ -23,8 +23,7 @@ loop() {
 main() {
   # infinity loop
   while true; do
-    echo "./get-point"
-    ./get-point
+    echo -n "getting cursor point './get-point' x,y = " && ./get-point
     loop 600
   done
 }

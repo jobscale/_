@@ -67,7 +67,7 @@ main() {
     fire
     echo -ne "\e[A\r\e[2K"
     echo " Step $(printf '%3d' $i) ... ( next time ) ( $( printf '%3d' $(( COUNT - i )) ) ${DURATION} )"
-    echo -n "$(printf '%8s ' ' ') xy $(./get-point)"
+    echo -n "$(printf '%8s ' ' ') x,y $(./get-point)"
     loop $WAIT_TIME
   done
   echo
