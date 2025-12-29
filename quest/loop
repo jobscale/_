@@ -7,26 +7,33 @@ play() {
   ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
 }
 
-EXECUTION=$(date +%s)
+# next tick emitter
+update-time() {
+  echo $(cat /tmp/quest-force-time 2>/dev/null)
+  rm -f /tmp/quest-force-time
+}
 
+# activation per 100 seconds
+ACTIVATE=$(date +%s)
 loop() {
-  local end_time=$(( $(date +%s) + $1 ))
-  while [ $(date +%s) -lt $end_time ]
-  do
-    printf '\r%5d ' $(( end_time - $(date +%s) ))
-    if [[ $(( $(date +%s) - EXECUTION )) -ge 100 ]]
-    then
-      EXECUTION=$(date +%s)
+  local fire_time=$(( $(date +%s) + $1 ))
+  while [ $(date +%s) -lt $fire_time ]; do
+    printf '\r%5d ' $(( fire_time - $(date +%s) ))
+    if [[ $(( $(date +%s) - ACTIVATE )) -ge 100 ]]; then
+      ACTIVATE=$(date +%s)
       xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 400
       sleep 0.2
       xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 200
     fi
     sleep 1
-    while [[ "$(./check-color)"  != "ALL OK" ]]
-    do
-      post-slack "Bloking of Build troops"
+    while [[ "$(./check-color)"  != "ALL OK" ]]; do
+      post-slack "Blocking - building the troops"
       sleep 6
     done
+    FAST_UPDATE=$(update-time)
+    if [[ ! -z "$FAST_UPDATE" ]]; then
+      fire_time=$(( FAST_UPDATE + 0 ))
+    fi
   done
   printf '\r%5d\n' 0
 }
@@ -54,8 +61,7 @@ fire() {
 
 main() {
   echo
-  for i in $(seq 1 $COUNT)
-  do
+  for i in $(seq 1 $COUNT); do
     DURATION=$(( DURATION + ADDING ))
     local WAIT_TIME=$(( INTERVAL + DURATION ))
     fire
@@ -66,7 +72,7 @@ main() {
   done
   echo
 
-  post-slack "Finish of Build troops"
+  post-slack "Finish build the troops"
   play
 }
 

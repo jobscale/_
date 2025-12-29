@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -eu
 
-EXECUTION=$(date +%s)
+# activation per 100 seconds
+ACTIVATE=$(date +%s)
 loop() {
-  local end_time=$(( $(date +%s) + $1 ))
-  while [ $(date +%s) -lt $end_time ]
-  do
-    printf '\r%5d ' $(( end_time - $(date +%s) ))
-    if [[ $(( $(date +%s) - $EXECUTION )) -ge 100 ]]
-    then
-      EXECUTION=$(date +%s)
+  local fire_time=$(( $(date +%s) + $1 ))
+  while [ $(date +%s) -lt $fire_time ]; do
+    printf '\r%5d ' $(( fire_time - $(date +%s) ))
+    if [[ $(( $(date +%s) - $ACTIVATE )) -ge 100 ]]; then
+      ACTIVATE=$(date +%s)
       eval $(xdotool getmouselocation --shell)
       xdotool mousemove 10 500
       RES=$(./check-color)
@@ -21,9 +20,13 @@ loop() {
   printf '\r%5d\n' 0
 }
 
-while true
-do
-  echo "./get-point"
-  ./get-point
-  loop 600
-done
+main() {
+  # infinity loop
+  while true; do
+    echo "./get-point"
+    ./get-point
+    loop 600
+  done
+}
+
+main
