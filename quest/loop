@@ -31,11 +31,18 @@ loop() {
   printf '\r%5d\n' 0
 }
 
+readonly T_DIR=$(mktemp -d)
+readonly T_FILE="$T_DIR/cursor.log"
 readonly ADDING=$1
 readonly COUNT=$2
 DURATION=$3
-readonly XX=$4
-readonly YY=$5
+if [[ -z "${4:-}" || -z "${5:-}" ]]; then
+  read -r XX YY <<< "$(./get-point)"
+  declare -r XX YY
+else
+  declare -r XX="$4" YY="$5"
+fi
+echo "cursor $XX $YY" >> "${T_FILE}"
 readonly INTERVAL=8
 
 fire() {

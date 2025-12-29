@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -eu
 
+readonly T_DIR=$(mktemp -d)
+readonly T_FILE="$T_DIR/color.log"
+
 play() {
   ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
 }
 
 check-color() {
-  color_info=$(import -window root -crop 1x1+$1+$2 txt:- | grep -Po 'srgb\(\K\d+,\d+,\d+(?=\))')
+  local -r color_info=$(import -window root -crop 1x1+$1+$2 txt:- | grep -Po 'srgb\(\K\d+,\d+,\d+(?=\))')
   # xdotool mousemove $1 $2
   # sleep 0.2
 
@@ -14,23 +17,23 @@ check-color() {
 
   if [[ "$R" -ge 15 ]] && [[ "$G" -ge 15 ]] && [[ "$B" -ge 10 ]]; then
     echo "OK"
-    # echo "$R $G $B" 1>&2
+    echo "OK $R $G $B" >> "${T_FILE}"
   else
     echo "NG"
-    # echo "$R $G $B" 1>&2
+    echo "NG $R $G $B" >> "${T_FILE}"
   fi
 }
 
 check-all() {
-  RES2=$(check-color 10 300)
-  RES3=$(check-color 10 400)
-  RES4=$(check-color 10 500)
-  RES1=$(check-color 10 600)
+  local -r RES2=$(check-color 10 300)
+  local -r RES3=$(check-color 10 400)
+  local -r RES4=$(check-color 10 500)
+  local -r RES1=$(check-color 10 600)
   # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
   if [[ "$RES1 $RES2 $RES3 $RES4" == "OK OK OK OK" ]]; then
     echo "ALL OK"
   else
-    echo "NG"
+    echo "SOMEONE NG"
   fi
 }
 

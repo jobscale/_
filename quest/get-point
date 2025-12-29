@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 
-eval $(xdotool getmouselocation --shell) && echo " $X $Y"
+get-point() {
+  if eval $(xdotool getmouselocation --shell); then
+    echo " $X $Y"
+  fi
+}
+
+get-point
