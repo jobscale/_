@@ -271,7 +271,7 @@ class App {
   }
 
   async watchOnline() {
-    const url = 'https://navy.quest/ally.php?b=33';
+    const url = 'https://navy.quest/ally.php?b=39';
     if (window.location.href !== url) return;
     const NEXT_TICK = 6; // interval 6 minutes
     this.refreshTime = new Date();
