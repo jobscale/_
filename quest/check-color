@@ -36,11 +36,11 @@ check-all() {
 
 main() {
   local RES=$(check-all)
-  if [[ "$RES" !== "ALL OK" ]]; then
+  if [[ "$RES" != "ALL OK" ]]; then
     sleep 1
     RES=$(check-all)
   fi
-  if [[ "$RES" !== "ALL OK" ]]; then
+  if [[ "$RES" != "ALL OK" ]]; then
     play >/dev/null 2>&1
   fi
   echo $RES
