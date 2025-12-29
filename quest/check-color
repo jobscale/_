@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-readonly T_DIR=$(mktemp -d)
-readonly T_FILE="$T_DIR/color.log"
+readonly T_FILE="/tmp/quest-color.log"
 
 play() {
   ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1

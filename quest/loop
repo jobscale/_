@@ -31,8 +31,7 @@ loop() {
   printf '\r%5d\n' 0
 }
 
-readonly T_DIR=$(mktemp -d)
-readonly T_FILE="$T_DIR/cursor.log"
+readonly T_FILE="/tmp/quest-cursor.log"
 readonly ADDING=$1
 readonly COUNT=$2
 DURATION=$3
