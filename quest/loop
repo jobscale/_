@@ -70,14 +70,16 @@ fire() {
 
 main() {
   echo
+  local total=0
   local count=${COUNT}
   while [[ $count -gt 0 ]]; do
     count=$(( count - 1 ))
+    total=$(( total + 1 ))
     DURATION=$(( DURATION + ADDING ))
     local WAIT_TIME=$(( INTERVAL + DURATION ))
     fire
     echo -ne "\e[A\r\e[2K"
-    echo " Step $( printf '%3d' $(( COUNT - count )) ) ... ( next time ) ( $( printf '%3d' ${count} ) ${DURATION} )"
+    echo " Step $( printf '%3d' ${total} ) ... left - $( printf '%3d %3d' ${count} ${DURATION} )"
     echo -n "$(printf '%8s ' ' ') x,y $(./get-point)"
     loop $WAIT_TIME
     local FAST_UPDATE=$(update-count)
