@@ -7,10 +7,20 @@ play() {
   ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
 }
 
+readonly FILE_TIME="/tmp/quest-force-time"
+readonly FILE_LOG="/tmp/quest-cursor.log"
+readonly FILE_COUNT_LEFT="/tmp/quest-count-left"
+
 # next tick emitter
 update-time() {
-  echo $(cat /tmp/quest-force-time 2>/dev/null)
-  rm -f /tmp/quest-force-time
+  echo $(cat ${FILE_TIME} 2>/dev/null)
+  rm -f ${FILE_TIME}
+}
+
+# update count left
+update-count() {
+  echo $(cat ${FILE_COUNT_LEFT} 2>/dev/null)
+  rm -f ${FILE_COUNT_LEFT}
 }
 
 # activation per 100 seconds
@@ -30,7 +40,7 @@ loop() {
       post-slack "Blocking - building the troops"
       sleep 6
     done
-    FAST_UPDATE=$(update-time)
+    local FAST_UPDATE=$(update-time)
     if [[ ! -z "$FAST_UPDATE" ]]; then
       fire_time=$(( FAST_UPDATE + 0 ))
     fi
@@ -38,7 +48,6 @@ loop() {
   printf '\r%5d\n' 0
 }
 
-readonly T_FILE="/tmp/quest-cursor.log"
 readonly ADDING=$1
 readonly COUNT=$2
 DURATION=$3
@@ -48,7 +57,7 @@ else
   IFS=, read -r XX YY <<< "$4"
 fi
 declare -r XX YY
-echo "cursor $XX $YY" >> "${T_FILE}"
+echo "cursor $XX $YY" >> "${FILE_LOG}"
 readonly INTERVAL=8
 
 fire() {
@@ -61,14 +70,20 @@ fire() {
 
 main() {
   echo
-  for i in $(seq 1 $COUNT); do
+  local count=${COUNT}
+  while [[ $count -gt 0 ]]; do
+    count=$(( count - 1 ))
     DURATION=$(( DURATION + ADDING ))
     local WAIT_TIME=$(( INTERVAL + DURATION ))
     fire
     echo -ne "\e[A\r\e[2K"
-    echo " Step $(printf '%3d' $i) ... ( next time ) ( $( printf '%3d' $(( COUNT - i )) ) ${DURATION} )"
+    echo " Step $( printf '%3d' $(( COUNT - count )) ) ... ( next time ) ( $( printf '%3d' ${count} ) ${DURATION} )"
     echo -n "$(printf '%8s ' ' ') x,y $(./get-point)"
     loop $WAIT_TIME
+    local FAST_UPDATE=$(update-count)
+    if [[ ! -z "$FAST_UPDATE" ]]; then
+      count=$(( FAST_UPDATE + 0 ))
+    fi
   done
   echo
 
