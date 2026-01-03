@@ -215,7 +215,7 @@ class App {
     }).slice(1).filter(item => item.mail);
 
     const users = data.filter(item => {
-      if (item.point < 3) return false;
+      if (item.point < 2) return false;
       if (item.online === 'On') return true;
       if (item.online.match('h')) return false;
       const num = Number.parseInt(item.online.match(/>(\d+)min/)?.[1], 10);
@@ -270,7 +270,32 @@ class App {
     return true;
   }
 
+  async refactor() {
+    const ally = document.querySelector('table td:nth-child(2) table');
+    if (!ally) return;
+    const cells = [...ally.querySelectorAll('tr td')];
+    const begin = cells.findIndex(v => v.textContent.includes('Co-Leader'));
+    if (begin < 0) return;
+    cells.splice(0, begin + 1);
+    const end = cells.findIndex(v => v.textContent === '');
+    if (end < 0) return;
+    cells.splice(end);
+    const coLeaders = cells.filter(v => v.textContent !== 'On' && !v.textContent.includes('>'));
+    const names = coLeaders.map(v => v.textContent);
+    const member = document.querySelector('table table');
+    const user = [...member.querySelectorAll('tr td')];
+    let match = 0;
+    user.forEach(v => {
+      if (names.includes(v.textContent)) match = 6;
+      if (!match) return;
+      match--;
+      v.style.backgroundColor = '#500';
+    });
+  }
+
   async watchOnline() {
+    if (!window.location.href.includes('ally')) return;
+    this.refactor();
     const url = 'https://navy.quest/ally.php?b=39';
     if (window.location.href !== url) return;
     const NEXT_TICK = 6; // interval 6 minutes
