@@ -2,8 +2,7 @@
 
 ## Initial Setup
 ```
-sudo ln -s $HOME/_/daemon/backdoor-mac/backdoor-mac /usr/local/bin
-sudo cp $HOME/_/daemon/backdoor-mac/plist/com.backdoor-mac.plist /Library/LaunchDaemons
+sudo cp /opt/_/daemon/backdoor-mac/plist/com.backdoor-mac.plist /Library/LaunchDaemons
 ```
 
 ## List Daemons

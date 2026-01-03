@@ -4,7 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=bash -c "sudo -u $(ls /home | grep job) /usr/local/bin/example"
+User=jobscale
+ExecStart=/opt/_/daemon/example/example
 Restart=always
 RestartSec=5s
 RuntimeDirectory=example

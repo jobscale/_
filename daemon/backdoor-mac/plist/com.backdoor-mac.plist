@@ -10,7 +10,7 @@
       <string>sudo</string>
       <string>-u</string>
       <string>jobscale</string>
-      <string>/usr/local/bin/backdoor-mac</string>
+      <string>/opt/_/daemon/backdoor-mac/backdoor-mac</string>
     </array>
 
     <key>RunAtLoad</key>

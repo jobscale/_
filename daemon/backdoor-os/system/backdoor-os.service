@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=jobscale
-ExecStart=/usr/local/bin/backdoor-os
+ExecStart=/opt/_/daemon/backdoor-os/backdoor-os
 Restart=always
 RestartSec=5s
 RuntimeDirectory=daemon

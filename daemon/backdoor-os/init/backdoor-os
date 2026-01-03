@@ -10,7 +10,7 @@
 ### END INIT INFO
 
 DAEMON_NAME="backdoor-os"
-DAEMON_PATH="/usr/local/bin/backdoor-os"
+DAEMON_PATH="/opt/_/daemon/backdoor-os/backdoor-os"
 PIDFILE="/var/run/$DAEMON_NAME.pid"
 LOG_DIR="/var/log/$DAEMON_NAME"
 

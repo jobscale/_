@@ -10,7 +10,7 @@
 ### END INIT INFO
 
 DAEMON_NAME="example"
-DAEMON_PATH="/usr/local/bin/example"  # 実行するスクリプトのパス
+DAEMON_PATH="/opt/_/daemon/example/example"  # 実行するスクリプトのパス
 PIDFILE="/var/run/$DAEMON_NAME.pid"
 
 case "$1" in

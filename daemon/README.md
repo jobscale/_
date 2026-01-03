@@ -18,7 +18,6 @@
 
 ```
 {
-  sudo ln -s $(pwd)/example/example /usr/local/bin
   sudo ln -s $(pwd)/example/init/example /etc/init.d
 
   sudo update-rc.d example defaults

@@ -10,7 +10,7 @@
 ### END INIT INFO
 
 DAEMON_NAME="backdoor-k8s"
-DAEMON_PATH="/usr/local/bin/backdoor-k8s"
+DAEMON_PATH="/opt/_/daemon/backdoor-k8s/backdoor-k8s"
 PIDFILE="/var/run/$DAEMON_NAME.pid"
 LOG_DIR="/var/log/$DAEMON_NAME"
 

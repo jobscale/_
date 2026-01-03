@@ -26,16 +26,14 @@ getNextTick() {
 }
 
 nextTime() {
-  while [[ $(getNextTick) -ge $(date +%s) ]]
-  do
+  while [[ $(getNextTick) -ge $(date +%s) ]]; do
     sleep 1
   done
 }
 
 cleanZombie() {
   local PID=$(pgrep -f "ssh -N -T noble-watch")
-  if [[ ! -z "$PID" ]]
-  then
+  if [[ ! -z "$PID" ]]; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
     kill $PID
   else
@@ -45,18 +43,15 @@ cleanZombie() {
 
 whileCheck() {
   cleanZombie
-  while true
-  do
+  while true; do
     sleep 60
     nextTime
-    if ! nc -vz -w 2 vpn.jsx.jp 2022 > /dev/null 2>&1
-    then
+    if ! nc -vz -w 2 vpn.jsx.jp 2022 > /dev/null 2>&1; then
       echo "$(TZ=Asia/Tokyo date -Iseconds) connection failed" 1>&2
       cleanZombie
       continue
     fi
-    if ! timeout 20 ssh -T -p 2022 vpn.jsx.jp echo health-check > /dev/null 2>&1
-    then
+    if ! timeout 20 ssh -T -p 2022 vpn.jsx.jp echo health-check > /dev/null 2>&1; then
       echo "$(TZ=Asia/Tokyo date -Iseconds) hangup failed" 1>&2
       cleanZombie
       continue
@@ -66,8 +61,7 @@ whileCheck() {
 
 waitForPort() {
   clearTick
-  while nc -vz -w 1 vpn.jsx.jp 2022 > /dev/null 2>&1
-  do
+  while nc -vz -w 1 vpn.jsx.jp 2022 > /dev/null 2>&1; do
     echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
     local PID=$(ssh noble sudo ss -tunlp | grep "0.0.0.0:2022 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
     if [[ ! -z "$PID" ]]
@@ -81,11 +75,9 @@ waitForPort() {
 
 waitForResolver() {
   clearTick
-  while true
-  do
+  while true; do
     local REMOTE=$(dig +short vpn.jsx.jp)
-    if [[ ! -z "$REMOTE" ]]
-    then
+    if [[ ! -z "$REMOTE" ]]; then
       break
     fi
     echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
@@ -100,8 +92,7 @@ waitForResolver() {
 {
   sleep 10 # wait for resolver
   whileCheck &
-  while true
-  do
+  while true; do
     waitForResolver
     # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "vpn.jsx.jp" > /dev/null 2>&1
     waitForPort

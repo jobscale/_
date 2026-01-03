@@ -10,7 +10,7 @@
       <string>sudo</string>
       <string>-u</string>
       <string>okutani</string>
-      <string>/usr/local/bin/reverse-bastion</string>
+      <string>/opt/_/daemon/reverse-bastion/reverse-bastion</string>
     </array>
 
     <key>RunAtLoad</key>

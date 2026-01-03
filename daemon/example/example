@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-while true
-do
+while true; do
   echo "$(TZ=Asia/Tokyo date -Iseconds) Daemon is running..."
   sleep 10
 done
