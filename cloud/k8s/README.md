@@ -2,11 +2,11 @@
 
 ## https://jsx.jp
 
-Kubernetes v1.25.0
+Kubernetes v1.35.0
 
-stern version 1.11.0
+stern version 1.28.0
 
-kind v0.11.1
+kind v0.31.0
 
 ### install docker
 

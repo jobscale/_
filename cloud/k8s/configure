@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE="kindest/node:v1.34.0"
+IMAGE="kindest/node:v1.35.0"
 
 production() {
   export CLUSTER_NAME=production
@@ -391,8 +391,7 @@ createCodeServer() {
 }
 
 createWetty() {
-  if [[ true ]]
-  then
+  if true; then
     kubectl -n reverse apply -f backend/wetty-lo && waitFor wetty-lo
     return
   fi
@@ -517,13 +516,11 @@ postSlack() {
 
 waitFor() {
   echo -n "        waiting" && loop.js 10 --silent
-  for limit in {3..1}
-  do
+  for limit in {3..1}; do
     [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
     echo " $1 - ng"
     echo -ne "just a moment please 6.."
-    for i in {5..0}
-    do
+    for i in {5..0}; do
       delay
       [[ $(kubectl get pods -A | grep $1 | grep 1/1 | wc -l) > 0 ]] && echo -e "\n $1 - ok\n" && return
       delay
@@ -544,8 +541,7 @@ loop() {
 ### unsupportd
 
 delAll() {
-  for app in laravel lumen blog simple-chat chat
-  do
+  for app in laravel lumen blog simple-chat chat; do
     kubectl delete svc $app
     kubectl delete deployment $app
   done
@@ -569,8 +565,7 @@ portForward() {
   bind_addr=0.0.0.0
   bind_port=3000
   node_port=$(kubectl get service -n ${target_ns} ${target_svc} -o=jsonpath="{.spec.ports[?(@.port==${target_port})].nodePort}")
-  if [[ "$node_port" == "" ]]
-  then
+  if [[ "$node_port" == "" ]]; then
     kubectl get service -n ${target_ns} ${target_svc} -o wide
     echo -e "\ncan not get node port. check type LoadBalancer status.\n"
     kubectl port-forward -n ${target_ns} service/${target_svc} --address ${bind_addr} ${bind_port}:${target_port}
@@ -608,8 +603,7 @@ defaultImage() {
     ghcr.io/jobscale/whoami
     ghcr.io/jobscale/zipcode-jp
   )
-  for i in ${IMG_LIST[@]}
-  do
+  for i in ${IMG_LIST[@]}; do
     echo -n "$i "
     time { loadImage $i; } | xargs echo -n
   done
@@ -637,8 +631,7 @@ pullImages() {
   IMG_LIST=(
     $(grep image: backend/*/components.yaml | awk -F'image:' '{print $2}' | sort | uniq)
   )
-  for i in ${IMG_LIST[@]}
-  do
+  for i in ${IMG_LIST[@]}; do
     echo -n "$i "
     pullImage $i
   done

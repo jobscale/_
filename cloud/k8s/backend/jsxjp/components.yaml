@@ -109,7 +109,7 @@ metadata:
     app: jsxjp
     component: ingress
   annotations:
-    nginx.ingress.kubernetes.io/permanent-redirect: https://jsxjp.awsapps.com/mail
+    nginx.ingress.kubernetes.io/permanent-redirect: https://mailu.jsx.jp
     nginx.ingress.kubernetes.io/permanent-redirect-code: "307"
 spec:
   ingressClassName: nginx

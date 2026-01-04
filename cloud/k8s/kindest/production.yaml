@@ -22,7 +22,7 @@ nodes:
     hostPort: 12470
   - containerPort: 30312
     listenAddress: 0.0.0.0
-    hostPort: 3128
+    hostPort: 3129
   - containerPort: 30053
     listenAddress: 0.0.0.0
     hostPort: 53
