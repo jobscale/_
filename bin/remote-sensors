@@ -16,7 +16,7 @@ dark-cpu-info() {
   LANG=C sar -n DEV --iface=wlp3s0 1 1 | tail -1 | awk '{printf "%.2fMiB %d\n", $5 / 1024, $NF * 2}'
 }
 
-N100-cpu-info() {
+n100-cpu-info() {
   LANG=ja_JP.UTF-8 sensors | awk '/Package/ {print $4}'
   LANG=C mpstat 1 1 | awk '/Average/ {printf "%d\n", 100 - $NF}'
   LANG=C sar -n DEV --iface=enp1s0 1 1 | tail -1 | awk '{printf "%.2fMiB %d\n", $5 / 1024, $NF * 2}'
