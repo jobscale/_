@@ -4,7 +4,7 @@ network() {
   [[ $(docker network list | grep standard | wc -l) == 0 ]] && docker network create standard
 }
 
-rotate-logs() {
+logrotate() {
   docker pull blacklabelops/logrotate
   docker rm -f logrotate
   docker run --name logrotate --restart always \
