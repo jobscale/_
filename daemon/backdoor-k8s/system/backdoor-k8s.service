@@ -1,6 +1,6 @@
 [Unit]
 Description=backdoor-k8s Daemon
-After=network.target
+After=network-online.target
 
 [Service]
 Type=simple

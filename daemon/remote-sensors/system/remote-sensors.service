@@ -1,0 +1,18 @@
+[Unit]
+Description=remote-sensors Daemon
+After=network-online.target
+
+[Service]
+Type=simple
+User=jobscale
+ExecStart=/opt/_/daemon/remote-sensors/remote-sensors
+Restart=always
+RestartSec=5s
+RuntimeDirectory=daemon
+StateDirectory=daemon
+LogsDirectory=daemon
+StandardOutput=append:/var/log/daemon/remote-sensors.log
+StandardError=append:/var/log/daemon/remote-sensors_error.log
+
+[Install]
+WantedBy=graphical.target

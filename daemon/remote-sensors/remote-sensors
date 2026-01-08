@@ -4,7 +4,7 @@ set -eu
 WORKDIR="${HOME:-/tmp}/.work"
 
 n100-cpu() {
-  if ! timeout 8 ssh n100 bin/remote-sensors > ${WORKDIR}/.n100-cpu; then
+  if ! timeout 6 ssh n100 bin/remote-sensors > ${WORKDIR}/.n100-cpu; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) [FAIL]: n100-cpu" 1>&2
   fi
   echo 'not' >> ${WORKDIR}/.n100-cpu
@@ -12,7 +12,7 @@ n100-cpu() {
 }
 
 mac-cpu() {
-  if ! timeout 8 ssh mac bin/remote-sensors > ${WORKDIR}/.mac-cpu; then
+  if ! timeout 10 ssh mac bin/remote-sensors > ${WORKDIR}/.mac-cpu; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) [FAIL]: mac-cpu" 1>&2
   fi
   echo 'not' >> ${WORKDIR}/.mac-cpu
@@ -20,7 +20,7 @@ mac-cpu() {
 }
 
 dark-cpu() {
-  bin/remote-sensors > ${WORKDIR}/.dark-cpu
+  /opt/_/bin/remote-sensors > ${WORKDIR}/.dark-cpu
   echo 'not' >> ${WORKDIR}/.dark-cpu
   mv ${WORKDIR}/.dark-cpu ${WORKDIR}/dark-cpu
 }

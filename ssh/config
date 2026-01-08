@@ -15,8 +15,12 @@ Host *
   # Ciphers aes128-ctr
   # ExitOnForwardFailure yes
   Compression yes
+  Ciphers aes128-ctr
   ServerAliveInterval 60
   ServerAliveCountMax 3
+  ControlMaster auto
+  ControlPath /tmp/ssh[%u]%r@%h:%p
+  ControlPersist 10m
 
 Host vm1
   HostName vm1.gcp.jsx.jp
