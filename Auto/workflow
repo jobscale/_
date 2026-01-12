@@ -32,19 +32,19 @@ loop() {
 
   commit-push() {
     DIR=$1
-    echo -e "###\n  $DIR\n###\n" | grep --color=auto $DIR
+    echo -e "\e[31m###\n  $DIR\n###\n\e[0m"
     cd $DIR
     git diff
     sleep 3
     git add .github
-    git commit -m "github/workflow updated" -n || echo "NO commit change" | grep --color=auto "NO commit change"
+    git commit -m "github/workflow updated" -n || echo -e "\e[33mNO commit change\e[0m"
     git push > /dev/null 2>&1
     cd - > /dev/null
     echo
   }
 
   for i in ${LIST[@]}; do
-    commit-push $i
+    commit-push $i || echo "no completed ($?)"
     sleep 3
   done
 }
