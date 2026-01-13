@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2025-12-20
+// @version      2026-01-14
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://*.signin.aws.amazon.com/oauth?*
+// @match        https://signin.aws.amazon.com/signin?*
 // @match        https://login.microsoftonline.com/*
 // @match        https://github.com/*
 // @match        https://jsx.jp/auth/
@@ -24,7 +25,7 @@
     { name: 'refresh', token: 'CAzzZz' },
   ];
 
-  const authInput = () => document.querySelector('#mfacode, #mfaCode') // AWS
+  const authInput = () => document.querySelector('#mfacode, #mfaCode, input[name="mfaCode"]') // AWS
   || document.querySelector('input[name="otc"]') // MS
   || document.querySelector('#app_totp') // GitHub
   || document.querySelector('#login_otp') // npm
