@@ -1,0 +1,1 @@
+grep Global /var/log/daemon/* | awk '{print $2}' | awk -F'.' '{print $1"."$2".0.0/16"}' | sort | uniq
