@@ -50,9 +50,10 @@ loop() {
 }
 
 main() {
-  mkdir -p "${LOG_DIR}"
   cd "/home/docker"
   replace
+  mkdir -p "${LOG_DIR}"
+  local LOG_FILE="${LOG_DIR}/workflow-$(date -Iseconds).log"
   local TEMP_DIR=$(mktemp -d)
   local CMD="$TEMP_DIR/loop.sh"
   echo -e '#!/usr/bin/env bash\nset -eu\n' > ${CMD}
@@ -61,9 +62,10 @@ main() {
   chmod +x ${CMD}
   {
     time unbuffer ${CMD}
-    echo "Exit Status Code $?"
-  } > "${LOG_DIR}/workflow-$(date -Iseconds).log" 2>&1
+    echo "$(date -Iseconds) Exit Status Code $?"
+  } > $LOG_FILE 2>&1
   rm -fr $TEMP_DIR
+  gzip $LOG_FILE
 }
 
 main
