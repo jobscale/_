@@ -35,11 +35,8 @@ class TOTP {
       return Buffer.from(hmac.digest(), 'hex');
     }
     const key = await crypto.subtle.importKey(
-      'raw',
-      secret,
-      { name: algorithm, hash: { name: 'SHA-1' } },
-      false,
-      ['sign', 'verify'],
+      'raw', secret, { name: algorithm, hash: { name: 'SHA-1' } },
+      false, ['sign', 'verify'],
     );
     return crypto.subtle.sign(algorithm, key, buf);
   }

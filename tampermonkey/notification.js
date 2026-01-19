@@ -13,7 +13,7 @@
 setTimeout(() => {
   const logger = console;
   logger.info('TRIGGER');
-  const opts = { num: 0 };
+  const store = { num: 0 };
 
   const notify = ({ organization, text }) => {
     fetch('https://jsx.jp/api/slack', {
@@ -47,14 +47,14 @@ setTimeout(() => {
     const appName = window.location.href.match('teams') ? 'Teams' : 'Other';
     const text = `${organization} ${appName} (${num}) notification`;
     logger.info(text);
-    if (num > opts.num) notify({ organization, text });
-    opts.num = num;
+    if (num > store.num) notify({ organization, text });
+    store.num = num;
   };
 
   const handler = () => {
     requestAnimationFrame(() => {
-      clearTimeout(opts.id);
-      opts.id = setTimeout(action, 200);
+      clearTimeout(store.id);
+      store.id = setTimeout(action, 200);
     });
   };
 
