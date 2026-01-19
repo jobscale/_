@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2025-07-22
+// @version      2026-01-19
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -12,7 +12,6 @@
 // @exclude      https://outlook.office.com/mail/*
 // @exclude      https://jsx.jp/*
 // @exclude      https://*.jsx.jp/*
-// @exclude      http://*.*.*.*:*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
 // ==/UserScript==
@@ -213,24 +212,49 @@ div.b-area {
     };
   },
 
+  textColor() {
+    const textColor = getComputedStyle(document.body).color;
+    logger.info(`text color: ${textColor}`);
+    const match = textColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return undefined;
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+
+    const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+    return brightness > 100;
+  },
+
   main() {
     if (this.init) return;
     this.init = true;
+    document.documentElement.style.backgroundColor = '';
 
     const video = document.querySelector('video');
 
-    const result = this.getBackgroundColorBrightness('div')
-      || this.getBackgroundColorBrightness('div:nth-child(2)')
-      || this.getBackgroundColorBrightness('body')
-      || this.getBackgroundColorBrightness('html');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    logger.info(`desktop prefers-color-scheme: ${prefersDark ? 'dark' : 'light'}`);
 
     if (!video) {
-      if (document.querySelector('meta[name="color-scheme"]')) {
-        logger.info('color-scheme supported');
+      const scheme = getComputedStyle(document.documentElement).colorScheme;
+      if (scheme.match(/dark/i)) {
+        logger.info(`color-scheme: ${scheme} supported`);
         return;
       }
+      if (document.querySelector('meta[name="color-scheme"]')) {
+        logger.info('meta color-scheme supported');
+        return;
+      }
+      const result = this.getBackgroundColorBrightness('div')
+        || this.getBackgroundColorBrightness('div:nth-child(2)')
+        || this.getBackgroundColorBrightness('body')
+        || this.getBackgroundColorBrightness('html');
       if (result?.isDark) {
-        logger.info('This is Dark');
+        logger.info('This is Dark by background color');
+        return;
+      }
+      if (this.textColor()) {
+        logger.info('This is Dark by text color');
         return;
       }
     }
@@ -240,7 +264,6 @@ div.b-area {
 };
 
 window.addEventListener('load', () => {
-  setTimeout(() => app.main(), 0);
+  document.documentElement.style.backgroundColor = 'black';
+  setTimeout(() => app.main(), 200);
 });
-
-setTimeout(() => app.main(), 1000);
