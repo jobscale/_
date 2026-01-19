@@ -168,5 +168,5 @@ class Tver {
 }
 
 window.addEventListener('load', () => {
-  setTimeout(() => new Tver().main(), 200);
+  setTimeout(() => new Tver().main(), 2200);
 });
