@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-14
+// @version      2026-01-19
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://*.signin.aws.amazon.com/oauth?*
@@ -18,7 +18,7 @@
 // @grant        none
 // ==/UserScript==
 
-(() => {
+setTimeout(() => {
   const mfaList = () => [
     { name: 'refresh', token: 'AAzzZz' },
     { name: 'refresh', token: 'BAzzZz' },
@@ -279,6 +279,7 @@ input {
         setTimeout(action, 1000);
         return;
       }
+      store.observer.disconnect();
 
       const style = document.createElement('style');
       style.textContent = css;
@@ -286,8 +287,16 @@ input {
       render();
     };
 
-    action();
+    const handler = () => {
+      requestAnimationFrame(() => {
+        clearTimeout(store.id);
+        store.id = setTimeout(action, 200);
+      });
+    };
+
+    store.observer = new MutationObserver(handler);
+    store.observer.observe(document.body, { childList: true, subtree: true });
   };
 
   main();
-})();
+}, 2200);
