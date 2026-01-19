@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      2025-07-31
+// @version      2026-01-20
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp/*/*
@@ -160,12 +160,13 @@ class Tver {
   }
 
   main() {
+    setTimeout(() => this.changeStyle(), 500);
     setTimeout(() => this.setClick(), 1000);
-
-    this.changeStyle();
-    setTimeout(() => this.changeStyle(), 2000);
-    setTimeout(() => this.setContentEvent(), 2500);
+    setTimeout(() => this.changeStyle(), 1500);
+    setTimeout(() => this.setContentEvent(), 2000);
   }
 }
 
-setTimeout(() => new Tver().main(), 1500);
+window.addEventListener('load', () => {
+  setTimeout(() => new Tver().main(), 200);
+});
