@@ -24,7 +24,16 @@
 const sharedStorage = {
   enc: new TextEncoder(),
   dec: new TextDecoder(),
-  PASSWORD: '<user-account-secret>',
+  PASSWORD: '<secret>',
+
+  async secretProvider() {
+    let secret = GM_getValue('.multi-domain.machine.id');
+    if (!secret) {
+      secret = crypto.getRandomValues(new Uint8Array(16)).join('');
+      GM_setValue('.multi-domain.machine.id', secret);
+    }
+    sharedStorage.PASSWORD = secret;
+  },
 
   async deriveKey(password, salt) {
     const keyMaterial = await crypto.subtle.importKey(
@@ -39,6 +48,9 @@ const sharedStorage = {
   async encrypt(buffer) {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iv = crypto.getRandomValues(new Uint8Array(12));
+    if (sharedStorage.PASSWORD === '<secret>') {
+      await sharedStorage.secretProvider();
+    }
     const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
     const encrypted = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv }, key, buffer,
@@ -78,8 +90,8 @@ const sharedStorage = {
   },
 
   async setItem(key, value) {
-    if (typeof value === 'string') {
-      value = { 'Content-Type: text/plain': value };
+    if (typeof value !== 'object') {
+      value = { 'string|number|boolean|other': value };
     }
     value = JSON.stringify(value);
     const compressed = await sharedStorage.gzip(sharedStorage.enc.encode(value));
@@ -96,8 +108,8 @@ const sharedStorage = {
     if (!textBuffer) return undefined;
     const text = sharedStorage.dec.decode(textBuffer);
     const parsed = JSON.parse(text);
-    if (parsed?.['Content-Type: text/plain']) {
-      return parsed['Content-Type: text/plain'];
+    if ('string|number|boolean|other' in parsed) {
+      return parsed['string|number|boolean|other'];
     }
     return parsed;
   },

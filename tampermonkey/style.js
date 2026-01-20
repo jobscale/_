@@ -21,7 +21,7 @@ const customStorage = {
   dec: new TextDecoder(),
   DATABASE: 'SecureDB',
   TABLE: 'SecureStore',
-  PASSWORD: location.hostname,
+  PASSWORD: `2026:${location.hostname.split('.').reverse().join('.')}:custom-storage`,
 
   async init() {
     if (customStorage.db) return customStorage.db;
@@ -75,13 +75,13 @@ const customStorage = {
   },
 
   async setItem(key, value) {
-    if (location.protocol.endsWith('http')) {
-      localStorage.setItem(key, value);
+    if (location.protocol.endsWith('http:')) {
+      localStorage.setItem(key, JSON.stringify(value));
       return;
     }
     const db = await customStorage.init();
-    if (typeof value === 'string') {
-      value = { 'Content-Type: text/plain': value };
+    if (typeof value !== 'object') {
+      value = { 'string|number|boolean|other': value };
     }
     value = JSON.stringify(value);
     const encrypted = await customStorage.encrypt(value);
@@ -95,8 +95,10 @@ const customStorage = {
   },
 
   async getItem(key) {
-    if (location.protocol.endsWith('http')) {
-      return localStorage.getItem(key);
+    if (location.protocol.endsWith('http:')) {
+      const raw = localStorage.getItem(key);
+      if (raw === null) return undefined;
+      return JSON.parse(raw);
     }
     const db = await customStorage.init();
     return new Promise((resolve, reject) => {
@@ -108,8 +110,8 @@ const customStorage = {
         const decrypted = await customStorage.decrypt(req.result).catch(() => undefined);
         if (decrypted === undefined) { resolve(undefined); return; }
         const parsed = JSON.parse(decrypted);
-        if ('Content-Type: text/plain' in parsed) {
-          resolve(parsed['Content-Type: text/plain']);
+        if ('string|number|boolean|other' in parsed) {
+          resolve(parsed['string|number|boolean|other']);
           return;
         }
         resolve(parsed);
@@ -119,7 +121,7 @@ const customStorage = {
   },
 
   async removeItem(key) {
-    if (location.protocol.endsWith('http')) {
+    if (location.protocol.endsWith('http:')) {
       localStorage.removeItem(key);
       return;
     }
@@ -134,7 +136,7 @@ const customStorage = {
   },
 
   async clear() {
-    if (location.protocol.endsWith('http')) {
+    if (location.protocol.endsWith('http:')) {
       localStorage.clear();
       return;
     }
