@@ -73,7 +73,7 @@ const sharedStorage = {
     if (!textBuffer) return undefined;
     const text = sharedStorage.dec.decode(textBuffer);
     const parsed = JSON.parse(text);
-    if (parsed?.['Content-Type: text/plain']) {
+    if ('Content-Type: text/plain' in parsed) {
       return parsed['Content-Type: text/plain'];
     }
     return parsed;

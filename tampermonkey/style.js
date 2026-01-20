@@ -99,13 +99,11 @@ const customStorage = {
       const store = tx.objectStore(customStorage.TABLE);
       const req = store.get(key);
       req.onsuccess = async () => {
-        if (!req.result) {
-          resolve(null);
-          return;
-        }
+        if (!req.result) { resolve(undefined); return; }
         const decrypted = await customStorage.decrypt(req.result).catch(() => undefined);
-        const parsed = decrypted && JSON.parse(decrypted);
-        if (parsed?.['Content-Type: text/plain']) {
+        if (decrypted === undefined) { resolve(undefined); return; }
+        const parsed = JSON.parse(decrypted);
+        if ('Content-Type: text/plain' in parsed) {
           resolve(parsed['Content-Type: text/plain']);
           return;
         }
