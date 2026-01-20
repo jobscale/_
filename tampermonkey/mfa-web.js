@@ -26,13 +26,13 @@ const sharedStorage = {
   dec: new TextDecoder(),
   PASSWORD: '<secret>',
 
-  async secretProvider() {
+  async secretProvider(generate = true) {
     let secret = GM_getValue('.multi-domain.machine.id');
-    if (!secret) {
+    if (!secret && generate) {
       secret = crypto.getRandomValues(new Uint8Array(16)).join('');
       GM_setValue('.multi-domain.machine.id', secret);
     }
-    sharedStorage.PASSWORD = secret;
+    if (secret) sharedStorage.PASSWORD = secret;
   },
 
   async deriveKey(password, salt) {
@@ -66,6 +66,9 @@ const sharedStorage = {
     const salt = new Uint8Array(obj.salt);
     const iv = new Uint8Array(obj.iv);
     const data = new Uint8Array(obj.data);
+    if (sharedStorage.PASSWORD === '<secret>') {
+      await sharedStorage.secretProvider(false);
+    }
     const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
     const decrypted = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv }, key, data,
