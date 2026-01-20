@@ -10,8 +10,6 @@
 // @exclude      https://*.amazonaws.com/*
 // @exclude      https://mail.google.com/mail/*
 // @exclude      https://outlook.office.com/mail/*
-// @exclude      https://jsx.jp/*
-// @exclude      https://*.jsx.jp/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
 // ==/UserScript==
@@ -77,6 +75,10 @@ const customStorage = {
   },
 
   async setItem(key, value) {
+    if (location.protocol.endsWith('http')) {
+      localStorage.setItem(key, value);
+      return;
+    }
     const db = await customStorage.init();
     if (typeof value === 'string') {
       value = { 'Content-Type: text/plain': value };
@@ -93,6 +95,9 @@ const customStorage = {
   },
 
   async getItem(key) {
+    if (location.protocol.endsWith('http')) {
+      return localStorage.getItem(key);
+    }
     const db = await customStorage.init();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(customStorage.TABLE, 'readonly');
@@ -114,6 +119,10 @@ const customStorage = {
   },
 
   async removeItem(key) {
+    if (location.protocol.endsWith('http')) {
+      localStorage.removeItem(key);
+      return;
+    }
     const db = await customStorage.init();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(customStorage.TABLE, 'readwrite');
@@ -125,6 +134,10 @@ const customStorage = {
   },
 
   async clear() {
+    if (location.protocol.endsWith('http')) {
+      localStorage.clear();
+      return;
+    }
     const db = await customStorage.init();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(customStorage.TABLE, 'readwrite');
