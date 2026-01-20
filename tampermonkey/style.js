@@ -103,9 +103,9 @@ const customStorage = {
           resolve(null);
           return;
         }
-        const decrypted = await customStorage.decrypt(req.result);
-        const parsed = JSON.parse(decrypted);
-        if (parsed['Content-Type: text/plain']) {
+        const decrypted = await customStorage.decrypt(req.result).catch(() => undefined);
+        const parsed = decrypted && JSON.parse(decrypted);
+        if (parsed?.['Content-Type: text/plain']) {
           resolve(parsed['Content-Type: text/plain']);
           return;
         }

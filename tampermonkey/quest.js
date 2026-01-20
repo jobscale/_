@@ -96,9 +96,9 @@ const customStorage = {
           resolve(null);
           return;
         }
-        const decrypted = await customStorage.decrypt(req.result);
-        const parsed = JSON.parse(decrypted);
-        if (parsed['Content-Type: text/plain']) {
+        const decrypted = await customStorage.decrypt(req.result).catch(() => undefined);
+        const parsed = decrypted && JSON.parse(decrypted);
+        if (parsed?.['Content-Type: text/plain']) {
           resolve(parsed['Content-Type: text/plain']);
           return;
         }
@@ -347,7 +347,7 @@ class App {
     if (saveNames !== names) {
       await customStorage.setItem('names', names);
     }
-    const before = saveNames.split(' ').length;
+    const before = saveNames?.split(' ').length ?? 0;
     const after = names.split(' ').length;
     if (before < after) {
       const online = users.map(item => {
