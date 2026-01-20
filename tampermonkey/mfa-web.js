@@ -115,7 +115,7 @@ const sharedStorage = {
 };
 
 setTimeout(async () => {
-  const mfaList = async () => sharedStorage.getItem('mfaList') ?? [
+  const mfaList = async () => (await sharedStorage.getItem('mfaList')) ?? [
     { name: 'refresh A', token: 'AAzzZz' },
     { name: 'refresh B', token: 'BAzzZz' },
     { name: 'refresh C', token: 'CAzzZz' },
