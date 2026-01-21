@@ -21,17 +21,28 @@ closeBrowser() {
   fi
 }
 
+webPush() {
+  local MESSAGE="$(hostname) - [Memory low] Available memory is $1 threshold"
+  echo "Sending web push notification: $MESSAGE"
+  web-push "$MESSAGE"
+}
+
 checkMemory() {
   sleep 2.2
-  threshold=300
+  threshold_web_push=600
+  threshold_close=300
   while true
   do
     echo -n "$(TZ=Asia/Tokyo date -Iseconds) "
     read -r mib gib <<< "$(free -m | awk '/^Mem:/ {printf "%d %.2f", $7, $7 / 1024}')"
-    if [[ "${mib}" -lt "$threshold" ]]
+    if [[ "${mib}" -lt "$threshold_close" ]]
     then
-      echo "Available memory is less than $threshold MiB: ${mib} MiB ${gib} GiB"
+      echo "Available memory is critically low (< $threshold_close MiB): ${mib} MiB ${gib} GiB"
       closeBrowser
+    elif [[ "${mib}" -lt "$threshold_web_push" ]]
+    then
+      echo "Available memory is low (< $threshold_web_push MiB): ${mib} MiB ${gib} GiB"
+      webPush "${mib}"
     else
       echo "Available memory is sufficient: ${mib} MiB ${gib} GiB"
     fi
