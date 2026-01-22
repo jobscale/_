@@ -179,19 +179,19 @@ div.b-area {
     style.innerHTML = this[`css${no}`];
     style.id = `custom-css-${no}`;
     document.head.append(style);
-    const customCss = JSON.parse((await customStorage.getItem('custom-css')) ?? '[]');
+    const customCss = (await customStorage.getItem('custom-css')) ?? [];
     customCss.push(no);
-    await customStorage.setItem('custom-css', JSON.stringify(customCss));
+    await customStorage.setItem('custom-css', customCss);
     elm.textContent = `*${elm.textContent}*`;
   },
 
   async toggle(no) {
     const elm = document.querySelector(`.btn-custom-css-${no}`);
     const exist = document.querySelector(`#custom-css-${no}`);
-    const customCss = JSON.parse((await customStorage.getItem('custom-css')) ?? '[]');
+    const customCss = (await customStorage.getItem('custom-css')) ?? [];
     if (customCss.includes(no)) {
       if (exist) exist.remove();
-      await customStorage.setItem('custom-css', JSON.stringify(customCss.filter(v => v !== no)));
+      await customStorage.setItem('custom-css', customCss.filter(v => v !== no));
       elm.textContent = `_type ${no}_`;
     } else if (!exist) {
       await this.add(no);
@@ -303,12 +303,12 @@ div.b-area {
 
   async mounted() {
     const ts = Date.now();
-    const conf = JSON.parse((await customStorage.getItem('custom-css-conf')) ?? '{}');
-    await customStorage.setItem('custom-css-conf', JSON.stringify({ expired: ts + 1000 }));
+    const conf = (await customStorage.getItem('custom-css-conf')) ?? {};
+    await customStorage.setItem('custom-css-conf', { expired: ts + 1000 });
     if (conf.expired && conf.expired > ts) return;
 
     const div = this.btnSetting();
-    const customCss = JSON.parse((await customStorage.getItem('custom-css')) ?? '[]');
+    const customCss = (await customStorage.getItem('custom-css')) ?? [];
     for (const no of [1, 2, 3]) {
       if (customCss.includes(no)) await this.update(no, true);
     }
