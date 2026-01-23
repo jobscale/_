@@ -21,129 +21,217 @@
 // @grant        GM_listValues
 // ==/UserScript==
 
-const sharedStorage = {
-  enc: new TextEncoder(),
-  dec: new TextDecoder(),
-  PASSWORD: '<secret>',
+(async () => {
+  const sharedStorage = {
+    enc: new TextEncoder(),
+    dec: new TextDecoder(),
+    PASSWORD: '<secret>',
 
-  async secretProvider(generate = true) {
-    let secret = GM_getValue('.multi-domain.machine.id');
-    if (!secret && generate) {
-      secret = crypto.getRandomValues(new Uint8Array(16)).join('');
-      GM_setValue('.multi-domain.machine.id', secret);
-    }
-    if (secret) sharedStorage.PASSWORD = secret;
-  },
+    async secretProvider(generate = true) {
+      let secret = GM_getValue('.multi-domain.machine.id');
+      if (!secret && generate) {
+        secret = crypto.getRandomValues(new Uint8Array(16)).join('');
+        GM_setValue('.multi-domain.machine.id', secret);
+      }
+      if (secret) sharedStorage.PASSWORD = secret;
+    },
 
-  async deriveKey(password, salt) {
-    const keyMaterial = await crypto.subtle.importKey(
-      'raw', sharedStorage.enc.encode(password), 'PBKDF2', false, ['deriveKey'],
-    );
+    async deriveKey(password, salt) {
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', sharedStorage.enc.encode(password), 'PBKDF2', false, ['deriveKey'],
+      );
 
-    return crypto.subtle.deriveKey({
-      name: 'PBKDF2', salt, iterations: 10_000, hash: 'SHA-256',
-    }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-  },
+      return crypto.subtle.deriveKey({
+        name: 'PBKDF2', salt, iterations: 10_000, hash: 'SHA-256',
+      }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    },
 
-  async encrypt(buffer) {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    if (sharedStorage.PASSWORD === '<secret>') {
-      await sharedStorage.secretProvider();
-    }
-    const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
-    const encrypted = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv }, key, buffer,
-    );
-    return {
-      salt: Array.from(salt),
-      iv: Array.from(iv),
-      data: Array.from(new Uint8Array(encrypted)),
-    };
-  },
+    async encrypt(buffer) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      if (sharedStorage.PASSWORD === '<secret>') {
+        await sharedStorage.secretProvider();
+      }
+      const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
+      const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv }, key, buffer,
+      );
+      return {
+        salt: Array.from(salt),
+        iv: Array.from(iv),
+        data: Array.from(new Uint8Array(encrypted)),
+      };
+    },
 
-  async decrypt(obj) {
-    const salt = new Uint8Array(obj.salt);
-    const iv = new Uint8Array(obj.iv);
-    const data = new Uint8Array(obj.data);
-    if (sharedStorage.PASSWORD === '<secret>') {
-      await sharedStorage.secretProvider(false);
-    }
-    const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv }, key, data,
-    );
-    return decrypted;
-  },
+    async decrypt(obj) {
+      const salt = new Uint8Array(obj.salt);
+      const iv = new Uint8Array(obj.iv);
+      const data = new Uint8Array(obj.data);
+      if (sharedStorage.PASSWORD === '<secret>') {
+        await sharedStorage.secretProvider(false);
+      }
+      const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv }, key, data,
+      );
+      return decrypted;
+    },
 
-  async gzip(data) {
-    const cs = new CompressionStream('gzip');
-    const writer = cs.writable.getWriter();
-    writer.write(data);
-    writer.close();
-    return new Response(cs.readable).arrayBuffer();
-  },
+    async gzip(data) {
+      const cs = new CompressionStream('gzip');
+      const writer = cs.writable.getWriter();
+      writer.write(data);
+      writer.close();
+      return new Response(cs.readable).arrayBuffer();
+    },
 
-  async gunzip(data) {
-    const ds = new DecompressionStream('gzip');
-    const writer = ds.writable.getWriter();
-    writer.write(data);
-    writer.close();
-    return new Response(ds.readable).arrayBuffer();
-  },
+    async gunzip(data) {
+      const ds = new DecompressionStream('gzip');
+      const writer = ds.writable.getWriter();
+      writer.write(data);
+      writer.close();
+      return new Response(ds.readable).arrayBuffer();
+    },
 
-  async setItem(key, value) {
-    if (typeof value !== 'object') {
-      value = { 'string|number|boolean|other': value };
-    }
-    value = JSON.stringify(value);
-    const compressed = await sharedStorage.gzip(sharedStorage.enc.encode(value));
-    const encrypted = await sharedStorage.encrypt(compressed);
-    GM_setValue(key, encrypted);
-  },
+    async setItem(key, value) {
+      if (typeof value !== 'object') {
+        value = { 'string|number|boolean|other': value };
+      }
+      value = JSON.stringify(value);
+      const compressed = await sharedStorage.gzip(sharedStorage.enc.encode(value));
+      const encrypted = await sharedStorage.encrypt(compressed);
+      GM_setValue(key, encrypted);
+    },
 
-  async getItem(key) {
-    const encrypted = GM_getValue(key);
-    if (!encrypted) return undefined;
-    const decrypted = await sharedStorage.decrypt(encrypted).catch(() => undefined);
-    if (!decrypted) return undefined;
-    const textBuffer = await sharedStorage.gunzip(decrypted).catch(() => undefined);
-    if (!textBuffer) return undefined;
-    const text = sharedStorage.dec.decode(textBuffer);
-    const parsed = JSON.parse(text);
-    if ('string|number|boolean|other' in parsed) {
-      return parsed['string|number|boolean|other'];
-    }
-    return parsed;
-  },
+    async getItem(key) {
+      const encrypted = GM_getValue(key);
+      if (!encrypted) return undefined;
+      const decrypted = await sharedStorage.decrypt(encrypted).catch(() => undefined);
+      if (!decrypted) return undefined;
+      const textBuffer = await sharedStorage.gunzip(decrypted).catch(() => undefined);
+      if (!textBuffer) return undefined;
+      const text = sharedStorage.dec.decode(textBuffer);
+      const parsed = JSON.parse(text);
+      if ('string|number|boolean|other' in parsed) {
+        return parsed['string|number|boolean|other'];
+      }
+      return parsed;
+    },
 
-  async removeItem(key) {
-    GM_deleteValue(key);
-  },
+    async removeItem(key) {
+      GM_deleteValue(key);
+    },
 
-  async clear() {
-    const keys = GM_listValues();
-    for (const key of keys) {
-      await sharedStorage.removeItem(key);
-    }
-  },
-};
+    async clear() {
+      const keys = GM_listValues();
+      for (const key of keys) {
+        await sharedStorage.removeItem(key);
+      }
+    },
+  };
 
-setTimeout(async () => {
-  const mfaList = async () => (await sharedStorage.getItem('mfaList')) ?? [
-    { name: 'refresh A', token: 'AAzzZz' },
-    { name: 'refresh B', token: 'BAzzZz' },
-    { name: 'refresh C', token: 'CAzzZz' },
-  ];
+  const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const onetime = {
+    decodeBase32(encoded) {
+      const base32Lookup = {};
+      for (let i = 0; i < base32Chars.length; i++) {
+        base32Lookup[base32Chars[i]] = i;
+      }
+      const base32String = encoded.replace(/=+$/, '').toUpperCase();
+      const bitsPerChar = 5;
+      let binaryString = '';
+      for (let i = 0; i < base32String.length; i++) {
+        const char = base32String[i];
+        if (base32Lookup[char] === undefined) {
+          throw new Error(`Invalid character in Base32 string: ${char}`);
+        }
+        const binaryValue = base32Lookup[char].toString(2).padStart(bitsPerChar, '0');
+        binaryString += binaryValue;
+      }
+      const chunks = binaryString.match(/.{1,8}/g).filter(v => v.length === 8);
+      return new Uint8Array(chunks.map(chunk => parseInt(chunk, 2)));
+    },
 
-  const authInput = () => document.querySelector('#mfacode, #mfaCode, input[name="mfaCode"]') // AWS
-  || document.querySelector('input[name="otc"]') // MS
-  || document.querySelector('#app_totp') // GitHub
-  || document.querySelector('#login_otp') // npm
-  || document.querySelector('form[class="auth-area"]') // jsxjp
-  || document.querySelector('#otpCode'); // bitflyer
+    convertToBuffer(who, encoding) {
+      if (encoding === 'base32') return onetime.decodeBase32(who);
+      return ArrayBuffer.from(who, encoding);
+    },
 
-  const css = `
+    async createHmacKey(secret, buf, algorithm = 'HMAC') {
+      const nodejs = typeof window === 'undefined';
+      if (nodejs) {
+        const crypto = await import('crypto');
+        const hmac = crypto.createHmac('sha1', secret);
+        hmac.update(buf);
+        return Buffer.from(hmac.digest(), 'hex');
+      }
+      const key = await crypto.subtle.importKey(
+        'raw', secret, { name: algorithm, hash: { name: 'SHA-1' } },
+        false, ['sign', 'verify'],
+      );
+      return crypto.subtle.sign(algorithm, key, buf);
+    },
+
+    async digest(options) {
+      const { secret } = options;
+      const { counter } = options;
+      const encoding = options.encoding || 'base32';
+      const blob = onetime.convertToBuffer(secret, encoding);
+      const buf = new Uint8Array(8);
+      let tmp = counter;
+      for (let i = 0; i < 8; i++) {
+        buf[7 - i] = tmp & 0xff;
+        tmp >>= 8;
+      }
+      const signature = await onetime.createHmacKey(blob, buf);
+      return new Uint8Array(signature);
+    },
+
+    async hotp(options) {
+      const digits = (options.digits ? options.digits : options.length) || 6;
+      const digest = options.digest || await onetime.digest(options);
+      const offset = digest[digest.length - 1] & 0xf;
+      const code = (digest[offset] & 0x7f) << 24
+        | (digest[offset + 1] & 0xff) << 16
+        | (digest[offset + 2] & 0xff) << 8
+        | digest[offset + 3] & 0xff;
+      const strCode = new Array(digits + 1).join('0') + code.toString(10);
+      return strCode.slice(-digits);
+    },
+
+    async totp(options) {
+      options = Object.create(options);
+      if (!options.counter) {
+        const step = options.step || 30;
+        const time = options.time ? options.time * 1000 : Date.now();
+        const epoch = options.epoch ? options.epoch * 1000 : 0;
+        options.counter = Math.floor((time - epoch) / step / 1000);
+      }
+      return onetime.hotp(options);
+    },
+  };
+
+  const store = {};
+  const app = {
+    async mfaList() {
+      const list = await sharedStorage.getItem('mfaList');
+      return list ?? [
+        { name: 'refresh A', token: 'AAzzZz' },
+        { name: 'refresh B', token: 'BAzzZz' },
+        { name: 'refresh C', token: 'CAzzZz' },
+      ];
+    },
+
+    authInput() {
+      return document.querySelector('#mfacode, #mfaCode, input[name="mfaCode"]') // AWS
+      || document.querySelector('input[name="otc"]') // MS
+      || document.querySelector('#app_totp') // GitHub
+      || document.querySelector('#login_otp') // npm
+      || document.querySelector('form[class="auth-area"]') // jsxjp
+      || document.querySelector('#otpCode'); // bitflyer
+    },
+
+    css: `
 .g-area {
   position: absolute;
   color: #ddd;
@@ -245,100 +333,9 @@ setTimeout(async () => {
 input {
   background: transparent;
 }
-`;
+`,
 
-  const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-
-  class TOTP {
-    decodeBase32(encoded) {
-      const base32Lookup = {};
-      for (let i = 0; i < base32Chars.length; i++) {
-        base32Lookup[base32Chars[i]] = i;
-      }
-      const base32String = encoded.replace(/=+$/, '').toUpperCase();
-      const bitsPerChar = 5;
-      let binaryString = '';
-      for (let i = 0; i < base32String.length; i++) {
-        const char = base32String[i];
-        if (base32Lookup[char] === undefined) {
-          throw new Error(`Invalid character in Base32 string: ${char}`);
-        }
-        const binaryValue = base32Lookup[char].toString(2).padStart(bitsPerChar, '0');
-        binaryString += binaryValue;
-      }
-      const chunks = binaryString.match(/.{1,8}/g).filter(v => v.length === 8);
-      return new Uint8Array(chunks.map(chunk => parseInt(chunk, 2)));
-    }
-
-    convertToBuffer(who, encoding) {
-      if (encoding === 'base32') return this.decodeBase32(who);
-      return ArrayBuffer.from(who, encoding);
-    }
-
-    async createHmacKey(secret, buf, algorithm = 'HMAC') {
-      const loader = typeof require !== 'undefined' ? require : undefined;
-      if (loader) {
-        const crypto = loader('crypto');
-        const hmac = crypto.createHmac('sha1', secret);
-        hmac.update(buf);
-        return Buffer.from(hmac.digest(), 'hex');
-      }
-      const key = await crypto.subtle.importKey(
-        'raw', secret, { name: algorithm, hash: { name: 'SHA-1' } },
-        false, ['sign', 'verify'],
-      );
-      return crypto.subtle.sign(algorithm, key, buf);
-    }
-
-    async digest(options) {
-      const { secret } = options;
-      const { counter } = options;
-      const encoding = options.encoding || 'base32';
-      const blob = this.convertToBuffer(secret, encoding);
-      const buf = new Uint8Array(8);
-      let tmp = counter;
-      for (let i = 0; i < 8; i++) {
-        buf[7 - i] = tmp & 0xff;
-        tmp >>= 8;
-      }
-      const signature = await this.createHmacKey(blob, buf);
-      return new Uint8Array(signature);
-    }
-
-    async hotp(options) {
-      const digits = (options.digits ? options.digits : options.length) || 6;
-      const digest = options.digest || await this.digest(options);
-      const offset = digest[digest.length - 1] & 0xf;
-      const code = (digest[offset] & 0x7f) << 24
-        | (digest[offset + 1] & 0xff) << 16
-        | (digest[offset + 2] & 0xff) << 8
-        | digest[offset + 3] & 0xff;
-      const strCode = new Array(digits + 1).join('0') + code.toString(10);
-      return strCode.slice(-digits);
-    }
-
-    async totp(options) {
-      options = Object.create(options);
-      if (!options.counter) {
-        const step = options.step || 30;
-        const time = options.time ? options.time * 1000 : Date.now();
-        const epoch = options.epoch ? options.epoch * 1000 : 0;
-        options.counter = Math.floor((time - epoch) / step / 1000);
-      }
-      return this.hotp(options);
-    }
-  }
-
-  const main = async () => {
-    const store = {};
-    const app = new TOTP();
-    const totp = token => app.totp({
-      secret: token,
-      encoding: 'base32',
-      time: Math.floor(Date.now() / 1000) + 30,
-    });
-
-    const render = async () => {
+    async render() {
       const old = document.querySelector('.g-area');
       if (old) old.remove();
       const area = document.createElement('div');
@@ -350,7 +347,7 @@ input {
       const content = document.createElement('div');
       content.classList.add('g-content');
       area.append(content);
-      const items = await mfaList();
+      const items = await app.mfaList();
       const ts = document.createElement('div');
       if (store.intervalId) clearInterval(store.intervalId);
       store.intervalId = setInterval(() => {
@@ -369,7 +366,11 @@ input {
         el.append(btn);
         div.append(el);
         const update = async () => {
-          const mfaCode = await totp(item.token);
+          const mfaCode = await onetime.totp({
+            secret: item.token,
+            encoding: 'base32',
+            time: Math.floor(Date.now() / 1000) + 30,
+          });
           span.textContent = mfaCode;
         };
         btn.addEventListener('click', update);
@@ -379,32 +380,31 @@ input {
         area.classList.toggle('collapsed');
       });
       document.body.append(area);
-    };
+    },
 
-    const action = async () => {
-      const exists = authInput();
-      if (!exists) {
-        setTimeout(action, 1000);
-        return;
-      }
+    async action() {
+      const exists = app.authInput();
+      if (!exists) return;
       store.observer.disconnect();
 
       const style = document.createElement('style');
-      style.textContent = css;
+      style.textContent = app.css;
       document.head.append(style);
-      render();
-    };
+      app.render();
+    },
 
-    const handler = () => {
+    handler() {
       requestAnimationFrame(() => {
         clearTimeout(store.id);
-        store.id = setTimeout(action, 200);
+        store.id = setTimeout(app.action, 200);
       });
-    };
+    },
 
-    store.observer = new MutationObserver(handler);
-    store.observer.observe(document.body, { childList: true, subtree: true });
+    start() {
+      store.observer = new MutationObserver(app.handler);
+      store.observer.observe(document.body, { childList: true, subtree: true });
+    },
   };
 
-  main();
-}, 2200);
+  window.addEventListener('pageshow', app.start);
+})();

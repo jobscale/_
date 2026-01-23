@@ -74,7 +74,7 @@
     async setItem(key, value) {
       if (location.protocol.endsWith('http:')) {
         localStorage.setItem(key, JSON.stringify(value));
-        return;
+        return undefined;
       }
       const db = await customStorage.init();
       if (typeof value !== 'object') {
@@ -120,7 +120,7 @@
     async removeItem(key) {
       if (location.protocol.endsWith('http:')) {
         localStorage.removeItem(key);
-        return;
+        return undefined;
       }
       const db = await customStorage.init();
       return new Promise((resolve, reject) => {
@@ -135,7 +135,7 @@
     async clear() {
       if (location.protocol.endsWith('http:')) {
         localStorage.clear();
-        return;
+        return undefined;
       }
       const db = await customStorage.init();
       return new Promise((resolve, reject) => {
@@ -421,7 +421,7 @@
     async watchOnline() {
       if (location.protocol !== 'https:') {
         logger.warn('Insecure protocol, skip battle report');
-        return false;
+        return;
       }
       if (!window.location.href.includes('ally')) return;
       app.refactor();

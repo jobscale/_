@@ -72,7 +72,7 @@ const customStorage = {
   async setItem(key, value) {
     if (location.protocol.endsWith('http:')) {
       localStorage.setItem(key, JSON.stringify(value));
-      return;
+      return undefined;
     }
     const db = await customStorage.init();
     if (typeof value !== 'object') {
@@ -118,7 +118,7 @@ const customStorage = {
   async removeItem(key) {
     if (location.protocol.endsWith('http:')) {
       localStorage.removeItem(key);
-      return;
+      return undefined;
     }
     const db = await customStorage.init();
     return new Promise((resolve, reject) => {
@@ -133,7 +133,7 @@ const customStorage = {
   async clear() {
     if (location.protocol.endsWith('http:')) {
       localStorage.clear();
-      return;
+      return undefined;
     }
     const db = await customStorage.init();
     return new Promise((resolve, reject) => {

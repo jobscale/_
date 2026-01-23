@@ -7,11 +7,15 @@ export default [{
 }, {
   ...standard.configs.standard,
   name: 'standard base rule',
-  globals: {
-    GM_setValue: 'readonly',
-    GM_getValue: 'readonly',
-    GM_deleteValue: 'readonly',
-    GM_listValues: 'readonly',
+  languageOptions: {
+    globals: {
+      ...globals.browser,
+      ...globals.node,
+      GM_setValue: 'readonly',
+      GM_getValue: 'readonly',
+      GM_deleteValue: 'readonly',
+      GM_listValues: 'readonly',
+    },
   },
   rules: {
     ...standard.configs.standard.rules,
