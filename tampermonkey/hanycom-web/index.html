@@ -20,57 +20,5 @@
 </head>
 <body>
   <button id="button">Click here!</button>
-
-  <script>
-    const createCanvas = () => {
-      // canvas 作成と追加
-      const canvas = document.createElement('canvas');
-      canvas.id = 'canvas';
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      canvas.style.position = 'fixed';
-      canvas.style.top = '0';
-      canvas.style.left = '0';
-      canvas.style.pointerEvents = 'none';
-      canvas.style.backgroundColor = 'transparent';
-      canvas.style.zIndex = '0';
-      document.body.append(canvas);
-
-      // 描画処理
-      const ctx = canvas.getContext('2d');
-
-      const radius = 35;
-      const gridRadius = 50;
-
-      const hexHeight = Math.sqrt(3) * radius;
-      const horizDist = gridRadius * 1.5;
-      const vertDist = gridRadius * Math.sqrt(3) * 0.75;
-
-      function drawHexagon(cx, cy) {
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const angle = Math.PI / 3 * i - Math.PI / 6;
-          const x = cx + radius * Math.cos(angle);
-          const y = cy + radius * Math.sin(angle);
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      for (let row = 0; row < canvas.height / vertDist + 2; row++) {
-        for (let col = 0; col < canvas.width / horizDist + 2; col++) {
-          const offsetX = (row % 2 === 0) ? 0 : horizDist / 2;
-          const x = col * horizDist + offsetX;
-          const y = row * vertDist;
-          drawHexagon(x, y);
-        }
-      }
-    };
-    window.addEventListener('load', () => createCanvas());
-  </script>
 </body>
 </html>
