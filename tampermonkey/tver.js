@@ -312,11 +312,12 @@ div[class^="FavoriteList"] > div {
     handler() {
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 2200);
+        provider.id = setTimeout(provider.action, 2_200);
       });
     },
 
     start() {
+      provider.id = setTimeout(provider.action, 5_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { childList: true, subtree: true });
     },

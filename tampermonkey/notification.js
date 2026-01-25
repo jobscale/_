@@ -37,8 +37,7 @@
       });
     },
 
-    action() {
-      logger.info('ACTION');
+    main() {
       const num = [
         ...document.querySelectorAll('.fui-Badge'),
         ...document.querySelectorAll('.WIYG1.Mt2TB'),
@@ -51,19 +50,26 @@
       if (num > store.num) app.notify({ organization, text });
       store.num = num;
     },
+  };
+
+  const provider = {
+    action() {
+      app.main();
+    },
 
     handler() {
       requestAnimationFrame(() => {
-        clearTimeout(store.id);
-        store.id = setTimeout(app.action, 200);
+        clearTimeout(provider.id);
+        provider.id = setTimeout(provider.action, 5_200);
       });
     },
 
-    start() {
-      const observer = new MutationObserver(app.handler);
-      observer.observe(document.body, { childList: true, subtree: true });
+    async start() {
+      await new Promise(resolve => { setTimeout(resolve, 33_000); });
+      provider.observer = new MutationObserver(provider.handler);
+      provider.observer.observe(document.body, { childList: true, subtree: true });
     },
   };
 
-  setTimeout(() => app.start(), 33_000);
+  provider.start();
 })();

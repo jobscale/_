@@ -5,7 +5,7 @@
 // @description  try to take over the world!
 // @author       You
 // @match        https://navy.quest/*
-// @match        http://127.0.0.1:3000/hanycom-web/*
+// @match        http://127.0.0.1:3000/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=navy.quest
 // @grant        none
 // ==/UserScript==
@@ -379,7 +379,7 @@
       }
       const name = 'BLACKD';
       const url = new RegExp(`https://navy.quest/gold\\?b=3&o3=[0-9a-f]+${name}`);
-      if (!window.location.href.match(url)) return false;
+      if (!location.href.match(url)) return false;
       const report = [...document.querySelectorAll('table table tr:nth-child(1) td')].map(el => el.textContent).join('\n');
       if (!report) return false;
       const known = await customStorage.getItem('report');
@@ -423,10 +423,10 @@
         logger.warn('Insecure protocol, skip battle report');
         return;
       }
-      if (!window.location.href.includes('ally')) return;
+      if (!location.href.includes('ally')) return;
       app.refactor();
       const url = 'https://navy.quest/ally.php?b=39';
-      if (window.location.href !== url) return;
+      if (location.href !== url) return;
       const NEXT_TICK = 6; // interval 6 minutes
       app.refreshTime = new Date();
       app.refreshTime.setMinutes(app.refreshTime.getMinutes() + NEXT_TICK);
@@ -436,7 +436,7 @@
       await app.onlineUsers(NEXT_TICK);
       setInterval(() => {
         if (app.refreshTime < new Date()) {
-          window.location.reload();
+          location.reload();
         }
         logger.info(formatTimestamp(), JSON.stringify({
           refreshTime: formatTimestamp(app.refreshTime),
@@ -469,12 +469,32 @@
       if (canvas) app.drawCanvas(canvas);
     },
 
-    action() {
+    main() {
       setTimeout(() => app.createTime(), 1300);
       setTimeout(() => app.createCanvas(), 2200);
       setTimeout(() => app.watchOnline(), 3400);
     },
   };
 
-  window.addEventListener('pageshow', () => app.action());
+  const provider = {
+    action() {
+      provider.observer.disconnect();
+      app.main();
+    },
+
+    handler() {
+      requestAnimationFrame(() => {
+        clearTimeout(provider.id);
+        provider.id = setTimeout(provider.action, 200);
+      });
+    },
+
+    start() {
+      provider.id = setTimeout(provider.action, 3_200);
+      provider.observer = new MutationObserver(provider.handler);
+      provider.observer.observe(document.body, { childList: true, subtree: true });
+    },
+  };
+
+  provider.start();
 })();

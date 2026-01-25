@@ -4,6 +4,7 @@
 // @version      2026-01-19
 // @description  try to take over the world!
 // @author       jobscale
+// @match        http://127.0.0.1:3000/*
 // @match        https://*.signin.aws.amazon.com/oauth?*
 // @match        https://signin.aws.amazon.com/signin?*
 // @match        https://login.microsoftonline.com/*

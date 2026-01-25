@@ -177,7 +177,7 @@ div.b-area {
     async add(no) {
       const elm = document.querySelector(`.btn-custom-css-${no}`);
       const style = document.createElement('style');
-      style.innerHTML = app[`css${no}`];
+      style.textContent = app[`css${no}`];
       style.id = `custom-css-${no}`;
       document.head.append(style);
       const list = await customStorage.getItem('custom-css');
@@ -211,7 +211,7 @@ div.b-area {
 
     btnSetting() {
       const style = document.createElement('style');
-      style.innerText = app.style;
+      style.textContent = app.style;
       document.head.append(style);
 
       const div = document.createElement('div');
@@ -395,9 +395,12 @@ div.b-area {
 
       setTimeout(() => app.mounted(), 0);
     },
+
+    init() {
+      document.documentElement.style.backgroundColor = '#111';
+    },
   };
 
-  document.documentElement.style.backgroundColor = '#333';
   const provider = {
     action() {
       provider.observer.disconnect();
@@ -407,15 +410,17 @@ div.b-area {
     handler() {
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 2200);
+        provider.id = setTimeout(provider.action, 200);
       });
     },
 
     start() {
+      provider.id = setTimeout(provider.action, 200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { childList: true, subtree: true });
     },
   };
 
   provider.start();
+  app.init();
 })();
