@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navy Quest
 // @namespace    http://tampermonkey.net/
-// @version      2025-08-25
+// @version      2026-01-26
 // @description  try to take over the world!
 // @author       You
 // @match        https://navy.quest/*

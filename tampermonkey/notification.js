@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Notification Message
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-17
+// @version      2026-01-26
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://teams.microsoft.com/v2/*
@@ -46,7 +46,7 @@
       const organization = document.querySelector('[id^="idna-me"]')?.textContent || 'Unknown';
       const appName = window.location.href.match('teams') ? 'Teams' : 'Other';
       const text = `${organization} ${appName} (${num}) notification`;
-      logger.info(text);
+      if (num !== store.num) logger.info(text);
       if (num > store.num) app.notify({ organization, text });
       store.num = num;
     },

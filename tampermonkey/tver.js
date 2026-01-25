@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-20
+// @version      2026-01-26
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp/*/*
@@ -296,10 +296,14 @@ div[class^="FavoriteList"] > div {
     },
 
     main() {
-      setTimeout(() => app.changeStyle(), 500);
-      setTimeout(() => app.setClick(), 1000);
+      if (app.init) {
+        logger.info({ 'Already initialized': new Error().stack.split('\n') });
+        return;
+      }
+      app.init = () => undefined;
+      setTimeout(() => app.setClick(), 500);
+      setTimeout(() => app.setContentEvent(), 1000);
       setTimeout(() => app.changeStyle(), 1500);
-      setTimeout(() => app.setContentEvent(), 2000);
     },
   };
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-19
+// @version      2026-01-26
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -295,15 +295,6 @@ div.b-area {
       div.append(el);
     },
 
-    getEffectiveBackgroundColor(el) {
-      while (el) {
-        const bg = getComputedStyle(el).backgroundColor;
-        if (bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return bg;
-        el = el.parentElement;
-      }
-      return undefined;
-    },
-
     async mounted() {
       const ts = Date.now();
       const storeConf = await customStorage.getItem('custom-css-conf');
@@ -323,39 +314,23 @@ div.b-area {
       app.btnVideo(div);
     },
 
-    getBackgroundColorBrightness(selector) {
-      const el = document.querySelector(selector);
-      if (!el) return undefined;
-
-      const bg = app.getEffectiveBackgroundColor(el);
-      if (!bg) return undefined;
-
-      const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (!match) return undefined;
-
-      const r = parseInt(match[1], 10);
-      const g = parseInt(match[2], 10);
-      const b = parseInt(match[3], 10);
-
-      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-      const isBright = brightness > 100;
-
+    computedColor(el) {
+      const bgColor = getComputedStyle(el).backgroundColor;
+      const bgMatch = bgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      const textColor = getComputedStyle(el).color;
+      const textMatch = textColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (!bgMatch || !textMatch) return [];
       return {
-        r, g, b, brightness, isBright, isDark: !isBright,
+        bg: [
+          parseInt(bgMatch[1], 10),
+          parseInt(bgMatch[2], 10),
+          parseInt(bgMatch[3], 10),
+        ], text: [
+          parseInt(textMatch[1], 10),
+          parseInt(textMatch[2], 10),
+          parseInt(textMatch[3], 10),
+        ],
       };
-    },
-
-    textColor() {
-      const textColor = getComputedStyle(document.body).color;
-      logger.info(`text color: ${textColor}`);
-      const match = textColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (!match) return undefined;
-      const r = parseInt(match[1], 10);
-      const g = parseInt(match[2], 10);
-      const b = parseInt(match[3], 10);
-
-      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-      return brightness > 100;
     },
 
     judgeDarkMode() {
@@ -368,16 +343,29 @@ div.b-area {
         logger.info('meta color-scheme supported');
         return true;
       }
-      const result = app.getBackgroundColorBrightness('div')
-        || app.getBackgroundColorBrightness('div:nth-child(2)')
-        || app.getBackgroundColorBrightness('body')
-        || app.getBackgroundColorBrightness('html');
-      if (result?.isDark) {
-        logger.info('This is Dark by background color');
+      const checkList = [
+        'body', 'body > div', 'form', 'table', 'header', 'footer',
+        'section', 'main', 'article', 'nav', 'aside',
+      ].flatMap(
+        query => [...document.querySelectorAll(query)]
+        .map(el => app.computedColor(el)),
+      );
+      const average = arr => {
+        if (arr.length === 0) return 0;
+        return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
+      };
+      const dark = checkList.filter(v => average(v.bg) < 128).length;
+      const light = checkList.filter(v => average(v.bg) >= 128).length;
+      logger.info(`Background Color - dark: ${dark}, light: ${light}`);
+      if (!light) {
+        logger.info('This is Dark by majority background color');
         return true;
       }
-      if (app.textColor()) {
-        logger.info('This is Dark by text color');
+      const textDark = checkList.filter(v => average(v.text) > 128).length;
+      const textLight = checkList.filter(v => average(v.text) <= 128).length;
+      logger.info(`Text Color - dark: ${textDark}, light: ${textLight}`);
+      if (!textLight) {
+        logger.info('This is Dark by majority text color');
         return true;
       }
       return false;

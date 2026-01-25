@@ -1,18 +1,50 @@
 // ==UserScript==
 // @name         e-timeCard
 // @namespace    http://tampermonkey.net/
-// @version      2025-08-25
+// @version      2026-01-26
 // @description  try to take over the world!
 // @author       You
 // @match        https://e-timecard.ne.jp/s/EPSINP*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=e-timecard.ne.jp
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=www.tempstaff.co.jp
 // @grant        none
 // ==/UserScript==
 
-setTimeout(() => {
-  Array.from(document.querySelectorAll('[id^="workPlaceKbnHome"]'))
-  .forEach(el => { el.checked = true; });
+(() => {
+  const app = {
+    main() {
+      [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) [id^="workPlaceKbnHome"]')]
+      .forEach(el => { el.checked = true; });
+      [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) input[name$="startTimeInput"]')]
+      .forEach(el => { el.value = '900'; });
+      [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) input[name$="endTimeInput"]')]
+      .forEach(el => { el.value = '1745'; });
+      [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) input[name$="rstTimeInput"]')]
+      .forEach(el => { el.value = '45'; });
 
-  const el = document.querySelector('table .cmWidthP04');
-  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}, 100);
+      const el = document.querySelector('table .cmWidthP04');
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+  };
+
+  const provider = {
+    action() {
+      provider.observer.disconnect();
+      app.main();
+    },
+
+    handler() {
+      requestAnimationFrame(() => {
+        clearTimeout(provider.id);
+        provider.id = setTimeout(provider.action, 200);
+      });
+    },
+
+    start() {
+      provider.id = setTimeout(provider.action, 200);
+      provider.observer = new MutationObserver(provider.handler);
+      provider.observer.observe(document.body, { childList: true, subtree: true });
+    },
+  };
+
+  provider.start();
+})();
