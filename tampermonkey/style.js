@@ -384,15 +384,8 @@ div.b-area {
     },
 
     main() {
-      if (app.init) {
-        logger.warn({ duplicate: 'pageshow' });
-        return;
-      }
-      app.init = true;
       document.documentElement.style.backgroundColor = '';
-
       const video = document.querySelector('video');
-
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       logger.info(`desktop prefers-color-scheme: ${prefersDark ? 'dark' : 'light'}`);
 
@@ -402,13 +395,27 @@ div.b-area {
 
       setTimeout(() => app.mounted(), 0);
     },
-
-    action() {
-      document.documentElement.style.backgroundColor = 'black';
-      setTimeout(() => app.main(), 500);
-    },
   };
 
   document.documentElement.style.backgroundColor = '#333';
-  window.addEventListener('pageshow', () => app.action());
+  const provider = {
+    action() {
+      provider.observer.disconnect();
+      app.main();
+    },
+
+    handler() {
+      requestAnimationFrame(() => {
+        clearTimeout(provider.id);
+        provider.id = setTimeout(provider.action, 2200);
+      });
+    },
+
+    start() {
+      provider.observer = new MutationObserver(provider.handler);
+      provider.observer.observe(document.body, { childList: true, subtree: true });
+    },
+  };
+
+  provider.start();
 })();
