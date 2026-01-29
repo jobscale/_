@@ -153,17 +153,27 @@
   };
 
   const app = {
-    css1: `/* Custom Scheme */
+    cssList: ['Dark', 'Invert', 'Image', 'Simple'],
+    cssDark: `/* Custom Scheme */
 :root { color-scheme: light dark; }
 `,
 
-    css2: `/* Custom Scheme */
+    cssInvert: `/* Custom Scheme */
 :root { filter: invert(1); }
 html { height: 100vh; background-color: #ddd }
 `,
 
-    css3: `/* Custom Scheme */
+    cssImage: `/* Custom Scheme */
 video, img { filter: invert(1); }
+`,
+
+    cssSimple: `/* Custom Scheme */
+:root { background-color: black; }
+html, body { height: 100vh; background-color: black !important; }
+body > div {
+  background-image: initial;
+  background-color: black !important;
+}
 `,
 
     style: `/* Button Area */
@@ -262,7 +272,7 @@ video, img { filter: invert(1); }
       if (customCss.includes(no)) {
         if (exist) exist.remove();
         await customStorage.setItem('custom-css', customCss.filter(v => v !== no));
-        elm.textContent = `_type ${no}_`;
+        elm.textContent = no;
       } else if (!exist) {
         await app.add(no);
       }
@@ -287,7 +297,7 @@ video, img { filter: invert(1); }
       const createButton = no => {
         const elm = document.createElement('button');
         elm.type = 'button';
-        elm.textContent = `type ${no}`;
+        elm.textContent = `${no}`;
         elm.classList.add(`btn-custom-css-${no}`);
         elm.addEventListener('click', event => {
           event.preventDefault();
@@ -295,7 +305,7 @@ video, img { filter: invert(1); }
         });
         div.append(elm);
       };
-      [1, 2, 3].forEach(no => createButton(no));
+      app.cssList.forEach(no => createButton(no));
 
       document.body.append(div);
 
@@ -372,7 +382,7 @@ video, img { filter: invert(1); }
       const div = app.btnSetting();
       const list = await customStorage.getItem('custom-css');
       const customCss = list ?? [];
-      for (const no of [1, 2, 3]) {
+      for (const no of app.cssList) {
         if (customCss.includes(no)) await app.update(no, true);
       }
 
@@ -411,7 +421,7 @@ video, img { filter: invert(1); }
         return true;
       }
       const checkList = [
-        'body', 'form', 'table', 'header', 'footer',
+        'body', 'body > div', 'form', 'table', 'header', 'footer',
         'section', 'main', 'article', 'nav', 'aside',
         'select', 'input', 'textarea', 'button',
       ].flatMap(
