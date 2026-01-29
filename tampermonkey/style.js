@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-26
+// @version      2026-01-29
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -167,12 +167,79 @@ video, img { filter: invert(1); }
 `,
 
     style: `/* Button Area */
-div.b-area {
+:root {
+  color-scheme: light dark;
+}
+
+.custom-style-area {
   position: fixed;
-  right: 2em;
-  bottom: 5em;
+  display: flex;
+  right: 1em;
+  bottom: 1em;
   z-index: 1000001;
-}`,
+
+  button {
+    border-radius: 10em;
+    cursor: pointer;
+    border: none;
+    margin: 0.2em;
+    padding: 0.2em 0.4em;
+
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.45),
+        rgba(255, 255, 255, 0.15) 40%,
+        rgba(255, 255, 255, 0.05) 70%,
+        rgba(255, 255, 255, 0.0) 100%
+      ),
+      rgba(255, 255, 255, 0.12);
+
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+
+    box-shadow:
+      0 12px 25px rgba(0, 0, 0, 0.35),
+      0 -2px 6px rgba(255, 255, 255, 0.35) inset,
+      0 4px 10px rgba(0, 0, 0, 0.35) inset;
+
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.25s ease,
+      background 0.25s ease;
+  }
+
+  button:hover {
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.55),
+        rgba(255, 255, 255, 0.2) 40%,
+        rgba(255, 255, 255, 0.08) 70%,
+        rgba(255, 255, 255, 0.0) 100%
+      ),
+      rgba(255, 255, 255, 0.22);
+
+    box-shadow:
+      0 16px 30px rgba(0, 0, 0, 0.45),
+      0 -3px 7px rgba(255, 255, 255, 0.45) inset,
+      0 5px 12px rgba(0, 0, 0, 0.45) inset;
+
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(1px) scale(0.97);
+
+    box-shadow:
+      0 8px 18px rgba(0, 0, 0, 0.4),
+      0 -1px 4px rgba(255, 255, 255, 0.3) inset,
+      0 3px 8px rgba(0, 0, 0, 0.4) inset;
+  }
+}
+`,
 
     async add(no) {
       const elm = document.querySelector(`.btn-custom-css-${no}`);
@@ -215,7 +282,7 @@ div.b-area {
       document.head.append(style);
 
       const div = document.createElement('div');
-      div.classList.add('b-area');
+      div.classList.add('custom-style-area');
 
       const createButton = no => {
         const elm = document.createElement('button');
@@ -344,8 +411,9 @@ div.b-area {
         return true;
       }
       const checkList = [
-        'body', 'body > div', 'form', 'table', 'header', 'footer',
+        'body', 'form', 'table', 'header', 'footer',
         'section', 'main', 'article', 'nav', 'aside',
+        'select', 'input', 'textarea', 'button',
       ].flatMap(
         query => [...document.querySelectorAll(query)]
         .map(el => app.computedColor(el)),
@@ -354,15 +422,15 @@ div.b-area {
         if (arr.length === 0) return 0;
         return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
       };
-      const dark = checkList.filter(v => average(v.bg) < 128).length;
-      const light = checkList.filter(v => average(v.bg) >= 128).length;
+      const dark = checkList.filter(v => average(v.bg) < 64).length;
+      const light = checkList.filter(v => average(v.bg) >= 64).length;
       logger.info(`Background Color - dark: ${dark}, light: ${light}`);
       if (!light) {
         logger.info('This is Dark by majority background color');
         return true;
       }
-      const textDark = checkList.filter(v => average(v.text) > 128).length;
-      const textLight = checkList.filter(v => average(v.text) <= 128).length;
+      const textDark = checkList.filter(v => average(v.text) > 64).length;
+      const textLight = checkList.filter(v => average(v.text) <= 64).length;
       logger.info(`Text Color - dark: ${textDark}, light: ${textLight}`);
       if (!textLight) {
         logger.info('This is Dark by majority text color');
