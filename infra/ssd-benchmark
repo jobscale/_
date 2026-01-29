@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-set -eu
+set -eux
 
-COUNT=500
+COUNT=64
 if [[ $# == 1 ]]
 then
   COUNT=$1
 fi
 
 time {
-  dd if=/dev/zero of=benchmark-$(date +%s).img bs=10M count=${COUNT} status=progress
+  dd if=/dev/zero of=benchmark-$(date +%s).img bs=16M count=${COUNT} status=progress
 }
