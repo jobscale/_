@@ -7,7 +7,8 @@
 // @match        https://teams.microsoft.com/v2/*
 // @match        https://outlook.office.com/mail/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=microsoft.com
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      jsx.jp
 // ==/UserScript==
 
 (() => {
@@ -16,8 +17,19 @@
   const store = { num: 0 };
 
   const app = {
+    async fetch(url, opts) {
+      GM_xmlhttpRequest({
+        url,
+        ...opts,
+        data: opts.body,
+        body: undefined,
+        onload: logger.info,
+        onerror: logger.error,
+      });
+    },
+
     notify({ organization, text }) {
-      fetch('https://jsx.jp/api/slack', {
+      app.fetch('https://jsx.jp/api/slack', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -27,7 +39,7 @@
           channel: 'push',
         }),
       });
-      fetch('https://jsx.jp/api/webPush', {
+      app.fetch('https://jsx.jp/api/webPush', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
