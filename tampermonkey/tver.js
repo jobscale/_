@@ -296,11 +296,9 @@ div[class^="FavoriteList"] > div {
     },
 
     main() {
-      if (app.init) {
-        logger.info({ 'Already initialized': new Error().stack.split('\n') });
-        return;
-      }
-      app.init = () => undefined;
+      app.main = () => {
+        logger.info({ 'Already running': new Error().stack.split('\n') });
+      };
       setTimeout(() => app.setClick(), 500);
       setTimeout(() => app.setContentEvent(), 1000);
       setTimeout(() => app.changeStyle(), 1500);

@@ -153,34 +153,56 @@
   };
 
   const app = {
-    cssList: ['Dark', 'Invert', 'Image', 'Simple'],
+    cssList: [
+      'Dark', 'Invert', 'Image', 'Deep', 'Simple',
+    ],
+
     cssDark: `/* Custom Scheme */
-:root { color-scheme: light dark; }
+:root { color-scheme: light dark !important; }
 `,
 
     cssInvert: `/* Custom Scheme */
 :root { filter: invert(1); }
-html { height: 100vh; background-color: #ddd }
+html { height: 100vh; background-color: #ddd; }
 `,
 
     cssImage: `/* Custom Scheme */
 video, img { filter: invert(1); }
 `,
 
-    cssSimple: `/* Custom Scheme */
-:root { background-color: black; }
-html, body { height: 100vh; background-color: black !important; }
-body > div {
-  background-image: initial;
+    cssDeep: `/* Custom Scheme */
+:root {
+  color-scheme: light dark !important;
   background-color: black !important;
+}
+html, body {
+  margin: 0; height: 100vh; background-color: black !important;
+}
+* {
+  background-image: initial !important;
+  background-color: black !important;
+  color: #888;
+}
+`,
+
+    cssSimple: `/* Custom Scheme */
+:root {
+  color-scheme: light dark !important;
+  background-color: black !important;
+}
+html, body {
+  margin: 0; height: 100vh; background-color: black !important;
+}
+* {
+  background-image: initial !important;
+}
+body > *, main, main > * {
+  background-color: black !important;
+  color: #888;
 }
 `,
 
     style: `/* Button Area */
-:root {
-  color-scheme: light dark;
-}
-
 .custom-style-area {
   position: fixed;
   display: flex;
@@ -326,7 +348,7 @@ body > div {
     btnScheme(div) {
       const el = document.createElement('button');
       el.type = 'button';
-      el.textContent = 'scheme';
+      el.textContent = 'meta';
       el.addEventListener('click', event => {
         event.preventDefault();
         const id = 'custom-scheme';
@@ -392,13 +414,13 @@ body > div {
     },
 
     computedColor(el) {
-      const bgColor = getComputedStyle(el).backgroundColor;
-      const bgMatch = bgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      const textColor = getComputedStyle(el).color;
-      const textMatch = textColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (!bgMatch || !textMatch) return [];
+      const { backgroundColor, color } = getComputedStyle(el);
+      const bgMatch = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      const textMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (!bgMatch || !textMatch) return {};
       return {
-        bg: [
+        bg: ['rgba(0, 0, 0, 0)', 'transparent'].includes(backgroundColor)
+        ? undefined : [
           parseInt(bgMatch[1], 10),
           parseInt(bgMatch[2], 10),
           parseInt(bgMatch[3], 10),
@@ -411,9 +433,9 @@ body > div {
     },
 
     judgeDarkMode() {
-      const scheme = getComputedStyle(document.documentElement).colorScheme;
-      if (scheme.match(/dark/i)) {
-        logger.info(`color-scheme: ${scheme} supported`);
+      const { colorScheme } = getComputedStyle(document.documentElement);
+      if (colorScheme.match(/dark/i)) {
+        logger.info(`color-scheme: ${colorScheme} supported`);
         return true;
       }
       if (document.querySelector('meta[name="color-scheme"]')) {
@@ -432,15 +454,17 @@ body > div {
         if (arr.length === 0) return 0;
         return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
       };
-      const dark = checkList.filter(v => average(v.bg) < 64).length;
-      const light = checkList.filter(v => average(v.bg) >= 64).length;
+      const bgList = checkList.filter(v => v.bg).map(v => v.bg);
+      const dark = bgList.filter(v => average(v) < 64).length;
+      const light = bgList.filter(v => average(v) >= 64).length;
       logger.info(`Background Color - dark: ${dark}, light: ${light}`);
       if (!light) {
         logger.info('This is Dark by majority background color');
         return true;
       }
-      const textDark = checkList.filter(v => average(v.text) > 64).length;
-      const textLight = checkList.filter(v => average(v.text) <= 64).length;
+      const textList = checkList.filter(v => v.text).map(v => v.text);
+      const textDark = textList.filter(v => average(v) > 64).length;
+      const textLight = textList.filter(v => average(v) <= 64).length;
       logger.info(`Text Color - dark: ${textDark}, light: ${textLight}`);
       if (!textLight) {
         logger.info('This is Dark by majority text color');
@@ -450,6 +474,9 @@ body > div {
     },
 
     main() {
+      app.main = () => {
+        logger.info({ 'Already running': new Error().stack.split('\n') });
+      };
       document.documentElement.style.backgroundColor = '';
       const video = document.querySelector('video');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
