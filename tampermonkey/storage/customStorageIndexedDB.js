@@ -64,7 +64,7 @@ const customStorage = {
 
   async init() {
     if (customStorage.db) return customStorage.db;
-    customStorage.db = await new Promise((resolve, reject) => {
+    customStorage.db = new Promise((resolve, reject) => {
       const req = indexedDB.open(customStorage.DATABASE, 1);
       req.onupgradeneeded = () => {
         const db = req.result;
@@ -100,7 +100,7 @@ const customStorage = {
       if (raw === null) return undefined;
       return JSON.parse(raw);
     }
-    const decode = async encrypted => {
+    const decode = encrypted => {
       if (!encrypted) return undefined;
       return customStorage.decrypt(encrypted).catch(() => undefined);
     };
