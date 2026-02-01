@@ -206,16 +206,18 @@ body > *, main, main > * {
 .custom-style-area {
   position: fixed;
   display: flex;
+  padding: 2px;
   right: 1em;
   bottom: 1em;
+  border-radius: 0.5em;
   z-index: 1000001;
 
   button {
     border-radius: 10em;
     cursor: pointer;
     border: none;
-    margin: 0.2em;
-    padding: 0.2em 0.4em;
+    margin: 2px;
+    padding: 2px 4px;
 
     background: radial-gradient(
         circle at 30% 30%,
@@ -372,13 +374,16 @@ body > *, main, main > * {
       el.textContent = 'video';
       el.addEventListener('click', event => {
         event.preventDefault();
-        const video = document.querySelector('.player-block')
-          || document.querySelector('#video-player-bg');
+        const video = document.querySelector('#video-player-bg')
+          || document.querySelector('div:has(> video-js)')
+          || document.querySelector('div:has(> * > video)')
+          || document.querySelector('video').closest('div');
         if (!video) return;
         const custom = [
-          'position: fixed', 'top: 0', 'right: 0', 'bottom: 0', 'left: 0',
+          'top: 0', 'right: 0', 'bottom: 0', 'left: 0',
+          'width: 100vw', 'max-width: 100vw', 'height: 100vh', 'max-height: 100vh',
         ];
-        custom.forEach(elm => {
+        ['position: fixed', ...custom].forEach(elm => {
           const [key, value] = elm.split(': ');
           video.style[key] = value;
         });
@@ -388,7 +393,7 @@ body > *, main, main > * {
         ];
         headers.forEach(elm => {
           if (!elm) return;
-          elm.style['margin-top'] = '100vh';
+          elm.style.marginTop = '100vh';
         });
       });
       div.append(el);
