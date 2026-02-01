@@ -54,10 +54,13 @@
         ...document.querySelectorAll('.fui-Badge'),
         ...document.querySelectorAll('.WIYG1.Mt2TB'),
       ].reduce((accel, el) => accel + (Number.parseInt(el.textContent, 10) || 0), 0) || 0;
-
-      const organization = document.querySelector('[id^="idna-me"]')?.textContent || 'Unknown';
-      const appName = window.location.href.match('teams') ? 'Teams' : 'Other';
-      const text = `${organization} ${appName} (${num}) notification`;
+      const organization = document.querySelector('[id^="idna-me"]')?.textContent
+      ?? document.querySelector('#tenantLogo_container img')?.title
+      ?? 'Unknown';
+      if (location.href.match('teams')) store.appName = 'Teams';
+      else if (location.href.match('outlook')) store.appName = 'Outlook';
+      else store.appName = 'Other';
+      const text = `${organization} ${store.appName} (${num}) notification`;
       if (num !== store.num) logger.info(text);
       if (num > store.num) app.notify({ organization, text });
       store.num = num;
