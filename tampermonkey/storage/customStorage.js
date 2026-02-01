@@ -1,8 +1,6 @@
 const customStorage = {
   enc: new TextEncoder(),
   dec: new TextDecoder(),
-  DATABASE: 'SecureDB',
-  TABLE: 'SecureStore',
   PASSWORD: '<secret>',
 
   async secretProvider() {
@@ -23,6 +21,25 @@ const customStorage = {
     writer.write(data);
     writer.close();
     return new Response(ds.readable).arrayBuffer();
+  },
+
+  async bufferToString(uint8) {
+    const buf = uint8 instanceof Blob ? new Uint8Array(await uint8.arrayBuffer()) : uint8;
+    const CHUNK_SIZE = 0x4000;
+    const s = [];
+    for (let i = 0; i < buf.length; i += CHUNK_SIZE) {
+      s.push(String.fromCharCode(...buf.subarray(i, i + CHUNK_SIZE)));
+    }
+    return btoa(s.join(''));
+  },
+
+  async bufferFrom(base64) {
+    const s = atob(base64);
+    const arr = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) {
+      arr[i] = s.charCodeAt(i);
+    }
+    return new Blob([arr]);
   },
 
   async deriveKey(password, salt) {
@@ -63,36 +80,14 @@ const customStorage = {
     return JSON.parse(customStorage.dec.decode(value));
   },
 
-  async init() {
-    if (customStorage.db) return customStorage.db;
-    customStorage.db = new Promise((resolve, reject) => {
-      const req = indexedDB.open(customStorage.DATABASE, 1);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains(customStorage.TABLE)) {
-          db.createObjectStore(customStorage.TABLE);
-        }
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-    return customStorage.db;
-  },
-
   async setItem(key, value) {
     if (location.protocol.endsWith('http:')) {
       localStorage.setItem(key, JSON.stringify(value));
-      return undefined;
+      return;
     }
-    const db = await customStorage.init();
     const encrypted = await customStorage.encrypt(value);
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(customStorage.TABLE, 'readwrite');
-      const store = tx.objectStore(customStorage.TABLE);
-      const req = store.put(encrypted, key);
-      req.onsuccess = () => resolve(true);
-      req.onerror = () => reject(req.error);
-    });
+    const bufferStr = await customStorage.bufferToString(encrypted);
+    localStorage.setItem(key, bufferStr);
   },
 
   async getItem(key) {
@@ -102,49 +97,19 @@ const customStorage = {
         if (raw === null) return undefined;
         return JSON.parse(raw);
       }
-      const decode = encrypted => {
-        if (!encrypted) return undefined;
-        return customStorage.decrypt(encrypted).catch(() => undefined);
-      };
-      const db = await customStorage.init();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(customStorage.TABLE, 'readonly');
-        const store = tx.objectStore(customStorage.TABLE);
-        const req = store.get(key);
-        req.onsuccess = () => resolve(decode(req.result));
-        req.onerror = () => reject(req.error);
-      });
+      const encrypted = localStorage.getItem(key);
+      if (!encrypted) return undefined;
+      const buffer = await customStorage.bufferFrom(encrypted);
+      return customStorage.decrypt(buffer).catch(() => undefined);
     })
     .catch(() => undefined);
   },
 
   async removeItem(key) {
-    if (location.protocol.endsWith('http:')) {
-      localStorage.removeItem(key);
-      return undefined;
-    }
-    const db = await customStorage.init();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(customStorage.TABLE, 'readwrite');
-      const store = tx.objectStore(customStorage.TABLE);
-      const req = store.delete(key);
-      req.onsuccess = () => resolve(true);
-      req.onerror = () => reject(req.error);
-    });
+    localStorage.removeItem(key);
   },
 
   async clear() {
-    if (location.protocol.endsWith('http:')) {
-      localStorage.clear();
-      return undefined;
-    }
-    const db = await customStorage.init();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(customStorage.TABLE, 'readwrite');
-      const store = tx.objectStore(customStorage.TABLE);
-      const req = store.clear();
-      req.onsuccess = () => resolve(true);
-      req.onerror = () => reject(req.error);
-    });
+    localStorage.clear();
   },
 };

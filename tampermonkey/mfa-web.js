@@ -34,48 +34,7 @@
         secret = crypto.getRandomValues(new Uint8Array(16)).join('');
         GM_setValue('.multi-domain.machine.id', secret);
       }
-      if (secret) sharedStorage.PASSWORD = secret;
-    },
-
-    async deriveKey(password, salt) {
-      const keyMaterial = await crypto.subtle.importKey(
-        'raw', sharedStorage.enc.encode(password), 'PBKDF2', false, ['deriveKey'],
-      );
-
-      return crypto.subtle.deriveKey({
-        name: 'PBKDF2', salt, iterations: 10_000, hash: 'SHA-256',
-      }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-    },
-
-    async encrypt(buffer) {
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      const iv = crypto.getRandomValues(new Uint8Array(12));
-      if (sharedStorage.PASSWORD === '<secret>') {
-        await sharedStorage.secretProvider();
-      }
-      const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
-      const encrypted = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv }, key, buffer,
-      );
-      return {
-        salt: Array.from(salt),
-        iv: Array.from(iv),
-        data: Array.from(new Uint8Array(encrypted)),
-      };
-    },
-
-    async decrypt(obj) {
-      const salt = new Uint8Array(obj.salt);
-      const iv = new Uint8Array(obj.iv);
-      const data = new Uint8Array(obj.data);
-      if (sharedStorage.PASSWORD === '<secret>') {
-        await sharedStorage.secretProvider(false);
-      }
-      const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
-      const decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv }, key, data,
-      );
-      return decrypted;
+      if (secret) sharedStorage.PASSWORD = secret.split('').reverse().join('');
     },
 
     async gzip(data) {
@@ -94,29 +53,76 @@
       return new Response(ds.readable).arrayBuffer();
     },
 
-    async setItem(key, value) {
-      if (typeof value !== 'object') {
-        value = { 'string|number|boolean|other': value };
+    async bufferToString(uint8) {
+      const buf = uint8 instanceof Blob ? new Uint8Array(await uint8.arrayBuffer()) : uint8;
+      const CHUNK_SIZE = 0x4000;
+      const s = [];
+      for (let i = 0; i < buf.length; i += CHUNK_SIZE) {
+        s.push(String.fromCharCode(...buf.subarray(i, i + CHUNK_SIZE)));
       }
-      value = JSON.stringify(value);
-      const compressed = await sharedStorage.gzip(sharedStorage.enc.encode(value));
-      const encrypted = await sharedStorage.encrypt(compressed);
-      GM_setValue(key, encrypted);
+      return btoa(s.join(''));
+    },
+
+    async bufferFrom(base64) {
+      const s = atob(base64);
+      const arr = new Uint8Array(s.length);
+      for (let i = 0; i < s.length; i++) {
+        arr[i] = s.charCodeAt(i);
+      }
+      return new Blob([arr]);
+    },
+
+    async deriveKey(password, salt) {
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', sharedStorage.enc.encode(password), 'PBKDF2', false, ['deriveKey'],
+      );
+      return crypto.subtle.deriveKey({
+        name: 'PBKDF2', salt, iterations: 10_000, hash: 'SHA-256',
+      }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    },
+
+    async encrypt(value) {
+      value = new Uint8Array(await sharedStorage.gzip(JSON.stringify(value)));
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      if (sharedStorage.PASSWORD === '<secret>') await sharedStorage.secretProvider();
+      const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
+      const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv }, key, value,
+      );
+      const obfuscatedSalt = salt.map((v, i) => v ^ (i + 0xb) % 0xdb);
+      return new Blob([obfuscatedSalt, iv, encrypted]);
+    },
+
+    async decrypt(blob) {
+      const combined = new Uint8Array(await blob.arrayBuffer());
+      const obfuscatedSalt = combined.subarray(0, 16);
+      const iv = combined.subarray(16, 16 + 12);
+      const data = combined.subarray(16 + 12);
+      const salt = new Uint8Array(obfuscatedSalt.map((v, i) => v ^ (i + 0xb) % 0xdb));
+      if (sharedStorage.PASSWORD === '<secret>') await sharedStorage.secretProvider(false);
+      const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv }, key, data,
+      );
+      const value = await sharedStorage.gunzip(new Uint8Array(decrypted));
+      return JSON.parse(sharedStorage.dec.decode(value));
+    },
+
+    async setItem(key, value) {
+      const encrypted = await sharedStorage.encrypt(value);
+      const bufferStr = await sharedStorage.bufferToString(encrypted);
+      GM_setValue(key, bufferStr);
     },
 
     async getItem(key) {
-      const encrypted = GM_getValue(key);
-      if (!encrypted) return undefined;
-      const decrypted = await sharedStorage.decrypt(encrypted).catch(() => undefined);
-      if (!decrypted) return undefined;
-      const textBuffer = await sharedStorage.gunzip(decrypted).catch(() => undefined);
-      if (!textBuffer) return undefined;
-      const text = sharedStorage.dec.decode(textBuffer);
-      const parsed = JSON.parse(text);
-      if ('string|number|boolean|other' in parsed) {
-        return parsed['string|number|boolean|other'];
-      }
-      return parsed;
+      return Promise.resolve(async () => {
+        const encrypted = GM_getValue(key);
+        if (!encrypted) return undefined;
+        const buffer = await sharedStorage.bufferFrom(encrypted);
+        return sharedStorage.decrypt(buffer).catch(() => undefined);
+      })
+      .catch(() => undefined);
     },
 
     async removeItem(key) {

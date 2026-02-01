@@ -91,10 +91,13 @@ const sharedStorage = {
   },
 
   async getItem(key) {
-    const encrypted = GM_getValue(key);
-    if (!encrypted) return undefined;
-    const buffer = await sharedStorage.bufferFrom(encrypted);
-    return sharedStorage.decrypt(buffer).catch(() => undefined);
+    return Promise.resolve(async () => {
+      const encrypted = GM_getValue(key);
+      if (!encrypted) return undefined;
+      const buffer = await sharedStorage.bufferFrom(encrypted);
+      return sharedStorage.decrypt(buffer).catch(() => undefined);
+    })
+    .catch(() => undefined);
   },
 
   async removeItem(key) {
