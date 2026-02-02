@@ -473,16 +473,12 @@ body > *, main, main > * {
       const dark = bgList.filter(v => average(v) < 64).length;
       const light = bgList.filter(v => average(v) >= 64).length;
       logger.info(`Background Color - dark: ${dark}, light: ${light}`);
-      if (!light) {
-        logger.info('This is Dark by majority background color');
-        return true;
-      }
       const textList = checkList.filter(v => v.text).map(v => v.text);
       const textDark = textList.filter(v => average(v) > 64).length;
       const textLight = textList.filter(v => average(v) <= 64).length;
       logger.info(`Text Color - dark: ${textDark}, light: ${textLight}`);
-      if (!textLight) {
-        logger.info('This is Dark by majority text color');
+      if (!textLight && !light) {
+        logger.info('This is Dark by majority text and background color');
         return true;
       }
       return false;
