@@ -364,8 +364,8 @@
       if (saveNames !== names) {
         await customStorage.setItem('names', names);
       }
-      const before = saveNames?.split(' ').length ?? 0;
-      const after = names.split(' ').length;
+      const before = saveNames?.split(' ').filter(Boolean).length ?? 0;
+      const after = names.split(' ').filter(Boolean).length;
       if (before < after) {
         const online = users.map(item => {
           const text = `${item.name.padStart(15)} ${item.point.toString().padStart(8)} ${item.online.padStart(8)}`;
