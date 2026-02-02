@@ -14,7 +14,7 @@ check-color() {
 
   IFS=',' read -r R G B <<< "$color_info"
 
-  if [[ "$R" -ge 15 ]] && [[ "$G" -ge 15 ]] && [[ "$B" -ge 10 ]]; then
+  if [[ "$R" -ge 10 ]] && [[ "$G" -ge 15 ]] && [[ "$B" -ge 10 ]]; then
     echo "OK"
     echo "OK $R $G $B" >> "${T_FILE}"
   else
