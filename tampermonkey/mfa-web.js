@@ -234,6 +234,7 @@
       return document.querySelector('#mfacode, #mfaCode, input[name="mfaCode"]') // AWS
       || document.querySelector('input[name="otc"]') // MS
       || document.querySelector('#app_totp') // GitHub
+      || document.querySelector('#totpPin') // Google
       || document.querySelector('#login_otp') // npm
       || document.querySelector('form[class="auth-area"]') // jsxjp
       || document.querySelector('#otpCode'); // bitflyer
@@ -350,7 +351,10 @@ input {
       area.classList.add('g-area');
       const hamburger = document.createElement('div');
       hamburger.classList.add('g-hamburger');
-      hamburger.innerHTML = '<span></span><span></span><span></span>';
+      for (let i = 0; i < 3; i++) {
+        const span = document.createElement('span');
+        hamburger.appendChild(span);
+      }
       area.append(hamburger);
       const content = document.createElement('div');
       content.classList.add('g-content');
