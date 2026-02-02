@@ -57,13 +57,14 @@ const sharedStorage = {
   },
 
   async encrypt(value) {
-    value = new Uint8Array(await sharedStorage.gzip(JSON.stringify(value)));
+    const data = sharedStorage.enc.encode(JSON.stringify(value));
+    const compressed = new Uint8Array(await sharedStorage.gzip(data));
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iv = crypto.getRandomValues(new Uint8Array(12));
     if (sharedStorage.PASSWORD === '<secret>') await sharedStorage.secretProvider();
     const key = await sharedStorage.deriveKey(sharedStorage.PASSWORD, salt);
     const encrypted = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv }, key, value,
+      { name: 'AES-GCM', iv }, key, compressed,
     );
     const obfuscatedSalt = salt.map((v, i) => v ^ (i + 0xb) % 0xdb);
     return new Blob([obfuscatedSalt, iv, encrypted]);
