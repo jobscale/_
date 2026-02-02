@@ -116,7 +116,7 @@
     },
 
     async getItem(key) {
-      return Promise.resolve(async () => {
+      return Promise.resolve().then(async () => {
         const encrypted = GM_getValue(key);
         if (!encrypted) return undefined;
         const buffer = await sharedStorage.bufferFrom(encrypted);
