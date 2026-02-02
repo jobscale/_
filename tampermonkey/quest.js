@@ -471,15 +471,22 @@
     keydown(event) {
       if (app.isTypingContext(event.target)) return;
       const key = event.key?.toLowerCase();
-      if (!['u', 'i', 'o'].includes(key)) return;
 
-      if (opts.busy) return;
-      opts.busy = true;
-      setTimeout(() => { delete opts.busy; }, 500);
+      if (['u', 'i', 'o'].includes(key)) {
+        if (opts.busy) return;
+        opts.busy = true;
+        setTimeout(() => { delete opts.busy; }, 500);
+      }
 
+      /* eslint-disable no-undef, no-unused-expressions, no-global-assign */
       if (key === 'i') opts.current = opts.current === 1 ? 0 : 1;
-      if (key === 'u') opts.current = opts.current === 3 ? 0 : 3;
-      if (key === 'o') opts.current = (opts.current + 1) % opts.setup.length;
+      else if (key === 'u') opts.current = opts.current === 3 ? 0 : 3;
+      else if (key === 'o') opts.current = (opts.current + 1) % opts.setup.length;
+      else if (key === 'h') { (RX -= 8) < 1200 && (RX = 1200); SV = 1; }
+      else if (key === 'l') { (RX += 8) > 151060 && (RX = 151060); SV = 1; }
+      else if (key === 'j') { (MU -= 8) < 1400 && (MU = 1400); SV = 1; }
+      else if (key === 'k') { (MU += 8) > 74650 && (MU = 74650); SV = 1; }
+      else return;
 
       const canvas = document.querySelector('#custom-canvas');
       if (canvas) app.drawCanvas(canvas);
