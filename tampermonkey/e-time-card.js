@@ -15,11 +15,11 @@
       [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) [id^="workPlaceKbnHome"]')]
       .forEach(el => { el.checked = true; });
       [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) input[name$="startTimeInput"]')]
-      .forEach(el => { el.value = '900'; });
+      .forEach(el => { if (!el.value) el.value = '900'; });
       [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) input[name$="endTimeInput"]')]
-      .forEach(el => { el.value = '1745'; });
+      .forEach(el => { if (!el.value) el.value = '1745'; });
       [...document.querySelectorAll('tr:not(:has(.sat), :has(.sun)) input[name$="rstTimeInput"]')]
-      .forEach(el => { el.value = '45'; });
+      .forEach(el => { if (!el.value) el.value = '45'; });
 
       const el = document.querySelector('table .cmWidthP04');
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
