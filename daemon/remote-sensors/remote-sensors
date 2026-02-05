@@ -19,10 +19,27 @@ mac-cpu() {
   mv ${WORKDIR}/.mac-cpu ${WORKDIR}/mac-cpu
 }
 
+CHECK_POINT=0
+notification() {
+  local trigger=$(TZ=Asia/Tokyo date +'%M')
+  case $trigger in
+    29|59) ;;
+    *) return ;;
+  esac
+  local now=$(TZ=Asia/Tokyo date +'%H%M')
+  if [[ "$CHECK_POINT" == "$now" ]]; then
+    return
+  fi
+  CHECK_POINT=$now
+  ~/bin/post-slack "$(head -1 $1)"
+}
+
 dark-cpu() {
   /opt/_/bin/remote-sensors > ${WORKDIR}/.dark-cpu
   echo 'not' >> ${WORKDIR}/.dark-cpu
   mv ${WORKDIR}/.dark-cpu ${WORKDIR}/dark-cpu
+
+  notification ${WORKDIR}/dark-cpu
 }
 
 main() {

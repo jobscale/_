@@ -119,3 +119,4 @@ ${color2}mac ${alignr}${color6}${exec "head -1 $HOME/.work/mac-cpu | awk '{print
 ${color2}${alignr}${color2}recv  ${color1}${exec "head -1 $HOME/.work/mac-cpu | awk '{print $3}'"}   ${color2}send  ${color1}${exec "head -1 $HOME/.work/mac-cpu | awk '{print $4}'"}
 $endif\
 ]]
+

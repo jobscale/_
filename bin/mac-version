@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
+system_profiler SPHardwareDataType
 version=$(sw_vers -productVersion)
 
 case $version in
