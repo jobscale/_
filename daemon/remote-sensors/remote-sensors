@@ -31,7 +31,7 @@ notification() {
     return
   fi
   CHECK_POINT=$now
-  ~/bin/post-slack "$(head -1 $1)"
+  CHANNEL=sensor ~/bin/post-slack "$(head -1 $1)"
 }
 
 dark-cpu() {
