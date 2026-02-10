@@ -14,7 +14,7 @@
 (() => {
   const logger = console;
 
-  const store = { num: 0 };
+  const store = { num: 0, silent: Date.now() };
 
   const app = {
     async fetch(url, opts) {
@@ -50,6 +50,7 @@
     },
 
     main() {
+      const span = 60_000;
       const num = [
         ...document.querySelectorAll('.fui-Badge'),
         ...document.querySelectorAll('.WIYG1.Mt2TB'),
@@ -60,9 +61,12 @@
       if (location.href.match('teams')) store.appName = 'Teams';
       else if (location.href.match('outlook')) store.appName = 'Outlook';
       else store.appName = 'Other';
-      const text = `${organization} ${store.appName} (${num}) notification`;
+      const text = `${store.appName} ${organization} notification (${num})`;
       if (num !== store.num) logger.info(text);
-      if (num > store.num) app.notify({ organization, text });
+      if (num > store.num && store.silent > Date.now()) {
+        store.silent = Date.now() + span;
+        app.notify({ organization, text });
+      }
       store.num = num;
     },
   };
