@@ -151,4 +151,10 @@ less_with_unbuffer () {
   unbuffer "$@" 2>&1 | less -SR
 }
 
+code() {
+  $(which code) $@
+  sleep 3
+  ~/_/x-window/adjust-window 28
+}
+
 . ~/_/home/loop

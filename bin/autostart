@@ -28,9 +28,15 @@ unlock() {
   [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami):$(id -gn) /dev/kvm || echo -n
 }
 
+adjust-window() {
+  sleep 3
+  ~/_/x-window/adjust-window $@
+}
+
 start-application() {
   nohup ibus-daemon -rxd >& /dev/null &
   nohup google-chrome "https://jsx.jp" > /dev/null 2>&1 &
+  adjust-window
 }
 
 before() {

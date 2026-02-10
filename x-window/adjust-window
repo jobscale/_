@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eu
+
+# chrome app 68
+# code 28
+
+top=272
+additional=${1:-0}
+
+adjust-window() {
+  read -r WIDTH HEIGHT _ < <(xdotool getdisplaygeometry)
+
+  WIN=$(xdotool getactivewindow)
+
+  xdotool windowsize "$WIN" "$(( WIDTH + additional ))" "$(( HEIGHT - top + additional ))"
+  xdotool windowmove "$WIN" 0 $top
+  xdotool getwindowgeometry --shell "$WIN"
+  echo " via $(xdotool getdisplaygeometry)"
+}
+
+adjust-window
