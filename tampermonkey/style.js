@@ -505,8 +505,12 @@ body > *, main, main > * {
     },
   };
 
+  app.init();
+
   const provider = {
     action() {
+      if (provider.once) return;
+      provider.once = true;
       provider.observer.disconnect();
       app.main();
     },
@@ -519,12 +523,11 @@ body > *, main, main > * {
     },
 
     start() {
-      provider.id = setTimeout(provider.action, 200);
+      provider.id = setTimeout(provider.action, 2_200);
       provider.observer = new MutationObserver(provider.handler);
-      provider.observer.observe(document.body, { childList: true, subtree: true });
+      provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
   provider.start();
-  app.init();
 })();

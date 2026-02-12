@@ -394,29 +394,40 @@ input {
       document.body.append(area);
     },
 
-    async action() {
+    async main(stop) {
       const exists = app.authInput();
       if (!exists) return;
-      store.observer.disconnect();
-
+      stop();
       const style = document.createElement('style');
       style.textContent = app.css;
       document.head.append(style);
       app.render();
     },
+  };
 
-    handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(store.id);
-        store.id = setTimeout(app.action, 200);
+  const provider = {
+    action() {
+      app.main(() => {
+        if (provider.once) return;
+        provider.once = true;
+        provider.observer.disconnect();
       });
     },
 
-    start() {
-      store.observer = new MutationObserver(app.handler);
-      store.observer.observe(document.body, { childList: true, subtree: true });
+    handler() {
+      requestAnimationFrame(() => {
+        clearTimeout(provider.id);
+        provider.id = setTimeout(provider.action, 2_200);
+      });
+    },
+
+    async start() {
+      await new Promise(resolve => { setTimeout(resolve, 3_000); });
+      provider.id = setTimeout(provider.action, 2_200);
+      provider.observer = new MutationObserver(provider.handler);
+      provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
-  window.addEventListener('pageshow', app.start);
+  provider.start();
 })();

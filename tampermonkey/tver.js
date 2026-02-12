@@ -312,9 +312,6 @@ div[class^="FavoriteList"] > div {
     },
 
     main() {
-      app.main = () => {
-        logger.info({ 'Already running': new Error().stack.split('\n') });
-      };
       setTimeout(() => app.setClick(), 500);
       setTimeout(() => app.setContentEvent(), 1000);
       setTimeout(() => app.changeStyle(), 1500);
@@ -323,6 +320,8 @@ div[class^="FavoriteList"] > div {
 
   const provider = {
     action() {
+      if (provider.once) return;
+      provider.once = true;
       provider.observer.disconnect();
       app.main();
     },
@@ -335,9 +334,9 @@ div[class^="FavoriteList"] > div {
     },
 
     start() {
-      provider.id = setTimeout(provider.action, 5_200);
+      provider.id = setTimeout(provider.action, 3_200);
       provider.observer = new MutationObserver(provider.handler);
-      provider.observer.observe(document.body, { childList: true, subtree: true });
+      provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 

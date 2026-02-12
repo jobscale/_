@@ -63,7 +63,7 @@
       else store.appName = 'Other';
       const text = `${store.appName} ${organization} notification (${num})`;
       if (num !== store.num) logger.info(text);
-      if (num > store.num && store.silent > Date.now()) {
+      if (num > store.num && store.silent < Date.now()) {
         store.silent = Date.now() + span;
         app.notify({ organization, text });
       }
@@ -85,8 +85,9 @@
 
     async start() {
       await new Promise(resolve => { setTimeout(resolve, 33_000); });
+      provider.id = setTimeout(provider.action, 5_200);
       provider.observer = new MutationObserver(provider.handler);
-      provider.observer.observe(document.body, { childList: true, subtree: true });
+      provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
