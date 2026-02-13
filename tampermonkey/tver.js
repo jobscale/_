@@ -222,21 +222,12 @@ div[class^="FavoriteList"] > div {
       el.addEventListener('click', async event => {
         event.preventDefault();
         const list = await app.fetchData();
-        [...document.querySelectorAll('[class*="FavoriteListCarousel_item"]')]
+        [...document.querySelectorAll('li:has([href^="/episodes/"])')]
         .filter(content => {
           if (content.textContent.match(/年放送/)) return true;
           const exist = list.find(data => data.href === content.querySelector('a').href);
           if (exist) return true;
-          app.setEvent(content.querySelector('a'), content);
-          return false;
-        })
-        .forEach(content => content.remove());
-        [...document.querySelectorAll('[class^="FavoriteList_container"] > a')]
-        .filter(content => {
-          if (content.textContent.match(/年放送/)) return true;
-          const exist = list.find(data => data.href === content.href);
-          if (exist) return true;
-          app.setEvent(content);
+          app.setEvent(content.querySelector('a > div'), content);
           return false;
         })
         .forEach(content => content.remove());
