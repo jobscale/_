@@ -223,11 +223,13 @@ div[class^="FavoriteList"] > div {
         event.preventDefault();
         const list = await app.fetchData();
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
-        .filter(content => {
-          if (content.textContent.match(/年放送/)) return true;
-          const exist = list.find(data => data.href === content.querySelector('a').href);
+        .filter(wrapper => {
+          if (wrapper.textContent.match(/年放送/)) return true;
+          const exist = list.find(data => data.href === wrapper.querySelector('a').href);
           if (exist) return true;
-          app.setEvent(content.querySelector('a > div'), content);
+          const anchor = wrapper.querySelector('a');
+          const content = wrapper.querySelector('a > div');
+          app.setEvent(anchor, content, wrapper);
           return false;
         })
         .forEach(content => content.remove());
@@ -286,18 +288,18 @@ div[class^="FavoriteList"] > div {
       customStorage.setItem('a-list', JSON.stringify(active));
     },
 
-    setEvent(content, wrap) {
+    setEvent(anchor, content, wrapper) {
       const el = document.createElement('div');
       el.classList.add('btn-close');
       el.textContent = '🍺';
       el.addEventListener('click', async event => {
         event.preventDefault();
         const data = {
-          href: content.href,
+          href: anchor.href,
           ts: new Date().toISOString(),
         };
         await app.appendData(data);
-        (wrap || content).remove();
+        wrapper.remove();
       });
       content.append(el);
     },
