@@ -51,17 +51,22 @@
 
     main() {
       const span = 60_000;
-      const num = [
-        ...document.querySelectorAll('.fui-Badge'),
-        ...document.querySelectorAll('.WIYG1.Mt2TB'),
-      ].reduce((accel, el) => accel + (Number.parseInt(el.textContent, 10) || 0), 0) || 0;
+      store.teams = [...document.querySelectorAll('.fui-Badge')];
+      store.outlook = [...document.querySelectorAll('.WIYG1.Mt2TB')];
+      store.categories = '';
+      if (store.outlook.length) {
+        store.categories = [...document.querySelectorAll('div.C2IG3.z6Kje:has(.WIYG1.Mt2TB)')]
+        .map(el => el.querySelector('span').textContent).join(', ');
+      }
+      const num = [...store.teams, ...store.outlook]
+      .reduce((accel, el) => accel + (Number.parseInt(el.textContent, 10) || 0), 0) || 0;
       const organization = document.querySelector('[id^="idna-me"]')?.textContent
       ?? document.querySelector('#tenantLogo_container img')?.title
       ?? 'Unknown';
       if (location.href.match('teams')) store.appName = 'Teams';
       else if (location.href.match('outlook')) store.appName = 'Outlook';
       else store.appName = 'Other';
-      const text = `${store.appName} ${organization} notification (${num})`;
+      const text = `${store.appName} ${store.categories} - ${organization} notification (${num})`;
       if (num !== store.num) logger.info(text);
       if (num > store.num && store.silent < Date.now()) {
         store.silent = Date.now() + span;

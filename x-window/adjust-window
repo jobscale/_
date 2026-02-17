@@ -18,4 +18,4 @@ adjust-window() {
   echo " via $(xdotool getdisplaygeometry)"
 }
 
-adjust-window
+adjust-window | xargs
