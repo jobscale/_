@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-26
+// @version      2026-02-18
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp/*/*
@@ -238,7 +238,7 @@ div[class^="FavoriteList"] > div {
     },
 
     setContentEvent() {
-      const areaMenu = document.querySelector('[class*="MyPage_list"]');
+      const areaMenu = document.querySelector('[class^="Tabs_list_"]');
       if (!areaMenu) return;
       app.setMenu1(areaMenu);
       app.setMenu2(areaMenu);
@@ -320,6 +320,7 @@ div[class^="FavoriteList"] > div {
     },
 
     handler() {
+      if (provider.expired < Date.now()) return;
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
         provider.id = setTimeout(provider.action, 2_200);
@@ -327,6 +328,7 @@ div[class^="FavoriteList"] > div {
     },
 
     start() {
+      provider.expired = Date.now() + 7_000;
       provider.id = setTimeout(provider.action, 3_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
