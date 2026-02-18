@@ -7,16 +7,14 @@ set -eu
 additional=${1:-0}
 
 adjust-window() {
+  WIN=$1
   read -r WIDTH HEIGHT _ < <(xdotool getdisplaygeometry)
-
-  top=0
-  [[ $(hostname) == 'bookworm' ]] && top = 272
+  top=$(( additional / -2 ))
+  [[ $(hostname) == 'bookworm' ]] && top=$(( top + 272 ))
   height=$(( HEIGHT + additional - top ))
-  left=0
+  left=$(( additional / -2 ))
   width=$(( WIDTH + additional ))
-  [[ $width > 1200 ]] && width=$(( width / 2 ))
-
-  WIN=$(xdotool getactivewindow)
+  [[ $width -gt 1200 ]] && width=$(( width / 2 ))
 
   xdotool windowsize "$WIN" $width $height
   xdotool windowmove "$WIN" $left $top
@@ -24,4 +22,20 @@ adjust-window() {
   echo " via $(xdotool getdisplaygeometry)"
 }
 
-adjust-window | xargs
+show-process() {
+  WIN=$1
+  TITLE=$(xdotool getwindowname "$WIN")
+  PID=$(xprop -id "$WIN" _NET_WM_PID | awk '{print $3}')
+  CMD=$(ps -p "$PID" -o comm=)
+
+  echo "Title: $TITLE"
+  echo "Command: $CMD"
+}
+
+main() {
+  local WIN=$(xdotool getactivewindow)
+  adjust-window $WIN | xargs
+  show-process $WIN
+}
+
+main
