@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
 set -eu
 
-# chrome app 68
+# chrome apps 68
 # code 28
 
-top=0
-[[ $(hostname) == 'bookworm' ]] && top = 272
 additional=${1:-0}
 
 adjust-window() {
   read -r WIDTH HEIGHT _ < <(xdotool getdisplaygeometry)
 
+  top=0
+  [[ $(hostname) == 'bookworm' ]] && top = 272
+  height=$(( HEIGHT + additional - top ))
+  left=0
+  width=$(( WIDTH + additional ))
+  [[ $width > 1200 ]] && width=$(( width / 2 ))
+
   WIN=$(xdotool getactivewindow)
 
-  xdotool windowsize "$WIN" "$(( (WIDTH < 2000 ? WIDTH : $((WIDTH / 2))) + additional ))" "$(( HEIGHT - top + additional ))"
-  xdotool windowmove "$WIN" 0 $top
+  xdotool windowsize "$WIN" $width $height
+  xdotool windowmove "$WIN" $left $top
   xdotool getwindowgeometry --shell "$WIN"
   echo " via $(xdotool getdisplaygeometry)"
 }
