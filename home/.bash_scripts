@@ -7,22 +7,19 @@ b() {
 }
 
 docker() {
-  if [[ $@ == "ps -a" ]]
-  then
+  if [[ $@ == "ps -a" ]]; then
     cmd="docker container ls -as --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Size}}\t{{.Status}}'"
     echo "$cmd"
     bash -c "$cmd"
     return
   fi
-  if [[ $@ == "ps" ]]
-  then
+  if [[ $@ == "ps" ]]; then
     cmd="docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}'"
     echo "$cmd"
     bash -c "$cmd"
     return
   fi
-  if [[ $@ == "images" ]]
-  then
+  if [[ $@ == "images" ]]; then
     cmd="docker images '--format={{.CreatedAt}} {{.ID}} {{.Size}} {{.Repository}}:{{.Tag}}' | sort"
     echo "$cmd"
     bash -c "$cmd"
@@ -32,15 +29,17 @@ docker() {
 }
 
 VBoxManage() {
-  if [[ $@ == "list vms" ]]
-  then
-    cmd='VBoxManage list vms --long | grep -e Name: -e State: -e Rule'
-    echo "$cmd"
-    bash -c "$cmd"
+  if [[ $@ == "list vms" ]]; then
+    VBoxManage list vms --long | awk '
+      /Name:/  { name=$2 }
+      /State:/ {
+        $1=""; sub(/^ /,"");
+        printf "%-18s %s\n", name, $0
+      }
+    '
     return
   fi
-  if [[ $@ == "controlvm" ]]
-  then
+  if [[ $@ == "controlvm" ]]; then
     echo VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
     echo VBoxManage controlvm jammy natpf1 delete ssh
     command VBoxManage "$@"
@@ -49,34 +48,21 @@ VBoxManage() {
   command VBoxManage "$@"
 }
 
-savestate() {
-  VBoxManage controlvm local-stack savestate
-  echo "lo-stack saved state"
-}
-
-lo-stack() {
-  VBoxManage startvm --type headless local-stack
-  echo "lo-stack start headless"
-}
-
 echo $SHELL | grep zsh || git() {
-  if [[ $1 == "clone" && $2 == "--depth" ]]
-  then
+  if [[ $1 == "clone" && $2 == "--depth" ]]; then
     shift
     cmd="git clone --depth 1 $4"
     echo "$cmd"
     command $cmd
     return
   fi
-  if [[ $1 == "sort" ]]
-  then
+  if [[ $1 == "sort" ]]; then
     cmd="git ls-remote --tags | sort -t '/' -k 3 -V"
     echo "$cmd"
     bash -c "$cmd"
     return
   fi
-  if [[ $@ == "branch -a" ]]
-  then
+  if [[ $@ == "branch -a" ]]; then
     cmd="git fetch --all --prune --tags"
     echo "$cmd"
     command $cmd
@@ -85,22 +71,19 @@ echo $SHELL | grep zsh || git() {
     command $cmd
     return
   fi
-  if [[ $@ == "log --all" ]]
-  then
+  if [[ $@ == "log --all" ]]; then
     cmd="git --no-pager log --simplify-by-decoration --tags --branches --remotes --date-order --decorate --pretty=\"tformat:%Cblue %h %Creset %<(25)%ci %C(auto)%d%Creset %s\""
     echo "$cmd"
     eval "$cmd"
     return
   fi
-  if [[ $@ == "log" ]]
-  then
+  if [[ $@ == "log" ]]; then
     cmd="git log --date=iso-strict"
     echo "$cmd"
     command $cmd
     return
   fi
-  if [[ $1 == "checkout" ]]
-  then
+  if [[ $1 == "checkout" ]]; then
     cmd="git $@"
     command $cmd
     [[ ! -s "$2" ]] && {
@@ -114,14 +97,12 @@ echo $SHELL | grep zsh || git() {
 }
 
 realdir() {
-  if [ "-bash" == "$0" ]
-  then
+  if [ "-bash" == "$0" ]; then
     pwd
     return
   fi
   dir=$(dirname "$0")
-  if [ -d "$dir" ]
-  then
+  if [[ -d "$dir" ]]; then
     echo $(cd "$dir" && pwd)
   else
     pwd
@@ -129,15 +110,13 @@ realdir() {
 }
 
 skip() {
-  for i in $(seq 1 $1)
-  do
+  for i in $(seq 1 $1); do
     echo
   done
 }
 
 gff() {
-  while read file
-  do
+  while read file; do
     grep $@ "${file}"
   done < <(ff)
 }
