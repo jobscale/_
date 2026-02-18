@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-26
+// @version      2026-02-18
 // @description  try to take over the world!
 // @author       jobscale
 // @match        http://127.0.0.1:3000/*
@@ -415,6 +415,7 @@ input {
     },
 
     handler() {
+      if (provider.expired < Date.now()) return;
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
         provider.id = setTimeout(provider.action, 2_200);
@@ -422,7 +423,7 @@ input {
     },
 
     async start() {
-      await new Promise(resolve => { setTimeout(resolve, 3_000); });
+      provider.expired = Date.now() + 5_000;
       provider.id = setTimeout(provider.action, 2_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });

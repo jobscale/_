@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navy Quest
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-26
+// @version      2026-02-18
 // @description  try to take over the world!
 // @author       You
 // @match        https://navy.quest/*
@@ -508,14 +508,16 @@
     },
 
     handler() {
+      if (provider.expired < Date.now()) return;
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 200);
+        provider.id = setTimeout(provider.action, 2_200);
       });
     },
 
     start() {
-      provider.id = setTimeout(provider.action, 3_200);
+      provider.expired = Date.now() + 5_000;
+      provider.id = setTimeout(provider.action, 2_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },

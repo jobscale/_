@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Notification Message
 // @namespace    http://tampermonkey.net/
-// @version      2026-01-26
+// @version      2026-02-18
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://teams.microsoft.com/v2/*
@@ -82,6 +82,7 @@
     },
 
     handler() {
+      if (provider.expired < Date.now()) return;
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
         provider.id = setTimeout(provider.action, 5_200);
@@ -90,6 +91,7 @@
 
     async start() {
       await new Promise(resolve => { setTimeout(resolve, 33_000); });
+      provider.expired = Date.now() + 5_000;
       provider.id = setTimeout(provider.action, 5_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });

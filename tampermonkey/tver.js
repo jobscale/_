@@ -328,8 +328,8 @@ div[class^="FavoriteList"] > div {
     },
 
     start() {
-      provider.expired = Date.now() + 7_000;
-      provider.id = setTimeout(provider.action, 3_200);
+      provider.expired = Date.now() + 5_000;
+      provider.id = setTimeout(provider.action, 2_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
