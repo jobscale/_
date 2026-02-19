@@ -393,11 +393,15 @@ body > *, main, main > * {
         const video = document.querySelector('#video-player-bg')
           || document.querySelector('div:has(> video-js)')
           || document.querySelector('div:has(> * > video)')
-          || document.querySelector('video').closest('div');
+          || document.querySelector('section.op-modVideo')
+          || document.querySelector('video')?.closest('div');
         if (!video) return;
+        video.querySelector('header')?.remove();
+        video.querySelector('.op-video__credit')?.remove();
         const custom = [
           'top: 0', 'right: 0', 'bottom: 0', 'left: 0',
           'width: 100vw', 'max-width: 100vw', 'height: 100vh', 'max-height: 100vh',
+          'background-color: #111',
         ];
         ['position: fixed', ...custom].forEach(elm => {
           const [key, value] = elm.split(': ');
@@ -428,22 +432,25 @@ body > *, main, main > * {
       app.btnVideo(div);
     },
 
-    computedColor(el) {
-      const { backgroundColor, color } = getComputedStyle(el);
-      const bgMatch = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      const textMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (!bgMatch || !textMatch) return {};
+    computedColor(element) {
+      const elList = [...element.querySelectorAll('*')];
+      const colorList = elList.map(el => {
+        const { backgroundColor, color } = getComputedStyle(el);
+        const backMatch = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        const textMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        const back = !['rgba(0, 0, 0, 0)'].includes(backgroundColor) && Array.isArray(backMatch)
+        ? (parseInt(backMatch[1], 10) + parseInt(backMatch[2], 10) + parseInt(backMatch[3], 10)) / 3
+        : undefined;
+        const text = !['rgba(0, 0, 0, 0)'].includes(color) && Array.isArray(textMatch)
+        ? (parseInt(textMatch[1], 10) + parseInt(textMatch[2], 10) + parseInt(textMatch[3], 10)) / 3
+        : undefined;
+        return { back, text };
+      });
+      const backList = colorList.map(v => v.back).filter(v => v || v === 0);
+      const textList = colorList.map(v => v.text).filter(v => v || v === 0);
       return {
-        bg: ['rgba(0, 0, 0, 0)', 'transparent'].includes(backgroundColor)
-        ? undefined : [
-          parseInt(bgMatch[1], 10),
-          parseInt(bgMatch[2], 10),
-          parseInt(bgMatch[3], 10),
-        ], text: [
-          parseInt(textMatch[1], 10),
-          parseInt(textMatch[2], 10),
-          parseInt(textMatch[3], 10),
-        ],
+        back: backList.length ? backList.reduce((a, b) => a + b, 0) / backList.length : undefined,
+        text: textList.length ? textList.reduce((a, b) => a + b, 0) / textList.length : undefined,
       };
     },
 
@@ -457,27 +464,14 @@ body > *, main, main > * {
         logger.info('meta color-scheme supported');
         return true;
       }
-      const checkList = [
-        'body', 'body > div', 'form', 'table', 'header', 'footer',
-        'section', 'main', 'article', 'nav', 'aside',
-        'select', 'input', 'textarea', 'button',
-      ].flatMap(
-        query => [...document.querySelectorAll(query)]
-        .map(el => app.computedColor(el)),
-      );
-      const average = arr => {
-        if (arr.length === 0) return 0;
-        return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
-      };
-      const bgList = checkList.filter(v => v.bg).map(v => v.bg);
-      const dark = bgList.filter(v => average(v) < 64).length;
-      const light = bgList.filter(v => average(v) >= 64).length;
-      logger.info(`Background Color - dark: ${dark}, light: ${light}`);
-      const textList = checkList.filter(v => v.text).map(v => v.text);
-      const textDark = textList.filter(v => average(v) > 64).length;
-      const textLight = textList.filter(v => average(v) <= 64).length;
-      logger.info(`Text Color - dark: ${textDark}, light: ${textLight}`);
-      if (!textLight && !light) {
+      const { back, text } = app.computedColor(document.documentElement);
+      const dark = back < 50;
+      const textDark = text > 150;
+      logger.info('documentElement', JSON.stringify({
+        'Back Color': `dark: ${dark}, back: ${back}`,
+        'Text Color': `dark: ${textDark}, text: ${text}`,
+      }, null, 2));
+      if (dark && textDark) {
         logger.info('This is Dark by majority text and background color');
         return true;
       }
@@ -488,7 +482,7 @@ body > *, main, main > * {
       app.main = () => {
         logger.info({ 'Already running': new Error().stack.split('\n') });
       };
-      document.documentElement.style.backgroundColor = '';
+      app.init.unset();
       const video = document.querySelector('video');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       logger.info(`desktop prefers-color-scheme: ${prefersDark ? 'dark' : 'light'}`);
@@ -502,6 +496,7 @@ body > *, main, main > * {
 
     init() {
       document.documentElement.style.backgroundColor = '#111';
+      app.init.unset = () => { document.documentElement.style.backgroundColor = ''; };
     },
   };
 
