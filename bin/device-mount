@@ -1,1 +1,1 @@
-udisksctl mount -b /dev/sda2
+udisksctl mount -b /dev/sda1

@@ -24,7 +24,7 @@ iAws() {
   unzip awscliv2.zip
   sudo ./aws/install
   rm -fr aws awscliv2.zip
-  sudo pip3 install awslogs
+  pipx install awslogs
   curl -sL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
   sudo mv /tmp/eksctl /usr/local/bin
   aws --version
@@ -36,8 +36,13 @@ iServerless() {
 }
 
 iSam() {
-  pip install aws-sam-cli --user
+  pipx install aws-sam-cli
   sam --version
+}
+
+iCodeCommit() {
+  pipx install git-remote-codecommit
+  which git-remote-codecommit
 }
 
 iAmplify() {
@@ -56,6 +61,7 @@ main() {
   iAws
   iServerless
   iSam
+  iCodeCommit
   iAmplify
   iVue
 }

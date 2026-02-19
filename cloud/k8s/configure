@@ -421,28 +421,34 @@ createCronJob() {
   # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='6/7 * * * *'
   kubectl create namespace health-check
   kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *'
+  kubectl patch cronjob -n health-check health-check -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   # kubectl create job -n health-check health-check-$(date +%s%3N) --from=cronjob.batch/health-check
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-check.yaml
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-healthy.yaml
 
   kubectl create namespace cron-job
   kubectl create cronjob -n cron-job remind --image ghcr.io/jobscale/remind --schedule='* * * * *'
+  kubectl patch cronjob -n cron-job remind -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
 
   kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='33 0,6 * * 1-5'
+  kubectl patch cronjob -n cron-job kabuka -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
 
   kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='9-55/11 * * * *'
+  kubectl patch cronjob -n cron-job news-top -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/news-top
   # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
 
   kubectl create cronjob -n cron-job info-certificate --image ghcr.io/jobscale/info-certificate --schedule='48 23 * * *'
+  kubectl patch cronjob -n cron-job info-certificate -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/info-certificate
   # kubectl create job -n cron-job info-certificate-$(date +%s%3N) --from=cronjob.batch/info-certificate
 
   kubectl create cronjob -n cron-job speedtest --image ghcr.io/jobscale/speedtest --schedule '54 0,1,23 * * *'
+  kubectl patch cronjob -n cron-job speedtest -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/speedtest
   # kubectl create job -n cron-job speedtest-$(date +%s%3N) --from=cronjob.batch/speedtest

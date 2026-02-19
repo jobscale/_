@@ -12,7 +12,7 @@ debian-2022() {
     curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat iputils-ping \
     nmap traceroute procps whois progress \
-    python3-pip bc jq zip unzip tree colordiff \
+    pipx bc jq zip unzip tree colordiff \
     openssh-server bash-completion
   apt-get autoremove -y
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
@@ -27,7 +27,7 @@ debian-2023() {
     curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
     nmap traceroute procps whois progress \
-    python3-pip bc jq zip unzip tree colordiff \
+    pipx bc jq zip unzip tree colordiff \
     openssh-server bash-completion
   apt-get autoremove -y
   [[ ! -d ~/_ ]] && git clone https://github.com/jobscale/_.git ~/_ || echo
