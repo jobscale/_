@@ -412,6 +412,7 @@ input {
         provider.once = true;
         provider.observer.disconnect();
       });
+      if (!provider.once) provider.id = setTimeout(provider.action, 2_200);
     },
 
     handler() {
