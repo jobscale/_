@@ -29,6 +29,15 @@ lo-stack() {
   -d ghcr.io/jobscale/localstack
 }
 
+proxy-nodejs() {
+  docker pull ghcr.io/jobscale/proxy-nodejs
+  docker rm -f proxy-nodejs
+  docker run --name proxy-nodejs --restart always \
+  --memory 120m \
+  -p 3128:3128 \
+  -d ghcr.io/jobscale/proxy-nodejs
+}
+
 squid-secure() {
   docker pull ghcr.io/jobscale/squid:secure
   docker rm -f squid
