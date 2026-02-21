@@ -441,9 +441,9 @@
       }
       if (!location.href.includes('ally')) return;
       app.refactor();
-      const url = 'https://navy.quest/ally.php?b=39';
+      const url = 'https://navy.quest/ally.php?b=58';
       if (location.href !== url) return;
-      const NEXT_TICK = 6; // interval 6 minutes
+      const NEXT_TICK = 5; // interval minutes
       app.refreshTime = new Date();
       app.refreshTime.setMinutes(app.refreshTime.getMinutes() + NEXT_TICK);
       logger.info(formatTimestamp(), JSON.stringify({
