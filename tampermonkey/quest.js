@@ -478,7 +478,7 @@
         setTimeout(() => { delete opts.busy; }, 500);
       }
 
-      /* eslint-disable no-undef, no-unused-expressions, no-global-assign */
+      /* eslint-disable no-undef, no-unused-expressions */
       if (key === 'i') opts.current = opts.current === 1 ? 0 : 1;
       else if (key === 'u') opts.current = opts.current === 3 ? 0 : 3;
       else if (key === 'o') opts.current = (opts.current + 1) % opts.setup.length;
