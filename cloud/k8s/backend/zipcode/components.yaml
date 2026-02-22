@@ -52,36 +52,21 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: zipcode-jp
   labels:
     app: zipcode-jp
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "zipcode.jsx.jp", "zipcode.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "zipcode-jp.jsx.jp"
+  - "zipcode-jp.x.jsx.jp"
   rules:
-  - host: zipcode.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: zipcode-jp
-            port:
-              number: 80
-  - host: zipcode.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: zipcode-jp
-            port:
-              number: 80
+  - backendRefs:
+    - name: zipcode-jp
+      port: 80

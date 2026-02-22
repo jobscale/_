@@ -52,50 +52,21 @@ spec:
     targetPort: 12470
     protocol: TCP
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: mqtt
   labels:
     app: mqtt
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "mqtt.jsx.jp", "mqtt.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "mqtt.jsx.jp"
+  - "mqtt.x.jsx.jp"
   rules:
-  - host: mqtt.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: mqtt
-            port:
-              number: 80
-      - pathType: Prefix
-        path: /mqtt
-        backend:
-          service:
-            name: mqtt
-            port:
-              number: 12470
-  - host: mqtt.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: mqtt
-            port:
-              number: 80
-      - pathType: Prefix
-        path: /mqtt
-        backend:
-          service:
-            name: mqtt
-            port:
-              number: 12470
+  - backendRefs:
+    - name: mqtt
+      port: 80

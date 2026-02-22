@@ -68,36 +68,21 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: tetris
   labels:
     app: tetris
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "tetris.jsx.jp", "tetris.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "tetris.jsx.jp"
+  - "tetris.x.jsx.jp"
   rules:
-  - host: tetris.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: tetris
-            port:
-              number: 80
-  - host: tetris.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: tetris
-            port:
-              number: 80
+  - backendRefs:
+    - name: tetris
+      port: 80

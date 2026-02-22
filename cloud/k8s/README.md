@@ -186,24 +186,6 @@ svc() {
 }
 ```
 
-### tls termination
-
-```
-kubectl create secret tls wildcard-tls --cert sslGen/wildcard.jsx.jp.cert --key sslGen/wildcard.jsx.jp.key
-echo 'apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: wildcard-tls
-  labels:
-    app: wildcard-tls
-    component: workload
-spec:
-  backend:
-    serviceName: nginx
-    servicePort: 80' > ingress.yaml
-kubectl apply -f ingress.yaml
-```
-
 ### rollout deployment
 
 ```

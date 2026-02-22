@@ -52,26 +52,21 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: sshwifty
   labels:
     app: sshwifty
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "sshwifty.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "sshwifty.jsx.jp"
+  - "sshwifty.x.jsx.jp"
   rules:
-  - host: sshwifty.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: sshwifty
-            port:
-              number: 80
+  - backendRefs:
+    - name: sshwifty
+      port: 80

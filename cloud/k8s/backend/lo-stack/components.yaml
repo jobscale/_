@@ -41,36 +41,21 @@ spec:
     app: lo-stack
   type: ClusterIP
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: lo-stack
   labels:
     app: lo-stack
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "lo-stack.jsx.jp", "lo-stack.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "lo-stack.jsx.jp"
+  - "lo-stack.x.jsx.jp"
   rules:
-  - host: lo-stack.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: lo-stack
-            port:
-              number: 80
-  - host: lo-stack.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: lo-stack
-            port:
-              number: 80
+  - backendRefs:
+    - name: lo-stack
+      port: 80

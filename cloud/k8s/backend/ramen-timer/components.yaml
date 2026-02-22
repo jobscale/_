@@ -52,36 +52,21 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: ramen-timer
   labels:
     app: ramen-timer
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "ramen-timer.jsx.jp", "ramen-timer.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "ramen-timer.jsx.jp"
+  - "ramen-timer.x.jsx.jp"
   rules:
-  - host: ramen-timer.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: ramen-timer
-            port:
-              number: 80
-  - host: ramen-timer.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: ramen-timer
-            port:
-              number: 80
+  - backendRefs:
+    - name: ramen-timer
+      port: 80

@@ -85,26 +85,21 @@ spec:
     protocol: TCP
     targetPort: 8080
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
-  namespace: bitnami
   name: wp-bitnami
   labels:
-    name: wp-bitnami
+    app: wp-bitnami
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "wp.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "wp-bitnami.jsx.jp"
+  - "wp-bitnami.x.jsx.jp"
   rules:
-  - host: wp.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: wp-bitnami
-            port:
-              number: 80
+  - backendRefs:
+    - name: wp-bitnami
+      port: 80

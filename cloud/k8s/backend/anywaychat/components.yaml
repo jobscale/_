@@ -52,26 +52,21 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: anywaychat
   labels:
     app: anywaychat
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "anywaychat.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "anywaychat.jsx.jp"
+  - "anywaychat.x.jsx.jp"
   rules:
-  - host: anywaychat.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: anywaychat
-            port:
-              number: 80
+  - backendRefs:
+    - name: anywaychat
+      port: 80

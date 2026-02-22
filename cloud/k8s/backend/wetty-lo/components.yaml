@@ -39,40 +39,37 @@ spec:
     protocol: TCP
     targetPort: 3000
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: wetty-lo
   labels:
     app: wetty-lo
-    component: ingress
-  annotations:
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - secret'
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "wetty.jsx.jp", "wetty.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "wetty-lo.jsx.jp"
+  - "wetty-lo.x.jsx.jp"
   rules:
-  - host: wetty.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: wetty-lo
-            port:
-              number: 80
-  - host: wetty.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: wetty-lo
-            port:
-              number: 80
+  - backendRefs:
+    - name: wetty-lo
+      port: 80
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: NginxProxyPolicy
+metadata:
+  name: wetty-lo
+  labels:
+    app: wetty-lo
+    component: proxy-policy
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: wetty-lo
+  basicAuth:
+    secret:
+      name: basic-auth

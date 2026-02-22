@@ -79,26 +79,21 @@ spec:
     protocol: TCP
     targetPort: 80
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
-  namespace: wordpress
   name: wordpress
   labels:
-    name: wordpress
+    app: wordpress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "blog.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "wordpress.jsx.jp"
+  - "wordpress.x.jsx.jp"
   rules:
-  - host: blog.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: wordpress
-            port:
-              number: 80
+  - backendRefs:
+    - name: wordpress
+      port: 80

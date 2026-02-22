@@ -39,26 +39,21 @@ spec:
     protocol: TCP
     targetPort: 3000
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: www-lo
   labels:
     app: www-lo
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "www.x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "www-lo.jsx.jp"
+  - "www-lo.x.jsx.jp"
   rules:
-  - host: www.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: www-lo
-            port:
-              number: 80
+  - backendRefs:
+    - name: www-lo
+      port: 80

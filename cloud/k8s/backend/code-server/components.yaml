@@ -89,40 +89,37 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: code-server
   labels:
     app: code-server
-    component: ingress
-  annotations:
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - secret'
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "code-server.jsx.jp", "code-server.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "code-server.jsx.jp"
+  - "code-server.x.jsx.jp"
   rules:
-  - host: code-server.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: code-server
-            port:
-              number: 80
-  - host: code-server.x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: code-server
-            port:
-              number: 80
+  - backendRefs:
+    - name: code-server
+      port: 80
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: NginxProxyPolicy
+metadata:
+  name: code-server
+  labels:
+    app: code-server
+    component: proxy-policy
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: code-server
+  basicAuth:
+    secret:
+      name: basic-auth
