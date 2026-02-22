@@ -637,7 +637,11 @@ nginx:
     #   - LoadBalancer
     # @schema
     # -- The type of service to create for the NGINX data plane.
-    type: LoadBalancer
+    type: NodePort
+    ports:
+      - name: https
+        port: 443
+        nodePort: 30443
 
     # @schema
     # enum:
