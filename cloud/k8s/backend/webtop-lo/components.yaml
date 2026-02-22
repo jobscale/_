@@ -59,17 +59,14 @@ spec:
       port: 80
 ---
 apiVersion: gateway.nginx.org/v1alpha1
-kind: NginxProxyPolicy
+kind: AuthenticationFilter
 metadata:
   name: webtop-lo
   labels:
     app: webtop-lo
-    component: proxy-policy
+    component: auth
 spec:
-  targetRefs:
-  - group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: webtop-lo
-  basicAuth:
+  type: Basic
+  basic:
     secret:
       name: basic-auth

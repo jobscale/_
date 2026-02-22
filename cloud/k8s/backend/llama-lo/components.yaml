@@ -59,12 +59,12 @@ spec:
       port: 80
 ---
 apiVersion: gateway.nginx.org/v1alpha1
-kind: NginxProxyPolicy
+kind: ProxySettingsPolicy
 metadata:
   name: llama-lo
   labels:
     app: llama-lo
-    component: proxy-policy
+    component: proxy-settings
 spec:
   targetRefs:
   - group: gateway.networking.k8s.io

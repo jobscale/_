@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-LINK_NO=$(docker exec -u 0 -it squid ip -o link | grep "BROADCAST" | awk -F'(@if|:)' '{print $3}')
+LINK_NO=$(docker exec -u 0 -it proxy-nodejs ip -o link | grep "BROADCAST" | awk -F'(@if|:)' '{print $3}')
 echo "Device Link number via container: ${LINK_NO}"
 
 VIRTUAL_DEVICE=$(ip -o link | grep "^${LINK_NO}:" | awk -F'@if' '{print $1}' | awk '{print $2}')

@@ -59,17 +59,14 @@ spec:
       port: 80
 ---
 apiVersion: gateway.nginx.org/v1alpha1
-kind: NginxProxyPolicy
+kind: AuthenticationFilter
 metadata:
   name: wetty-lo
   labels:
     app: wetty-lo
-    component: proxy-policy
+    component: auth
 spec:
-  targetRefs:
-  - group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: wetty-lo
-  basicAuth:
+  type: Basic
+  basic:
     secret:
       name: basic-auth
