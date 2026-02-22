@@ -2,50 +2,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: squid
+  name: proxy-nodejs
   namespace: net-apps
 spec:
   selector:
     matchLabels:
-      app: squid
+      app: proxy-nodejs
   template:
     metadata:
       labels:
-        app: squid
+        app: proxy-nodejs
         component: workload
     spec:
       containers:
-      - image: ghcr.io/jobscale/squid:secure
-        name: squid
+      - name: proxy-nodejs
+        image: ghcr.io/jobscale/proxy-nodejs
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: squid
+  name: proxy-nodejs
   namespace: net-apps
 spec:
-  loadBalancerSourceRanges:
-  - 49.135.0.0/16
+  selector:
+    app: proxy-nodejs
+  type: LoadBalancer
   ports:
   - name: tcp
     nodePort: 30312
     port: 3128
-    protocol: TCP
     targetPort: 3128
-  selector:
-    app: squid
-  type: LoadBalancer
+    protocol: TCP
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: squid
+  name: proxy-nodejs
   namespace: net-apps
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: squid
+    name: proxy-nodejs
   maxReplicas: 20
   minReplicas: 1
   targetCPUUtilizationPercentage: 50

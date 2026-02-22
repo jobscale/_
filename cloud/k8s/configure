@@ -200,7 +200,7 @@ createNetworkApps() {
   kubectl create namespace net-apps
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl apply -f backend/net-apps
-  waitFor dns-nodejs && waitFor squid
+  waitFor dns-nodejs && waitFor proxy-nodejs
 }
 
 createDatabase() {
@@ -590,6 +590,7 @@ defaultImage() {
     ghcr.io/jobscale/anywaychat-web
     ghcr.io/jobscale/code-server
     ghcr.io/jobscale/dns-nodejs
+    ghcr.io/jobscale/proxy-nodejs
     ghcr.io/jobscale/ec-cube
     ghcr.io/jobscale/health-check
     ghcr.io/jobscale/log-upload
@@ -601,7 +602,6 @@ defaultImage() {
     ghcr.io/jobscale/remind
     ghcr.io/jobscale/reverse-proxy
     ghcr.io/jobscale/simple-chat
-    ghcr.io/jobscale/squid
     ghcr.io/jobscale/sshwifty
     ghcr.io/jobscale/tanpo
     ghcr.io/jobscale/tetris
