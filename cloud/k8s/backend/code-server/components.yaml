@@ -118,5 +118,7 @@ metadata:
 spec:
   type: Basic
   basic:
-    secret:
+    realm: "Authentication Required"
+    secretRef:
       name: basic-auth
+

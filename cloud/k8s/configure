@@ -86,7 +86,6 @@ inAllInOne() {
   # ingressForward
 
   gatewaySystem
-  webTlsSecret
 
   pullCrictl ghcr.io/jobscale/jsxjp
   loop.js 10 --silent
@@ -132,28 +131,30 @@ inAllInOne() {
 }
 
 gatewaySystem() {
-  helm install ngf nginx-gateway-fabric --create-namespace -n nginx-gateway
-  kubectl -n gateway-system patch svc web-gateway-nginx \
-  --type='json' \
-  -p='[
-    {"op":"replace","path":"/spec/ports/0/nodePort","value":30443}
-  ]'
-  kubectl -n nginx-gateway get pod
-
   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/standard-install.yaml
-  kubectl -n gateway-system get gatewayclass
-  kubectl -n gateway-system get gateway
-}
-
-webTlsSecret() {
+  helm install ngf nginx-gateway-fabric --create-namespace -n nginx-gateway
+  kubectl -n nginx-gateway get pod
+  loop.js 5 --silent
   kubectl create namespace gateway-system --dry-run=client -o yaml | kubectl apply -f -
+
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
   echo "TLS Server Certificate gateway-system"
   kubectl -n gateway-system create secret tls jsxjp-tls \
   --cert=tls/jsx.jp/fullchain.pem \
   --key=tls/jsx.jp/privkey.pem \
   --dry-run=client -o yaml | kubectl apply -f -
+
   kubectl -n gateway-system apply -f gateway-system
+  loop.js 5 --silent
+  kubectl -n gateway-system patch svc web-gateway-nginx \
+  --type='json' \
+  -p='[
+    {"op":"replace","path":"/spec/ports/0/nodePort","value":30443}
+  ]'
+  loop.js 5 --silent
+  kubectl -n gateway-system get gatewayclass
+  kubectl -n gateway-system get gateway
+  kubectl -n gateway-system get svc
 }
 
 updateTLSSecret() {
