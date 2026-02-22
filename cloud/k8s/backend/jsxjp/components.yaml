@@ -96,4 +96,4 @@ spec:
       requestRedirect:
         scheme: https
         hostname: mailu.jsx.jp
-        statusCode: 307
+        statusCode: 302
