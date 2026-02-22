@@ -5,8 +5,6 @@ PROMPT_DIRTRIM=3
 export DEBIAN_FRONTEND=noninteractive
 export TZ=Asia/Tokyo
 
-[[ $(uname -s) == "Linux" ]] && umask u=rwx,g=,o=
-[[ $(uname -s) == "Darwin" ]] && umask u=rwx,g=rx,o=rx
 [[ $(uname -s) == "Linux" ]] && alias ps='ps auxf'
 [[ $(uname -s) == "Darwin" ]] && alias ps='ps aux -o ppid'
 
@@ -19,7 +17,7 @@ bash-ps1() {
   # Yellow
   [[ "$(hostname)" == bookworm ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
-  [[ -e "typescript" ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;33m\]prompt\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
+  [[ -f "typescript" ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;33m\]prompt\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
   [[ "$(hostname)" == dark ]] && PS1="\[\e]0;\u@\h: \w\a\]┌──${debian_chroot:+($debian_chroot)}\[\033[01;30m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]
 └─\$ "
@@ -65,9 +63,8 @@ alias qt-faststart='docker run --rm -it -v $(pwd):/work -u $(id -u):$(id -g) --e
 [[ -s "$HOME/.bash_scripts" ]] && . "$HOME/.bash_scripts"
 [[ -s "$HOME/.bash_local" ]] && . "$HOME/.bash_local"
 
-if [ "$(which sudo 2> /dev/null)" != "" ]
-then alias sudo='sudo -E'
-else alias sudo=''
+if [[ "$(which sudo 2> /dev/null)" == "" ]]; then
+  alias sudo=''
 fi
 
 [[ "${DISPLAY}" == "" ]] && DISPLAY='localhost:0.0'
