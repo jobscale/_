@@ -81,21 +81,15 @@ inAllInOne() {
   createKind
 
   kubectl -n default apply -f backend/limitrange-limits.yaml
-  ingressTlsSecret default
 
   # metalLB
-  # ingressNginxSecure
-  # Allow API
-  # ingressNginxAllow
-  loadImage registry.k8s.io/ingress-nginx/controller:v1.13.3
-  ingressNginxSimple
   # ingressForward
 
-  loadImage ghcr.io/jobscale/jsxjp
-  while [[ $(kubectl get all -A | grep ingress-nginx | grep ' 1/1 ' | wc -l) -lt 2 ]]; do
-    loop.js 20 --silent
-  done
-  # ingressRestart
+  gatewaySystem
+  webTlsSecret
+
+  pullCrictl ghcr.io/jobscale/jsxjp
+  loop.js 10 --silent
 
   createJsx
   loop.js 20 --silent
@@ -125,7 +119,6 @@ inAllInOne() {
   docker exec -i $CLUSTER_NAME-control-plane crictl images | sort > images-$CLUSTER_NAME-list
   echo -e '\n\nk8s creation finished.\n\n'
 
-  ingressTlsSecret kubernetes-dashboard
   loop.js 20 --silent
   echo "kubectl -n kubernetes-dashboard apply -f backend/k8s"
   loop.js 20 --silent
@@ -135,6 +128,33 @@ inAllInOne() {
 
   token && postSlack "url: https://k8s.jsx.jp token: $(token)"
   echo Completed.
+}
+
+gatewaySystem() {
+  kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/standard-install.yaml
+  kubectl get gatewayclass
+  kubectl get gateway
+  kubectl get httproute
+}
+
+webTlsSecret() {
+  kubectl create namespace gateway-system --dry-run=client -o yaml | kubectl apply -f -
+  rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
+  echo "TLS Server Certificate gateway-system"
+  kubectl -n gateway-system create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem \
+  --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n gateway-system apply -f gateway-system
+}
+
+updateTLSSecret() {
+  rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
+  echo "TLS Server Certificate gateway-system"
+  kubectl -n gateway-system create secret tls jsxjp-tls \
+  --cert=tls/jsx.jp/fullchain.pem \
+  --key=tls/jsx.jp/privkey.pem \
+  --dry-run=client -o yaml | kubectl apply -f -
 }
 
 check-wp() {
@@ -228,78 +248,18 @@ partnerContainer() {
 createJsx() {
   kubectl create namespace jsxjp
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
-  ingressTlsSecret jsxjp
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
 }
 
 createMqtt() {
   kubectl create namespace mqtt
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
-  ingressTlsSecret mqtt
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
-}
-
-CERT_TLS=0
-ingressTlsSecret() {
-  NAMESPACE=$1
-  if [[ $CERT_TLS -eq 0 ]]; then
-    CERT_TLS=1
-    rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
-  fi
-  echo "TLS Server Certificate $NAMESPACE"
-  kubectl -n $NAMESPACE create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem \
-  --dry-run=client -o yaml | kubectl apply -f -
-}
-
-ingressUpdateSecret() {
-  NAMESPACE=$1
-  if [[ $CERT_TLS -eq 0 ]]; then
-    CERT_TLS=1
-    rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
-  fi
-  echo "TLS Server Certificate $NAMESPACE"
-  kubectl -n $NAMESPACE create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem \
-  --dry-run=client -o yaml | kubectl apply -f -
-}
-
-renew() {
-  ingressTlsSecret default
-  ingressTlsSecret kubernetes-dashboard
-  ingressTlsSecret jsxjp
-  ingressTlsSecret mqtt
-  ingressTlsSecret standard
-  ingressTlsSecret reverse
-  ingressTlsSecret code-server
-}
-
-ingressNginxSimple() {
-  # curl -L -o ingress-nginx/components.yaml https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
-  kubectl apply -f ingress-nginx-1.13.3
-}
-
-ingressNginxSecure() {
-  kubectl create namespace ingress-nginx
-  kubectl -n ingress-nginx create configmap modsecurity-config \
-  --from-file=custom-modsecurity.conf=ingress-nginx-1.5.1/conf/custom-modsecurity.conf
-  kubectl apply -f ingress-nginx-1.5.1
-}
-
-ingressNginxAllow() {
-  # default (Allow API)
-  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/aws/deploy.yaml
 }
 
 ingressForward() {
   kubectl -n default apply -f backend/web && waitFor web
   kubectl -n default exec -it svc/web -- bash -c "curl -I -s jsxjp.jsxjp.svc.cluster.local:3000"
-}
-
-ingressRestart() {
-  kubectl rollout restart deployment web
 }
 
 deployWordpress() {
@@ -311,7 +271,6 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace wordpress
-  ingressTlsSecret wordpress
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
 
@@ -324,7 +283,6 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace bitnami
-  ingressTlsSecret bitnami
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
 
@@ -338,7 +296,6 @@ FLUSH PRIVILEGES;"
 
   kubectl create namespace redmine
   # kubectl -n redmine apply -f backend/limitrange-limits.yaml
-  ingressTlsSecret redmine
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
@@ -346,7 +303,6 @@ createStandard() {
   kubectl create namespace standard
   # kubectl -n standard apply -f backend/limitrange-limits.yaml
   # kubectl config set-context $(kubectl config current-context) --namespace standard
-  ingressTlsSecret standard
 
   kubectl -n standard apply -f backend/redis && waitFor redis
   kubectl -n standard apply -f backend/mongo && waitFor mongo
@@ -357,7 +313,7 @@ createStandard() {
   # kubectl config set-context $(kubectl config current-context) --namespace default
 }
 
-ingressBasicAuth() {
+webBasicAuth() {
   kubectl -n $1 apply -f backend/basic-auth-secret.yaml
 }
 
@@ -373,8 +329,7 @@ generateBasicAuth() {
 createReverse() {
   kubectl create namespace reverse
   kubectl -n reverse apply -f backend/limitrange-limits.yaml
-  ingressTlsSecret reverse
-  ingressBasicAuth reverse
+  webBasicAuth reverse
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
   kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
   kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
@@ -385,8 +340,7 @@ createReverse() {
 
 createCodeServer() {
   kubectl create namespace code-server
-  ingressTlsSecret code-server
-  ingressBasicAuth code-server
+  webBasicAuth code-server
   kubectl -n code-server apply -f backend/code-server && waitFor code-server
 }
 
@@ -398,7 +352,6 @@ createWetty() {
 
   kubectl create namespace wetty
   # kubectl -n wetty apply -f backend/limitrange-limits.yaml
-  ingressTlsSecret wetty
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
   # TTY_PASSWD="$(makePasswd)"
   # genPasswd "$TTY_PASSWD"
@@ -611,7 +564,7 @@ defaultImage() {
   )
   for i in ${IMG_LIST[@]}; do
     echo -n "$i "
-    time { loadImage $i; } | xargs echo -n
+    time { pullCrictl $i; } | xargs echo -n
   done
 }
 

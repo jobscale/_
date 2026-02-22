@@ -57,74 +57,43 @@ spec:
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: jsxjp
   labels:
     app: jsxjp
-    component: ingress
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - secretName: jsxjp-tls
-    hosts: [ "jsx.jp", "www.jsx.jp", "x.jsx.jp" ]
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "jsx.jp"
+  - "www.jsx.jp"
+  - "x.jsx.jp"
   rules:
-  - host: jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: jsxjp
-            port:
-              number: 80
-  - host: www.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: jsxjp
-            port:
-              number: 80
-  - host: x.jsx.jp
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: jsxjp
-            port:
-              number: 80
+  - backendRefs:
+    - name: jsxjp
+      port: 80
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: redirect-mail
   labels:
     app: jsxjp
-    component: ingress
-  annotations:
-    nginx.ingress.kubernetes.io/permanent-redirect: https://mailu.jsx.jp
-    nginx.ingress.kubernetes.io/permanent-redirect-code: "307"
+    component: route
 spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - mail.jsx.jp
-    secretName: jsxjp-tls
+  parentRefs:
+  - name: web-gateway
+    namespace: gateway-system
+  hostnames:
+  - "mail.jsx.jp"
   rules:
-  - host: mail.jsx.jp
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: jsxjp
-            port:
-              number: 80
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
+        hostname: mailu.jsx.jp
+        statusCode: 307
