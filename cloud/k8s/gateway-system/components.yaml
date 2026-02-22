@@ -13,3 +13,6 @@ spec:
       certificateRefs:
       - name: jsxjp-tls
     hostname: "*.jsx.jp"
+    allowedRoutes:
+      namespaces:
+        from: All
