@@ -121,4 +121,3 @@ spec:
     realm: "Authentication Required"
     secretRef:
       name: basic-auth
-
