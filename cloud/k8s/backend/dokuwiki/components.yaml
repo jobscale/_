@@ -48,8 +48,8 @@ spec:
   - name: web-gateway
     namespace: gateway-system
   hostnames:
-  - "dokuwiki.jsx.jp"
-  - "dokuwiki.x.jsx.jp"
+  - "wiki.jsx.jp"
+  - "wiki.x.jsx.jp"
   rules:
   - backendRefs:
     - name: dokuwiki

@@ -1,30 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: zipcode-jp
+  name: zipcode
   labels:
-    app: zipcode-jp
+    app: zipcode
     component: deployment
 spec:
   selector:
     matchLabels:
-      app: zipcode-jp
+      app: zipcode
   template:
     metadata:
       labels:
-        app: zipcode-jp
+        app: zipcode
         component: workload
     spec:
       containers:
       - image: ghcr.io/jobscale/zipcode-jp
-        name: zipcode-jp
+        name: zipcode
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: zipcode-jp
+  name: zipcode
   labels:
-    app: zipcode-jp
+    app: zipcode
     component: service
 spec:
   ports:
@@ -33,21 +33,21 @@ spec:
     protocol: TCP
     targetPort: 3000
   selector:
-    app: zipcode-jp
+    app: zipcode
   type: ClusterIP
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: zipcode-jp
+  name: zipcode
   labels:
-    app: zipcode-jp
+    app: zipcode
     component: workload
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: zipcode-jp
+    name: zipcode
   maxReplicas: 3
   minReplicas: 1
   targetCPUUtilizationPercentage: 50
@@ -55,18 +55,18 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: zipcode-jp
+  name: zipcode
   labels:
-    app: zipcode-jp
+    app: zipcode
     component: route
 spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
   hostnames:
-  - "zipcode-jp.jsx.jp"
-  - "zipcode-jp.x.jsx.jp"
+  - "zipcode.jsx.jp"
+  - "zipcode.x.jsx.jp"
   rules:
   - backendRefs:
-    - name: zipcode-jp
+    - name: zipcode
       port: 80
