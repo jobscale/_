@@ -15,7 +15,7 @@ development() {
   export CLUSTER_CONFIG=kindest/development.yaml
 }
 
-development
+production
 
 k8sVolume() {
   MNT_DIR=/home/k8s/mnt/var/lib
