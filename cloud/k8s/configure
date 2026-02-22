@@ -92,6 +92,7 @@ inAllInOne() {
   loop.js 10 --silent
 
   createJsx
+  kubectl -n gateway-system get httproute
   loop.js 20 --silent
   k8sApps
   # partnerContainer
@@ -131,10 +132,17 @@ inAllInOne() {
 }
 
 gatewaySystem() {
+  helm install ngf nginx-gateway-fabric --create-namespace -n nginx-gateway
+  kubectl -n gateway-system patch svc web-gateway-nginx \
+  --type='json' \
+  -p='[
+    {"op":"replace","path":"/spec/ports/0/nodePort","value":30443}
+  ]'
+  kubectl -n nginx-gateway get pod
+
   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/standard-install.yaml
-  kubectl get gatewayclass
-  kubectl get gateway
-  kubectl get httproute
+  kubectl -n gateway-system get gatewayclass
+  kubectl -n gateway-system get gateway
 }
 
 webTlsSecret() {
