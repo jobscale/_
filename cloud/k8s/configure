@@ -139,10 +139,7 @@ gatewaySystem() {
 
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
   echo "TLS Server Certificate gateway-system"
-  kubectl -n gateway-system create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem \
-  --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n gateway-system create secret tls jsxjp-tls --cert=tls/jsx.jp/fullchain.pem --key=tls/jsx.jp/privkey.pem --dry-run=client -o yaml | kubectl apply -f -
 
   kubectl -n gateway-system apply -f gateway-system
   loop.js 5 --silent
@@ -160,10 +157,7 @@ gatewaySystem() {
 updateTLSSecret() {
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
   echo "TLS Server Certificate gateway-system"
-  kubectl -n gateway-system create secret tls jsxjp-tls \
-  --cert=tls/jsx.jp/fullchain.pem \
-  --key=tls/jsx.jp/privkey.pem \
-  --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n gateway-system create secret tls jsxjp-tls --cert=tls/jsx.jp/fullchain.pem --key=tls/jsx.jp/privkey.pem --dry-run=client -o yaml | kubectl apply -f -
 }
 
 check-wp() {
@@ -201,7 +195,7 @@ metalLB() {
   METAL_VERSION=$(git ls-remote --tags --refs https://github.com/danderson/metallb.git | sort -t '/' -k 3 -V | tail -1 | awk -F/ '{print $3}')
   METAL_SECRET=$(openssl rand -base64 128 | xargs | sed -e 's/ //g')
   echo -e "\n MetalLB ${METAL_VERSION} \n"
-  kubectl create namespace metallb-system
+  kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply -f -
   kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey=$METAL_SECRET
   kubectl apply -f metalLB/metallb.yaml
   kubectl apply -f metalLB/km-config.yaml
@@ -226,7 +220,7 @@ token() {
 }
 
 createNetworkApps() {
-  kubectl create namespace net-apps
+  kubectl create namespace net-apps --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl apply -f backend/net-apps
   waitFor dns-nodejs && waitFor proxy-nodejs
@@ -248,20 +242,20 @@ partnerContainer() {
   [[ $CLUSTER_NAME == production || $CLUSTER_NAME == staging ]] \
   && backend/partner/create-secret.sh \
   && {
-    kubectl create namespace partner
+    kubectl create namespace partner --dry-run=client -o yaml | kubectl apply -f -
     kubectl -n partner apply -f backend/limitrange-limits.yaml
     kubectl apply -n partner -f backend/partner && waitFor partner
   }
 }
 
 createJsx() {
-  kubectl create namespace jsxjp
+  kubectl create namespace jsxjp --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
 }
 
 createMqtt() {
-  kubectl create namespace mqtt
+  kubectl create namespace mqtt --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
 }
@@ -279,7 +273,7 @@ FLUSH PRIVILEGES;"
 
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
-  kubectl create namespace wordpress
+  kubectl create namespace wordpress --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
 
@@ -291,7 +285,7 @@ FLUSH PRIVILEGES;"
 
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
-  kubectl create namespace bitnami
+  kubectl create namespace bitnami --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
 
@@ -303,13 +297,13 @@ FLUSH PRIVILEGES;"
 
   kubectl exec -n mysql -i svc/mysql -- bash -c "echo \"$SQL\" | mysql -pmy-secret-pw"
 
-  kubectl create namespace redmine
+  kubectl create namespace redmine --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n redmine apply -f backend/limitrange-limits.yaml
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
 createStandard() {
-  kubectl create namespace standard
+  kubectl create namespace standard --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n standard apply -f backend/limitrange-limits.yaml
   # kubectl config set-context $(kubectl config current-context) --namespace standard
 
@@ -330,17 +324,15 @@ generateBasicAuth() {
   BASIC_CREDENTIALS=$(
     echo "${BASIC_SECRET:-bookworm}" | htpasswd -ni bookworm
   )
-  kubectl create secret generic basic-auth \
-  --from-literal=auth="${BASIC_CREDENTIALS}" \
-  --dry-run=client -o yaml | kubectl -n $1 apply -f -
+  kubectl create secret generic basic-auth --from-literal=auth="${BASIC_CREDENTIALS}" --dry-run=client -o yaml | kubectl -n $1 apply -f -
 }
 
 createReverse() {
-  kubectl create namespace reverse
+  kubectl create namespace reverse --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n reverse apply -f backend/limitrange-limits.yaml
   webBasicAuth reverse
   kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
-  kubectl -n reverse apply -f backend/kde-lo && waitFor kde-lo
+  kubectl -n reverse apply -f backend/webtop-lo && waitFor webtop-lo
   kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
   kubectl -n reverse apply -f backend/mailu-lo && waitFor mailu-lo
   kubectl -n reverse apply -f backend/llama-lo && waitFor llama-lo
@@ -348,7 +340,7 @@ createReverse() {
 }
 
 createCodeServer() {
-  kubectl create namespace code-server
+  kubectl create namespace code-server --dry-run=client -o yaml | kubectl apply -f -
   webBasicAuth code-server
   kubectl -n code-server apply -f backend/code-server && waitFor code-server
 }
@@ -359,7 +351,7 @@ createWetty() {
     return
   fi
 
-  kubectl create namespace wetty
+  kubectl create namespace wetty --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n wetty apply -f backend/limitrange-limits.yaml
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
   # TTY_PASSWD="$(makePasswd)"
@@ -380,36 +372,35 @@ genPasswd() {
 
 createCronJob() {
   [[ "$CLUSTER_NAME" != production ]] && return
-  # kubectl create cronjob -n health-check value-domain --image ghcr.io/jobscale/value-domain --schedule='6/7 * * * *'
-  kubectl create namespace health-check
-  kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *'
+  kubectl create namespace health-check --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create cronjob -n health-check health-check --image ghcr.io/jobscale/health-check --schedule='8-55/11 * * * *' --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch cronjob -n health-check health-check -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   # kubectl create job -n health-check health-check-$(date +%s%3N) --from=cronjob.batch/health-check
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-check.yaml
   # kubectl apply -n health-check -f backend/cronjob/ec-cube-healthy.yaml
 
-  kubectl create namespace cron-job
-  kubectl create cronjob -n cron-job remind --image ghcr.io/jobscale/remind --schedule='* * * * *'
+  kubectl create namespace cron-job --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create cronjob -n cron-job remind --image ghcr.io/jobscale/remind --schedule='* * * * *' --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch cronjob -n cron-job remind -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
 
-  kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='33 0,6 * * 1-5'
+  kubectl create cronjob -n cron-job kabuka --image ghcr.io/jobscale/kabuka --schedule='33 0,6 * * 1-5' --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch cronjob -n cron-job kabuka -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # kubectl create job -n cron-job kabuka-$(date +%s%3N) --from=cronjob.batch/kabuka
 
-  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='9-55/11 * * * *'
+  kubectl create cronjob -n cron-job news-top --image ghcr.io/jobscale/news-top --schedule='9-55/11 * * * *' --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch cronjob -n cron-job news-top -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/news-top
   # kubectl create job -n cron-job news-top-$(date +%s%3N) --from=cronjob.batch/news-top
 
-  kubectl create cronjob -n cron-job info-certificate --image ghcr.io/jobscale/info-certificate --schedule='48 23 * * *'
+  kubectl create cronjob -n cron-job info-certificate --image ghcr.io/jobscale/info-certificate --schedule='48 23 * * *' --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch cronjob -n cron-job info-certificate -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/info-certificate
   # kubectl create job -n cron-job info-certificate-$(date +%s%3N) --from=cronjob.batch/info-certificate
 
-  kubectl create cronjob -n cron-job speedtest --image ghcr.io/jobscale/speedtest --schedule '54 0,1,23 * * *'
+  kubectl create cronjob -n cron-job speedtest --image ghcr.io/jobscale/speedtest --schedule '54 0,1,23 * * *' --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch cronjob -n cron-job speedtest -p '{"spec": {"concurrencyPolicy": "Forbid"}}'
   ## Create One time job
   # docker exec -it ${ENV:-production}-control-plane crictl pull ghcr.io/jobscale/speedtest
@@ -455,7 +446,7 @@ exposeLoadBalancer() {
   local TARGET=$5
   local MIN_REPLICA=$6
   local MIN_REPLICA=1 # kubernetes.io/limit-ranger: LimitRanger plugin set: cpu, memory request for container
-  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
+  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE --dry-run=client -o yaml | kubectl apply -f -
   kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type LoadBalancer --port $PORT --target-port $TARGET
   [[ "$MIN_REPLICA" != "0" ]] && kubectl autoscale deployment -n $NAME_SPACE $NAME $NAME \
   --cpu-percent 50 --min $MIN_REPLICA --max 20
@@ -468,18 +459,14 @@ exposeCluster() {
   local IMAGE=$3
   local PORT=$4
   local TARGET=$5
-  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE
+  kubectl create deployment -n $NAME_SPACE $NAME --image $IMAGE --dry-run=client -o yaml | kubectl apply -f -
   kubectl expose deployment -n $NAME_SPACE $NAME --name $NAME --type ClusterIP --port $PORT --target-port $TARGET
   waitFor $NAME
 }
 
 postSlack() {
   DATA="{\"username\":\"Kubernetes\",\"text\":\"$1\"}"
-  chSlack() {
-    . installation > /dev/null 2>&1
-    echo T$(chNote | base64 -d)TB
-  }
-  curl -s -X POST https://hooks.slack.com/services/$(chSlack) -d "$DATA" || echo
+  $HOME/bin/post-slack "$DATA"
 }
 
 waitFor() {
