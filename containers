@@ -29,12 +29,23 @@ lo-stack() {
   -d ghcr.io/jobscale/localstack
 }
 
+edge-unified-gateway() {
+  docker pull ghcr.io/jobscale/edge-unified-gateway
+  docker rm -f edge-unified-gateway
+  docker run --name edge-unified-gateway --restart always \
+  --memory 192m \
+  --shm-size 192m \
+  -p 53:53 -p 53:53/udp \
+  -p 3128:3128 -p 3443:3443 \
+  -d ghcr.io/jobscale/edge-unified-gateway
+}
+
 proxy-nodejs() {
   docker pull ghcr.io/jobscale/proxy-nodejs
   docker rm -f proxy-nodejs
   docker run --name proxy-nodejs --restart always \
   --memory 120m \
-  -p 3128:3128 \
+  -p 3128:3128 -p 3443:3443 \
   -d ghcr.io/jobscale/proxy-nodejs
 }
 
@@ -58,7 +69,6 @@ squid() {
 
 dns-nodejs() {
   docker pull ghcr.io/jobscale/dns-nodejs
-  docker rm -f bind9 # Alt
   docker rm -f dns-nodejs
   docker run --name dns-nodejs --restart always \
   --memory 128m \
