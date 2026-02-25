@@ -37,6 +37,7 @@ loop() {
     fi
     sleep 1
     while [[ "$(./check-color)"  != "ALL OK" ]]; do
+      web-push "Blocking - building the troops"
       post-slack "Blocking - building the troops"
       sleep 6
     done
@@ -89,6 +90,7 @@ main() {
   done
   echo
 
+  web-push "Finish build the troops"
   post-slack "Finish build the troops"
   play
 }
