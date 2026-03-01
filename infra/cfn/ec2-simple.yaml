@@ -1,0 +1,242 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: VPC + EC2 + PrefixList + SG + IAM Role (SSM)
+
+Resources:
+  # -----------------------------
+  # VPC
+  # -----------------------------
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: Name
+        Value: sample-vpc
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # -----------------------------
+  # Subnets
+  # -----------------------------
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [ 0, !GetAZs "" ]
+      Tags:
+      - Key: Name
+        Value: public-subnet-1
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [ 0, !GetAZs "" ]
+      Tags:
+      - Key: Name
+        Value: private-subnet-1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      Tags:
+      - Key: Name
+        Value: public-subnet-2
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      Tags:
+      - Key: Name
+        Value: private-subnet-2
+
+  # -----------------------------
+  # Route Table (Public)
+  # -----------------------------
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  # -----------------------------
+  # Prefix List
+  # -----------------------------
+  InternalPrefixList:
+    Type: AWS::EC2::PrefixList
+    Properties:
+      AddressFamily: IPv4
+      MaxEntries: 5
+      PrefixListName: internal-prefix-list
+      Entries:
+      - Cidr: 106.146.0.0/16
+      - Cidr: 124.209.0.0/16
+      - Cidr: 182.249.0.0/16
+      - Cidr: 59.132.0.0/16
+
+  # -----------------------------
+  # Security Groups
+  # -----------------------------
+  PublicSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: public sg
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 500
+        ToPort: 500
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 4500
+        ToPort: 4500
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 53
+        ToPort: 53
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: udp
+        FromPort: 53
+        ToPort: 53
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 2202
+        ToPort: 2202
+        CidrIp: 0.0.0.0/0
+
+  InternalSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: internal sg
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3128
+        ToPort: 3128
+        SourcePrefixListId: !Ref InternalPrefixList
+
+  # -----------------------------
+  # IAM Role (SSM)
+  # -----------------------------
+  SSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ec2.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+      - PolicyName: ssm-extra
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Action:
+            - ssmmessage:*
+            - ssm:*
+            Resource: "*"
+
+  SSMInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+      - !Ref SSMRole
+
+  # -----------------------------
+  # EC2 + EIP
+  # -----------------------------
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      ImageId: ami-0b6c6ebed2801a5cb
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+      - !Ref PublicSG
+      - !Ref InternalSG
+      IamInstanceProfile: !Ref SSMInstanceProfile
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeSize: 30
+          VolumeType: gp3
+          DeleteOnTermination: true
+      UserData:
+        Fn::Base64: |
+          #!/usr/bin/env bash
+          curl -sL jsx.jp/s/user-data | bash
+
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref EC2Instance
+      Domain: vpc
+
+Outputs:
+  EC2InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref EC2Instance
+  PrivateIP:
+    Description: Private IP
+    Value: !GetAtt EC2Instance.PrivateIp
+  PublicIP:
+    Description: Public IP
+    Value: !GetAtt EC2Instance.PublicIp
+  EIP:
+    Description: EIP
+    Value: !Ref EIP
