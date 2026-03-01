@@ -150,8 +150,8 @@ Resources:
         ToPort: 443
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
-        FromPort: 2202
-        ToPort: 2202
+        FromPort: 2022
+        ToPort: 2022
         CidrIp: 0.0.0.0/0
 
   InternalSG:

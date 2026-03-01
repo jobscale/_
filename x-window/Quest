@@ -1,0 +1,8 @@
+main() {
+  loop.js 3 --silent
+  local WIN=$(xdotool getactivewindow)
+  xdotool windowsize "$WIN" 1532 1458
+  xdotool windowmove "$WIN" -20 0
+}
+
+main

@@ -352,7 +352,7 @@
       }).slice(1).filter(item => item.mail);
 
       const users = data.filter(item => {
-        if (item.point < 2) return false;
+        if (item.point < 3) return false;
         if (item.online === 'On') return true;
         if (item.online.match('h')) return false;
         const num = Number.parseInt(item.online.match(/>(\d+)min/)?.[1], 10);
@@ -367,10 +367,12 @@
       const before = saveNames?.split(' ').filter(Boolean).length ?? 0;
       const after = names.split(' ').filter(Boolean).length;
       if (before < after) {
+        const member = users.length;
         const online = users.map(item => {
           const text = `${item.name.padStart(15)} ${item.point.toString().padStart(8)} ${item.online.padStart(8)}`;
           return text;
         });
+        online.unshift(`Online: ${member}`);
         const block = {
           type: 'section',
           fields: [
@@ -470,23 +472,59 @@
 
     keydown(event) {
       if (app.isTypingContext(event.target)) return;
-      const key = event.key?.toLowerCase();
 
-      if (['u', 'i', 'o'].includes(key)) {
+      const key = {
+        left: ['h', 'H', 'Left', 'ArrowLeft'],
+        up: ['j', 'J', 'Up', 'ArrowUp'],
+        down: ['k', 'K', 'Down', 'ArrowDown'],
+        right: ['l', 'L', 'Right', 'ArrowRight'],
+        white: ['u', 'U'],
+        black: ['i', 'I'],
+        toggle: ['o', 'O'],
+      };
+      key.move = [...key.left, ...key.up, ...key.down, ...key.right];
+      key.honeycomb = [...key.white, ...key.black, ...key.toggle];
+      key.all = [...key.move, ...key.honeycomb];
+
+      if (!key.all.includes(event.key)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (key.honeycomb.includes(event.key)) {
         if (opts.busy) return;
         opts.busy = true;
         setTimeout(() => { delete opts.busy; }, 500);
-      }
 
-      /* eslint-disable no-undef, no-unused-expressions */
-      if (key === 'i') opts.current = opts.current === 1 ? 0 : 1;
-      else if (key === 'u') opts.current = opts.current === 3 ? 0 : 3;
-      else if (key === 'o') opts.current = (opts.current + 1) % opts.setup.length;
-      else if (key === 'h') { (RX -= 8) < 1200 && (RX = 1200); SV = 1; }
-      else if (key === 'l') { (RX += 8) > 151060 && (RX = 151060); SV = 1; }
-      else if (key === 'j') { (MU -= 8) < 1400 && (MU = 1400); SV = 1; }
-      else if (key === 'k') { (MU += 8) > 74650 && (MU = 74650); SV = 1; }
-      else return;
+        if (key.white.includes(event.key)) opts.current = opts.current === 3 ? 0 : 3;
+        else if (key.black.includes(event.key)) opts.current = opts.current === 1 ? 0 : 1;
+        else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
+      } else if (key.move.includes(event.key)) {
+        /* eslint-disable no-undef, no-unused-expressions */
+        // x = Ho, y = Cs, dirty flag = Tt
+        const quest = new Proxy({}, {
+          get(_, prop) {
+            if (prop === 'x') return Mk;
+            if (prop === 'y') return Cn;
+            if (prop === 'dirty') return Ng;
+            return undefined;
+          },
+          set(_, prop, value) {
+            if (prop === 'x') Mk = value;
+            else if (prop === 'y') Cn = value;
+            else if (prop === 'dirty') Ng = value;
+            return true;
+          },
+        });
+        // h left
+        if (key.left.includes(event.key)) { quest.x -= 8; quest.dirty = 1; }
+        // j up
+        else if (key.up.includes(event.key)) { quest.y -= 8; quest.dirty = 1; }
+        // k down
+        else if (key.down.includes(event.key)) { quest.y += 8; quest.dirty = 1; }
+        // l right
+        else if (key.right.includes(event.key)) { quest.x += 8; quest.dirty = 1; }
+        else return;
+      }
 
       const canvas = document.querySelector('#custom-canvas');
       if (canvas) app.drawCanvas(canvas);
