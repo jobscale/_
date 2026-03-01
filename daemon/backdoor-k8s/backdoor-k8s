@@ -32,7 +32,7 @@ nextTime() {
 }
 
 cleanZombie() {
-  local PID=$(pgrep -f "ssh -N -T us-watch")
+  local PID=$(pgrep -f "ssh -N -T 2603.watch")
   if [[ ! -z "$PID" ]]; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
     kill $PID
@@ -46,7 +46,7 @@ whileCheck() {
   while true; do
     sleep 60
     nextTime
-    if ! nc -vz -w 2 us.jsx.jp 443 > /dev/null 2>&1; then
+    if ! nc -vz -w 2 2603.jsx.jp 443 > /dev/null 2>&1; then
       echo "$(TZ=Asia/Tokyo date -Iseconds) connection failed" 1>&2
       cleanZombie
       continue
@@ -61,7 +61,7 @@ whileCheck() {
 
 waitForPort() {
   clearTick
-  while nc -vz -w 1 us.jsx.jp 443 > /dev/null 2>&1; do
+  while nc -vz -w 1 2603.jsx.jp 443 > /dev/null 2>&1; do
     echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
     local PID=$(ssh noble sudo ss -tunlp | grep "0.0.0.0:443 " | awk -Fpid= '{print $2}' | awk -F, '{print $1}')
     if [[ ! -z "$PID" ]]; then
@@ -75,7 +75,7 @@ waitForPort() {
 waitForResolver() {
   clearTick
   while true; do
-    local REMOTE=$(dig +short us.jsx.jp)
+    local REMOTE=$(dig +short 2603.jsx.jp)
     if [[ ! -z "$REMOTE" ]]; then
       break
     fi
@@ -93,9 +93,9 @@ waitForResolver() {
   whileCheck &
   while true; do
     waitForResolver
-    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "us.jsx.jp" > /dev/null 2>&1
+    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "2603.jsx.jp" > /dev/null 2>&1
     waitForPort
-    ssh -N -T us-watch
+    ssh -N -T 2603.watch
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 11.1
   done
