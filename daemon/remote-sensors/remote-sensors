@@ -42,6 +42,10 @@ dark-cpu() {
   notification ${WORKDIR}/dark-cpu
 }
 
+dark-edge() {
+  echo -e "$(TZ=Asia/Tokyo date -Iseconds)\n$(docker stats --no-stream edge-unified-gateway)" >> ${WORKDIR}/.dark-edge.log
+}
+
 main() {
   mkdir -p "${WORKDIR}"
   local STEP=0
@@ -50,6 +54,7 @@ main() {
     dark-cpu
     n100-cpu
     if (( STEP == 0 )); then
+      dark-edge
       mac-cpu
     fi
     (( STEP = (STEP + 1) % 3 )) || :
