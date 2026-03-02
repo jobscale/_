@@ -49,10 +49,10 @@ describe() {
   echo "[INFO] $(timestamp) CloudFormation Stack Outputs:"
   aws cloudformation describe-stacks \
   --stack-name $STACK_NAME \
-  --query "{ \
-      StackName:Stacks[0].StackName, \
-      Status:Stacks[0].StackStatus, \
-      Outputs:Stacks[0].Outputs \
+  --query "{
+    StackName:Stacks[0].StackName,
+    Status:Stacks[0].StackStatus,
+    Outputs:Stacks[0].Outputs
   }"
 }
 
@@ -70,7 +70,12 @@ delete() {
   echo "[INFO] $(timestamp) Deleting CloudFormation Stack..."
   aws cloudformation delete-stack \
   --stack-name $STACK_NAME
-  while aws cloudformation describe-stacks --stack-name $STACK_NAME >/dev/null 2>&1; do
+  while aws cloudformation describe-stacks \
+  --stack-name $STACK_NAME \
+  --query "{
+    StackName:Stacks[0].StackName,
+    Status:Stacks[0].StackStatus
+  }" 2>/dev/null; do
     echo "[INFO] $(timestamp) Waiting for stack deletion..."
     sleep 15
   done
