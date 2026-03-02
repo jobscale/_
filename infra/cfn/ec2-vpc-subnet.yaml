@@ -1,6 +1,23 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: VPC + EC2 + PrefixList + SG + IAM Role (SSM)
 
+Parameters:
+  VpcCidr:
+    Type: String
+    Default: 10.90.0.0/16
+  PublicSubnet1Cidr:
+    Type: String
+    Default: 10.90.1.0/24
+  PrivateSubnet1Cidr:
+    Type: String
+    Default: 10.90.2.0/24
+  PublicSubnet2Cidr:
+    Type: String
+    Default: 10.90.3.0/24
+  PrivateSubnet2Cidr:
+    Type: String
+    Default: 10.90.4.0/24
+
 Resources:
   # -----------------------------
   # VPC
@@ -8,12 +25,12 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/16
+      CidrBlock: !Ref VpcCidr
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
       - Key: Name
-        Value: sample-vpc
+        Value: !Sub "${AWS::StackName}-vpc"
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -31,43 +48,43 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.1.0/24
+      CidrBlock: !Ref PublicSubnet1Cidr
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select [ 0, !GetAZs "" ]
       Tags:
       - Key: Name
-        Value: public-subnet-1
+        Value: !Sub "${AWS::StackName}-public-subnet-1"
 
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.2.0/24
+      CidrBlock: !Ref PrivateSubnet1Cidr
       AvailabilityZone: !Select [ 0, !GetAZs "" ]
       Tags:
       - Key: Name
-        Value: private-subnet-1
+        Value: !Sub "${AWS::StackName}-private-subnet-1"
 
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.3.0/24
+      CidrBlock: !Ref PublicSubnet2Cidr
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select [ 1, !GetAZs "" ]
       Tags:
       - Key: Name
-        Value: public-subnet-2
+        Value: !Sub "${AWS::StackName}-public-subnet-2"
 
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.4.0/24
+      CidrBlock: !Ref PrivateSubnet2Cidr
       AvailabilityZone: !Select [ 1, !GetAZs "" ]
       Tags:
       - Key: Name
-        Value: private-subnet-2
+        Value: !Sub "${AWS::StackName}-private-subnet-2"
 
   # -----------------------------
   # Route Table (Public)
@@ -105,7 +122,7 @@ Resources:
     Properties:
       AddressFamily: IPv4
       MaxEntries: 5
-      PrefixListName: internal-prefix-list
+      PrefixListName: !Sub "${AWS::StackName}-internal-prefix-list"
       Entries:
       - Cidr: 106.146.0.0/16
       - Cidr: 124.209.0.0/16
@@ -216,6 +233,9 @@ Resources:
           VolumeSize: 30
           VolumeType: gp3
           DeleteOnTermination: true
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-ec2"
       UserData:
         Fn::Base64: |
           #!/usr/bin/env bash
@@ -229,14 +249,10 @@ Resources:
 
 Outputs:
   EC2InstanceId:
-    Description: EC2 Instance ID
     Value: !Ref EC2Instance
   PrivateIP:
-    Description: Private IP
     Value: !GetAtt EC2Instance.PrivateIp
   PublicIP:
-    Description: Public IP
     Value: !GetAtt EC2Instance.PublicIp
   EIP:
-    Description: EIP
     Value: !Ref EIP
