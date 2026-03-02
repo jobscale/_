@@ -49,7 +49,11 @@ describe() {
   echo "[INFO] $(timestamp) CloudFormation Stack Outputs:"
   aws cloudformation describe-stacks \
   --stack-name $STACK_NAME \
-  --query "Stacks[0].Outputs"
+  --query "{ \
+      StackName:Stacks[0].StackName, \
+      Status:Stacks[0].StackStatus, \
+      Outputs:Stacks[0].Outputs \
+  }"
 }
 
 deploy() {
