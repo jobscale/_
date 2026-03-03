@@ -6,38 +6,36 @@ TEMPLATE_FILE="cfn/ec2-vpc-subnet.yaml"
 PARAM_FILE="cfn/${STACK_NAME}.param.json"
 
 echo "[Note] Deploying CloudFormation Stack Name: $STACK_NAME"
-echo "[Note] Template File: $TEMPLATE_FILE"
-echo "[Note] Parameter File: $PARAM_FILE"
-
+echo
 IS_OK=true
 if [[ -f  "$TEMPLATE_FILE" ]]; then
-  echo "[INFO] Template file $TEMPLATE_FILE found. OK"
+  echo -e "\e[32m[INFO] Template file $TEMPLATE_FILE found. OK\e[0m"
 else
-  echo "[ERROR] Template file $TEMPLATE_FILE not found. NG" >&2
+  echo -e "\e[31m[ERROR] Template file $TEMPLATE_FILE not found. NG\e[0m" >&2
   IS_OK=false
 fi
 
 if [[ -f  "$PARAM_FILE" ]]; then
-  echo "[INFO] Parameter file $PARAM_FILE found. OK"
+  echo -e "\e[32m[INFO] Parameter file $PARAM_FILE found. OK\e[0m"
 else
-  echo "[ERROR] Parameter file $PARAM_FILE not found. NG" >&2
+  echo -e "\e[31m[ERROR] Parameter file $PARAM_FILE not found. NG\e[0m" >&2
   IS_OK=false
 fi
-
+echo
 if [[ "$IS_OK" == true ]]; then
   echo "[INFO] All required files are present. Proceeding with deployment."
-  echo "[INFO] To deploy the stack, run: deploy"
-  echo "[INFO] To describe the stack outputs, run: describe"
-  echo "[INFO] To delete the stack, run: delete"
-  echo "[INFO] To install SSM Session Manager Plugin, run: ssm-install"
-  echo "[INFO] To start an SSM session to the EC2 instance, run: ssm-start"
+  echo "[INFO]   deploy:      To deploy the stack."
+  echo "[INFO]   describe:    To describe the stack outputs."
+  echo "[INFO]   delete:      To delete the stack."
+  echo "[INFO]   ssm-install: To install SSM Session Manager Plugin."
+  echo "[INFO]   ssm-start:   To start an SSM session to the EC2 instance."
   echo "[INFO] Example: deploy"
   echo "[INFO] Ready to deploy the stack. Please run the deploy function to start the deployment process."
 else
-  echo "[ERROR] Required files are missing. Please check the above messages." >&2
-  echo "[ERROR] Please ensure that the template file and parameter file exist before proceeding." >&2
-  echo "[ERROR] Deployment cannot proceed until the required files are in place." >&2
-  echo "[ERROR] Failed to deploy stack $STACK_NAME." >&2
+  echo -e "\e[33m[ERROR] Required files are missing. Please check the above messages.\e[0m" >&2
+  echo -e "\e[33m[ERROR] Please ensure that the template file and parameter file exist before proceeding.\e[0m" >&2
+  echo -e "\e[33m[ERROR] Deployment cannot proceed until the required files are in place.\e[0m" >&2
+  echo -e "\e[33m[ERROR] Failed to deploy stack $STACK_NAME.\e[0m" >&2
 fi
 
 timestamp() {
@@ -102,5 +100,7 @@ ssm-start() {
   aws ssm start-session --target "$instance_id"
 }
 
+echo
 echo "Usage: source $0 {Stack name}"
-echo "allow commands {deploy|describe|delete|ssm-install|ssm-start}"
+echo "  Stack list: [ $(ls cfn/*.json | awk -F'[/.]' '{print $2}' | xargs) ]"
+echo "  allow commands {deploy|describe|delete|ssm-install|ssm-start}"
