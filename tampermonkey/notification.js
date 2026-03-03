@@ -84,17 +84,17 @@
     handler() {
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 5_200);
+        provider.id = setTimeout(provider.action, 33_300);
       });
     },
 
     async start() {
-      await new Promise(resolve => { setTimeout(resolve, 33_000); });
-      provider.id = setTimeout(provider.action, 5_200);
+      await new Promise(resolve => { setTimeout(resolve, 33_300); });
+      provider.id = setTimeout(provider.handler, 500);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
-  setTimeout(() => provider.start(), 2_000);
+  setTimeout(() => provider.start(), 500);
 })();

@@ -37,17 +37,17 @@
     handler() {
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 200);
+        provider.id = setTimeout(provider.action, 500);
       });
     },
 
     async start() {
-      await new Promise(resolve => { setTimeout(resolve, 1_000); });
-      provider.id = setTimeout(provider.action, 2_200);
+      await new Promise(resolve => { setTimeout(resolve, 500); });
+      provider.id = setTimeout(provider.handler, 500);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
-  setTimeout(() => provider.start(), 2_000);
+  setTimeout(() => provider.start(), 500);
 })();
