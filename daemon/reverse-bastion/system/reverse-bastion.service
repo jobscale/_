@@ -1,0 +1,18 @@
+[Unit]
+Description=reverse-bastion Daemon
+After=network-online.target
+
+[Service]
+Type=simple
+User=jobscale
+ExecStart=/opt/_/daemon/reverse-bastion/reverse-bastion
+Restart=always
+RestartSec=5s
+RuntimeDirectory=daemon
+StateDirectory=daemon
+LogsDirectory=daemon
+StandardOutput=append:/var/log/daemon/reverse-bastion.log
+StandardError=append:/var/log/daemon/reverse-bastion_error.log
+
+[Install]
+WantedBy=multi-user.target
