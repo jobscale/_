@@ -546,20 +546,19 @@
     },
 
     handler() {
-      if (provider.expired < Date.now()) return;
       requestAnimationFrame(() => {
         clearTimeout(provider.id);
         provider.id = setTimeout(provider.action, 2_200);
       });
     },
 
-    start() {
-      provider.expired = Date.now() + 5_000;
+    async start() {
+      await new Promise(resolve => { setTimeout(resolve, 1_000); });
       provider.id = setTimeout(provider.action, 2_200);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
-  provider.start();
+  setTimeout(() => provider.start(), 2_000);
 })();
