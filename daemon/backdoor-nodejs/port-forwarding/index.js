@@ -15,7 +15,7 @@ const logger = new Logger({
 });
 
 const sshConfig = {
-  host: HOST || 'vpn.jsx.jp',
+  host: HOST || '2603.jsx.jp',
   port: PORT || 22,
   username: USER || 'jobscale',
   privateKey: fs.readFileSync('openssh-ed25519.pem', 'utf-8'),
