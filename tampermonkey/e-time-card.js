@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         e-timeCard
 // @namespace    http://tampermonkey.net/
-// @version      2026-02-18
+// @version      2026-03-04
 // @description  try to take over the world!
 // @author       You
 // @match        https://e-timecard.ne.jp/s/EPSINP*

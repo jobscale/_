@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2026-02-18
+// @version      2026-03-04
 // @description  try to take over the world!
 // @author       jobscale
 // @match        http://127.0.0.1:3000/*

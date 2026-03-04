@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Notification Message
 // @namespace    http://tampermonkey.net/
-// @version      2026-02-18
+// @version      2026-03-04
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://teams.microsoft.com/v2/*
@@ -58,6 +58,8 @@
         store.categories = [...document.querySelectorAll('div.C2IG3.z6Kje:has(.WIYG1.Mt2TB)')]
         .map(el => el.querySelector('span').textContent).join(', ');
       }
+      // Note: We do not send a notification if the category is Notifications.
+      if (store.categories === 'Notifications') return;
       const num = [...store.teams, ...store.outlook]
       .reduce((accel, el) => accel + (Number.parseInt(el.textContent, 10) || 0), 0) || 0;
       const organization = document.querySelector('[id^="idna-me"]')?.textContent

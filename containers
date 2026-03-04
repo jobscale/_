@@ -33,8 +33,8 @@ edge-unified-gateway() {
   docker pull ghcr.io/jobscale/edge-unified-gateway
   docker rm -f edge-unified-gateway
   docker run --name edge-unified-gateway --restart always \
-  --memory 192m \
-  --shm-size 192m \
+  --memory 256m \
+  --shm-size 256m \
   -p 53:53 -p 53:53/udp \
   -p 3128:3128 -p 3443:3443 \
   -d ghcr.io/jobscale/edge-unified-gateway

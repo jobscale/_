@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-02-18
+// @version      2026-03-04
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -253,7 +253,7 @@ body > *, main, main > * {
       0 -2px 6px rgba(255, 255, 255, 0.35) inset,
       0 4px 10px rgba(0, 0, 0, 0.35) inset;
 
-    font-size: 1rem;
+    font-size: clamp(8px, 1em, 18px);
     font-weight: 600;
     letter-spacing: 0.03em;
 
