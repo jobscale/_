@@ -53,13 +53,8 @@
       const span = 60_000;
       store.teams = [...document.querySelectorAll('.fui-Badge')];
       store.outlook = [...document.querySelectorAll('.WIYG1.Mt2TB')];
-      store.categories = '';
-      if (store.outlook.length) {
-        store.categories = [...document.querySelectorAll('div.C2IG3.z6Kje:has(.WIYG1.Mt2TB)')]
-        .map(el => el.querySelector('span').textContent).join(', ');
-      }
-      // Note: We do not send a notification if the category is Notifications.
-      if (store.categories === 'Notifications') return;
+      store.categories = [...document.querySelectorAll('div.C2IG3.z6Kje:has(.WIYG1.Mt2TB)')]
+      .map(el => el.querySelector('span').textContent).join(', ');
       const num = [...store.teams, ...store.outlook]
       .reduce((accel, el) => accel + (Number.parseInt(el.textContent, 10) || 0), 0) || 0;
       const organization = document.querySelector('[id^="idna-me"]')?.textContent
