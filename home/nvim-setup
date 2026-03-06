@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -eu
+
+install() {
+  if ! command -v nvim &> /dev/null; then
+    echo "Neovim is not installed. Installing..."
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+    tar -xzf nvim-linux-x86_64.tar.gz
+    sudo mv nvim-linux-x86_64 /usr/local
+    sudo ln -sfn /usr/local/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+    rm nvim-linux-x86_64.tar.gz
+  else
+    echo "Neovim is already installed."
+  fi
+}
+
+setup() {
+  PACKER_DIR="$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim"
+  if [ ! -d "$PACKER_DIR" ]; then
+    git clone --depth 1 https://github.com/wbthomason/packer.nvim "$PACKER_DIR"
+  fi
+
+  if [[ ! -d "$HOME/.config/nvim" ]]; then
+    mkdir -p "$HOME/.config/nvim"
+    cp init.lua $HOME/.config/nvim/init.lua
+  fi
+
+  nvim --headless +PackerSync +qa
+}
+
+main() {
+  install
+  setup
+}
+
+main

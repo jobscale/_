@@ -85,7 +85,7 @@ then
   echo "set internal proxy"
 else
   echo "not set proxy"
-  ip n show 172.16.6.0/24
+  command -v ip >/dev/null && ip n show 172.16.6.0/24
 fi
 
 notification() {
