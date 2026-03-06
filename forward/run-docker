@@ -1,0 +1,10 @@
+docker rm -f node-aws >/dev/null 2>&1
+
+docker run --init --name node-aws --restart=always -p 2022:22 \
+--dns 172.20.100.30 \
+-v $(pwd)/.ssh:/home/node/.ssh \
+-v $(pwd)/_:/home/node/_ \
+--entrypoint /home/node/_/forward/entrypoint.sh \
+-d ghcr.io/jobscale/node-aws
+
+docker logs -f node-aws

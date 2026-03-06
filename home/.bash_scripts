@@ -132,7 +132,7 @@ less_with_unbuffer () {
 
 code() {
   $(which code) $@
-  sleep 3
+  ~/_/bin/loop.js 2
   ~/_/x-window/adjust-window 28
 }
 
