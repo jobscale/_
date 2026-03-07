@@ -11,7 +11,7 @@ debian-2022() {
   apt-get install -y --no-install-recommends \
     curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat iputils-ping \
-    nmap traceroute procps whois progress \
+    nmap traceroute procps whois progress sysstat \
     pipx bc jq zip unzip tree colordiff \
     openssh-server bash-completion
   apt-get autoremove -y
@@ -26,7 +26,7 @@ debian-2023() {
   apt-get install -y --no-install-recommends \
     curl git vim tmux htop expect \
     iproute2 dnsutils ncat netcat-openbsd iputils-ping \
-    nmap traceroute procps whois progress \
+    nmap traceroute procps whois progress sysstat \
     pipx bc jq zip unzip tree colordiff \
     openssh-server bash-completion
   apt-get autoremove -y
