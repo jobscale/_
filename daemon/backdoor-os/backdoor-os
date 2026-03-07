@@ -6,7 +6,7 @@ REM_HOST=2603.jsx.jp
 REM_PORT=2022
 if [[ "$(uname -s)" == "Darwin" ]]; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-  REM_CMD=2603.watch
+  REM_CMD=2603.ssh
   REM_PORT=80
 fi
 TICK_FILE="/tmp/tick-os"
