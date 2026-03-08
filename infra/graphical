@@ -14,6 +14,36 @@ symbolic-links() {
   mv 公開 Public && ln -s Public 公開
 }
 
+disable-services() {
+  {
+    sudo systemctl disable --now avahi-daemon
+    sudo systemctl mask avahi-daemon
+  }
+  {
+    sudo systemctl disable --now exim4
+    sudo systemctl mask exim4
+  }
+  {
+    sudo systemctl disable --now cups
+    sudo systemctl mask cups
+  }
+  {
+    sudo systemctl disable --now avahi-daemon.socket
+    sudo systemctl mask avahi-daemon.socket
+  }
+  {
+    sudo systemctl disable --now avahi-daemon
+    sudo systemctl mask avahi-daemon
+  }
+  {
+    sudo systemctl disable --now ModemManager
+    sudo systemctl mask ModemManager
+  }
+  sudo apt purge -y exim4 exim4-base exim4-config exim4-daemon-light
+  sudo apt purge -y cups
+  sudo apt auto-remove -y
+}
+
 debian-2022() {
   sudo apt update
   sudo apt install -y --no-install-recommends \
