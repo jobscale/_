@@ -307,10 +307,6 @@ createNetworkApps() {
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl -n net-apps apply -f backend/edge-unified-gateway
   waitFor edge-unified-gateway || waitFor edge-unified-gateway
-
-  echo "kind: HTTPRoute"
-  kubectl -n net-apps get HTTPRoute
-  kubectl -n net-apps get HTTPRoute edge-unified-gateway -o yaml | grep status
 }
 
 ingressForward() {
