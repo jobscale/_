@@ -107,7 +107,7 @@ spec:
   - backendRefs:
     - name: code-server
       port: 80
-  - filters:
+    filters:
     - type: ExtensionRef
       extensionRef:
         group: gateway.nginx.org
