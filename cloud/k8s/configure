@@ -87,7 +87,6 @@ inAllInOne() {
 
   gatewaySystem
 
-  pullCrictl ghcr.io/jobscale/jsxjp
   loop.js 10 --silent
 
   createJsx
@@ -101,7 +100,6 @@ inAllInOne() {
   createMqtt
   createReverse
   createNetworkApps
-  [[ $CLUSTER_NAME == production ]] && createCronJob
   createCodeServer
 
   # createDatabase
@@ -110,6 +108,8 @@ inAllInOne() {
   # [[ $CLUSTER_NAME == production ]] && deployWordpress
   # [[ $CLUSTER_NAME == production ]] && deployBitnami
   # [[ $CLUSTER_NAME == production ]] && deployRedmine
+
+  [[ $CLUSTER_NAME == production ]] && createCronJob
 
   echo -n "        ending" && loop.js 20 --silent
 
@@ -604,12 +604,12 @@ loadImage() {
 
 pullCrictl() {
   echo "docker exec -i $CLUSTER_NAME-control-plane crictl pull $1"
-  docker exec -di $CLUSTER_NAME-control-plane crictl pull $1
+  docker exec -i $CLUSTER_NAME-control-plane crictl pull $1
 }
 
 pullImage() {
   time {
-    docker exec -i ${CLUSTER_NAME:-production}-control-plane crictl pull $i
+    docker exec -i ${CLUSTER_NAME:-production}-control-plane crictl pull $1
   } | xargs echo -n
   echo
 }
