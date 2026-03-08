@@ -70,8 +70,9 @@ spec:
     namespace: gateway-system
   hostnames:
   - "jsx.jp"
-  - "www.jsx.jp"
   - "x.jsx.jp"
+  - "www.jsx.jp"
+  - "www.x.jsx.jp"
   rules:
   - backendRefs:
     - name: jsxjp

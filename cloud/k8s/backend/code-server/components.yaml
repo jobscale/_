@@ -32,9 +32,10 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: code-server
   labels:
     app: code-server
-  name: code-server
+    component: deployment
 spec:
   selector:
     matchLabels:

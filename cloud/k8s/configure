@@ -91,7 +91,6 @@ inAllInOne() {
   loop.js 10 --silent
 
   createJsx
-  kubectl -n gateway-system get httproute
   loop.js 20 --silent
   k8sApps
   # partnerContainer
@@ -219,13 +218,6 @@ token() {
   kubectl describe secrets -n kubernetes-dashboard admin-user | grep ^token | awk '{print $2}'
 }
 
-createNetworkApps() {
-  kubectl create namespace net-apps --dry-run=client -o yaml | kubectl apply -f -
-  # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
-  kubectl apply -f backend/net-apps
-  waitFor dns-nodejs && waitFor proxy-nodejs
-}
-
 createDatabase() {
   kubectl apply -f backend/mariadb && waitFor mariadb
   kubectl apply -f backend/postgres && waitFor postgres
@@ -252,12 +244,68 @@ createJsx() {
   kubectl create namespace jsxjp --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
+  waitFor jsxjp || waitFor jsxjp
+
+  echo "kind: HTTPRoute"
+  kubectl -n jsxjp get HTTPRoute
+  kubectl -n jsxjp get HTTPRoute jsxjp -o yaml | grep status
 }
 
 createMqtt() {
   kubectl create namespace mqtt --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
+  waitFor mqtt || waitFor mqtt
+
+  echo "kind: HTTPRoute"
+  kubectl -n mqtt get HTTPRoute
+  kubectl -n mqtt get HTTPRoute mqtt -o yaml | grep status
+}
+
+createCodeServer() {
+  kubectl create namespace code-server --dry-run=client -o yaml | kubectl apply -f -
+  webBasicAuth code-server
+  kubectl -n code-server apply -f backend/code-server && waitFor code-server
+  waitFor code-server || waitFor code-server
+
+  echo "kind: HTTPRoute"
+  kubectl -n code-server get HTTPRoute
+  kubectl -n code-server get HTTPRoute code-server -o yaml | grep status
+  echo "kind: AuthenticationFilter"
+  kubectl -n code-server get AuthenticationFilter
+  kubectl -n code-server get AuthenticationFilter code-server -o yaml | grep status
+}
+
+createReverse() {
+  kubectl create namespace reverse --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n reverse apply -f backend/limitrange-limits.yaml
+  webBasicAuth reverse
+  kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
+  waitFor code-lo || waitFor code-lo
+
+  echo "kind: HTTPRoute"
+  kubectl -n reverse get HTTPRoute
+  kubectl -n reverse get HTTPRoute code-lo -o yaml | grep status
+  echo "kind: AuthenticationFilter"
+  kubectl -n reverse get AuthenticationFilter
+  kubectl -n reverse get AuthenticationFilter code-lo -o yaml | grep status
+
+  kubectl -n reverse apply -f backend/webtop-lo && waitFor webtop-lo
+  kubectl -n reverse apply -f backend/mailu-lo && waitFor mailu-lo
+  kubectl -n reverse apply -f backend/llama-lo && waitFor llama-lo
+  kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
+  kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
+}
+
+createNetworkApps() {
+  kubectl create namespace net-apps --dry-run=client -o yaml | kubectl apply -f -
+  # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
+  kubectl -n net-apps apply -f backend/edge-unified-gateway
+  waitFor edge-unified-gateway || waitFor edge-unified-gateway
+
+  echo "kind: HTTPRoute"
+  kubectl -n net-apps get HTTPRoute
+  kubectl -n net-apps get HTTPRoute edge-unified-gateway -o yaml | grep status
 }
 
 ingressForward() {
@@ -321,26 +369,10 @@ webBasicAuth() {
 }
 
 generateBasicAuth() {
-  BASIC_CREDENTIALS=$(echo -n "${BASIC_SECRET:-bookworm}" | htpasswd -ni bookworm | tr -d '\n')
-  kubectl create secret generic basic-auth --from-literal=auth="${BASIC_CREDENTIALS}" --dry-run=client -o yaml | kubectl -n $1 apply -f -
-}
-
-createReverse() {
-  kubectl create namespace reverse --dry-run=client -o yaml | kubectl apply -f -
-  kubectl -n reverse apply -f backend/limitrange-limits.yaml
-  webBasicAuth reverse
-  kubectl -n reverse apply -f backend/www-lo && waitFor www-lo
-  kubectl -n reverse apply -f backend/webtop-lo && waitFor webtop-lo
-  kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
-  kubectl -n reverse apply -f backend/mailu-lo && waitFor mailu-lo
-  kubectl -n reverse apply -f backend/llama-lo && waitFor llama-lo
-  kubectl -n reverse apply -f backend/lo-stack && waitFor lo-stack
-}
-
-createCodeServer() {
-  kubectl create namespace code-server --dry-run=client -o yaml | kubectl apply -f -
-  webBasicAuth code-server
-  kubectl -n code-server apply -f backend/code-server && waitFor code-server
+  htpasswd -nbB bookworm bookworm > auth
+  kubectl -n $1 create secret generic basic-auth \
+  --from-file=auth=auth --type=nginx.org/htpasswd --dry-run=client -o yaml | kubectl apply -f -
+  rm auth
 }
 
 createWetty() {
@@ -481,6 +513,8 @@ waitFor() {
       echo -n " $i.."
     done
   done
+  kubectl get all -A | grep $1
+  return 1
 }
 
 delay() {

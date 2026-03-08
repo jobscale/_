@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-unified-gateway
+  labels:
+    app: edge-unified-gateway
+    component: deployment
+spec:
+  selector:
+    matchLabels:
+      app: edge-unified-gateway
+  template:
+    metadata:
+      labels:
+        app: edge-unified-gateway
+        component: workload
+    spec:
+      containers:
+      - name: edge-unified-gateway
+        image: ghcr.io/jobscale/edge-unified-gateway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-unified-gateway
+  labels:
+    app: edge-unified-gateway
+    component: service
+spec:
+  selector:
+    app: edge-unified-gateway
+  type: LoadBalancer
+  ports:
+  - name: proxy-http
+    nodePort: 30312
+    port: 3128
+    targetPort: 3128
+    protocol: TCP
+  - name: dns-udp
+    nodePort: 30053
+    port: 53
+    targetPort: 53
+    protocol: UDP
+  - name: dns-tcp
+    nodePort: 30053
+    port: 53
+    targetPort: 53
+    protocol: TCP
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: edge-unified-gateway
+  labels:
+    app: edge-unified-gateway
+    component: workload
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: edge-unified-gateway
+  maxReplicas: 20
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50
