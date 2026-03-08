@@ -321,9 +321,7 @@ webBasicAuth() {
 }
 
 generateBasicAuth() {
-  BASIC_CREDENTIALS=$(
-    echo "${BASIC_SECRET:-bookworm}" | htpasswd -ni bookworm
-  )
+  BASIC_CREDENTIALS=$(echo -n "${BASIC_SECRET:-bookworm}" | htpasswd -ni bookworm | tr -d '\n')
   kubectl create secret generic basic-auth --from-literal=auth="${BASIC_CREDENTIALS}" --dry-run=client -o yaml | kubectl -n $1 apply -f -
 }
 

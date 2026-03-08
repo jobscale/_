@@ -57,6 +57,12 @@ spec:
   - backendRefs:
     - name: wetty-lo
       port: 80
+  - filters:
+    - type: ExtensionRef
+      extensionRef:
+        group: gateway.nginx.org
+        kind: AuthenticationFilter
+        name: wetty-lo
 ---
 apiVersion: gateway.nginx.org/v1alpha1
 kind: AuthenticationFilter
