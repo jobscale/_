@@ -49,11 +49,11 @@ dark-edge() {
 main() {
   mkdir -p "${WORKDIR}"
   local STEP=0
-  while true
-  do
+  while true; do
     dark-cpu
-    n100-cpu
-    mac-cpu
+    n100-cpu &
+    mac-cpu &
+    wait
     if (( STEP == 0 )); then
       dark-edge
     fi
