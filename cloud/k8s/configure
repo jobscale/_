@@ -241,6 +241,7 @@ partnerContainer() {
 }
 
 createJsx() {
+  pullCrictl ghcr.io/jobscale/jsxjp
   kubectl create namespace jsxjp --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
@@ -252,6 +253,7 @@ createJsx() {
 }
 
 createMqtt() {
+  pullCrictl ghcr.io/jobscale/ghcr.io/jobscale/mqtt-c-pub-sub
   kubectl create namespace mqtt --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
@@ -263,6 +265,7 @@ createMqtt() {
 }
 
 createCodeServer() {
+  pullCrictl ghcr.io/jobscale/code-server
   kubectl create namespace code-server --dry-run=client -o yaml | kubectl apply -f -
   webBasicAuth code-server
   kubectl -n code-server apply -f backend/code-server && waitFor code-server
@@ -277,6 +280,7 @@ createCodeServer() {
 }
 
 createReverse() {
+  pullCrictl ghcr.io/jobscale/reverse-proxy
   kubectl create namespace reverse --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n reverse apply -f backend/limitrange-limits.yaml
   webBasicAuth reverse
@@ -298,6 +302,7 @@ createReverse() {
 }
 
 createNetworkApps() {
+  pullCrictl ghcr.io/jobscale/edge-unified-gateway
   kubectl create namespace net-apps --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
   kubectl -n net-apps apply -f backend/edge-unified-gateway
@@ -514,7 +519,6 @@ waitFor() {
     done
   done
   kubectl get all -A | grep $1
-  return 1
 }
 
 delay() {
