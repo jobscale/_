@@ -566,25 +566,18 @@ portForward() {
 
 defaultImage() {
   IMG_LIST=(
-    ghcr.io/jobscale/wetty:dind
     docker.io/jobscale/dokuwiki
     ghcr.io/jobscale/anywaychat-web
     ghcr.io/jobscale/code-server
-    ghcr.io/jobscale/dns-nodejs
-    ghcr.io/jobscale/proxy-nodejs
     ghcr.io/jobscale/ec-cube
     ghcr.io/jobscale/health-check
-    ghcr.io/jobscale/log-upload
-    ghcr.io/jobscale/mongo-blog
     ghcr.io/jobscale/mqtt-c-pub-sub
     ghcr.io/jobscale/news-top
-    ghcr.io/jobscale/node-express-ejs-authorization
     ghcr.io/jobscale/ramen-timer
     ghcr.io/jobscale/remind
+    ghcr.io/jobscale/edge-unified-gateway
     ghcr.io/jobscale/reverse-proxy
-    ghcr.io/jobscale/simple-chat
     ghcr.io/jobscale/sshwifty
-    ghcr.io/jobscale/tanpo
     ghcr.io/jobscale/tetris
     ghcr.io/jobscale/todo-app
     ghcr.io/jobscale/whoami
