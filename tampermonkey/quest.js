@@ -316,7 +316,7 @@
     },
 
     postSlack(body, opt = { amount: 2 }) {
-      const url = 'https://www.jsx.jp/api/slack';
+      const url = 'https://jsx.jp/api/slack';
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -400,6 +400,7 @@
       if (!location.href.match(url)) return false;
       const report = [...document.querySelectorAll('table table tr:nth-child(1) td')].map(el => el.textContent).join('\n');
       if (!report) return false;
+      logger.info({ report, ts: formatTimestamp() });
       const known = await customStorage.getItem('report');
       if (known !== report) {
         await customStorage.setItem('report', report);
@@ -410,6 +411,10 @@
           text: ['```', report, '```'].join('\n'),
         }).catch(e => logger.warn(e.message));
       }
+      const minutes = 6;
+      setTimeout(() => {
+        document.querySelector('a[href^="gold?b=3&o3="]').click();
+      }, minutes * 60 * 1000);
       return true;
     },
 
@@ -534,6 +539,7 @@
       setTimeout(() => app.createTime(), 1300);
       setTimeout(() => app.createCanvas(), 2200);
       setTimeout(() => app.watchOnline(), 3400);
+      setTimeout(() => app.battleReport(), 4100);
     },
   };
 
