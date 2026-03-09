@@ -253,7 +253,7 @@ createJsx() {
 }
 
 createMqtt() {
-  pullCrictl ghcr.io/jobscale/ghcr.io/jobscale/mqtt-c-pub-sub
+  pullCrictl ghcr.io/jobscale/mqtt-c-pub-sub
   kubectl create namespace mqtt --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
