@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2026-03-04
+// @version      2026-03-10
 // @description  try to take over the world!
 // @author       jobscale
 // @match        http://127.0.0.1:3000/*
@@ -247,7 +247,7 @@
   text-align: center;
   font-size: 2vmin;
   right: 1em;
-  top: 5em;
+  top: 3em;
   padding: 1em;
   display: grid;
   gap: 0.4em;
@@ -256,6 +256,8 @@
   backdrop-filter: blur(4px);
   z-index: 1;
   transition: all 1s ease;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 .g-area.collapsed {
   width: 2em;

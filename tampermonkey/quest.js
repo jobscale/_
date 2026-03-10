@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Navy Quest
 // @namespace    http://tampermonkey.net/
-// @version      2026-03-04
+// @version      2026-03-10
 // @description  try to take over the world!
 // @author       You
-// @match        https://navy.quest/*
 // @match        http://127.0.0.1:3000/*
+// @match        https://navy.quest/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=navy.quest
 // @grant        none
 // ==/UserScript==

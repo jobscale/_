@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-03-04
+// @version      2026-03-10
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -180,7 +180,8 @@
 
     cssInvert: `/* Custom Scheme */
 :root { filter: invert(1); }
-html { height: 100vh; background-color: #ddd; }
+html, body { margin: 0; height: 100vh; background-color: #ddd; }
+body > * { background-color: #ddd; }
 `,
 
     cssImage: `/* Custom Scheme */
@@ -193,29 +194,31 @@ video, img { filter: invert(1); }
   background-color: black !important;
 }
 html, body {
-  margin: 0; height: 100vh; background-color: black !important;
+  margin: 0; height: 100vh;
+  background-color: transparent !important;
 }
 * {
   background-image: initial !important;
-  background-color: black !important;
-  color: #888;
+  background-color: transparent !important;
+  color: #bb9;
 }
 `,
 
     cssSimple: `/* Custom Scheme */
 :root {
   color-scheme: light dark !important;
-  background-color: black !important;
+  background-color: transparent !important;
 }
 html, body {
-  margin: 0; height: 100vh; background-color: black !important;
+  margin: 0; height: 100vh;
+  background: transparent !important;
 }
 * {
   background-image: initial !important;
 }
 body > *, main, main > * {
-  background-color: black !important;
-  color: #888;
+  background-color: transparent !important;
+  color: #bb9;
 }
 `,
 
@@ -226,7 +229,10 @@ body > *, main, main > * {
   padding: 2px;
   right: 1em;
   bottom: 1em;
-  border-radius: 0.5em;
+  border-radius: 0.4em;
+  background: rgba(0, 0, 0, 0.45) !important;
+  max-width: 100%;
+  overflow-x: auto;
   z-index: 1000001;
 
   button {
@@ -234,7 +240,7 @@ body > *, main, main > * {
     cursor: pointer;
     border: none;
     margin: 2px;
-    padding: 2px 4px;
+    padding: 2px 6px;
 
     background: radial-gradient(
         circle at 30% 30%,
@@ -393,6 +399,7 @@ body > *, main, main > * {
         event.preventDefault();
         const video = document.querySelector('#video-player-bg')
           || document.querySelector('div:has(> video-js)')
+          || document.querySelector('div:has(> video)')
           || document.querySelector('div:has(> * > video)')
           || document.querySelector('section.op-modVideo')
           || document.querySelector('video')?.closest('div');
