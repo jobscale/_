@@ -1,0 +1,18 @@
+[DEFAULT]
+bantime = 1d
+findtime = 10m
+maxretry = 3
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+
+[recidive]
+enabled = true
+filter = recidive
+logpath = /var/log/fail2ban.log
+bantime = -1
+findtime = 1w
+maxretry = 5
