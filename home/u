@@ -4,24 +4,21 @@ update() {
   . /etc/os-release
 
   echo "$(date -Iseconds) ### update"
-  sudo apt update && apt list --upgradable
+  sudo apt update && unbuffer apt list --upgradable
 
   echo "$(date -Iseconds) ### upgrade"
   sudo apt upgrade -y --no-install-recommends
 
-  echo "$(date -Iseconds) ### autoremove"
-  sudo apt auto-remove -y
-
-  echo "$(date -Iseconds) ### update"
-  sudo apt update && apt list --upgradable
-
   echo "$(date -Iseconds) ### full-upgrade"
   sudo apt full-upgrade -y --no-install-recommends
+
+  echo "$(date -Iseconds) ### autoremove"
+  sudo apt auto-remove -y
 }
 
 full-update() {
   update
-  sudo apt clean
+  sudo apt clean && sudo rm -fr /var/lib/apt/lists/*
 }
 
 {

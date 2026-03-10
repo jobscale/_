@@ -383,7 +383,7 @@
         app.postSlack({
           channel: '#quest',
           icon_emoji: ':video_game:',
-          username: 'Navy Quest',
+          username: 'Online Navy Quest',
           text,
           blocks: [block],
         }).catch(e => logger.warn(e.message));
@@ -404,11 +404,18 @@
       const known = await customStorage.getItem('report');
       if (known !== report) {
         await customStorage.setItem('report', report);
+        const block = {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: ['```', report, '```'].join('\n') },
+          ],
+        };
         app.postSlack({
-          channel: '#push',
+          channel: '#quest',
           icon_emoji: ':video_game:',
-          username: 'Navy Quest',
-          text: ['```', report, '```'].join('\n'),
+          username: 'Alert Navy Quest',
+          text: report,
+          blocks: [block],
         }).catch(e => logger.warn(e.message));
       }
       const minutes = 6;
