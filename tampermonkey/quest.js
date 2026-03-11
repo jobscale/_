@@ -398,7 +398,8 @@
       const name = 'BLACKD';
       const url = new RegExp(`https://navy.quest/gold\\?b=3&o3=[0-9a-f]+${name}`);
       if (!location.href.match(url)) return false;
-      const report = [...document.querySelectorAll('table table tr:nth-child(1) td')].map(el => el.textContent).join('\n');
+      const report = [...document.querySelectorAll('table table tr:nth-child(1) td')]
+      .map(el => el.textContent.trim()).filter(Boolean).reverse().join('\n');
       if (!report) return false;
       logger.info({ report, ts: formatTimestamp() });
       const known = await customStorage.getItem('report');
