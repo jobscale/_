@@ -2,8 +2,8 @@
 set -u
 
 STACK_NAME=${1:-simple}
-TEMPLATE_FILE="cfn/ec2-vpc-subnet.yaml"
-PARAM_FILE="cfn/${STACK_NAME}.param.json"
+TEMPLATE_FILE="template.yaml"
+PARAM_FILE="${STACK_NAME}.param.json"
 
 echo "[Note] Deploying CloudFormation Stack Name: $STACK_NAME"
 echo
@@ -102,5 +102,5 @@ ssm-start() {
 
 echo
 echo "Usage: source $0 {Stack name}"
-echo "  Stack list: [ $(ls cfn/*.json | awk -F'[/.]' '{print $2}' | xargs) ]"
+echo "  Stack list: [ $(ls *.json | awk -F'[/.]' '{print $2}' | xargs) ]"
 echo "  allow commands {deploy|describe|delete|ssm-install|ssm-start}"
