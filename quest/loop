@@ -36,10 +36,14 @@ loop() {
       xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 200
     fi
     sleep 1
+    local DELAY=6
     while [[ "$(./check-color)"  != "ALL OK" ]]; do
+      play
       web-push "Blocking - building the troops"
       post-slack "Blocking - building the troops"
-      sleep 6
+      sleep $DELAY
+      DELAY=$(( DELAY + 6 ))
+      if [[ $DELAY -gt 36 ]]; then exit 1; fi
     done
     local FAST_UPDATE=$(update-time)
     if [[ ! -z "$FAST_UPDATE" ]]; then

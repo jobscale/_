@@ -3,10 +3,6 @@ set -eu
 
 readonly T_FILE="/tmp/quest-color.log"
 
-play() {
-  ffplay -nodisp -autoexit -ss 0 -t 2 sand.mp3 >/dev/null 2>&1
-}
-
 check-color() {
   local -r color_info=$(import -window root -crop 1x1+$1+$2 txt:- | grep -Po 'srgb\(\K\d+,\d+,\d+(?=\))')
   # xdotool mousemove $1 $2
@@ -41,9 +37,6 @@ main() {
   if [[ "$RES" != "ALL OK" ]]; then
     sleep 1
     RES=$(check-all)
-  fi
-  if [[ "$RES" != "ALL OK" ]]; then
-    play >/dev/null 2>&1
   fi
   echo $RES
 }

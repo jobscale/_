@@ -11,7 +11,6 @@ loop() {
       ACTIVATE=$(date +%s)
       eval $(xdotool getmouselocation --shell)
       xdotool mousemove 10 500
-      RES=$(./check-color)
       sleep 0.2
       xdotool mousemove $X $Y
     fi
