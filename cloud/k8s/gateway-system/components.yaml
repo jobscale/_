@@ -16,3 +16,11 @@ spec:
     allowedRoutes:
       namespaces:
         from: All
+
+  - name: http
+    protocol: HTTP
+    port: 80
+    hostname: "*.jsx.jp"
+    allowedRoutes:
+      namespaces:
+        from: All

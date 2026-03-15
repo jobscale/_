@@ -126,6 +126,9 @@ inAllInOne() {
   loop.js 20 --silent
 
   token && postSlack "url: https://k8s.jsx.jp token: $(token)"
+
+  unbuffer kubectl -n gateway-system get svc web-gateway-nginx -o json | jq .spec.ports
+
   echo Completed.
 }
 
@@ -142,15 +145,16 @@ gatewaySystem() {
 
   kubectl -n gateway-system apply -f gateway-system
   loop.js 5 --silent
-  kubectl -n gateway-system patch svc web-gateway-nginx \
-  --type='json' \
+  kubectl -n gateway-system patch svc web-gateway-nginx --type='json' \
   -p='[
-    {"op":"replace","path":"/spec/ports/0/nodePort","value":30443}
+    {"op":"replace","path":"/spec/ports/0/nodePort","value":30080},
+    {"op":"replace","path":"/spec/ports/1/nodePort","value":30443}
   ]'
   loop.js 5 --silent
   kubectl -n gateway-system get gatewayclass
   kubectl -n gateway-system get gateway
   kubectl -n gateway-system get svc
+  kubectl -n gateway-system get svc web-gateway-nginx -o yaml
 }
 
 updateTLSSecret() {
