@@ -63,6 +63,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "mqtt.jsx.jp"
   - "mqtt.x.jsx.jp"

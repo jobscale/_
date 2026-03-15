@@ -63,6 +63,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "anywaychat.jsx.jp"
   - "anywaychat.x.jsx.jp"

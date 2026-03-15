@@ -47,6 +47,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "wiki.jsx.jp"
   - "wiki.x.jsx.jp"

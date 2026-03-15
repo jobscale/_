@@ -63,6 +63,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "sshwifty.jsx.jp"
   - "sshwifty.x.jsx.jp"

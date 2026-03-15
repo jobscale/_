@@ -48,6 +48,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "gitlab.jsx.jp"
   - "gitlab.x.jsx.jp"

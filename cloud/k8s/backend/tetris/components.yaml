@@ -79,6 +79,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "tetris.jsx.jp"
   - "tetris.x.jsx.jp"

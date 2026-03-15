@@ -96,6 +96,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "wp-bitnami.jsx.jp"
   - "wp-bitnami.x.jsx.jp"

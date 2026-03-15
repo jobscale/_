@@ -50,6 +50,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "wetty-lo.jsx.jp"
   - "wetty-lo.x.jsx.jp"

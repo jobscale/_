@@ -90,6 +90,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "wordpress.jsx.jp"
   - "wordpress.x.jsx.jp"

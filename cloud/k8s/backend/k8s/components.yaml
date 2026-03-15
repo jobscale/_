@@ -9,6 +9,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "k8s.jsx.jp"
   - "k8s.x.jsx.jp"

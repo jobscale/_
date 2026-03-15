@@ -101,6 +101,7 @@ spec:
   parentRefs:
   - name: web-gateway
     namespace: gateway-system
+    sectionName: https
   hostnames:
   - "code-server.jsx.jp"
   - "code-server.x.jsx.jp"
