@@ -240,7 +240,8 @@ partnerContainer() {
   && {
     kubectl create namespace partner --dry-run=client -o yaml | kubectl apply -f -
     kubectl -n partner apply -f backend/limitrange-limits.yaml
-    kubectl apply -n partner -f backend/partner && waitFor partner
+    kubectl -n partner apply -f redirect-to-https
+    kubectl -n partner apply -f backend/partner && waitFor partner
   }
 }
 
@@ -248,6 +249,7 @@ createJsx() {
   pullCrictl ghcr.io/jobscale/jsxjp
   kubectl create namespace jsxjp --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n jsxjp apply -f backend/limitrange-limits.yaml
+  kubectl -n jsxjp apply -f redirect-to-https
   kubectl -n jsxjp apply -f backend/jsxjp && waitFor jsxjp
   waitFor jsxjp || waitFor jsxjp
 
@@ -260,6 +262,7 @@ createMqtt() {
   pullCrictl ghcr.io/jobscale/mqtt-c-pub-sub
   kubectl create namespace mqtt --dry-run=client -o yaml | kubectl apply -f -
   kubectl -n mqtt apply -f backend/limitrange-limits.yaml
+  kubectl -n mqtt apply -f redirect-to-https
   kubectl -n mqtt apply -f backend/mqtt && waitFor mqtt
   waitFor mqtt || waitFor mqtt
 
@@ -272,6 +275,7 @@ createCodeServer() {
   pullCrictl ghcr.io/jobscale/code-server
   kubectl create namespace code-server --dry-run=client -o yaml | kubectl apply -f -
   webBasicAuth code-server
+  kubectl -n code-server apply -f redirect-to-https
   kubectl -n code-server apply -f backend/code-server && waitFor code-server
   waitFor code-server || waitFor code-server
 
@@ -286,8 +290,9 @@ createCodeServer() {
 createReverse() {
   pullCrictl ghcr.io/jobscale/reverse-proxy
   kubectl create namespace reverse --dry-run=client -o yaml | kubectl apply -f -
-  kubectl -n reverse apply -f backend/limitrange-limits.yaml
   webBasicAuth reverse
+  kubectl -n reverse apply -f backend/limitrange-limits.yaml
+  kubectl -n reverse apply -f redirect-to-https
   kubectl -n reverse apply -f backend/code-lo && waitFor code-lo
   waitFor code-lo || waitFor code-lo
 
@@ -309,6 +314,7 @@ createNetworkApps() {
   pullCrictl ghcr.io/jobscale/edge-unified-gateway
   kubectl create namespace net-apps --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n net-apps apply -f backend/limitrange-limits.yaml
+  # kubectl -n net-apps apply -f redirect-to-https
   kubectl -n net-apps apply -f backend/edge-unified-gateway
   waitFor edge-unified-gateway || waitFor edge-unified-gateway
 }
@@ -327,6 +333,7 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace wordpress --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n wordpress apply -f redirect-to-https
   kubectl -n wordpress apply -f backend/wordpress && waitFor wordpress
 }
 
@@ -339,6 +346,7 @@ FLUSH PRIVILEGES;"
   kubectl exec -n mariadb -i svc/mariadb -- bash -c "echo \"$SQL\" | mariadb -pfalse"
 
   kubectl create namespace bitnami --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n bitnami apply -f redirect-to-https
   kubectl -n bitnami apply -f backend/wp-bitnami && waitFor wp-bitnami
 }
 
@@ -352,12 +360,14 @@ FLUSH PRIVILEGES;"
 
   kubectl create namespace redmine --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n redmine apply -f backend/limitrange-limits.yaml
+  kubectl -n redmine apply -f redirect-to-https
   kubectl -n redmine apply -f backend/redmine && waitFor redmine
 }
 
 createStandard() {
   kubectl create namespace standard --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n standard apply -f backend/limitrange-limits.yaml
+  kubectl -n standard apply -f redirect-to-https
   # kubectl config set-context $(kubectl config current-context) --namespace standard
 
   kubectl -n standard apply -f backend/redis && waitFor redis
@@ -388,6 +398,7 @@ createWetty() {
 
   kubectl create namespace wetty --dry-run=client -o yaml | kubectl apply -f -
   # kubectl -n wetty apply -f backend/limitrange-limits.yaml
+  kubectl -n wetty apply -f redirect-to-https
   kubectl -n wetty apply -f backend/wetty && waitFor wetty
   # TTY_PASSWD="$(makePasswd)"
   # genPasswd "$TTY_PASSWD"
