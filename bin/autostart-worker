@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -eu
+
+screensaver() {
+  which cinnamon-screensaver-command || return 0
+  for i in {1..6}
+  do
+    [[ $(pgrep -f cinnamon-killer-daemon | wc -l) > 0 ]] && break
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) screensaver $i"
+  done
+  cinnamon-screensaver-command -l
+  while read -r line
+  do
+    if echo "$line" | grep 'ActiveChanged (false,)'
+    then
+      echo "$line"
+      break
+    fi
+  done < <(gdbus monitor --session \
+    --dest org.cinnamon.ScreenSaver \
+    --object-path /org/cinnamon/ScreenSaver)
+
+  echo "$(TZ=Asia/Tokyo date -Iseconds) unlocked screensaver of cinnamon."
+}
+
+unlock() {
+  secret-tool lookup test dummy || echo "unlocked"
+  [[ $(id -u) -eq 1000 && -e /dev/kvm ]] && sudo chown $(whoami):$(id -gn) /dev/kvm || echo -n
+}
+
+adjust-window() {
+  sleep 3
+  ~/_/x-window/adjust-window $@
+}
+
+start-application() {
+  nohup ibus-daemon -rxd >& /dev/null &
+  nohup google-chrome "https://jsx.jp" > /dev/null 2>&1 &
+  adjust-window
+}
+
+before() {
+  if [[ -x "$HOME/bin/.autostart-before" ]]
+  then
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) autostart-before"
+    "$HOME/bin/.autostart-before" || echo -n
+  fi
+}
+
+extra() {
+  if [[ -x "$HOME/bin/.autostart-extra" ]]
+  then
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) autostart-extra"
+    "$HOME/bin/.autostart-extra" || echo -n
+  fi
+}
+
+{
+  sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) conky"
+  [[ $(pgrep -f conky | wc -l) -lt 1 ]] && nohup $HOME/bin/conky-daemon >& /dev/null &
+  sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) terminator"
+  nohup terminator -l start >& /dev/null &
+
+  screensaver
+  unlock
+  before
+  start-application
+  $HOME/bin/autostart-session
+  extra
+
+  sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) FINISH AUTOSTART"
+} 2>&1 | tee -a $HOME/.work/.autostart.log

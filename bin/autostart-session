@@ -9,7 +9,7 @@ set -eu
   tmux select-window -t 0
   tmux send-keys "date -Iseconds" C-m
   tmux splitw -v -p 50
-  tmux send-keys "watch date +%s%3N" C-m
+  tmux send-keys "watch date -Iseconds" C-m
   tmux selectp -t 0
   tmux send-keys "https_proxy=proxy.us.jsx.jp:3128 curl -s -H 'User-Agent: bookworm' https://inet-ip.info/ip && echo" C-m
   tmux select-window -t 1
