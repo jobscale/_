@@ -174,6 +174,11 @@
     second: '2-digit',
   }).format(ts);
 
+  const chunkByUnit = (arr, size) => arr.reduce((acc, _, i) => {
+    if (i % size === 0) acc.push(arr.slice(i, i + size));
+    return acc;
+  }, []);
+
   const opts = {
     setup: [{}, {
       fn: ctx => {
@@ -398,9 +403,16 @@
       const name = 'BLACKD';
       const url = new RegExp(`https://navy.quest/gold\\?b=3&o3=[0-9a-f]+${name}`);
       if (!location.href.match(url)) return false;
-      const report = [...document.querySelectorAll('table table tr:nth-child(1) td')]
-      .map(el => el.textContent.trim()).filter(Boolean).reverse().join('\n');
-      if (!report) return false;
+      const reportList = [...document.querySelectorAll('table table tr:nth-child(1) td')]
+      .map(el => el.textContent.trim()).filter(Boolean).reverse();
+      const report = chunkByUnit(reportList, 2).map(pair => pair.join(' ')).join('\n');
+      if (!report) {
+        logger.warn('Battle report not found, retrying...');
+        setTimeout(() => {
+          document.querySelector('a[href^="gold?b=3&o3="]')?.click();
+        }, 10_000);
+        return false;
+      }
       logger.info({ report, ts: formatTimestamp() });
       const known = await customStorage.getItem('report');
       if (known !== report) {
@@ -421,7 +433,7 @@
       }
       const minutes = 6;
       setTimeout(() => {
-        document.querySelector('a[href^="gold?b=3&o3="]').click();
+        document.querySelector('a[href^="gold?b=3&o3="]')?.click();
       }, minutes * 60 * 1000);
       return true;
     },
@@ -512,19 +524,23 @@
         else if (key.black.includes(event.key)) opts.current = opts.current === 1 ? 0 : 1;
         else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
       } else if (key.move.includes(event.key)) {
-        /* eslint-disable no-undef, no-unused-expressions */
-        // x = Ho, y = Cs, dirty flag = Tt
+        // Hint: (Mk = Wz * WW - AK - 1400)
+        const mini = { x: 'Mk', y: 'Cn', dirty: 'Ng' };
+        if (!globalThis[mini.x] || !globalThis[mini.y]) {
+          logger.warn('Mini position not found');
+          return;
+        }
         const quest = new Proxy({}, {
           get(_, prop) {
-            if (prop === 'x') return Mk;
-            if (prop === 'y') return Cn;
-            if (prop === 'dirty') return Ng;
+            if (prop === 'x') return globalThis[mini.x];
+            if (prop === 'y') return globalThis[mini.y];
+            if (prop === 'dirty') return globalThis[mini.dirty];
             return undefined;
           },
           set(_, prop, value) {
-            if (prop === 'x') Mk = value;
-            else if (prop === 'y') Cn = value;
-            else if (prop === 'dirty') Ng = value;
+            if (prop === 'x') globalThis[mini.x] = value;
+            else if (prop === 'y') globalThis[mini.y] = value;
+            else if (prop === 'dirty') globalThis[mini.dirty] = value;
             return true;
           },
         });
