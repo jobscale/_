@@ -22,7 +22,7 @@ case "$1" in
         exit 1
     fi
     mkdir -p $LOG_DIR
-    nohup bash -c "sudo -u jobscale $DAEMON_PATH" > $LOG_DIR/$DAEMON_NAME-service.log 2>&1 &
+    setsid bash -c "sudo -u jobscale $DAEMON_PATH" > $LOG_DIR/$DAEMON_NAME-service.log 2>&1 &
     echo $! > $PIDFILE
     echo "$DAEMON_NAME started. PID $(cat $PIDFILE)"
     ;;

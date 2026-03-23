@@ -21,7 +21,7 @@ case "$1" in
         exit 1
     fi
     mkdir -p /var/log/$DAEMON_NAME
-    nohup bash $DAEMON_PATH > /var/log/$DAEMON_NAME/$DAEMON_NAME-service.log 2>&1 &
+    setsid "$DAEMON_PATH" > /var/log/$DAEMON_NAME/$DAEMON_NAME-service.log 2>&1 &
     echo $! > $PIDFILE
     echo "$DAEMON_NAME started. PID $(cat $PIDFILE)"
     ;;

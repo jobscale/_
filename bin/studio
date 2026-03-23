@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
 main() {
-  nohup ~/.bin/android-studio/bin/studio.sh $@ >&/dev/null &
+  bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid ~/.bin/android-studio/bin/studio.sh $@"
 }
 main $@

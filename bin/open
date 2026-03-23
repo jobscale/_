@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
 main() {
-  nohup xdg-open $@ >&/dev/null &
+  bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid xdg-open $@"
 }
 main $@
