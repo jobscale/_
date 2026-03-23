@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
 main() {
-  bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid mattermost-desktop"
+  dash -c "exec >/dev/null 2>&1; setsid mattermost-desktop &"
 }
 main

@@ -34,8 +34,8 @@ adjust-window() {
 }
 
 start-application() {
-  bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid ibus-daemon -rxd"
-  bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid google-chrome 'https://jsx.jp'"
+  dash -c "exec >/dev/null 2>&1; setsid ibus-daemon -rxd &"
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome 'https://jsx.jp' &"
   adjust-window
 }
 
@@ -57,9 +57,9 @@ extra() {
 
 {
   sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) conky"
-  [[ $(pgrep -f conky | wc -l) -lt 1 ]] && bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid $HOME/bin/conky-daemon"
+  [[ $(pgrep -f conky | wc -l) -lt 1 ]] && dash -c "exec >/dev/null 2>&1; setsid $HOME/bin/conky-daemon &"
   sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) terminator"
-  bash --noprofile --norc -c "exec >/dev/null 2>&1; setsid terminator -l start"
+  dash -c "exec >/dev/null 2>&1; setsid terminator -l start &"
 
   screensaver
   unlock
