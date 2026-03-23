@@ -4,7 +4,7 @@ update() {
   . /etc/os-release
 
   echo "$(date -Iseconds) ### update"
-  sudo apt update && unbuffer apt list --upgradable
+  sudo apt update && APT_PAGER=cat unbuffer apt list --upgradable
 
   echo "$(date -Iseconds) ### upgrade"
   sudo apt upgrade -y --no-install-recommends
@@ -23,4 +23,4 @@ full-update() {
 
 {
   time full-update
-} 2>&1 | tee -a $HOME/apt-update.log
+} 2>&1 | tee -a $HOME/.work/apt-update.log
