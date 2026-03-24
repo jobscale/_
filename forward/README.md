@@ -2,6 +2,6 @@
 
 brew install colima
 colima delete -f
-colima start --cpu 2 --memory 2
+colima start --cpu 2 --memory 2 --disk 30
 docker context ls
 docker ps -a

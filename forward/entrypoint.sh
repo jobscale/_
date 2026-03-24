@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-ssh -N -T container-rem-watch &
+~/_/daemon/reverse-bastion/reverse-bastion &
 PID1=$!
 
 sudo /usr/sbin/sshd -D &
