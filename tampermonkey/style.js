@@ -192,33 +192,40 @@ video, img { filter: invert(1); }
 :root {
   color-scheme: light dark !important;
   background-color: black !important;
+  color: #bb9 !important;
+  border-color: #bb9 !important;
 }
-html, body {
+body {
   margin: 0; height: 100vh;
-  background-color: transparent !important;
 }
-* {
+*, *::before, *::after, input, textarea, select, button {
   background-image: initial !important;
   background-color: transparent !important;
-  color: #bb9;
+  color: #bb9 !important;
+  border-color: #bb9 !important;
 }
 `,
 
     cssSimple: `/* Custom Scheme */
 :root {
   color-scheme: light dark !important;
-  background-color: transparent !important;
+  background-color: black !important;
+  color: #bb9 !important;
 }
-html, body {
+body {
   margin: 0; height: 100vh;
-  background: transparent !important;
 }
-* {
+body, main {
   background-image: initial !important;
-}
-body > *, main, main > * {
   background-color: transparent !important;
-  color: #bb9;
+  color: #bb9 !important;
+  border-color: #bb9 !important;
+  > *, > input, > textarea, > select, > button {
+    background-image: initial !important;
+    background-color: transparent !important;
+    color: #bb9 !important;
+    border-color: #bb9 !important;
+  }
 }
 `,
 
