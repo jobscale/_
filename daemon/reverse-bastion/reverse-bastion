@@ -3,7 +3,7 @@
 REM_CMD=forwarch-rem-watch
 REM_SSH=bastion
 REM_HOST=os.jsx.jp
-REM_PORT=8022
+REM_PORT=123
 if [[ "$(uname -s)" == "Darwin" ]]; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
   REM_CMD=revers-rem-watch
