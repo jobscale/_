@@ -14,5 +14,6 @@ set -eu
   tmux send-keys "https_proxy=proxy.us.jsx.jp:3128 curl -s -H 'User-Agent: bookworm' https://inet-ip.info/ip && echo" C-m
   tmux select-window -t 1
 
+  [[ -x $HOME/bin/autostart-session-$HOSTNAME ]] && $HOME/bin/autostart-session-$HOSTNAME || echo -n
   [[ -x $HOME/bin/.autostart-session ]] && $HOME/bin/.autostart-session || echo -n
 }

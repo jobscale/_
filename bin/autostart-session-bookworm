@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -eu
+
+adjust-window() {
+  sleep 2
+  ~/_/x-window/adjust-window $@
+}
+
+check-audio() {
+  sleep 40
+  $HOME/bin/wait-of-busy
+  local count=10
+  while [[ $(pactl list sources short | grep -ci input) -lt 1 ]]; do
+    post-slack "audio input device not found"
+    if [[ $count -lt 1 ]]; then
+      break
+      cinnamon-settings sound
+    fi
+    count=$(( count - 1 ))
+    sleep 12
+  done
+  sleep 30
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://www.youtube.com/watch?v=tzugFJc_Lkg&t=21s' &"
+  adjust-window
+}
+
+worktime() {
+  sleep 15
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://teams.microsoft.com' &"
+  adjust-window
+}
+
+office() {
+  sleep 2
+  $HOME/bin/wait-of-busy
+  google-chrome --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo
+  adjust-window 68
+  google-chrome --app-id=faolnafnngnfdaknnbpnkhgohbobgegn
+  adjust-window 68
+}
+
+main() {
+  worktime
+  check-audio
+  office
+}
+
+main

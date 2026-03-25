@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eu
+
+watchMemory() {
+  check-memory >> $HOME/.work/.watchMemory.log
+}
+
+{
+  echo "$(date -Iseconds) session"
+  tmux new-window
+  tmux send-keys "date -Iseconds" C-m
+  tmux splitw -v -p 50
+  WATCH_MEMORY=$(type watchMemory | tail -n +3)
+  tmux send-keys "${WATCH_MEMORY}" C-m
+  tmux selectp -t 0
+}
