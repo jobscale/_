@@ -171,7 +171,7 @@
 
   const app = {
     cssList: [
-      'Dark', 'Invert', 'Image', 'Deep', 'Simple',
+      'Dark', 'Invert', 'Image', 'Deep', 'Simple', 'Fast',
     ],
 
     cssDark: `/* Custom Scheme */
@@ -192,8 +192,8 @@ video, img { filter: invert(1); }
 :root {
   color-scheme: light dark !important;
   background-color: black !important;
-  color: #bb9 !important;
-  border-color: #bb9 !important;
+  color: #ddb !important;
+  border-color: #ddb !important;
 }
 body {
   margin: 0; height: 100vh;
@@ -201,31 +201,37 @@ body {
 *, *::before, *::after, input, textarea, select, button {
   background-image: initial !important;
   background-color: transparent !important;
-  color: #bb9 !important;
-  border-color: #bb9 !important;
+  color: #ddb !important;
+  border-color: #ddb !important;
 }
 `,
 
     cssSimple: `/* Custom Scheme */
 :root {
   color-scheme: light dark !important;
-  background-color: black !important;
-  color: #bb9 !important;
+  color: #ddb !important;
+  border-color: #ddb !important;
 }
 body {
   margin: 0; height: 100vh;
 }
-body, main {
+*, *::before, *::after, input, textarea, select, button {
   background-image: initial !important;
   background-color: transparent !important;
-  color: #bb9 !important;
-  border-color: #bb9 !important;
-  > *, > input, > textarea, > select, > button {
-    background-image: initial !important;
-    background-color: transparent !important;
-    color: #bb9 !important;
-    border-color: #bb9 !important;
-  }
+  color: #ddb !important;
+  border-color: #ddb !important;
+}
+`,
+
+    cssFast: `/* Custom Scheme */
+:root {
+  color-scheme: light dark !important;
+}
+body {
+  margin: 0; height: 100vh;
+}
+body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
+  background-color: transparent !important;
 }
 `,
 
@@ -438,6 +444,12 @@ body, main {
       const div = app.btnSetting();
       const list = await customStorage.getItem('custom-css');
       const customCss = list ?? [];
+      if (location.href.match(/^(https?:\/\/)?(teams\.)?microsoft\.com\//)) {
+        await app.update('Fast', true);
+      }
+      if (location.href.match(/^(https?:\/\/)?(login\.)?microsoftonline\.com\//)) {
+        await app.update('Simple', true);
+      }
       for (const no of app.cssList) {
         if (customCss.includes(no)) await app.update(no, true);
       }
