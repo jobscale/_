@@ -35,6 +35,7 @@ elif type complete &> /dev/null; then
   complete -C aws_completer aws
 fi
 
+alias pip='echo Use pipx instead!'
 alias ul='less_with_unbuffer'
 alias diff='colordiff'
 alias rsync='rsync -tlrHhPzv --delete'
