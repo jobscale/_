@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-# ~/_/daemon/reverse-bastion/reverse-bastion &
-ssh -N -T forwarch-rem-watch &
+~/_/daemon/reverse-bastion/reverse-bastion &
 PID1=$!
 
 sudo /usr/sbin/sshd -D &
