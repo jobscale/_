@@ -5,5 +5,5 @@ set -eu
   tmux new-session -d
   tmux new-window
   tmux select-window -t 0
-  tmux send-keys "$(cat $HOME/bin/autostart-worker)" C-m
+  tmux send-keys 'dash -c "exec >/dev/null 2>&1; setsid $HOME/bin/autostart-worker -rxd &"' C-m
 }
