@@ -431,10 +431,10 @@
           blocks: [block],
         }).catch(e => logger.warn(e.message));
       }
-      const minutes = 6;
+      const NEXT_TICK = 15; // interval minutes
       setTimeout(() => {
         document.querySelector('a[href^="gold?b=3&o3="]')?.click();
-      }, minutes * 60 * 1000);
+      }, NEXT_TICK * 60 * 1000);
       return true;
     },
 
@@ -470,13 +470,13 @@
       app.refactor();
       const url = 'https://navy.quest/ally.php?b=58';
       if (location.href !== url) return;
-      const NEXT_TICK = 5; // interval minutes
+      const NEXT_TICK = 6; // interval minutes
       app.refreshTime = new Date();
       app.refreshTime.setMinutes(app.refreshTime.getMinutes() + NEXT_TICK);
       logger.info(formatTimestamp(), JSON.stringify({
         refreshTime: formatTimestamp(app.refreshTime),
       }, null, 2));
-      await app.onlineUsers(NEXT_TICK);
+      await app.onlineUsers(3);
       setInterval(() => {
         if (app.refreshTime < new Date()) {
           location.reload();
