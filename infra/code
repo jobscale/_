@@ -3,8 +3,29 @@ set -eu
 
 {
   cd /tmp
+
+  # 最新版の Location を取得
+  LATEST_URL=$(curl -sI 'https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64' \
+  | grep -i location: | awk '{print $2}' | tr -d '\r')
+
+  # ローカルのバージョン
+  LOCAL_VER=$(timeout 2 code --version | head -n1 || echo 0.0.0)
+
+  # 最新版のバージョンを URL から抽出
+  LATEST_VER=$(echo "$LATEST_URL" | sed -n 's/.*code_\([0-9.]*\)-.*/\1/p')
+
+  echo "Local:  $LOCAL_VER"
+  echo "Latest: $LATEST_VER"
+
+  if [ "$LOCAL_VER" = "$LATEST_VER" ]; then
+    echo "Already latest. No download."
+    exit 0
+  fi
+
+  echo "Downloading $LATEST_URL ..."
+  curl -L -o code-stable-linux.deb "$LATEST_URL"
+
   sudo apt update
-  curl -sSL -o code-stable-linux.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
   sudo apt install -y ./code-stable-linux.deb
   rm code-stable-linux.deb
   cd -
