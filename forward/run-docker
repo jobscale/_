@@ -1,3 +1,4 @@
+docker pull ghcr.io/jobscale/node-aws
 docker rm -f node-aws >/dev/null 2>&1
 
 docker run --init --name node-aws --restart=always -p 2022:22 \
