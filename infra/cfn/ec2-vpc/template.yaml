@@ -129,6 +129,7 @@ Resources:
       - Cidr: 111.238.250.129/32
       - Cidr: 124.209.64.0/19
       - Cidr: 182.249.16.0/20
+      - Cidr: 175.179.172.193/32
 
   # -----------------------------
   # Security Groups
@@ -175,6 +176,10 @@ Resources:
         FromPort: 2022
         ToPort: 2022
         CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8022
+        ToPort: 8022
+        CidrIp: 0.0.0.0/0
 
   InternalSG:
     Type: AWS::EC2::SecurityGroup
@@ -182,6 +187,14 @@ Resources:
       GroupDescription: internal sg
       VpcId: !Ref VPC
       SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 123
+        ToPort: 123
+        SourcePrefixListId: !Ref InternalPrefixList
+      - IpProtocol: udp
+        FromPort: 123
+        ToPort: 123
+        SourcePrefixListId: !Ref InternalPrefixList
       - IpProtocol: tcp
         FromPort: 3128
         ToPort: 3128

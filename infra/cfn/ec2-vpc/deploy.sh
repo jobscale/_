@@ -23,14 +23,14 @@ else
 fi
 echo
 if [[ "$IS_OK" == true ]]; then
-  echo "[INFO] All required files are present. Proceeding with deployment."
-  echo "[INFO]   deploy:      To deploy the stack."
-  echo "[INFO]   describe:    To describe the stack outputs."
-  echo "[INFO]   delete:      To delete the stack."
-  echo "[INFO]   ssm-install: To install SSM Session Manager Plugin."
-  echo "[INFO]   ssm-start:   To start an SSM session to the EC2 instance."
-  echo "[INFO] Example: deploy"
-  echo "[INFO] Ready to deploy the stack. Please run the deploy function to start the deployment process."
+  echo -e "[INFO] All required files are present. Proceeding with deployment."
+  echo -e "[INFO]   \e[33mdeploy\e[0m      : To deploy the stack."
+  echo -e "[INFO]   \e[33mdescribe\e[0m    : To describe the stack outputs."
+  echo -e "[INFO]   \e[33mdelete\e[0m      : To delete the stack."
+  echo -e "[INFO]   \e[33mssm-install\e[0m : To install SSM Session Manager Plugin."
+  echo -e "[INFO]   \e[33mssm-start\e[0m   : To start an SSM session to the EC2 instance."
+  echo -e "[INFO] Example: deploy"
+  echo -e "[INFO] Ready to deploy the stack. Please run the deploy function to start the deployment process."
 else
   echo -e "\e[33m[ERROR] Required files are missing. Please check the above messages.\e[0m" >&2
   echo -e "\e[33m[ERROR] Please ensure that the template file and parameter file exist before proceeding.\e[0m" >&2
@@ -89,7 +89,7 @@ ssm-install() {
 ssm-start() {
   echo "[INFO] $(timestamp) Starting SSM Session..."
   local instance_id=$(aws cloudformation describe-stacks \
-  --stack-name ec2-simple \
+  --stack-name $STACK_NAME \
   --query "Stacks[0].Outputs[?OutputKey=='EC2InstanceId'].OutputValue" \
   --output text)
   if [ -z "$instance_id" ]; then
@@ -101,6 +101,6 @@ ssm-start() {
 }
 
 echo
-echo "Usage: source $0 {Stack name}"
-echo "  Stack list: [ $(ls *.json | awk -F'[/.]' '{print $2}' | xargs) ]"
-echo "  allow commands {deploy|describe|delete|ssm-install|ssm-start}"
+echo -e "Usage: source $0 {Stack name}"
+echo -e "  Stack name list: [ \e[33m$(ls *.json | awk -F'[/.]' '{print $1}' | xargs)\e[0m ]"
+echo -e "  allow commands {deploy|describe|delete|ssm-install|ssm-start}"
