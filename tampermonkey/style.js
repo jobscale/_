@@ -235,6 +235,21 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
 }
 `,
 
+    customVideoWide: `/* Custom Video Wide */
+.custom-video-wide {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  background-color: #111 !important;
+}
+`,
+
     style: `/* Button Area */
 .custom-style-area {
   position: fixed;
@@ -411,31 +426,23 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
       el.addEventListener('click', event => {
         event.preventDefault();
         const video = document.querySelector('#video-player-bg')
+          || document.querySelector('.japaNews24-movie-area')
           || document.querySelector('div:has(> video-js)')
           || document.querySelector('div:has(> video)')
           || document.querySelector('div:has(> * > video)')
           || document.querySelector('section.op-modVideo')
           || document.querySelector('video')?.closest('div');
         if (!video) return;
-        video.querySelector('header')?.remove();
-        video.querySelector('.op-video__credit')?.remove();
-        const custom = [
-          'top: 0', 'right: 0', 'bottom: 0', 'left: 0',
-          'width: 100vw', 'max-width: 100vw', 'height: 100vh', 'max-height: 100vh',
-          'background-color: #111',
+        video.classList.add('custom-video-wide');
+        if (!app.videoStyle) {
+          app.videoStyle = document.head.append(Object.assign(document.createElement('style'), { textContent: app.customVideoWide }));
+          document.head.append(app.videoStyle);
+        }
+        const noise = [
+          'header, .header, .main-header, .op-video__credit',
         ];
-        ['position: fixed', ...custom].forEach(elm => {
-          const [key, value] = elm.split(': ');
-          video.style[key] = value;
-        });
-        const headers = [
-          document.body,
-          ...document.querySelectorAll('.main-header'),
-        ];
-        headers.forEach(elm => {
-          if (!elm) return;
-          elm.style.marginTop = '100vh';
-        });
+        [...video.querySelectorAll(noise)].forEach(item => item.remove());
+        [...document.querySelectorAll(noise)].forEach(item => { item.style.marginTop = '100vh'; });
       });
       div.append(el);
     },

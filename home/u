@@ -1,10 +1,11 @@
 update() {
   export DEBIAN_FRONTEND=noninteractive
-  cat /etc/os-release
+  cat /etc/os-release | head -5
   . /etc/os-release
 
   echo "$(date -Iseconds) ### update"
   sudo apt update && APT_PAGER=cat unbuffer apt list --upgradable
+  grep -r -i packagekit /etc/apt
 
   echo "$(date -Iseconds) ### upgrade"
   sudo apt upgrade -y --no-install-recommends
