@@ -427,6 +427,7 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
         event.preventDefault();
         const video = document.querySelector('#video-player-bg')
           || document.querySelector('.japaNews24-movie-area')
+          || document.querySelector('.player-block')
           || document.querySelector('div:has(> video-js)')
           || document.querySelector('div:has(> video)')
           || document.querySelector('div:has(> * > video)')
