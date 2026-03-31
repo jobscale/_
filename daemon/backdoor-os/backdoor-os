@@ -94,7 +94,11 @@ waitForResolver() {
   PRINT="$REM_CMD - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
+  # Carrier Grade Network Address Translator
   echo "GlobalIP $(curl -s https://inet-ip.info/ip)"
+  echo "GlobalIP $(curl -s https://ifconfig.me/ip)"
+  echo "GlobalIP $(curl -s https://ipinfo.io/ip)"
+  echo "GlobalIP $(curl -s https://ifconfig.io/ip)"
 }
 
 {
