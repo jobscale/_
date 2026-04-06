@@ -258,7 +258,7 @@
       if (!fn) return;
 
       const radius = 70;
-      const gridRadius = { x: 80, y: 85 };
+      const gridRadius = { x: 79, y: 85 };
       const spacing = gridRadius.x - radius;
 
       // drawHexagon
@@ -287,7 +287,7 @@
 
       const hexQueue = [];
 
-      const begin = { x: -28, y: 12 };
+      const begin = { x: -24, y: 12 };
       for (let row = 0; row < canvas.height / verticalStep + 2; row++) {
         for (let col = 0; col < canvas.width / horizontalStep + 2; col++) {
           const offsetY = col % 2 === 0 ? 0 : verticalStep / 2;
