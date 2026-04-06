@@ -14,7 +14,7 @@ update() {
   sudo apt full-upgrade -y --no-install-recommends
 
   echo "$(date -Iseconds) ### autoremove"
-  sudo apt autoremove --purge -y
+  sudo apt autopurge -y
 }
 
 full-update() {
