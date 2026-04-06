@@ -90,6 +90,7 @@ else
 fi
 
 notification() {
+  echo TERM_PROGRAM=$TERM_PROGRAM
   if [[ "$TERM_PROGRAM" == vscode ]]; then return; fi
   if [[ "$TERM_PROGRAM" == tmux ]]; then return; fi
   TIMEOUT=1 CHANNEL="secure" post-slack "Logged in $(id -un)@$(hostname)"
