@@ -21,7 +21,6 @@ check-audio() {
   done
   sleep 30
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
-  adjust-window
 }
 
 worktime() {
