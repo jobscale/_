@@ -16,7 +16,7 @@ curl -Ls jsx.jp/s/graphical | sudo bash
 ## install before
 
 ```
-sudo apt update && sudo apt install -y curl
+sudo apt-get update && sudo apt-get install -y curl
 ```
 
 ## shorten

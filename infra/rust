@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eu
+
+iRust() {
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  rustup component add rustfmt
+  cargo install just
+}
+
+iRust

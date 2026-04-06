@@ -1,13 +1,10 @@
-sudo apt update && sudo apt install -y --no-install-recommends \
-cinnamon \
-cinnamon-common \
-cinnamon-control-center \
-cinnamon-control-center-data \
-cinnamon-core \
-cinnamon-desktop-data \
-cinnamon-desktop-environment \
-cinnamon-l10n \
-cinnamon-screensaver \
-cinnamon-session \
-cinnamon-session-common \
-cinnamon-settings-daemon
+#!/usr/bin/env bash
+set -eu
+
+iCinnamon() {
+  sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+  cinnamon-desktop-environment
+  apt-cache search cinnamon | grep ^cinnamon | sort
+}
+
+iCinnamon

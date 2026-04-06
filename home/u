@@ -1,27 +1,27 @@
 update() {
   export DEBIAN_FRONTEND=noninteractive
-  cat /etc/os-release | head -5
+  head -5 /etc/os-release
   . /etc/os-release
 
   echo "$(date -Iseconds) ### update"
-  sudo apt update && APT_PAGER=cat unbuffer apt list --upgradable
+  sudo apt-get update && sudo apt-get --just-print upgrade
   grep -r -i packagekit /etc/apt
 
   echo "$(date -Iseconds) ### upgrade"
-  sudo apt upgrade -y --no-install-recommends
+  sudo apt-get upgrade -y --no-install-recommends
 
-  echo "$(date -Iseconds) ### full-upgrade"
-  sudo apt full-upgrade -y --no-install-recommends
+  echo "$(date -Iseconds) ### dist-upgrade"
+  sudo apt-get dist-upgrade -y --no-install-recommends
 
-  echo "$(date -Iseconds) ### autoremove"
-  sudo apt autopurge -y
+  echo "$(date -Iseconds) ### autopurge"
+  sudo apt-get autopurge -y
 }
 
-full-update() {
+upgrade() {
   update
-  sudo apt clean && sudo rm -fr /var/lib/apt/lists/*
+  sudo apt-get clean && sudo rm -fr /var/lib/apt/lists/*
 }
 
 {
-  time full-update
-} 2>&1 | tee -a $HOME/.work/apt-update.log
+  time upgrade
+} 2>&1 | tee -a $HOME/.work/apt-upgrade.log

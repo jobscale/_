@@ -4,8 +4,8 @@
   # curl -sL https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft-prod.list
   echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/microsoft-prod.list
   sudo chmod 644 /etc/apt/sources.list.d/microsoft-prod.list
-  sudo apt update
-  sudo apt install -y sqlcmd
+  sudo apt-get update
+  sudo apt-get install -y sqlcmd
   echo "Installed $(which sqlcmd)"
   sqlcmd --version
 }

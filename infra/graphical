@@ -39,48 +39,48 @@ disable-services() {
     sudo systemctl disable --now ModemManager
     sudo systemctl mask ModemManager
   }
-  sudo apt purge -y exim4 exim4-base exim4-config exim4-daemon-light
-  sudo apt purge -y cups
-  sudo apt auto-remove -y
+  sudo apt-get purge -y exim4 exim4-base exim4-config exim4-daemon-light
+  sudo apt-get purge -y cups
+  sudo apt-get autoremove --purge -y
 }
 
 debian-2022() {
-  sudo apt update
-  sudo apt install -y --no-install-recommends \
+  sudo apt-get update
+  sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 ffmpeg libsecret-tools
-  sudo apt install \
+  sudo apt-get install \
     task-japanese-desktop
 }
 
 debian-2025() {
-  sudo apt update
-  sudo apt install -y --no-install-recommends \
+  sudo apt-get update
+  sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky-all gdm3 ffmpeg libsecret-tools
-  sudo apt install \
+  sudo apt-get install \
     task-japanese-desktop
   sudo dpkg-reconfigure gdm3
 }
 
 ubuntu() {
-  sudo apt update
-  sudo apt install -y --no-install-recommends \
+  sudo apt-get update
+  sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 ffmpeg libsecret-tools
-  sudo apt install \
+  sudo apt-get install \
     language-pack-gnome-ja
 }
 
 kali-rolling() {
-  sudo apt update
-  sudo apt install -y --no-install-recommends \
+  sudo apt-get update
+  sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 ffmpeg libsecret-tools
-  sudo apt install \
+  sudo apt-get install \
     task-japanese-desktop
   sudo dpkg-reconfigure locales
   sudo systemctl enable ssh --now
 }
 
 extra() {
-  sudo apt install -y --no-install-recommends \
+  sudo apt-get install -y --no-install-recommends \
     kazam copyq
 }
 

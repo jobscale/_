@@ -25,8 +25,8 @@ set -eu
   echo "Downloading $LATEST_URL ..."
   curl -L -o code-stable-linux.deb "$LATEST_URL"
 
-  sudo apt update
-  sudo apt install -y ./code-stable-linux.deb
+  sudo apt-get update
+  sudo apt-get install -y ./code-stable-linux.deb
   rm code-stable-linux.deb
   cd -
 }
