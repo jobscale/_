@@ -42,24 +42,26 @@ const portForwarding = () => {
       }
       logger.info(`Port forwarding setup: ${listen.addr}:${listen.port} -> ${bind.addr}:${bind.port}`);
     });
-  }).on('tcp connection', (info, accept, reject) => {
-    logger.info(`TCP connection from ${info.srcIP}:${info.srcPort} -> ${info.destIP}:${info.destPort}`);
-    // ローカル側のポートに接続
+  });
+  conn.on('tcp connection', (info, accept, reject) => {
+    logger.info(`TCP connection from ${info.srcIP}:${info.srcPort}`);
     const stream = accept();
-    const target = net.connect(bind.port, bind.addr, () => {
-      stream.pipe(target).pipe(stream);
+    const target = net.connect(bind.port, bind.addr);
+    stream.on('error', e => {
+      logger.error('Stream error:', e.message);
+      target.end();
+      reject();
     });
     target.on('error', e => {
-      logger.error('Error connecting to local target:', e.message);
-      reject();
+      logger.error('Local target error:', e.message);
       stream.end();
+      reject();
     });
-  }).on('error', e => {
-    logger.error('SSH connection error:', e.message);
-  }).on('close', () => {
-    logger.info('SSH connection closed.');
+    stream.pipe(target);
+    target.pipe(stream);
+    stream.on('close', () => target.end());
+    target.on('close', () => stream.end());
   });
-
   conn.connect(sshConfig);
 }
 
