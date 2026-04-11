@@ -37,6 +37,13 @@ network-manager() {
   apt-get install -y --no-install-recommends network-manager
 }
 
+disable-resolver() {
+  systemctl disable systemd-resolved --now
+  systemctl mask systemd-resolved
+  unlink /etc/resolv.conf || echo "/etc/resolv.conf No such file"
+  echo "nameserver 8.8.8.8" | tee -a /etc/resolv.conf
+}
+
 main() {
   echo "$(lsb_release -a 2>/dev/null || echo "$(date --rfc-3339=seconds) [WARN] No LSB modules are available.")"
   . /etc/os-release
@@ -49,6 +56,12 @@ main() {
   }
   trap 'finish' EXIT
   start
+
+  case "$VERSION_CODENAME" in
+    noble)
+      disable-resolver
+      ;;
+  esac
 
   case "$VERSION_CODENAME" in
     trixie|bookworm|noble|kali-rolling)
