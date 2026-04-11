@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-REM_CMD=2603.ssh
-REM_SSH=2603
-REM_HOST=2603.jsx.jp
+REM_CMD=us.ssh
+REM_SSH=us
+REM_HOST=us.jsx.jp
 REM_PORT=2022
 if [[ "$(uname -s)" == "Darwin" ]]; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-  REM_CMD=2603.ssh
+  REM_CMD=us.ssh
   REM_PORT=80
 fi
 TICK_FILE="/tmp/tick-os"
