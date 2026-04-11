@@ -24,6 +24,7 @@ fi
 echo
 if [[ "$IS_OK" == true ]]; then
   echo -e "[INFO] All required files are present. Proceeding with deployment."
+  echo -e "[INFO]   \e[33mcheck-device\e[0m : To check a AMI."
   echo -e "[INFO]   \e[33mdeploy\e[0m      : To deploy the stack."
   echo -e "[INFO]   \e[33mdescribe\e[0m    : To describe the stack outputs."
   echo -e "[INFO]   \e[33mdelete\e[0m      : To delete the stack."
@@ -41,6 +42,13 @@ fi
 timestamp() {
   echo -n "($STACK_NAME) "
   TZ=Asia/Tokyo date -Iseconds
+}
+
+check-device() {
+  aws ec2 describe-images \
+  --image-ids ami-0b6c6ebed2801a5cb \
+  --query "Images[0].RootDeviceName" \
+  --output text
 }
 
 describe() {
