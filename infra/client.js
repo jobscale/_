@@ -18,7 +18,7 @@ const [forward, host, port] = process.argv.slice(2);
 const dimension = BigInt(Math.floor(Math.random() * 0x100000000000));
 const token = (BigInt(Date.now()) ^ dimension).toString(36);
 const salt = dimension.toString(36);
-const ws = new WebSocket(`${forward}/ssh/${token}/${salt}/${host}/${port}`, {
+const ws = new WebSocket(`${forward}/${token}/${salt}/${host}/${port}`, {
   perMessageDeflate: false,
 });
 
