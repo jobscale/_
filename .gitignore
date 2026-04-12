@@ -9,3 +9,4 @@ cert.*
 *.crt
 *.csr
 *.cert
+.vscode/
