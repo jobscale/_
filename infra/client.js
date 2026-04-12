@@ -23,18 +23,14 @@ const ws = new WebSocket(`${forward}/ssh/${token}/${salt}/${host}/${port}`, {
 });
 
 ws.binaryType = 'nodebuffer';
-
-const queue = [];
-let isOpen = false;
+const queue = { stack: [] };
 
 process.stdin.on('data', chunk => {
   // Ensure chunk is a Buffer
   const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, 'binary');
-  if (isOpen && ws.readyState === ws.OPEN) {
-    ws.send(buffer, { binary: true });
-  } else if (!isOpen) {
-    queue.push(buffer);
-  }
+  if (queue.stack) { queue.stack.push(buffer); return; }
+  if (ws.readyState !== ws.OPEN) return;
+  ws.send(buffer, { binary: true });
 });
 
 process.stdin.on('end', () => {
@@ -43,14 +39,13 @@ process.stdin.on('end', () => {
 });
 
 ws.on('open', () => {
-  isOpen = true;
   process.stdin.resume();
-  while (queue.length > 0) {
-    const chunk = queue.shift();
-    if (ws.readyState === ws.OPEN) {
-      ws.send(chunk, { binary: true });
-    }
+  if (ws.readyState !== ws.OPEN) return;
+  while (queue.stack?.length) {
+    const chunk = queue.stack.shift();
+    ws.send(chunk, { binary: true });
   }
+  delete queue.stack;
 });
 
 ws.on('message', data => {
