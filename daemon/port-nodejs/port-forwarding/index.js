@@ -1,6 +1,7 @@
 import net from 'net';
 import fs from 'fs';
-import path from 'path';
+import { spawn } from 'child_process';
+import { Duplex } from 'stream';
 import { Client } from 'ssh2';
 import { Logger } from '@jobscale/logger';
 
@@ -14,11 +15,69 @@ const logger = new Logger({
   noPathName: true,
 });
 
-const sshConfig = {
+const createProxySocket = (host, port, proxyCmd) => {
+  const command = proxyCmd
+  .replace(/%h/g, host)
+  .replace(/%p/g, port.toString());
+  logger.info(`Executing proxy command: ${command}`);
+  const [cmd, ...args] = command.split(/\s+/);
+  const proxy = spawn(cmd, args, {
+    stdio: ['pipe', 'pipe', 'pipe']
+  });
+  proxy.on('error', e => {
+    logger.error('Proxy command error:', e.message);
+  });
+  proxy.on('exit', (code, signal) => {
+    if (code !== null) {
+      logger.info(`Proxy process exited with code ${code}`);
+    } else {
+      logger.info(`Proxy process killed with signal ${signal}`);
+    }
+  });
+  proxy.stderr.on('data', data => {
+    logger.error(`Proxy stderr: ${data.toString().trim()}`);
+  });
+  const duplexStream = new Duplex({
+    read(size) {
+    },
+    write(chunk, encoding, callback) {
+      if (!proxy.stdin.write(chunk, encoding)) {
+        proxy.stdin.once('drain', callback);
+      } else {
+        callback();
+      }
+    }
+  });
+  proxy.stdout.on('data', chunk => {
+    if (!duplexStream.push(chunk)) {
+      proxy.stdout.pause();
+    }
+  });
+  duplexStream.on('drain', () => {
+    proxy.stdout.resume();
+  });
+  proxy.stdout.on('end', () => {
+    duplexStream.push(null);
+  });
+  duplexStream.on('end', () => {
+    proxy.stdin.end();
+  });
+  return duplexStream;
+};
+
+const proxyCommand = [
+  , 'ncat --proxy-type http --proxy proxy.jsx.jp:3128 %h %p',
+][0];
+
+const hostConfig = {
   host: HOST || '2603.jsx.jp',
   port: PORT || 22,
   username: USER || 'jobscale',
-  privateKey: fs.readFileSync('openssh-ed25519.pem', 'utf-8'),
+  privateKey: fs.readFileSync(FPEM || 'openssh-ed25519.pem', 'utf-8'),
+};
+const sshConfig = {
+  ...hostConfig,
+  sock: proxyCommand && createProxySocket(hostConfig.host, hostConfig.port, proxyCommand),
 };
 const listen = {
   addr: '0.0.0.0',
