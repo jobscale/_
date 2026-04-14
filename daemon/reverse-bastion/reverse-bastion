@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REM_CMD=forwarch-rem-watch
+REM_CMD=forward-rem-watch
 REM_SSH=bastion
 REM_HOST=os.jsx.jp
 REM_PORT=123
