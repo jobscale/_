@@ -6,7 +6,7 @@ import { Client } from 'ssh2';
 import { Logger } from '@jobscale/logger';
 
 const {
-  LOG_LEVEL, HOST, PORT, USER, FPEM, LISTEN_PORT,
+  LOG_LEVEL, HOST, PORT, USER, IDENTITY_FILE, LISTEN_PORT,
 } = process.env;
 
 const logger = new Logger({
@@ -73,7 +73,7 @@ const hostConfig = {
   host: HOST || '2603.jsx.jp',
   port: PORT || 22,
   username: USER || 'jobscale',
-  privateKey: fs.readFileSync(FPEM || 'openssh-ed25519.pem', 'utf-8'),
+  privateKey: fs.readFileSync(IDENTITY_FILE || '~/.ssh/id_ed25519', 'utf-8'),
 };
 const sshConfig = {
   ...hostConfig,
