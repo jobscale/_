@@ -11,7 +11,7 @@
     "test": "date -Iseconds"
   },
   "dependencies": {
-    "@jobscale/logger": "^0.8.4",
+    "@jobscale/logger": "^0.11.1",
     "ssh2": "^1.17.0"
   }
 }
