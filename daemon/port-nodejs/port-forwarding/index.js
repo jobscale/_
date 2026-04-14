@@ -5,9 +5,7 @@ import { Duplex } from 'stream';
 import { Client } from 'ssh2';
 import { Logger } from '@jobscale/logger';
 
-const {
-  LOG_LEVEL, HOST, PORT, USER, IDENTITY_FILE, LISTEN_PORT,
-} = process.env;
+const { LOG_LEVEL, HOME } = process.env;
 
 const logger = new Logger({
   logLevel: LOG_LEVEL,
@@ -16,9 +14,7 @@ const logger = new Logger({
 });
 
 const createProxySocket = (host, port, proxyCmd) => {
-  const command = proxyCmd
-  .replace(/%h/g, host)
-  .replace(/%p/g, port.toString());
+  const command = proxyCmd.replace(/%h/g, host).replace(/%p/g, port.toString());
   logger.info(`Executing proxy command: ${command}`);
   const [cmd, ...args] = command.split(/\s+/);
   const proxy = spawn(cmd, args, {
@@ -65,34 +61,18 @@ const createProxySocket = (host, port, proxyCmd) => {
   return duplexStream;
 };
 
-const proxyCommand = [
-  , 'ncat --proxy-type http --proxy proxy.jsx.jp:3128 %h %p',
-][0];
-
-const hostConfig = {
-  host: HOST || '2603.jsx.jp',
-  port: PORT || 22,
-  username: USER || 'jobscale',
-  privateKey: fs.readFileSync(IDENTITY_FILE || '~/.ssh/id_ed25519', 'utf-8'),
-};
+const { listen, bind, hostConfig } = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+const proxyCommand = fs.existsSync('proxy-command.txt') && fs.readFileSync('proxy-command.txt', 'utf-8').trim();
 const sshConfig = {
   ...hostConfig,
+  privateKey: fs.readFileSync(hostConfig.privateKey.replace('~', HOME)),
   sock: proxyCommand && createProxySocket(hostConfig.host, hostConfig.port, proxyCommand),
-};
-const listen = {
-  addr: '0.0.0.0',
-  port: LISTEN_PORT || 2025,
-};
-const bind = {
-  addr: '127.0.0.1',
-  port: 22,
 };
 
 const portForwarding = () => {
   const conn = new Client();
   conn.on('ready', () => {
     logger.info('SSH connection established.');
-    // リモートポートフォワーディングの設定
     conn.forwardIn(listen.addr, listen.port, e => {
       if (e) {
         logger.error('Error setting up port forwarding:', e.message);
