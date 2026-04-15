@@ -6,24 +6,20 @@ const logger = new Proxy(console, {});
 
 const main = (minimum = 19) => {
   const raw = execSync(
-    "grep -P 'Global.+\\d' /var/log/daemon/* | awk '{print \$2}' | sort -u",
+    "grep -P 'Global.+\\d' /var/log/daemon/* | awk '{print $2}' | sort -u",
     { encoding: 'utf8' },
   ).trim();
 
   if (!raw) process.exit(0);
 
   const ips = raw.split('\n');
-  const ipToInt = ip => {
-    return ip.split('.').reduce((a, x) => (a << 8) + Number.parseInt(x, 10), 0) >>> 0;
-  };
-  const intToIp = int => {
-    return [
-      int >>> 24 & 255,
-      int >>> 16 & 255,
-      int >>> 8 & 255,
-      int & 255,
-    ].join('.');
-  };
+  const ipToInt = ip => ip.split('.').reduce((a, x) => (a << 8) + Number.parseInt(x, 10), 0) >>> 0;
+  const intToIp = int => [
+    int >>> 24 & 255,
+    int >>> 16 & 255,
+    int >>> 8 & 255,
+    int & 255,
+  ].join('.');
   const networkOf = (ipInt, mask) => {
     const maskBits = mask === 0 ? 0 : ~0 << 32 - mask >>> 0;
     return (ipInt & maskBits) >>> 0;

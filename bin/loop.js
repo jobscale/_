@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { exec } from 'child_process';
-import { finished } from 'stream';
 
 const logger = console;
 
@@ -16,7 +15,7 @@ const play = () => {
 
 const now = () => Math.floor(performance.now());
 
-const enter = (endTime, step) => new Promise(async resolve => {
+const enter = async (endTime, step) => {
   const start = performance.now();
   const tick = 1000 / step;
   while (true) {
@@ -25,19 +24,18 @@ const enter = (endTime, step) => new Promise(async resolve => {
     const remaining = left / 1000;
     if (step === 1) process.stdout.write(`\r${remaining.toFixed(0).padStart(5, ' ')} `);
     else process.stdout.write(`\r${remaining.toFixed(2).padStart(8, ' ')} `);
-    const nextTick = Math.ceil((left % 1000) % tick) || tick;
+    const nextTick = Math.ceil(left % 1000 % tick) || tick;
     await new Promise(res => { setTimeout(res, nextTick); });
   }
   const benchmark = (performance.now() - start) / 1000;
   process.stdout.write(`\r    0   (${benchmark.toFixed(3)})\n`);
-  resolve();
-});
+};
 
 const loop = async (seconds, step, useSound) => {
-  const endTime = now() + (seconds * 1000);
+  const endTime = now() + seconds * 1000;
   await enter(endTime, step);
   if (useSound) play();
-}
+};
 
 const main = argv => {
   const timer = argv.filter(arg => arg !== '--silent');

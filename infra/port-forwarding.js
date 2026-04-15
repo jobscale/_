@@ -61,6 +61,6 @@ const portForwarding = () => {
   });
 
   conn.connect(sshConfig);
-}
+};
 
 portForwarding();

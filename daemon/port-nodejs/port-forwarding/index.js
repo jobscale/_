@@ -18,7 +18,7 @@ const createProxySocket = (host, port, proxyCmd) => {
   logger.info(`Executing proxy command: ${command}`);
   const [cmd, ...args] = command.split(/\s+/);
   const proxy = spawn(cmd, args, {
-    stdio: ['pipe', 'pipe', 'pipe']
+    stdio: ['pipe', 'pipe', 'pipe'],
   });
   proxy.on('error', e => {
     logger.error('Proxy command error:', e.message);
@@ -34,15 +34,14 @@ const createProxySocket = (host, port, proxyCmd) => {
     logger.error(`Proxy stderr: ${data.toString().trim()}`);
   });
   const duplexStream = new Duplex({
-    read(size) {
-    },
+    read() {},
     write(chunk, encoding, callback) {
       if (!proxy.stdin.write(chunk, encoding)) {
         proxy.stdin.once('drain', callback);
       } else {
         callback();
       }
-    }
+    },
   });
   proxy.stdout.on('data', chunk => {
     if (!duplexStream.push(chunk)) {
@@ -102,6 +101,6 @@ const portForwarding = () => {
     target.on('close', () => stream.end());
   });
   conn.connect(sshConfig);
-}
+};
 
 portForwarding();

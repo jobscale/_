@@ -524,8 +524,10 @@
         else if (key.black.includes(event.key)) opts.current = opts.current === 1 ? 0 : 1;
         else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
       } else if (key.move.includes(event.key)) {
-        // Hint: (Mk = Wz * WW - AK - 1400)
-        const mini = { x: 'Mk', y: 'Cn', dirty: 'Ng' };
+        // Hint:
+        // (UG = Ut * FU - GE - 1400),
+        // (Ez = Op * QU - ZI - 400),
+        const mini = { x: 'UG', y: 'Ez', dirty: 'Ht' };
         if (!globalThis[mini.x] || !globalThis[mini.y]) {
           logger.warn('Mini position not found');
           return;
