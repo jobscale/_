@@ -26,6 +26,7 @@ bash-ps1() {
 }
 [[ "$SHELL_ON" != "zsh" ]] && bash-ps1
 
+[[ $(uname -s) == "Darwin" ]] && PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 PATH="$PATH:$HOME/node_modules/.bin"
 [[ -d "$HOME/.deta/bin" ]] && PATH="$HOME/.deta/bin:$PATH"
