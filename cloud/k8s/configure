@@ -164,7 +164,7 @@ updateTLSSecret() {
   loop.js 3 --sirent
   REPLICASET=$(kubectl -n gateway-system get replicaset | grep gateway | awk '{print $1}')
   kubectl -n gateway-system delete replicaset $REPLICASET
-  loop.js 6 --sirent
+  loop.js 12 --sirent
   echo | openssl s_client -connect www.jsx.jp:443 -servername www.jsx.jp 2>/dev/null | grep Not
 }
 
