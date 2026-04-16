@@ -161,6 +161,9 @@ updateTLSSecret() {
   rm -fr tls && unzip /home/docker/partner/tls.zip -d tls
   echo "TLS Server Certificate gateway-system"
   kubectl -n gateway-system create secret tls jsxjp-tls --cert=tls/jsx.jp/fullchain.pem --key=tls/jsx.jp/privkey.pem --dry-run=client -o yaml | kubectl apply -f -
+  loop.js 3 --sirent
+  REPLICASET=$(kubectl -n gateway-system get replicaset | grep gateway | awk '{print $1}')
+  kubectl -n gateway-system delete replicaset $REPLICASET
 }
 
 check-wp() {
