@@ -38,6 +38,7 @@ else
   echo -e "\e[33m[ERROR] Deployment cannot proceed until the required files are in place.\e[0m" >&2
   echo -e "\e[33m[ERROR] Failed to deploy stack $STACK_NAME.\e[0m" >&2
 fi
+printf '\e]8;;https://github.com/jobscale/_/blob/main/infra/cfn/ec2-vpc/README.md\e\\For more details see the Documents\e]8;;\e\\\n'
 
 timestamp() {
   echo -n "($STACK_NAME) "
@@ -109,6 +110,6 @@ ssm-start() {
 }
 
 echo
-echo -e "Usage: source $0 {Stack name}"
+echo -e "Usage: . deploy.sh {Stack name}"
 echo -e "  Stack name list: [ \e[33m$(ls *.json | awk -F'[/.]' '{print $1}' | xargs)\e[0m ]"
 echo -e "  allow commands {deploy|describe|delete|ssm-install|ssm-start}"
