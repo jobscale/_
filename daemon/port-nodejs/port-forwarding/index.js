@@ -6,14 +6,19 @@ import path from 'path';
 import { spawn } from 'child_process';
 import { Duplex } from 'stream';
 import { Client } from 'ssh2';
-import { Logger } from '@jobscale/logger';
 
-const { LOG_LEVEL, HOME } = process.env;
+const { HOME } = process.env;
 
-const logger = new Logger({
-  logLevel: LOG_LEVEL,
-  timestamp: true,
-  noPathName: true,
+const logger = new Proxy(console, {
+  get(target, prop) {
+    if (prop in target) {
+      return (...args) => {
+        const timestamp = new Date().toISOString();
+        target[prop](`[${timestamp}] [TCP PORT]`, ...args);
+      };
+    }
+    return target[prop];
+  },
 });
 
 const execDir = dirname(fileURLToPath(import.meta.url));
@@ -48,6 +53,13 @@ const createProxySocket = (host, port, proxyCmd) => {
       }
     },
   });
+  duplexStream.on('error', e => {
+    logger.error('Proxy duplex error:', e.message);
+    proxy.kill();
+  });
+  proxy.stdin.on('error', e => logger.error('Proxy stdin error:', e.message));
+  proxy.stdout.on('error', e => logger.error('Proxy stdout error:', e.message));
+  proxy.stderr.on('error', e => logger.error('Proxy stderr error:', e.message));
   proxy.stdout.on('data', chunk => {
     if (!duplexStream.push(chunk)) {
       proxy.stdout.pause();
@@ -79,6 +91,11 @@ const sshConfig = {
 
 const portForwarding = () => {
   const conn = new Client();
+  conn.on('error', e => {
+    logger.error('SSH connection error:', e.message);
+    conn.destroy();
+    throw e;
+  });
   conn.on('ready', () => {
     logger.info('SSH connection established.');
     conn.forwardIn(listen.addr, listen.port, e => {
