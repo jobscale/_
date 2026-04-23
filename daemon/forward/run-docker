@@ -1,11 +1,13 @@
 docker pull ghcr.io/jobscale/node-aws
 docker rm -f node-aws >/dev/null 2>&1
+NAMESERVER=172.20.100.30
+NAMESERVER=8.8.8.8
 
 docker run --init --name node-aws --restart=always -p 2022:22 \
---dns 172.20.100.30 \
+--dns $NAMESERVER \
 -v ~/.ssh:/home/node/.ssh \
--v ~/_:/home/node/_ \
---entrypoint /home/node/_/forward/entrypoint.sh \
+-v /opt/_:/home/node/_ \
+--entrypoint /home/node/_/daemon/forward/entrypoint.sh \
 -d ghcr.io/jobscale/node-aws
 
 docker logs -f node-aws

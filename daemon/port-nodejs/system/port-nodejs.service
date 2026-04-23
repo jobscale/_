@@ -1,0 +1,18 @@
+[Unit]
+Description=port-nodejs Daemon
+After=network-online.target
+
+[Service]
+Type=simple
+User=jobscale
+ExecStart=/opt/_/daemon/port-nodejs/port-nodejs
+Restart=always
+RestartSec=5s
+RuntimeDirectory=daemon
+StateDirectory=daemon
+LogsDirectory=daemon
+StandardOutput=append:/var/log/daemon/port-nodejs.log
+StandardError=append:/var/log/daemon/port-nodejs_error.log
+
+[Install]
+WantedBy=multi-user.target

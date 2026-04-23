@@ -1,5 +1,8 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import net from 'net';
 import fs from 'fs';
+import path from 'path';
 import { spawn } from 'child_process';
 import { Duplex } from 'stream';
 import { Client } from 'ssh2';
@@ -12,6 +15,8 @@ const logger = new Logger({
   timestamp: true,
   noPathName: true,
 });
+
+const execDir = dirname(fileURLToPath(import.meta.url));
 
 const createProxySocket = (host, port, proxyCmd) => {
   const command = proxyCmd.replace(/%h/g, host).replace(/%p/g, port.toString());
@@ -60,8 +65,12 @@ const createProxySocket = (host, port, proxyCmd) => {
   return duplexStream;
 };
 
-const { listen, bind, hostConfig } = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
-const proxyCommand = fs.existsSync('proxy-command.txt') && fs.readFileSync('proxy-command.txt', 'utf-8').trim();
+const files = {
+  config: path.resolve(execDir, 'config.json'),
+  proxyCommand: path.resolve(execDir, 'proxy-command.txt'),
+};
+const { listen, bind, hostConfig } = JSON.parse(fs.readFileSync(files.config, 'utf-8'));
+const proxyCommand = fs.existsSync(files.proxyCommand) && fs.readFileSync(files.proxyCommand, 'utf-8').trim();
 const sshConfig = {
   ...hostConfig,
   privateKey: fs.readFileSync(hostConfig.privateKey.replace('~', HOME)),

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+REM_CAPTION="port-nodejs"
+REM_CMD="node _/daemon/port-nodejs/port-forwarding/index.js"
+REM_HOST=us.jsx.jp
+REM_PORT=3022
 TICK_FILE="/tmp/tick-nodejs"
 
 updateNextTick() {
@@ -32,7 +36,7 @@ nextTime() {
 }
 
 cleanZombie() {
-  local PID=$(pgrep -f "node /opt/_/daemon/backdoor-nodejs/port-forwarding/index.js")
+  local PID=$(pgrep -f "$REM_CMD")
   if [[ ! -z "$PID" ]]; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
     kill $PID
@@ -46,12 +50,12 @@ whileCheck() {
   while true; do
     sleep 60
     nextTime
-    if ! nc -vz -w 2 2603.jsx.jp 2025 > /dev/null 2>&1; then
+    if ! nc -vz -w 2 $REM_HOST $REM_PORT > /dev/null 2>&1; then
       echo "$(TZ=Asia/Tokyo date -Iseconds) connection failed" 1>&2
       cleanZombie
       continue
     fi
-    if ! timeout 20 ssh -T -p 2025 2603.jsx.jp echo health-check > /dev/null 2>&1; then
+    if ! timeout 20 ssh -T -p $REM_PORT $REM_HOST echo health-check > /dev/null 2>&1; then
       echo "$(TZ=Asia/Tokyo date -Iseconds) hangup failed" 1>&2
       cleanZombie
       continue
@@ -61,11 +65,11 @@ whileCheck() {
 
 waitForPort() {
   clearTick
-  while nc -vz -w 1 2603.jsx.jp 2025 > /dev/null 2>&1; do
+  while nc -vz -w 1 $REM_HOST $REM_PORT > /dev/null 2>&1; do
     echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
-    local PID=$(ssh 2603 sudo ss -tunlp sport = :2025 | awk -F 'pid=' '/pid=/ {print $2}' | awk -F, '{print $1}' | head -n1)
+    local PID=$(ssh $REM_SSH sudo ss -tunlp sport = :$REM_PORT | awk -F 'pid=' '/pid=/ {print $2}' | awk -F, '{print $1}' | head -n1)
     if [[ ! -z "$PID" ]]; then
-      ssh 2603 sudo kill $PID
+      ssh $REM_SSH sudo kill $PID
     fi
     sleep 5
   done
@@ -75,14 +79,14 @@ waitForPort() {
 waitForResolver() {
   clearTick
   while true; do
-    local REMOTE=$(dig +short 2603.jsx.jp)
+    local REMOTE=$(dig +short $REM_HOST)
     if [[ ! -z "$REMOTE" ]]; then
       break
     fi
     echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
     sleep 300
   done
-  PRINT="backdoor-nodejs - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
+  PRINT="$REM_CAPTION - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
   # Carrier Grade Network Address Translator
@@ -97,9 +101,9 @@ waitForResolver() {
   whileCheck &
   while true; do
     waitForResolver
-    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "2603.jsx.jp" > /dev/null 2>&1
+    # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$REM_HOST" > /dev/null 2>&1
     waitForPort
-    node /opt/_/daemon/backdoor-nodejs/port-forwarding/index.js
+    $REM_CMD
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 11.1
   done
