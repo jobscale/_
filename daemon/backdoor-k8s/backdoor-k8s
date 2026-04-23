@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-REM_CMD=us.watch
+REM_CAPTION="backdoor-k8s"
+REM_CMD="ssh -N -T us.watch"
 REM_SSH=us
 REM_HOST=us.jsx.jp
 REM_PORT=443
 REM_URL=https://www.jsx.jp
 if [[ "$(uname -s)" == "Darwin" ]]; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-  REM_CMD=us.watch
+  REM_CMD="ssh -N -T us.watch"
   REM_PORT=80
 fi
 TICK_FILE="/tmp/tick-k8s"
@@ -42,7 +43,7 @@ nextTime() {
 }
 
 cleanZombie() {
-  local PID=$(pgrep -f "ssh -N -T $REM_CMD")
+  local PID=$(pgrep -f "$REM_CMD")
   if [[ ! -z "$PID" ]]; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
     kill $PID
@@ -92,7 +93,7 @@ waitForResolver() {
     echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
     sleep 300
   done
-  PRINT="$REM_CMD - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
+  PRINT="$REM_CAPTION - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
   # Carrier Grade Network Address Translator
@@ -109,7 +110,7 @@ waitForResolver() {
     waitForResolver
     # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$REM_HOST" > /dev/null 2>&1
     waitForPort
-    ssh -N -T $REM_CMD
+    $REM_CMD
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 11.1
   done
