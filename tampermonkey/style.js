@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-03-10
+// @version      2026-04-24
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -11,6 +11,7 @@
 // @exclude      https://mail.google.com/mail/*
 // @exclude      https://outlook.office.com/mail/*
 // @exclude      https://webshell.suite.office.com/*
+// @exclude      https://outlook.cloud.microsoft/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
 // ==/UserScript==
@@ -176,6 +177,12 @@
 
     cssDark: `/* Custom Scheme */
 :root { color-scheme: light dark !important; }
+:root, * {
+  background-image: initial !important;
+  background-color: #111 !important;
+  color: #ddd !important;
+  border-color: #777 !important;
+}
 `,
 
     cssInvert: `/* Custom Scheme */
@@ -530,8 +537,10 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
     },
 
     init() {
-      document.documentElement.style.backgroundColor = '#111';
-      app.init.unset = () => { document.documentElement.style.backgroundColor = ''; };
+      const style = document.createElement('style');
+      style.textContent = app.cssDark;
+      document.head.append(style);
+      app.init.unset = () => { style.remove(); };
     },
   };
 
