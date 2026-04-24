@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-REM_CMD=forward-rem-watch
+REM_CAPTION="reverse-bastion"
+REM_CMD="ssh -N -T reverse-rem-watch"
 REM_SSH=bastion
 REM_HOST=os.jsx.jp
 REM_PORT=123
 if [[ "$(uname -s)" == "Darwin" ]]; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-  REM_CMD=revers-rem-watch
+  REM_CMD="ssh -N -T reverse-rem-watch"
   REM_PORT=80
 fi
 TICK_FILE="/tmp/tick-bastion"
@@ -41,7 +42,7 @@ nextTime() {
 }
 
 cleanZombie() {
-  local PID=$(pgrep -f "ssh -N -T $REM_CMD")
+  local PID=$(pgrep -f "$REM_CMD")
   if [[ ! -z "$PID" ]]; then
     echo "$(TZ=Asia/Tokyo date -Iseconds) process killing $PID" 1>&2
     kill $PID
@@ -91,7 +92,7 @@ waitForResolver() {
     echo "$(TZ=Asia/Tokyo date -Iseconds) DNS resolve failed" 1>&2
     sleep 300
   done
-  PRINT="$REM_CMD - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
+  PRINT="$REM_CAPTION - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
   # Carrier Grade Network Address Translator
@@ -99,6 +100,8 @@ waitForResolver() {
   echo "GlobalIP $(curl -s https://ifconfig.me/ip)"
   echo "GlobalIP $(curl -s https://ipinfo.io/ip)"
   echo "GlobalIP $(curl -s https://ifconfig.io/ip)"
+  echo "GlobalIP $(curl -s https://jsx.jp/ip | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1)"
+  echo "GlobalIP $(curl -s https://www.ugtop.com | grep -oP '\d+\.\d+\.\d+\.\d+')"
 }
 
 {
@@ -108,7 +111,7 @@ waitForResolver() {
     waitForResolver
     # ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$REM_HOST" > /dev/null 2>&1
     waitForPort
-    ssh -N -T $REM_CMD
+    $REM_CMD
     echo "$(TZ=Asia/Tokyo date -Iseconds) SSH broken pipe" 1>&2
     sleep 11.1
   done

@@ -94,6 +94,8 @@ waitForResolver() {
   echo "GlobalIP $(curl -s https://ifconfig.me/ip)"
   echo "GlobalIP $(curl -s https://ipinfo.io/ip)"
   echo "GlobalIP $(curl -s https://ifconfig.io/ip)"
+  echo "GlobalIP $(curl -s https://jsx.jp/ip | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1)"
+  echo "GlobalIP $(curl -s https://www.ugtop.com | grep -oP '\d+\.\d+\.\d+\.\d+')"
 }
 
 {
