@@ -5,7 +5,7 @@ maxretry = 3
 
 [sshd]
 enabled = true
-port = ssh
+port = ssh,2022-2029
 filter = sshd
 logpath = /var/log/auth.log
 
@@ -15,4 +15,4 @@ filter = recidive
 logpath = /var/log/fail2ban.log
 bantime = -1
 findtime = 1w
-maxretry = 5
+maxretry = 3
