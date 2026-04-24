@@ -5,7 +5,8 @@ maxretry = 3
 
 [sshd]
 enabled = true
-port = ssh,2022-2029
+# port = ssh
+action = iptables-allports
 filter = sshd
 logpath = /var/log/auth.log
 
