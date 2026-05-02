@@ -8,8 +8,8 @@ play() {
 }
 
 readonly FILE_TIME="/tmp/quest-force-time"
-readonly FILE_LOG="/tmp/quest-cursor.log"
 readonly FILE_COUNT_LEFT="/tmp/quest-count-left"
+readonly FILE_LOG="/tmp/quest-cursor.log"
 
 # next tick emitter
 update-time() {
@@ -47,7 +47,7 @@ loop() {
     done
     local FAST_UPDATE=$(update-time)
     if [[ ! -z "$FAST_UPDATE" ]]; then
-      fire_time=$(( FAST_UPDATE + 0 ))
+      fire_time=$(( $(date +%s) + FAST_UPDATE ))
     fi
   done
   printf '\r%5d\n' 0
