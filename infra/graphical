@@ -10,6 +10,7 @@ symbolic-links() {
   mv ドキュメント Documents && ln -s Documents ドキュメント
   mv ビデオ Videos && ln -s Videos ビデオ
   mv 音楽 Music && ln -s Music 音楽
+  mv ミュージック Music && ln -s Music ミュージック
   mv 画像 Pictures && ln -s Pictures 画像
   mv 公開 Public && ln -s Public 公開
 }
@@ -48,7 +49,7 @@ debian-2022() {
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 ffmpeg libsecret-tools
-  sudo apt-get install \
+  sudo apt-get install -y --no-install-recommends \
     task-japanese-desktop
 }
 
@@ -56,7 +57,7 @@ debian-2025() {
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky-all gdm3 ffmpeg libsecret-tools
-  sudo apt-get install \
+  sudo apt-get install -y --no-install-recommends \
     task-japanese-desktop
   sudo dpkg-reconfigure gdm3
 }
@@ -65,7 +66,7 @@ ubuntu() {
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 ffmpeg libsecret-tools
-  sudo apt-get install \
+  sudo apt-get install -y --no-install-recommends \
     language-pack-gnome-ja
 }
 
@@ -73,7 +74,7 @@ kali-rolling() {
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends \
     terminator ibus-mozc conky gdm3 ffmpeg libsecret-tools
-  sudo apt-get install \
+  sudo apt-get install -y --no-install-recommends \
     task-japanese-desktop
   sudo dpkg-reconfigure locales
   sudo systemctl enable ssh --now
@@ -98,7 +99,7 @@ main() {
   start
 
   case "$VERSION_CODENAME" in
-    trixie)
+    resolute|trixie)
       debian-2025
       ;;
     bookworm|bullseye|buster)
