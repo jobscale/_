@@ -7,7 +7,7 @@ adjust-window() {
 }
 
 pipe-wire() {
-  if wpctl status | awk '/Sources:/,/Filters:/' | grep -E '^[[:space:]]+[0-9]+' >/dev/null; then
+  if [[ $(wpctl status | grep -A1 'Sources' | wc -c) -gt 100 ]]; then
     echo "pipewire audio source found."
     dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
   else
