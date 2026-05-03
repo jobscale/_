@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 set -eu
 
+gnome-screen-lock() {
+  which loginctl || return 0
+  while [[ -z "$(pgrep -f accounts-daemon)" ]]; then
+    sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) waiting for accounts-daemon"
+  done
+  loginctl lock-session
+}
+
 screensaver() {
-  which cinnamon-screensaver-command || return 0
+  which cinnamon-screensaver-command || {
+    gnome-screen-lock
+    return 0
+  }
   for i in {1..6}
   do
     [[ $(pgrep -f cinnamon-killer-daemon | wc -l) > 0 ]] && break
