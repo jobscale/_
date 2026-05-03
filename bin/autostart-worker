@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
+mkdir -p $HOME/.work
+
 gnome-screen-lock() {
   which loginctl || return 0
   while [[ -z "$(pgrep -f accounts-daemon)" ]]; then
