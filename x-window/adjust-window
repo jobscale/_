@@ -33,6 +33,7 @@ show-process() {
 }
 
 main() {
+  env | grep -i wayland && { echo "Wayland is window control not supported"; return; }
   local WIN=$(xdotool getactivewindow)
   adjust-window $WIN | xargs
   show-process $WIN

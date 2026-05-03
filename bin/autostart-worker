@@ -5,7 +5,7 @@ mkdir -p $HOME/.work
 
 gnome-screen-lock() {
   which loginctl || return 0
-  while [[ -z "$(pgrep -f accounts-daemon)" ]]; then
+  while [[ -z "$(pgrep -f accounts-daemon)" ]]; do
     sleep 1.2 && echo "$(TZ=Asia/Tokyo date -Iseconds) waiting for accounts-daemon"
   done
   loginctl lock-session
