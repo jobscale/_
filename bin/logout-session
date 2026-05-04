@@ -1,4 +1,21 @@
-{
-  DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus \
-  cinnamon-session-quit --logout --no-prompt
+logout() {
+  export DISPLAY=:0
+  export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
+  if [[ "${1:-}" == "--force" ]]; then
+    loginctl terminate-user $USER
+    return
+  elif command -v cinnamon-session-quit > /dev/null; then
+    cinnamon-session-quit --logout --no-prompt
+  elif command -v gnome-session-quit > /dev/null; then
+    gnome-session-quit --logout --no-prompt
+  else
+    echo "No known session manager found to logout. Please log out manually."
+    gdbus call --session \
+    --dest org.gnome.SessionManager \
+    --object-path /org/gnome/SessionManager \
+    --method org.gnome.SessionManager.Logout \
+    2
+  fi
 }
+
+logout $@
