@@ -64,7 +64,7 @@ debian-2022() {
 debian-2025() {
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends \
-    terminator ibus-mozc conky-all gdm3 ffmpeg libsecret-tools
+    terminator ibus-mozc conky-all gdm3 ffmpeg libsecret-tools kolourpaint
   sudo apt-get install -y --no-install-recommends \
     task-japanese-desktop
   sudo dpkg-reconfigure gdm3
