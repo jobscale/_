@@ -6,21 +6,10 @@ adjust-window() {
   ~/_/x-window/adjust-window $@
 }
 
-pipe-wire() {
-  if wpctl status | awk '/Sources:/,/Filters:/' | grep -E '^[[:space:]]+[0-9]+' >/dev/null; then
-    echo "pipewire audio source found."
-    dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
-  else
-    which gnome-control-center && gnome-control-center sound || echo "no gnome sound settings"
-    post-slack "pipewire audio source NOT found"
-  fi
-}
-
 check-audio() {
   sleep 40
   $HOME/bin/wait-of-busy
   which pactl || {
-    pipe-wire
     return 0
   }
   local count=10
@@ -33,7 +22,7 @@ check-audio() {
     count=$(( count - 1 ))
     sleep 12
   done
-  sleep 30
+  sleep 20
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
 }
 

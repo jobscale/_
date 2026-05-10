@@ -12,10 +12,17 @@ symbolic-links() {
   mv 音楽 Music && ln -s Music 音楽
   mv ミュージック Music && ln -s Music ミュージック
   mv 画像 Pictures && ln -s Pictures 画像
+  mv ピクチャ Pictures && ln -s Pictures ピクチャ
   mv 公開 Public && ln -s Public 公開
 }
 
 disable-services() {
+  {
+    sudo systemctl disable systemd-resolved --now
+    sudo systemctl mask systemd-resolved
+    sudo unlink /etc/resolv.conf || echo "/etc/resolv.conf No such file"
+    echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+  }
   {
     sudo systemctl disable --now avahi-daemon
     sudo systemctl mask avahi-daemon
@@ -42,6 +49,7 @@ disable-services() {
   }
   sudo apt-get purge -y exim4 exim4-base exim4-config exim4-daemon-light
   sudo apt-get purge -y cups
+  sudo apt-get purge -y legacy-printer-app
   sudo apt-get autoremove --purge -y
 }
 

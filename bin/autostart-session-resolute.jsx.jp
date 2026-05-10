@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-adjust-window() {
-  sleep 2
-  ~/_/x-window/adjust-window $@
-}
-
 pipe-wire() {
   if [[ $(wpctl status | grep -A1 'Sources' | wc -c) -gt 100 ]]; then
     echo "pipewire audio source found."
@@ -19,43 +14,13 @@ pipe-wire() {
 check-audio() {
   sleep 40
   $HOME/bin/wait-of-busy
-  which pactl || {
-    pipe-wire
-    return 0
-  }
-  local count=10
-  while [[ $(pactl list sources short | grep -ci input) -lt 1 ]]; do
-    post-slack "audio input device not found"
-    if [[ $count -lt 1 ]]; then
-      cinnamon-settings sound
-      return
-    fi
-    count=$(( count - 1 ))
-    sleep 12
-  done
-  sleep 30
+  pipe-wire
+  sleep 20
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
 }
 
-worktime() {
-  sleep 15
-  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://teams.microsoft.com' &"
-  adjust-window
-}
-
-office() {
-  sleep 2
-  $HOME/bin/wait-of-busy
-  google-chrome --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo
-  adjust-window 68
-  google-chrome --app-id=faolnafnngnfdaknnbpnkhgohbobgegn
-  adjust-window 68
-}
-
 main() {
-  worktime
   check-audio
-  office
 }
 
 main
