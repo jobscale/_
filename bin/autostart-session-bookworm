@@ -37,7 +37,8 @@ office() {
   $HOME/bin/wait-of-busy
   google-chrome --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo
   adjust-window 68
-  google-chrome --app-id=faolnafnngnfdaknnbpnkhgohbobgegn
+  # google-chrome --app-id=faolnafnngnfdaknnbpnkhgohbobgegn
+  google-chrome --app-id=eoficlgicibekocmfdomjbfnjmehnhcd
   adjust-window 68
 }
 
