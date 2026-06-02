@@ -228,7 +228,7 @@
     z-index: 1000000;
   }
   .honeycomb-white {
-    background-color: rgba(0, 0, 0, 0.7) !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
   }
   `;
       document.head.append(style);
