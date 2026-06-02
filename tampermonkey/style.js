@@ -8,7 +8,6 @@
 // @exclude      https://navy.quest/*
 // @exclude      https://www.amazon.co.jp/*
 // @exclude      https://*.amazonaws.com/*
-// @exclude      https://mail.google.com/mail/*
 // @exclude      https://outlook.office.com/mail/*
 // @exclude      https://webshell.suite.office.com/*
 // @exclude      https://outlook.cloud.microsoft/*
@@ -536,17 +535,23 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
       setTimeout(() => app.mounted(), 0);
     },
 
+    themeColorMeta() {
+      if (document.querySelector('meta[name="theme-color"]')) return;
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = '#222';
+      document.head.appendChild(meta);
+    },
+
     init() {
       const style = document.createElement('style');
       style.textContent = app.cssDark;
       document.head.append(style);
       app.init.unset = () => { style.remove(); };
 
-      if (document.querySelector('meta[name="theme-color"]')) return;
-      const meta = document.createElement('meta');
-      meta.name = 'theme-color';
-      meta.content = '#222';
-      document.head.appendChild(meta);
+      if (location.href.startsWith('https://mail.google.com/mail')) {
+        app.themeColorMeta();
+      }
     },
   };
 

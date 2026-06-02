@@ -227,6 +227,9 @@
     pointer-events: none;
     z-index: 1000000;
   }
+  .honeycomb-white {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
   `;
       document.head.append(style);
       const div = document.createElement('div');
@@ -254,8 +257,12 @@
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      canvas.classList.remove('honeycomb-white');
       const { fn } = opts.setup[opts.current];
       if (!fn) return;
+      if (opts.current === 3) {
+        canvas.classList.add('honeycomb-white');
+      }
 
       const radius = 70;
       const gridRadius = { x: 79, y: 85 };
@@ -525,9 +532,11 @@
         else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
       } else if (key.move.includes(event.key)) {
         // Hint:
-        // (UG = Ut * FU - GE - 1400),
-        // (Ez = Op * QU - ZI - 400),
-        const mini = { x: 'UG', y: 'Ez', dirty: 'Ht' };
+        // (Fo = JD * DU - Ft - 1400),
+        // (CK = ST * Wm - WD - 400),
+        // Hj = 1
+
+        const mini = { x: 'Fo', y: 'CK', dirty: 'Hj' };
         if (!globalThis[mini.x] || !globalThis[mini.y]) {
           logger.warn('Mini position not found');
           return;
