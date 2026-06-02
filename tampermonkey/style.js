@@ -541,6 +541,12 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
       style.textContent = app.cssDark;
       document.head.append(style);
       app.init.unset = () => { style.remove(); };
+
+      if (document.querySelector('meta[name="theme-color"]')) return;
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = '#222';
+      document.head.appendChild(meta);
     },
   };
 
