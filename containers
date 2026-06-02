@@ -32,7 +32,11 @@ lo-stack() {
 edge-unified-gateway() {
   local MEMORY=256m
   local PORT=3128
-  if [[ $(hostname) == dark ]]; then MEMORY=512m; fi
+  local BIND=0.0.0.0
+  if [[ $(hostname) == dark ]]; then
+    MEMORY=512m
+    BIND=172.16.6.77
+  fi
   if [[ $(hostname) == os-bastion ]]; then
     PORT=443
     if [[ -z ${TMUX:-} ]]; then return 1; fi
@@ -42,8 +46,8 @@ edge-unified-gateway() {
   docker run --name edge-unified-gateway --restart always \
   --memory $MEMORY \
   --shm-size $MEMORY \
-  -p 53:53 -p 53:53/udp \
-  -p $PORT:3128 -p 3443:3443 \
+  -p ${BIND}:53:53 -p ${BIND}:53:53/udp \
+  -p ${BIND}:$PORT:3128 -p ${BIND}:3443:3443 \
   -d ghcr.io/jobscale/edge-unified-gateway
 }
 
