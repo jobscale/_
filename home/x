@@ -1,2 +1,7 @@
-sudo systemctl poweroff -i
+echo "Using shutdown..." && sleep 1
 sudo shutdown -h now
+if command -v systemctl >/dev/null 2>&1; then
+  sleep 5
+  echo "Trying force poweroff..." && sleep 1
+  sudo systemctl poweroff -i
+fi
