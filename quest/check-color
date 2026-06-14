@@ -10,7 +10,7 @@ check-color() {
 
   IFS=',' read -r R G B <<< "$color_info"
 
-  if [[ "$R" -ge 10 ]] && [[ "$G" -ge 15 ]] && [[ "$B" -ge 10 ]]; then
+  if [[ "$R" -ge 15 ]] && [[ "$G" -ge 15 ]] && [[ "$B" -ge 15 ]]; then
     echo "OK"
     echo "OK $R $G $B" >> "${T_FILE}"
   else
@@ -20,10 +20,36 @@ check-color() {
 }
 
 check-all() {
-  local -r RES2=$(check-color 10 300)
-  local -r RES3=$(check-color 10 400)
-  local -r RES4=$(check-color 10 500)
-  local -r RES1=$(check-color 10 600)
+  local -r RES2=$(check-color 215 300)
+  local -r RES3=$(check-color 215 400)
+  local -r RES4=$(check-color 215 500)
+  local -r RES1=$(check-color 215 600)
+  # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
+  if [[ "$RES1 $RES2 $RES3 $RES4" == "OK OK OK OK" ]]; then
+    echo "ALL OK"
+  else
+    echo "SOMEONE NG"
+  fi
+}
+
+check-sub() {
+  local -r RES2=$(check-color 115 300)
+  local -r RES3=$(check-color 115 400)
+  local -r RES4=$(check-color 115 500)
+  local -r RES1=$(check-color 115 600)
+  # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
+  if [[ "$RES1 $RES2 $RES3 $RES4" == "OK OK OK OK" ]]; then
+    echo "ALL OK"
+  else
+    echo "SOMEONE NG"
+  fi
+}
+
+check-three() {
+  local -r RES2=$(check-color 15 300)
+  local -r RES3=$(check-color 15 400)
+  local -r RES4=$(check-color 15 500)
+  local -r RES1=$(check-color 15 600)
   # echo "$RES1 $RES2 $RES3 $RES4" 1>&2
   if [[ "$RES1 $RES2 $RES3 $RES4" == "OK OK OK OK" ]]; then
     echo "ALL OK"
@@ -36,7 +62,11 @@ main() {
   local RES=$(check-all)
   if [[ "$RES" != "ALL OK" ]]; then
     sleep 1
-    RES=$(check-all)
+    RES=$(check-sub)
+  fi
+  if [[ "$RES" != "ALL OK" ]]; then
+    sleep 1
+    RES=$(check-three)
   fi
   echo $RES
 }
