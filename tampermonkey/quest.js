@@ -343,6 +343,20 @@
       });
     },
 
+    async checkEnemy(item) {
+      const load = await customStorage.getItem('ranking');
+      const saved = JSON.parse(load || '{}');
+      if (saved.point && saved.point > item.point) {
+        app.postSlack({
+          channel: '#quest',
+          icon_emoji: ':video_game:',
+          username: 'Alert Navy Quest',
+          text: `Enemy ${item.name} point down ${item.point.toLocaleString()} from ${saved.point.toLocaleString()}`,
+        }).catch(e => logger.warn(e.message));
+      }
+      await customStorage.setItem('ranking', JSON.stringify({ ...saved, ...item }));
+    },
+
     async onlineUsers(interval = 10) {
       const area = document.querySelector('table.allyprofil');
       if (!area) return;
@@ -357,14 +371,16 @@
         const item = {
           name: table.name[i].textContent.trim(),
           mail: table.mail[i].querySelector('a'),
-          point: Math.floor(Number.parseInt(table.point[i].textContent.trim().replace(/[.]/g, ''), 10) / 10000),
+          point: Number.parseInt(table.point[i].textContent.trim().replace(/[.]/g, ''), 10),
           online: table.online[i].textContent.trim(),
         };
         return item;
-      }).slice(1).filter(item => item.mail);
-
+      }).slice(1);
+      const player = data.find(item => !item.mail);
+      await app.checkEnemy(player);
       const users = data.filter(item => {
-        if (item.point < 3) return false;
+        if (!item.mail) return false;
+        if (item.point < 35000) return false;
         if (item.online === 'On') return true;
         if (item.online.match('h')) return false;
         const num = Number.parseInt(item.online.match(/>(\d+)min/)?.[1], 10);
@@ -381,7 +397,8 @@
       if (before < after) {
         const member = users.length;
         const online = users.map(item => {
-          const text = `${item.name.padStart(15)} ${item.point.toString().padStart(8)} ${item.online.padStart(8)}`;
+          const point = Math.floor(item.point / 10000).toLocaleString();
+          const text = `${item.name.padStart(15)} ${point.padStart(8)} ${item.online.padStart(8)}`;
           return text;
         });
         online.unshift(`Online: ${member}`);
@@ -391,7 +408,10 @@
             { type: 'mrkdwn', text: ['```', ...online, '```'].join('\n') },
           ],
         };
-        const text = users.map(item => `${item.name} (${item.point})`).join(' \n');
+        const text = users.map(item => {
+          const point = Math.floor(item.point / 10000).toLocaleString();
+          return `${item.name} (${point})`;
+        }).join(' \n');
         app.postSlack({
           channel: '#quest',
           icon_emoji: ':video_game:',
@@ -532,11 +552,11 @@
         else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
       } else if (key.move.includes(event.key)) {
         // Hint:
-        // (Fo = JD * DU - Ft - 1400),
-        // (CK = ST * Wm - WD - 400),
-        // Hj = 1
+        // (Rp = XJ * Mg - Fc - 1400),
+        // (LX = UG * TY - QS - 400),
+        // FQ = 1
 
-        const mini = { x: 'Fo', y: 'CK', dirty: 'Hj' };
+        const mini = { x: 'Rp', y: 'LX', dirty: 'FQ' };
         if (!globalThis[mini.x] || !globalThis[mini.y]) {
           logger.warn('Mini position not found');
           return;

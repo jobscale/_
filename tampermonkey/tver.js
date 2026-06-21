@@ -228,7 +228,7 @@ div[class^="FavoriteList"] > div {
           const exist = list.find(data => data.href === wrapper.querySelector('a').href);
           if (exist) return true;
           const anchor = wrapper.querySelector('a');
-          const content = wrapper.querySelector('a > div');
+          const content = wrapper.querySelector('a[class^="ContentCard_root"]');
           app.setEvent(anchor, content, wrapper);
           return false;
         })
