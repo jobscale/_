@@ -22,18 +22,19 @@ check-audio() {
     count=$(( count - 1 ))
     sleep 12
   done
-  sleep 20
+  sleep 6
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
+  sleep 26
 }
 
 worktime() {
-  sleep 15
+  sleep 6
   dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://teams.microsoft.com' &"
   adjust-window
 }
 
 office() {
-  sleep 2
+  sleep 6
   $HOME/bin/wait-of-busy
   google-chrome --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo
   adjust-window 68
