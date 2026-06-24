@@ -82,9 +82,15 @@ main() {
     step=$(( step + 1 ))
     DURATION=$(( DURATION + ADDING ))
     local WAIT_TIME=$(( INTERVAL + DURATION ))
+    local REMAINING_STEPS=$(( count + 1 ))
+    local REMAINING_TOTAL=$((
+      REMAINING_STEPS * INTERVAL +
+      REMAINING_STEPS * DURATION +
+      (ADDING * REMAINING_STEPS * (REMAINING_STEPS - 1)) / 2
+    ))
     fire
     echo -ne "\e[A\r\e[2K"
-    echo " $( printf '(%d sec) Step %3d' $(( ( count + 1 ) * DURATION )) ${step} ) ... left - $( printf '%3d %3d' ${count} ${DURATION} )"
+    echo " $( printf '(%4d sec) Step %3d' ${REMAINING_TOTAL} ${step} ) ... left - $( printf '%3d %3d' ${count} ${DURATION} )"
     echo -n "$(printf '%8s ' ' ') x,y $(./get-point)"
     loop $WAIT_TIME
     local FAST_UPDATE=$(update-count)
