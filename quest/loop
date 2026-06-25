@@ -23,12 +23,24 @@ update-count() {
   rm -f ${FILE_COUNT_LEFT}
 }
 
+notification() {
+  web-push "Finish build the troops"
+  post-slack "Finish build the troops"
+  play
+}
+
 # activation per 100 seconds
 ACTIVATE=$(date +%s)
 loop() {
   local fire_time=$(( $(date +%s) + $1 ))
+  local SHOULD_NOTIFY=$(( ${2:-0} == 0 ))
   while [ $(date +%s) -lt $fire_time ]; do
-    printf '\r%5d ' $(( fire_time - $(date +%s) ))
+    local REMAIN=$(( fire_time - $(date +%s) ))
+    if [[ "$SHOULD_NOTIFY" -eq 1 && "$REMAIN" -le 10 ]]; then
+      SHOULD_NOTIFY=0
+      notification
+    fi
+    printf '\r%5d ' $REMAIN
     if [[ $(( $(date +%s) - ACTIVATE )) -ge 100 ]]; then
       ACTIVATE=$(date +%s)
       xdotool mousemove $(( 100 + $(( $(date +%s%3N) % 100 )) )) 400
@@ -84,25 +96,20 @@ main() {
     local WAIT_TIME=$(( INTERVAL + DURATION ))
     local REMAINING_STEPS=$(( count + 1 ))
     local REMAINING_TOTAL=$((
-      REMAINING_STEPS * INTERVAL +
-      REMAINING_STEPS * DURATION +
+      REMAINING_STEPS * WAIT_TIME +
       (ADDING * REMAINING_STEPS * (REMAINING_STEPS - 1)) / 2
     ))
     fire
     echo -ne "\e[A\r\e[2K"
     echo " $( printf '(%4d sec) Step %3d' ${REMAINING_TOTAL} ${step} ) ... left - $( printf '%3d %3d' ${count} ${DURATION} )"
     echo -n "$(printf '%8s ' ' ') x,y $(./get-point)"
-    loop $WAIT_TIME
+    loop $WAIT_TIME $count
     local FAST_UPDATE=$(update-count)
     if [[ ! -z "$FAST_UPDATE" ]]; then
       count=$(( FAST_UPDATE + 0 ))
     fi
   done
   echo
-
-  web-push "Finish build the troops"
-  post-slack "Finish build the troops"
-  play
 }
 
 main
