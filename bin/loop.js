@@ -39,14 +39,14 @@ const loop = async (seconds, step, useSound) => {
 
 const main = argv => {
   const timer = argv.filter(arg => arg !== '--silent');
+  const useSound = !argv.filter(arg => ['--silent', '-s'].includes(arg)).length;
   const [secondsArg, stepArg] = timer;
   const step = Math.min(20, Number.parseInt(stepArg, 10) || 1);
   const seconds = Number.parseInt(secondsArg, 10);
   if (!seconds) {
-    logger.error('Usage: loop.js <seconds> [silent]');
+    logger.error('Usage: loop.js <seconds> [step] [--silent]');
     process.exit(1);
   }
-  const useSound = argv.length === timer.length;
   loop(seconds, step, useSound);
 };
 
