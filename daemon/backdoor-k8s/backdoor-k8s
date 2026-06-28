@@ -72,12 +72,14 @@ whileCheck() {
 
 waitForPort() {
   clearTick
-  while nc -vz -w 1 $REM_HOST $REM_PORT > /dev/null 2>&1; do
-    echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
+  echo "$(TZ=Asia/Tokyo date -Iseconds) check zombie port $REM_PORT" 1>&2
+  while true; do
     local PID=$(ssh $REM_SSH sudo ss -tunlp sport = :$REM_PORT | awk -F 'pid=' '/pid=/ {print $2}' | awk -F, '{print $1}' | head -n1)
-    if [[ ! -z "$PID" ]]; then
-      ssh $REM_SSH sudo kill $PID
+    if [[ -z "$PID" ]]; then
+      break;
     fi
+    echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
+    ssh $REM_SSH sudo kill $PID
     sleep 5
   done
   updateNextTick

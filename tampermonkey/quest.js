@@ -344,17 +344,17 @@
     },
 
     async checkEnemy(item) {
-      const load = await customStorage.getItem('ranking');
-      const saved = JSON.parse(load || '{}');
-      if (saved.point && saved.point > item.point) {
-        app.postSlack({
+      const before = JSON.parse(await customStorage.getItem('player') || '{}');
+      if (before.point && before.point > item.point) {
+        await app.postSlack({
           channel: '#quest',
           icon_emoji: ':video_game:',
           username: 'Alert Navy Quest',
-          text: `Enemy ${item.name} point down ${item.point.toLocaleString()} from ${saved.point.toLocaleString()}`,
+          text: `Enemy ${item.name} point down ${item.point.toLocaleString()} from ${before.point.toLocaleString()}`,
         }).catch(e => logger.warn(e.message));
+        await new Promise(resolve => { setTimeout(resolve, 2000); });
       }
-      await customStorage.setItem('ranking', JSON.stringify({ ...saved, ...item }));
+      await customStorage.setItem('player', JSON.stringify({ ...before, ...item }));
     },
 
     async onlineUsers(interval = 10) {
