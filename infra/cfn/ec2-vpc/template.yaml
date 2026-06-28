@@ -124,13 +124,14 @@ Resources:
       MaxEntries: 10
       PrefixListName: !Sub "${AWS::StackName}-internal-prefix-list"
       Entries:
-      - Cidr: 59.132.128.0/19
-      - Cidr: 106.146.192.0/19
-      - Cidr: 111.238.250.129/32
-      - Cidr: 124.209.64.0/19
-      - Cidr: 182.249.0.0/19
+      - Cidr: 59.132.128.0/19 # wimax
+      - Cidr: 106.146.192.0/19 # wimax
+      - Cidr: 111.238.250.129/32 # wimax
+      - Cidr: 124.209.64.0/19 # wimax
+      - Cidr: 182.249.0.0/19 # wimax
       - Cidr: 175.179.172.193/32
-      - Cidr: 27.253.248.0/24
+      - Cidr: 27.253.248.0/24 # nihon-tsushin docomo
+      - Cidr: 133.106.51.0/24 # rakuten mobile
 
   # -----------------------------
   # Security Groups
