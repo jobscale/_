@@ -71,12 +71,12 @@ whileCheck() {
 
 waitForPort() {
   clearTick
-  while nc -vz -w 1 $REM_HOST $REM_PORT > /dev/null 2>&1; do
-    echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
+  echo "$(TZ=Asia/Tokyo date -Iseconds) check zombie port $REM_PORT" 1>&2
+  while true; do
     local PID=$(ssh $REM_SSH sudo ss -tunlp sport = :$REM_PORT | awk -F 'pid=' '/pid=/ {print $2}' | awk -F, '{print $1}' | head -n1)
-    if [[ ! -z "$PID" ]]; then
-      ssh $REM_SSH sudo kill $PID
-    fi
+    if [[ -z "$PID" ]]; then break; fi
+    echo "$(TZ=Asia/Tokyo date -Iseconds) wait for terminate zombie" 1>&2
+    ssh $REM_SSH sudo kill $PID
     sleep 5
   done
   updateNextTick
@@ -95,13 +95,14 @@ waitForResolver() {
   PRINT="$REM_CAPTION - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
+  TIMESTAMP=$(date -Iseconds)
   # Carrier Grade Network Address Translator
-  echo "GlobalIP $(curl -s https://inet-ip.info/ip)"
-  echo "GlobalIP $(curl -s https://ifconfig.me/ip)"
-  echo "GlobalIP $(curl -s https://ipinfo.io/ip)"
-  echo "GlobalIP $(curl -s https://ifconfig.io/ip)"
-  echo "GlobalIP $(curl -s https://jsx.jp/ip | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1)"
-  echo "GlobalIP $(curl -s https://www.ugtop.com | grep -oP '\d+\.\d+\.\d+\.\d+')"
+  echo "GlobalIP $(curl -s https://inet-ip.info/ip) $TIMESTAMP"
+  echo "GlobalIP $(curl -s https://ifconfig.me/ip) $TIMESTAMP"
+  echo "GlobalIP $(curl -s https://ipinfo.io/ip) $TIMESTAMP"
+  echo "GlobalIP $(curl -s https://ifconfig.io/ip) $TIMESTAMP"
+  echo "GlobalIP $(curl -s https://jsx.jp/ip | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1) $TIMESTAMP"
+  echo "GlobalIP $(curl -s https://www.ugtop.com | grep -oP '\d+\.\d+\.\d+\.\d+') $TIMESTAMP"
 }
 
 {
