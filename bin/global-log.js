@@ -5,8 +5,9 @@ import { execSync } from 'child_process';
 const logger = new Proxy(console, {});
 
 const main = (minimum = 19) => {
+  const query = /GlobalIP\s\d+\.\d+/.toString().slice(1, -1);
   const raw = execSync(
-    "grep -P 'Global.+\\d' /var/log/daemon/* | awk '{print $2}' | sort -u",
+    `grep -P '${query}' /var/log/daemon/* | awk '{print $2}' | sort -u`,
     { encoding: 'utf8' },
   ).trim();
 
