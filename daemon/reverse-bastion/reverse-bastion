@@ -82,6 +82,23 @@ waitForPort() {
   updateNextTick
 }
 
+showGlobal() {
+  TIMESTAMP=$(date -Iseconds)
+  LIST=(
+    https://inet-ip.info/ip
+    https://ifconfig.me/ip
+    https://ipinfo.io/ip
+    https://ifconfig.io/ip
+    https://jsx.jp/ip
+    https://www.ugtop.com
+  )
+  for i in "${LIST[@]}"; do
+    curl -s $i | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1
+  done | sort -u | while read ip; do
+    echo "GlobalIP $ip $TIMESTAMP"
+  done
+}
+
 waitForResolver() {
   clearTick
   while true; do
@@ -95,14 +112,8 @@ waitForResolver() {
   PRINT="$REM_CAPTION - ${REMOTE} from $(hostname) in $(TZ=Asia/Tokyo date -Iseconds)"
   echo "$PRINT"
   CHANNEL=infra timeout 10 $HOME/bin/post-slack "$PRINT"
-  TIMESTAMP=$(date -Iseconds)
   # Carrier Grade Network Address Translator
-  echo "GlobalIP $(curl -s https://inet-ip.info/ip) $TIMESTAMP"
-  echo "GlobalIP $(curl -s https://ifconfig.me/ip) $TIMESTAMP"
-  echo "GlobalIP $(curl -s https://ipinfo.io/ip) $TIMESTAMP"
-  echo "GlobalIP $(curl -s https://ifconfig.io/ip) $TIMESTAMP"
-  echo "GlobalIP $(curl -s https://jsx.jp/ip | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1) $TIMESTAMP"
-  echo "GlobalIP $(curl -s https://www.ugtop.com | grep -oP '\d+\.\d+\.\d+\.\d+') $TIMESTAMP"
+  showGlobal
 }
 
 {
