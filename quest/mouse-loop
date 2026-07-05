@@ -22,8 +22,8 @@ loop() {
 main() {
   # infinity loop
   while true; do
-    echo -n "getting cursor point './get-point' x,y = " && ./get-point
-    loop 600
+    echo -n "$(TZ=Asia/Tokyo date -Iseconds) cursor point './get-point' x,y = " && ./get-point
+    loop 900
   done
 }
 
