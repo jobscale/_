@@ -48,6 +48,7 @@ adjust-window() {
 
 start-application() {
   dash -c "exec >/dev/null 2>&1; setsid ibus-daemon -rxd &"
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome 'jsx.jp/s/ds31y2y' &"
   dash -c "exec >/dev/null 2>&1; setsid google-chrome 'https://jsx.jp' &"
   adjust-window
 }
