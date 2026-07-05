@@ -138,6 +138,27 @@ Resources:
   # -----------------------------
   # Security Groups
   # -----------------------------
+  InternalSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: internal sg
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: -1
+        SourceSecurityGroupId: !Ref InternalSG
+      - IpProtocol: tcp
+        FromPort: 123
+        ToPort: 123
+        SourcePrefixListId: !Ref InternalPrefixList
+      - IpProtocol: udp
+        FromPort: 123
+        ToPort: 123
+        SourcePrefixListId: !Ref InternalPrefixList
+      - IpProtocol: tcp
+        FromPort: 3128
+        ToPort: 3128
+        SourcePrefixListId: !Ref InternalPrefixList
+
   PublicSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -184,25 +205,6 @@ Resources:
         FromPort: 8022
         ToPort: 8022
         CidrIp: 0.0.0.0/0
-
-  InternalSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: internal sg
-      VpcId: !Ref VPC
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 123
-        ToPort: 123
-        SourcePrefixListId: !Ref InternalPrefixList
-      - IpProtocol: udp
-        FromPort: 123
-        ToPort: 123
-        SourcePrefixListId: !Ref InternalPrefixList
-      - IpProtocol: tcp
-        FromPort: 3128
-        ToPort: 3128
-        SourcePrefixListId: !Ref InternalPrefixList
 
   # -----------------------------
   # IAM Role (SSM)
