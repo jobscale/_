@@ -12,7 +12,7 @@ linkDot() {
 
 copyCmd() {
   [[ $(mount -v | head -1 | grep "overlay on" | wc -l) == 0 ]] || return
-  for i in u x y
+  for i in u x y du
   do
     [[ ! -s ~/$i ]] && ln -sfn _/home/$i ~ || echo exist $i
   done

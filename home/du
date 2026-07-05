@@ -1,0 +1,6 @@
+sudo blkid
+lsblk
+{
+  df -h | grep sd | awk '{print $6"    "$2"   used "$3" "$5"   free "$4"  "$1}'
+  du -sh /media/jobscale/*/bk/*/2* | awk '{print $2" "$1}'
+} | sort
