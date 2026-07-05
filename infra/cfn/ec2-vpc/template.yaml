@@ -121,17 +121,19 @@ Resources:
     Type: AWS::EC2::PrefixList
     Properties:
       AddressFamily: IPv4
-      MaxEntries: 10
+      MaxEntries: 15
       PrefixListName: !Sub "${AWS::StackName}-internal-prefix-list"
       Entries:
-      - Cidr: 59.132.128.0/19 # wimax
-      - Cidr: 106.146.192.0/19 # wimax
-      - Cidr: 111.238.250.129/32 # wimax
-      - Cidr: 124.209.64.0/19 # wimax
-      - Cidr: 182.249.0.0/19 # wimax
+      - Cidr: 27.253.248.0/24
+      - Cidr: 59.132.128.0/19
+      - Cidr: 106.146.192.0/19
+      - Cidr: 111.238.250.0/24
+      - Cidr: 124.209.83.198/32
+      - Cidr: 133.106.0.0/16
       - Cidr: 175.179.172.193/32
-      - Cidr: 27.253.248.0/24 # nihon-tsushin docomo
-      - Cidr: 133.106.51.0/24 # rakuten mobile
+      - Cidr: 182.249.0.0/19
+      - Cidr: 210.157.192.0/24
+      - Cidr: 211.7.99.0/24
 
   # -----------------------------
   # Security Groups
