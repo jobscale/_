@@ -294,7 +294,7 @@
 
       const hexQueue = [];
 
-      const begin = { x: -24, y: 12 };
+      const begin = { x: -24, y: 28 };
       for (let row = 0; row < canvas.height / verticalStep + 2; row++) {
         for (let col = 0; col < canvas.width / horizontalStep + 2; col++) {
           const offsetY = col % 2 === 0 ? 0 : verticalStep / 2;
@@ -343,18 +343,18 @@
       });
     },
 
+    async questReport() {
+      const query = new URLSearchParams(location.search);
+      if (query.get('go') !== 'report') return;
+      document.querySelector('a[href^="gold?b=3&o3="]')?.click();
+    },
+
     async checkEnemy(item) {
       const before = JSON.parse(await customStorage.getItem('player') || '{}');
-      if (before.point && before.point > item.point) {
-        await app.postSlack({
-          channel: '#quest',
-          icon_emoji: ':video_game:',
-          username: 'Alert Navy Quest',
-          text: `Enemy ${item.name} point down ${item.point.toLocaleString()} from ${before.point.toLocaleString()}`,
-        }).catch(e => logger.warn(e.message));
-        await new Promise(resolve => { setTimeout(resolve, 2000); });
-      }
       await customStorage.setItem('player', JSON.stringify({ ...before, ...item }));
+      if (before.point && before.point > item.point) {
+        location.href = 'https://navy.quest/gold?go=report';
+      }
     },
 
     async onlineUsers(interval = 10) {
@@ -458,9 +458,9 @@
           blocks: [block],
         }).catch(e => logger.warn(e.message));
       }
-      const NEXT_TICK = 15; // interval minutes
+      const NEXT_TICK = 1; // interval minutes
       setTimeout(() => {
-        document.querySelector('a[href^="gold?b=3&o3="]')?.click();
+        location.href = 'https://navy.quest/ally.php?b=58';
       }, NEXT_TICK * 60 * 1000);
       return true;
     },
@@ -552,11 +552,11 @@
         else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
       } else if (key.move.includes(event.key)) {
         // Hint:
-        // (Rp = XJ * Mg - Fc - 1400),
-        // (LX = UG * TY - QS - 400),
-        // FQ = 1
+        // (CF = Rh * OM - Ql - 1400),
+        // (LM = Tr * PT - Sx - 400),
+        // Pv = 1
 
-        const mini = { x: 'Rp', y: 'LX', dirty: 'FQ' };
+        const mini = { x: 'CF', y: 'LM', dirty: 'Pv' };
         if (!globalThis[mini.x] || !globalThis[mini.y]) {
           logger.warn('Mini position not found');
           return;
@@ -594,7 +594,8 @@
       setTimeout(() => app.createTime(), 1300);
       setTimeout(() => app.createCanvas(), 2200);
       setTimeout(() => app.watchOnline(), 3400);
-      setTimeout(() => app.battleReport(), 4100);
+      setTimeout(() => app.questReport(), 3800);
+      setTimeout(() => app.battleReport(), 3800);
     },
   };
 
