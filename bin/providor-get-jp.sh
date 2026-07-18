@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+#set -eu
+
+PATH=$PATH:$HOME/bin
+
 for i in $(global-log.js 16); do
   IFS=/ read IP MASK <<< "$i"
   echo -n "$IP "
