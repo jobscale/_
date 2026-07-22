@@ -5,6 +5,7 @@ NAMESERVER=8.8.8.8
 
 docker run --init --name node-aws --restart=always -p 2022:22 \
 --dns $NAMESERVER \
+--hostname harbin.jsx.jp \
 -v ~/.ssh:/home/node/.ssh \
 -v /opt/_:/home/node/_ \
 --entrypoint /home/node/_/daemon/forward/entrypoint.sh \
