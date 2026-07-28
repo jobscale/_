@@ -121,7 +121,7 @@ Resources:
     Type: AWS::EC2::PrefixList
     Properties:
       AddressFamily: IPv4
-      MaxEntries: 15
+      MaxEntries: 12
       PrefixListName: !Sub "${AWS::StackName}-internal-prefix-list"
       Entries:
       - Cidr: 27.253.128.0/17
@@ -264,13 +264,20 @@ Resources:
         Fn::Base64: |
           #!/usr/bin/env bash
           curl -sL jsx.jp/s/user-data | bash
+  #
+  # EIP:
+  #   Type: AWS::EC2::EIP
+  #   DeletionPolicy: Retain
+  #   Properties:
+  #     InstanceId: !Ref EC2Instance
+  #     Domain: vpc
 
-  EIP:
-    Type: AWS::EC2::EIP
+  EIPAssociation:
+    Type: AWS::EC2::EIPAssociation
     DeletionPolicy: Retain
     Properties:
+      AllocationId: eipalloc-06c58cecc809c2557
       InstanceId: !Ref EC2Instance
-      Domain: vpc
 
 Outputs:
   EC2InstanceId:
@@ -280,4 +287,4 @@ Outputs:
   PublicIP:
     Value: !GetAtt EC2Instance.PublicIp
   EIP:
-    Value: !Ref EIP
+    Value: !Ref EIPAssociation
