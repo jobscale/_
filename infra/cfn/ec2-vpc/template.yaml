@@ -144,8 +144,6 @@ Resources:
       GroupDescription: internal sg
       VpcId: !Ref VPC
       SecurityGroupIngress:
-      - IpProtocol: -1
-        SourceSecurityGroupId: !Ref InternalSG
       - IpProtocol: tcp
         FromPort: 123
         ToPort: 123
@@ -158,6 +156,13 @@ Resources:
         FromPort: 3128
         ToPort: 3128
         SourcePrefixListId: !Ref InternalPrefixList
+
+  InternalSGSelfRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: -1
+      GroupId: !Ref InternalSG
+      SourceSecurityGroupId: !Ref InternalSG
 
   PublicSG:
     Type: AWS::EC2::SecurityGroup
@@ -245,8 +250,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
-      # ImageId: ami-0b6c6ebed2801a5cb
-      ImageId: ami-091138d0f0d41ff90
+      ImageId: ami-0b6d9d3d33ba97d99
       SubnetId: !Ref PublicSubnet1
       SecurityGroupIds:
       - !Ref PublicSG
