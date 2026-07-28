@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: VPC + EC2 + PrefixList + SG + IAM Role (SSM)
 
 Parameters:
+  ImageId:
+    Type: String
+    Default: ami-0b6d9d3d33ba97d99
+    Description: AMI ID for the EC2 instance
+  EipAllocationId:
+    Type: String
+    Default: ""
+    Description: existing EIP. Leave empty to create a new EIP.
   VpcCidr:
     Type: String
     Default: 10.90.0.0/16
@@ -17,6 +25,10 @@ Parameters:
   PrivateSubnet2Cidr:
     Type: String
     Default: 10.90.4.0/24
+
+Conditions:
+  CreateEip: !Equals [ !Ref EipAllocationId, "" ]
+  UseExistingEip: !Not [ !Condition CreateEip ]
 
 Resources:
   # -----------------------------
@@ -245,7 +257,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
-      ImageId: ami-0b6d9d3d33ba97d99
+      ImageId: !Ref ImageId
       SubnetId: !Ref PublicSubnet1
       SecurityGroupIds:
       - !Ref PublicSG
@@ -263,20 +275,68 @@ Resources:
       UserData:
         Fn::Base64: |
           #!/usr/bin/env bash
+          set -euo pipefail
+
+          cat > /usr/local/bin/run-user-data-after-reboot.sh <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          echo "Running user-data after reboot..."
+          sleep 10
+
+          systemctl disable systemd-resolved --now
+          systemctl mask systemd-resolved
+          unlink /etc/resolv.conf
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
           curl -sL jsx.jp/s/user-data | bash
-  #
-  # EIP:
-  #   Type: AWS::EC2::EIP
-  #   DeletionPolicy: Retain
-  #   Properties:
-  #     InstanceId: !Ref EC2Instance
-  #     Domain: vpc
+          systemctl disable run-user-data-after-reboot.service --now
+          rm /etc/systemd/system/run-user-data-after-reboot.service
+          systemctl daemon-reload
+          rm /usr/local/bin/run-user-data-after-reboot.sh
+          EOF
+          chmod +x /usr/local/bin/run-user-data-after-reboot.sh
+
+          cat > /etc/systemd/system/run-user-data-after-reboot.service <<'EOF'
+          [Unit]
+          Description=Run user-data after reboot
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/run-user-data-after-reboot.sh
+          Restart=no
+          StandardOutput=append:/var/log/user-data-cloud.log
+          StandardError=append:/var/log/user-data-cloud_error.log
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          systemctl daemon-reload
+          systemctl enable run-user-data-after-reboot.service
+          shutdown -r +1 "rebooting to run user-data after reboot"
+
+  EIP:
+    Condition: CreateEip
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
 
   EIPAssociation:
+    Condition: CreateEip
     Type: AWS::EC2::EIPAssociation
-    DeletionPolicy: Retain
     Properties:
-      AllocationId: eipalloc-06c58cecc809c2557
+      AllocationId: !GetAtt EIP.AllocationId
+      InstanceId: !Ref EC2Instance
+
+  EIPAssociationExisting:
+    Condition: UseExistingEip
+    DeletionPolicy: Retain
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !Ref EipAllocationId
       InstanceId: !Ref EC2Instance
 
 Outputs:
@@ -287,4 +347,4 @@ Outputs:
   PublicIP:
     Value: !GetAtt EC2Instance.PublicIp
   EIP:
-    Value: !Ref EIPAssociation
+    Value: !If [ CreateEip, !Ref EIPAssociation, !Ref EIPAssociationExisting ]

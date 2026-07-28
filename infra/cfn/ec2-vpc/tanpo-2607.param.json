@@ -1,5 +1,7 @@
 {
   "Parameters": {
+    "ImageId": "ami-0b6d9d3d33ba97d99",
+    "EipAllocationId": "eipalloc-06c58cecc809c2557",
     "VpcCidr": "10.0.0.0/16",
     "PublicSubnet1Cidr": "10.0.1.0/24",
     "PrivateSubnet1Cidr": "10.0.2.0/24",
