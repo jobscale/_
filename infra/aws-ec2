@@ -1,9 +1,43 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
 
-export DEBIAN_FRONTEND=noninteractive
+cat > /usr/local/bin/run-user-data-after-reboot.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
 
-{
-  curl -sL jsx.jp/s/awscli | bash
-  curl -sL jsx.jp/s/nodejs | bash
-}
+echo "Running user-data after reboot..."
+sleep 10
+
+systemctl disable systemd-resolved --now
+systemctl mask systemd-resolved
+unlink /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+curl -sL jsx.jp/s/user-data | bash
+systemctl disable run-user-data-after-reboot.service --now
+rm /etc/systemd/system/run-user-data-after-reboot.service
+systemctl daemon-reload
+rm /usr/local/bin/run-user-data-after-reboot.sh
+EOF
+chmod +x /usr/local/bin/run-user-data-after-reboot.sh
+
+cat > /etc/systemd/system/run-user-data-after-reboot.service <<'EOF'
+[Unit]
+Description=Run user-data after reboot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/run-user-data-after-reboot.sh
+Restart=no
+StandardOutput=append:/var/log/user-data-cloud.log
+StandardError=append:/var/log/user-data-cloud_error.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable run-user-data-after-reboot.service
+shutdown -r +1 "rebooting to run user-data after reboot"
