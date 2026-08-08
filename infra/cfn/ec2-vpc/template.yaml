@@ -6,6 +6,10 @@ Parameters:
     Type: String
     Default: ami-0b6d9d3d33ba97d99
     Description: AMI ID for the EC2 instance
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    Description: EC2 instance type
   EipAllocationId:
     Type: String
     Default: ""
@@ -256,7 +260,7 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t3.micro
+      InstanceType: !Ref InstanceType
       ImageId: !Ref ImageId
       SubnetId: !Ref PublicSubnet1
       SecurityGroupIds:
@@ -271,7 +275,7 @@ Resources:
           DeleteOnTermination: true
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-ec2"
+        Value: !Sub "${AWS::StackName}"
       UserData:
         Fn::Base64: |
           #!/usr/bin/env bash
