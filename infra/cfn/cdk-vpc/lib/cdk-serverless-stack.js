@@ -29,27 +29,26 @@ export class CdkServerlessStack extends cdk.Stack {
           title: `${this.stackName} API`,
           version: '1.0',
         },
-        servers: [
-          {
-            url: 'https://serverless.jsx.jp',
-            'x-amazon-apigateway-disableExecuteApiEndpoint': true,
+        servers: [{
+          url: 'https://serverless.jsx.jp',
+          'x-amazon-apigateway-endpoint-configuration': {
+            disableExecuteApiEndpoint: true,
           },
-        ],
+        }],
         paths: {
           '/hello': {
             get: {
               operationId: 'hello',
               responses: {
                 200: {
-                  description: '200 response',
+                  description: '200 OK',
                 },
               },
               'x-amazon-apigateway-integration': {
                 type: 'AWS_PROXY',
                 payloadFormatVersion: '2.0',
                 uri: cdk.Fn.sub(
-                  'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations',
-                  {
+                  'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations', {
                     LambdaArn: helloFunction.functionArn,
                   },
                 ),
