@@ -159,10 +159,11 @@ export class CdkAppStack extends cdk.Stack {
         instanceId: cdk.Fn.ref('EC2Instance'),
       });
     } else {
-      new ec2.CfnEIPAssociation(this, 'EIPAssociationExisting', {
+      const existingEipAssociation = new ec2.CfnEIPAssociation(this, 'EIPAssociationExisting', {
         allocationId: eipAllocationId,
         instanceId: cdk.Fn.ref('EC2Instance'),
       });
+      existingEipAssociation.cfnOptions.deletionPolicy = cdk.CfnDeletionPolicy.RETAIN;
     }
 
     // Create EC2 Instance as L1 to match template exactly
