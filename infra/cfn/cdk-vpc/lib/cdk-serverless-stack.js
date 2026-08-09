@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib/core';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import path from 'path';
 
@@ -13,15 +14,25 @@ export class CdkServerlessStack extends cdk.Stack {
       excludeResourceTypes: ['AWS::ApiGatewayV2::Api'],
     });
 
-    const helloFunction = new lambda.Function(this, 'HelloFunction', {
+    const helloFunction = new lambdaNodejs.NodejsFunction(this, 'HelloFunction', {
       runtime: lambda.Runtime.NODEJS_LATEST,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(process.cwd(), 'lib', 'functions', 'hello')),
+      entry: path.join(process.cwd(), 'lib', 'functions', 'hello', 'index.js'),
+      handler: 'handler',
       environment: {
         ENV: envName,
       },
     });
 
+    const welcomeFunction = new lambdaNodejs.NodejsFunction(this, 'WelcomeFunction', {
+      runtime: lambda.Runtime.NODEJS_LATEST,
+      entry: path.join(process.cwd(), 'lib', 'functions', 'user', 'welcome', 'index.js'),
+      handler: 'handler',
+      environment: {
+        ENV: envName,
+      },
+    });
+
+    const integrationArn = 'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations';
     const httpApi = new apigwv2.CfnApi(this, 'HttpApi', {
       body: {
         openapi: '3.0.1',
@@ -48,8 +59,27 @@ export class CdkServerlessStack extends cdk.Stack {
                 type: 'AWS_PROXY',
                 payloadFormatVersion: '2.0',
                 uri: cdk.Fn.sub(
-                  'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations', {
+                  integrationArn, {
                     LambdaArn: helloFunction.functionArn,
+                  },
+                ),
+              },
+            },
+          },
+          '/user/welcome': {
+            get: {
+              operationId: 'userWelcome',
+              responses: {
+                200: {
+                  description: '200 OK',
+                },
+              },
+              'x-amazon-apigateway-integration': {
+                type: 'AWS_PROXY',
+                payloadFormatVersion: '2.0',
+                uri: cdk.Fn.sub(
+                  integrationArn, {
+                    LambdaArn: welcomeFunction.functionArn,
                   },
                 ),
               },
@@ -65,20 +95,20 @@ export class CdkServerlessStack extends cdk.Stack {
       autoDeploy: true,
     });
 
-    helloFunction.addPermission('HttpApiInvokePermission', {
-      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
-      action: 'lambda:InvokeFunction',
-      sourceArn: cdk.Fn.join('', [
-        'arn:',
-        cdk.Fn.ref('AWS::Partition'),
-        ':execute-api:',
-        cdk.Fn.ref('AWS::Region'),
-        ':',
-        cdk.Fn.ref('AWS::AccountId'),
-        ':',
-        httpApi.ref,
-        '/*/*/hello',
-      ]),
+    const sourceArnTemplate = 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/*/*';
+    const sourceArn = cdk.Fn.sub(
+      sourceArnTemplate, {
+        ApiId: httpApi.ref,
+      },
+    );
+    [
+      helloFunction, welcomeFunction,
+    ].forEach(fn => {
+      fn.addPermission('HttpApiInvokePermission', {
+        principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+        action: 'lambda:InvokeFunction',
+        sourceArn,
+      });
     });
 
     new cdk.CfnOutput(this, 'HttpApiEndpoint', {

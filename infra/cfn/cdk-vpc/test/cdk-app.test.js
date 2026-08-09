@@ -1,9 +1,12 @@
-// import * as cdk from 'aws-cdk-lib/core';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as CdkApp from '../lib/cdk-app-stack';
+import * as cdk from 'aws-cdk-lib/core';
+import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import { CdkServerlessStack } from '../lib/cdk-serverless-stack';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/cdk-app-stack.ts
-test('SQS Queue Created', () => {
-  expect(true).toBe(true);
+test('creates a NodejsFunction for the hello handler', () => {
+  const app = new cdk.App();
+  const stack = new CdkServerlessStack(app, 'TestServerlessStack', { envName: 'test' });
+
+  const helloFunction = stack.node.tryFindChild('HelloFunction');
+
+  expect(helloFunction).toBeInstanceOf(lambdaNodejs.NodejsFunction);
 });
