@@ -1,11 +1,18 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib/core';
 import { CdkAppStack } from '../lib/cdk-app-stack.js';
+import { CdkServerlessStack } from '../lib/cdk-serverless-stack.js';
+
+const logger = new Proxy(console, {
+  get(target, prop) {
+    return target[prop];
+  },
+});
 
 const app = new cdk.App();
 const envName = app.node.tryGetContext('env');
 
-const environmentConfigs = {
+const envConfigs = {
   dev: {
     imageId: 'ami-0b6d9d3d33ba97d99',
     instanceType: 't3.micro',
@@ -26,14 +33,19 @@ const environmentConfigs = {
   },
 };
 
-const config = environmentConfigs[envName];
+const config = envConfigs[envName];
 if (!config) {
   throw new Error(
-    `Unknown environment '${envName}'. Valid environments are: ${Object.keys(environmentConfigs).join(', ')}`,
+    `Unknown env '${envName}'. Valid env are: ${Object.keys(envConfigs).join(', ')}`,
   );
 }
 
-new CdkAppStack(app, `${envName}-cdk-app`, {
-  ...config,
-  environmentName: envName,
+logger.debug(typeof CdkAppStack);
+// new CdkAppStack(app, `${envName}-cdk-app`, {
+//   ...config,
+//   envName,
+// });
+
+new CdkServerlessStack(app, `${envName}-cdk-serverless`, {
+  envName,
 });

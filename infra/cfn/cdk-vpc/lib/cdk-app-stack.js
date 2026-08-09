@@ -7,7 +7,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 export class CdkAppStack extends cdk.Stack {
   constructor(scope, id, props = {}) {
     const {
-      environmentName = 'dev',
+      envName = 'dev',
       imageId = 'ami-0b6d9d3d33ba97d99',
       instanceType = 't3.micro',
       eipAllocationId = '',
@@ -21,7 +21,7 @@ export class CdkAppStack extends cdk.Stack {
 
     super(scope, id, stackProps);
 
-    cdk.Tags.of(this).add('Environment', environmentName);
+    cdk.Tags.of(this).add('Env', envName);
 
     const instanceTypeStr = instanceType;
 

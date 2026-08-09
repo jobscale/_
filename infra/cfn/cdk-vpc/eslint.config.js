@@ -14,6 +14,7 @@ export default [{
   rules: {
     ...standard.rules,
     'no-new': 'off',
+    'no-template-curly-in-string': 'off',
   },
 }, {
   ...standard.configs.browser,

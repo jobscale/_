@@ -6,12 +6,11 @@
     "watch": "echo \"No watch configured for JavaScript ESM\"",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --coverage --collectCoverage --verbose",
     "lint": "eslint",
-    "synth": "ENV=${ENV:-dev} && cdk synth --context env=$ENV",
-    "prebuild": "npm run lint",
-    "build": "ENV=${ENV:-dev} && cdk build --context env=$ENV",
-    "diff": "ENV=${ENV:-dev} && cdk diff --context env=$ENV",
-    "deploy": "ENV=${ENV:-dev} && cdk deploy --context env=$ENV",
-    "ls": "ENV=${ENV:-dev} && cdk ls --context env=$ENV"
+    "predeploy": "npm run lint",
+    "synth": "ENV=${ENV:-dev} && cdk synth --all --context env=$ENV",
+    "diff": "ENV=${ENV:-dev} && cdk diff --all --context env=$ENV",
+    "deploy": "ENV=${ENV:-dev} && cdk deploy --all --context env=$ENV",
+    "ls": "ENV=${ENV:-dev} && cdk ls --all --context env=$ENV"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.263.0",
