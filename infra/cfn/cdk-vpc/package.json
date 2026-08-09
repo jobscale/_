@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "watch": "echo \"No watch configured for JavaScript ESM\"",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --coverage --collectCoverage --verbose",
     "lint": "eslint",
     "prebuild": "npm run lint",
     "build": "cdk build",
@@ -13,19 +13,14 @@
     "deploy": "cdk deploy",
     "cdk": "cdk"
   },
-  "devDependencies": {
-    "aws-cdk": "2.1135.1",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jest": "^29.0.0",
-    "eslint-plugin-n": "^18.2.2",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^7.3.0",
-    "eslint-plugin-standard": "^4.1.0",
-    "jest": "^30",
-    "tsx": "^4.23.0"
-  },
   "dependencies": {
     "aws-cdk-lib": "^2.263.0",
-    "constructs": "^10.5.0"
+    "constructs": "^10.8.1"
+  },
+  "devDependencies": {
+    "@jobscale/eslint-plugin-standard": "^0.1.1",
+    "aws-cdk": "^2.1135.1",
+    "eslint-plugin-jest": "^29.16.0",
+    "jest": "^30.4.2"
   }
 }
