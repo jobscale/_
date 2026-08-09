@@ -6,16 +6,24 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class CdkAppStack extends cdk.Stack {
   constructor(scope, id, props = {}) {
-    super(scope, id, props);
+    const {
+      environmentName = 'dev',
+      imageId = 'ami-0b6d9d3d33ba97d99',
+      instanceType = 't3.micro',
+      eipAllocationId = '',
+      vpcCidr = '10.90.0.0/16',
+      publicSubnet1Cidr = '10.90.1.0/24',
+      privateSubnet1Cidr = '10.90.2.0/24',
+      publicSubnet2Cidr = '10.90.3.0/24',
+      privateSubnet2Cidr = '10.90.4.0/24',
+      ...stackProps
+    } = props;
 
-    const imageId = props.imageId || 'ami-0b6d9d3d33ba97d99';
-    const instanceTypeStr = props.instanceType || 't3.micro';
-    const eipAllocationId = props.eipAllocationId || '';
-    const vpcCidr = props.vpcCidr || '10.90.0.0/16';
-    const publicSubnet1Cidr = props.publicSubnet1Cidr || '10.90.1.0/24';
-    const privateSubnet1Cidr = props.privateSubnet1Cidr || '10.90.2.0/24';
-    const publicSubnet2Cidr = props.publicSubnet2Cidr || '10.90.3.0/24';
-    const privateSubnet2Cidr = props.privateSubnet2Cidr || '10.90.4.0/24';
+    super(scope, id, stackProps);
+
+    cdk.Tags.of(this).add('Environment', environmentName);
+
+    const instanceTypeStr = instanceType;
 
     // use raw instance type string for CfnInstance
 
