@@ -41,10 +41,10 @@ if (!config) {
 }
 
 logger.debug(typeof CdkAppStack);
-// new CdkAppStack(app, `${envName}-cdk-app`, {
-//   ...config,
-//   envName,
-// });
+new CdkAppStack(app, `${envName}-cdk-app`, {
+  ...config,
+  envName,
+});
 
 new CdkServerlessStack(app, `${envName}-cdk-serverless`, {
   envName,
