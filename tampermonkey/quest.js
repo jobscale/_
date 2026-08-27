@@ -225,7 +225,7 @@
     left: 0;
     background-color: transparent;
     pointer-events: none;
-    z-index: 1000000;
+    z-index: 100;
   }
   .honeycomb-white {
     background-color: rgba(0, 0, 0, 0.3) !important;
@@ -353,7 +353,9 @@
       const before = JSON.parse(await customStorage.getItem('player') || '{}');
       await customStorage.setItem('player', JSON.stringify({ ...before, ...item }));
       if (before.point && before.point > item.point) {
-        location.href = 'https://navy.quest/gold?go=report';
+        setTimeout(() => {
+          location.href = 'https://navy.quest/gold?go=report';
+        }, 1000);
       }
     },
 

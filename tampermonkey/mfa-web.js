@@ -9,8 +9,8 @@
 // @match        https://signin.aws.amazon.com/signin?*
 // @match        https://login.microsoftonline.com/*
 // @match        https://github.com/*
-// @match        https://jsx.jp/auth/
-// @match        https://*.jsx.jp/auth/
+// @match        https://jsx.jp/*/auth/
+// @match        https://*.jsx.jp/*/auth/
 // @match        https://www.npmjs.com/login/otp?next=*
 // @match        https://www.npmjs.com/escalate/otp?next=*
 // @match        https://bitflyer.com/*/ex/twofactorauth

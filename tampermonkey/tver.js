@@ -218,13 +218,30 @@ div[class^="FavoriteList"] > div {
     setMenu2(areaMenu) {
       const el = document.createElement('button');
       el.classList.add('btn-button');
-      el.textContent = '既読を非表示';
+      el.textContent = '再放送を非表示';
       el.addEventListener('click', async event => {
         event.preventDefault();
-        const list = await app.fetchData();
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
         .filter(wrapper => {
           if (wrapper.textContent.match(/年放送/)) return true;
+          return false;
+        })
+        .forEach(content => content.remove());
+      });
+      areaMenu.append(el);
+    },
+
+    setMenu3(areaMenu) {
+      const el = document.createElement('button');
+      el.classList.add('btn-button');
+      el.textContent = '既読を非表示';
+      el.addEventListener('click', async event => {
+        event.preventDefault();
+        const start = Date.now();
+        const list = await app.fetchData();
+        const loading = Date.now();
+        [...document.querySelectorAll('li:has([href^="/episodes/"])')]
+        .filter(wrapper => {
           const exist = list.find(data => data.href === wrapper.querySelector('a').href);
           if (exist) return true;
           const anchor = wrapper.querySelector('a');
@@ -233,6 +250,13 @@ div[class^="FavoriteList"] > div {
           return false;
         })
         .forEach(content => content.remove());
+        logger.info({
+          count: list.length,
+          size: `${JSON.stringify(list).length / 1000} KB`,
+          loading: `${loading - start} ms`,
+          rendering: `${Date.now() - loading} ms`,
+          benchmark: `${Date.now() - start} ms`,
+        });
       });
       areaMenu.append(el);
     },
@@ -242,6 +266,7 @@ div[class^="FavoriteList"] > div {
       if (!areaMenu) return;
       app.setMenu1(areaMenu);
       app.setMenu2(areaMenu);
+      app.setMenu3(areaMenu);
     },
 
     setVideo () {
@@ -327,6 +352,7 @@ div[class^="FavoriteList"] > div {
     },
 
     async start() {
+      logger.info('provider start');
       await new Promise(resolve => { setTimeout(resolve, 500); });
       provider.id = setTimeout(provider.handler, 500);
       provider.observer = new MutationObserver(provider.handler);
