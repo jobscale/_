@@ -2,38 +2,87 @@ import * as cdk from 'aws-cdk-lib/core';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
-/* eslint-disable object-shorthand */
+const logger = new Proxy(console, {
+  get(target, prop) {
+    return target[prop];
+  },
+});
 
-export class CdkAppStack extends cdk.Stack {
+const parseInstanceTypeClass = typeStr => {
+  const prefix = typeStr.toLowerCase().split('.')[0];
+  const classMap = {
+    t2: ec2.InstanceClass.T2,
+    t3: ec2.InstanceClass.T3,
+    t3a: ec2.InstanceClass.T3A,
+    t4g: ec2.InstanceClass.T4G,
+    m5: ec2.InstanceClass.M5,
+    m6i: ec2.InstanceClass.M6I,
+    m7i: ec2.InstanceClass.M7I,
+    c5: ec2.InstanceClass.C5,
+    c6i: ec2.InstanceClass.C6I,
+  };
+  return classMap[prefix] || ec2.InstanceClass.T3;
+};
+
+const parseInstanceTypeSize = typeStr => {
+  const suffix = typeStr.toLowerCase().split('.')[1] || 'micro';
+  const sizeMap = {
+    nano: ec2.InstanceSize.NANO,
+    micro: ec2.InstanceSize.MICRO,
+    small: ec2.InstanceSize.SMALL,
+    medium: ec2.InstanceSize.MEDIUM,
+    large: ec2.InstanceSize.LARGE,
+    xlarge: ec2.InstanceSize.XLARGE,
+    '2xlarge': ec2.InstanceSize.XLARGE2,
+    '3xlarge': ec2.InstanceSize.XLARGE3,
+    '4xlarge': ec2.InstanceSize.XLARGE4,
+    '6xlarge': ec2.InstanceSize.XLARGE6,
+    '8xlarge': ec2.InstanceSize.XLARGE8,
+    '12xlarge': ec2.InstanceSize.XLARGE12,
+    '16xlarge': ec2.InstanceSize.XLARGE16,
+    '24xlarge': ec2.InstanceSize.XLARGE24,
+  };
+  return sizeMap[suffix] || ec2.InstanceSize.MICRO;
+};
+
+const parseInstanceType = typeStr => {
+  const instanceClass = parseInstanceTypeClass(typeStr);
+  const instanceSize = parseInstanceTypeSize(typeStr);
+  return `${instanceClass}_${instanceSize}`;
+};
+
+export class AppStack extends cdk.Stack {
   constructor(scope, id, props = {}) {
-    const {
-      envName = 'dev',
-      imageId = 'ami-0b6d9d3d33ba97d99',
-      instanceType = 't3.micro',
-      eipAllocationId = '',
-      vpcCidr = '10.90.0.0/16',
-      publicSubnet1Cidr = '10.90.1.0/24',
-      privateSubnet1Cidr = '10.90.2.0/24',
-      publicSubnet2Cidr = '10.90.3.0/24',
-      privateSubnet2Cidr = '10.90.4.0/24',
-      ...stackProps
-    } = props;
-
+    const { envName = 'dev', ...stackProps } = props;
     super(scope, id, stackProps);
 
     cdk.Tags.of(this).add('Env', envName);
 
-    const instanceTypeStr = instanceType;
+    this.context = {
+      envName,
+      ...stackProps,
+    };
+    logger.info({
+      stackName: this.stackName,
+      env: this.env,
+      context: this.context,
+    });
 
-    // use raw instance type string for CfnInstance
+    const { context } = this;
 
     const vpc = new ec2.Vpc(this, 'VPC', {
-      ipAddresses: ec2.IpAddresses.cidr(vpcCidr),
+      ipAddresses: ec2.IpAddresses.cidr(context.vpcCidr),
       enableDnsHostnames: true,
       enableDnsSupport: true,
       maxAzs: 2,
       natGateways: 0,
       subnetConfiguration: [],
+    });
+
+    const natGateway = new ec2.CfnNatGateway(this, 'RegionalNatGateway', {
+      vpcId: vpc.vpcId,
+      availabilityMode: 'regional',
+      connectivityType: 'public',
     });
 
     const internetGateway = new ec2.CfnInternetGateway(this, 'InternetGateway');
@@ -46,39 +95,46 @@ export class CdkAppStack extends cdk.Stack {
       vpcId: vpc.vpcId,
       tags: [{ key: 'Name', value: `${this.stackName}-public-route-table` }],
     });
+    const privateRouteTable = new ec2.CfnRouteTable(this, 'PrivateRouteTable', {
+      vpcId: vpc.vpcId,
+      tags: [{ key: 'Name', value: `${this.stackName}-private-route-table` }],
+    });
 
     new ec2.CfnRoute(this, 'PublicRoute', {
       routeTableId: publicRouteTable.ref,
       destinationCidrBlock: '0.0.0.0/0',
       gatewayId: internetGateway.ref,
     }).addDependsOn(attachGateway);
+    new ec2.CfnRoute(this, 'PrivateRoute', {
+      routeTableId: publicRouteTable.ref,
+      destinationCidrBlock: '0.0.0.0/0',
+      gatewayId: natGateway.ref,
+    }).addDependsOn(attachGateway);
 
     const publicSubnet1 = new ec2.CfnSubnet(this, 'PublicSubnet1', {
       vpcId: vpc.vpcId,
-      cidrBlock: publicSubnet1Cidr,
+      cidrBlock: context.publicSubnet1Cidr,
       availabilityZone: cdk.Fn.select(0, cdk.Fn.getAzs()),
       mapPublicIpOnLaunch: true,
       tags: [{ key: 'Name', value: `${this.stackName}-public-subnet-1` }],
     });
-
-    new ec2.CfnSubnet(this, 'PrivateSubnet1', {
-      vpcId: vpc.vpcId,
-      cidrBlock: privateSubnet1Cidr,
-      availabilityZone: cdk.Fn.select(0, cdk.Fn.getAzs()),
-      tags: [{ key: 'Name', value: `${this.stackName}-private-subnet-1` }],
-    });
-
     const publicSubnet2 = new ec2.CfnSubnet(this, 'PublicSubnet2', {
       vpcId: vpc.vpcId,
-      cidrBlock: publicSubnet2Cidr,
+      cidrBlock: context.publicSubnet2Cidr,
       availabilityZone: cdk.Fn.select(1, cdk.Fn.getAzs()),
       mapPublicIpOnLaunch: true,
       tags: [{ key: 'Name', value: `${this.stackName}-public-subnet-2` }],
     });
 
-    new ec2.CfnSubnet(this, 'PrivateSubnet2', {
+    const privateSubnet1 = new ec2.CfnSubnet(this, 'PrivateSubnet1', {
       vpcId: vpc.vpcId,
-      cidrBlock: privateSubnet2Cidr,
+      cidrBlock: context.privateSubnet1Cidr,
+      availabilityZone: cdk.Fn.select(0, cdk.Fn.getAzs()),
+      tags: [{ key: 'Name', value: `${this.stackName}-private-subnet-1` }],
+    });
+    const privateSubnet2 = new ec2.CfnSubnet(this, 'PrivateSubnet2', {
+      vpcId: vpc.vpcId,
+      cidrBlock: context.privateSubnet2Cidr,
       availabilityZone: cdk.Fn.select(1, cdk.Fn.getAzs()),
       tags: [{ key: 'Name', value: `${this.stackName}-private-subnet-2` }],
     });
@@ -88,10 +144,17 @@ export class CdkAppStack extends cdk.Stack {
       subnetId: publicSubnet1.ref,
       routeTableId: publicRouteTable.ref,
     });
-
     new ec2.CfnSubnetRouteTableAssociation(this, 'PublicSubnet2RouteTableAssoc', {
       subnetId: publicSubnet2.ref,
       routeTableId: publicRouteTable.ref,
+    });
+    new ec2.CfnSubnetRouteTableAssociation(this, 'PrivateSubnet1RouteTableAssoc', {
+      subnetId: privateSubnet1.ref,
+      routeTableId: privateRouteTable.ref,
+    });
+    new ec2.CfnSubnetRouteTableAssociation(this, 'PrivateSubnet2RouteTableAssoc', {
+      subnetId: privateSubnet2.ref,
+      routeTableId: privateRouteTable.ref,
     });
 
     const internalPrefixListResource = new cdk.CfnResource(this, 'InternalPrefixList', {
@@ -153,14 +216,9 @@ export class CdkAppStack extends cdk.Stack {
       resources: ['*'],
     }));
 
-    // Create InstanceProfile (L1) so template matches the CFN template shape
-    const instanceProfile = new iam.CfnInstanceProfile(this, 'SSMInstanceProfile', {
-      roles: [ssmRole.roleName],
-    });
-
     // Create EIP and association or use existing allocation
     let eipResource = undefined;
-    if (!eipAllocationId) {
+    if (!context.eipAllocationId) {
       eipResource = new ec2.CfnEIP(this, 'EIP', { domain: 'vpc' });
       new ec2.CfnEIPAssociation(this, 'EIPAssociation', {
         allocationId: eipResource.attrAllocationId,
@@ -168,16 +226,21 @@ export class CdkAppStack extends cdk.Stack {
       });
     } else {
       const existingEipAssociation = new ec2.CfnEIPAssociation(this, 'EIPAssociationExisting', {
-        allocationId: eipAllocationId,
+        allocationId: context.eipAllocationId,
         instanceId: cdk.Fn.ref('EC2Instance'),
       });
       existingEipAssociation.cfnOptions.deletionPolicy = cdk.CfnDeletionPolicy.RETAIN;
     }
 
+    // Create InstanceProfile (L1) so template matches the CFN template shape
+    const instanceProfile = new iam.CfnInstanceProfile(this, 'SSMInstanceProfile', {
+      roles: [ssmRole.roleName],
+    });
+
     // Create EC2 Instance as L1 to match template exactly
     const cfnInstance = new ec2.CfnInstance(this, 'EC2Instance', {
-      instanceType: instanceTypeStr,
-      imageId: imageId,
+      instanceType: parseInstanceType(context.instanceType),
+      imageId: context.imageId,
       subnetId: publicSubnet1.ref,
       securityGroupIds: [publicSG.securityGroupId, internalSG.securityGroupId],
       iamInstanceProfile: instanceProfile.ref,
@@ -216,47 +279,10 @@ export class CdkAppStack extends cdk.Stack {
     });
 
     // EIP output: either created allocation or provided existing allocation
-    if (!eipAllocationId && eipResource) {
+    if (!context.eipAllocationId && eipResource) {
       new cdk.CfnOutput(this, 'EIPOutput', { value: eipResource.attrAllocationId });
-    } else if (eipAllocationId) {
-      new cdk.CfnOutput(this, 'EIPOutput', { value: eipAllocationId });
+    } else if (context.eipAllocationId) {
+      new cdk.CfnOutput(this, 'EIPOutput', { value: context.eipAllocationId });
     }
-  }
-
-  parseInstanceTypeClass(typeStr) {
-    const prefix = typeStr.toLowerCase().split('.')[0];
-    const classMap = {
-      t2: ec2.InstanceClass.T2,
-      t3: ec2.InstanceClass.T3,
-      t3a: ec2.InstanceClass.T3A,
-      t4g: ec2.InstanceClass.T4G,
-      m5: ec2.InstanceClass.M5,
-      m6i: ec2.InstanceClass.M6I,
-      m7i: ec2.InstanceClass.M7I,
-      c5: ec2.InstanceClass.C5,
-      c6i: ec2.InstanceClass.C6I,
-    };
-    return classMap[prefix] || ec2.InstanceClass.T3;
-  }
-
-  parseInstanceTypeSize(typeStr) {
-    const suffix = typeStr.toLowerCase().split('.')[1] || 'micro';
-    const sizeMap = {
-      nano: ec2.InstanceSize.NANO,
-      micro: ec2.InstanceSize.MICRO,
-      small: ec2.InstanceSize.SMALL,
-      medium: ec2.InstanceSize.MEDIUM,
-      large: ec2.InstanceSize.LARGE,
-      xlarge: ec2.InstanceSize.XLARGE,
-      '2xlarge': ec2.InstanceSize.XLARGE2,
-      '3xlarge': ec2.InstanceSize.XLARGE3,
-      '4xlarge': ec2.InstanceSize.XLARGE4,
-      '6xlarge': ec2.InstanceSize.XLARGE6,
-      '8xlarge': ec2.InstanceSize.XLARGE8,
-      '12xlarge': ec2.InstanceSize.XLARGE12,
-      '16xlarge': ec2.InstanceSize.XLARGE16,
-      '24xlarge': ec2.InstanceSize.XLARGE24,
-    };
-    return sizeMap[suffix] || ec2.InstanceSize.MICRO;
   }
 }
