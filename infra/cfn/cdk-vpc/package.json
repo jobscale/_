@@ -10,6 +10,7 @@
     "synth": "ENV=${ENV:-dev} && cdk synth --context env=$ENV",
     "diff": "ENV=${ENV:-dev} && cdk diff --context env=$ENV",
     "deploy": "ENV=${ENV:-dev} && cdk deploy --context env=$ENV",
+    "deploy:force": "ENV=${ENV:-dev} && cdk deploy --context env=$ENV --require-approval never",
     "ls": "ENV=${ENV:-dev} && cdk ls --context env=$ENV"
   },
   "dependencies": {

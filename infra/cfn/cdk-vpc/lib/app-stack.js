@@ -36,10 +36,13 @@ export class AppStack extends cdk.Stack {
       subnetConfiguration: [],
     });
 
-    const natGateway = new ec2.CfnNatGateway(this, 'RegionalNatGateway', {
+    const publicRouteTable = new ec2.CfnRouteTable(this, 'PublicRouteTable', {
       vpcId: context.vpc.vpcId,
-      availabilityMode: 'regional',
-      connectivityType: 'public',
+      tags: [{ key: 'Name', value: `${this.stackName}-public-route-table` }],
+    });
+    const privateRouteTable = new ec2.CfnRouteTable(this, 'PrivateRouteTable', {
+      vpcId: context.vpc.vpcId,
+      tags: [{ key: 'Name', value: `${this.stackName}-private-route-table` }],
     });
 
     const internetGateway = new ec2.CfnInternetGateway(this, 'InternetGateway');
@@ -48,13 +51,10 @@ export class AppStack extends cdk.Stack {
       internetGatewayId: internetGateway.ref,
     });
 
-    const publicRouteTable = new ec2.CfnRouteTable(this, 'PublicRouteTable', {
+    const natGateway = new ec2.CfnNatGateway(this, 'RegionalNatGateway', {
       vpcId: context.vpc.vpcId,
-      tags: [{ key: 'Name', value: `${this.stackName}-public-route-table` }],
-    });
-    const privateRouteTable = new ec2.CfnRouteTable(this, 'PrivateRouteTable', {
-      vpcId: context.vpc.vpcId,
-      tags: [{ key: 'Name', value: `${this.stackName}-private-route-table` }],
+      availabilityMode: 'regional',
+      connectivityType: 'public',
     });
 
     new ec2.CfnRoute(this, 'PublicRoute', {
@@ -67,6 +67,25 @@ export class AppStack extends cdk.Stack {
       destinationCidrBlock: '0.0.0.0/0',
       natGatewayId: natGateway.ref,
     }).addResourceDependency(natGateway);
+
+    new ec2.CfnVPCEndpoint(this, 'S3Endpoint', {
+      vpcId: context.vpc.vpcId,
+      serviceName: `com.amazonaws.${this.region}.s3`,
+      vpcEndpointType: 'Gateway',
+      routeTableIds: [
+        publicRouteTable.ref,
+        privateRouteTable.ref,
+      ],
+    });
+    new ec2.CfnVPCEndpoint(this, 'DynamoDBEndpoint', {
+      vpcId: context.vpc.vpcId,
+      serviceName: `com.amazonaws.${this.region}.dynamodb`,
+      vpcEndpointType: 'Gateway',
+      routeTableIds: [
+        publicRouteTable.ref,
+        privateRouteTable.ref,
+      ],
+    });
 
     context.publicSubnet1 = new ec2.CfnSubnet(this, 'PublicSubnet1', {
       vpcId: context.vpc.vpcId,
