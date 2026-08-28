@@ -124,4 +124,9 @@ export const ec2Bastion = stack => {
   } else if (context.eipAllocationId) {
     new cdk.CfnOutput(stack, 'EIPOutput', { value: context.eipAllocationId });
   }
+
+  new cdk.CfnOutput(stack, 'StartSession', {
+    value: `aws ssm start-session --target ${cfnInstance.ref} --region ${stack.region}`,
+    description: 'EC2 Instance Start Session',
+  });
 };
