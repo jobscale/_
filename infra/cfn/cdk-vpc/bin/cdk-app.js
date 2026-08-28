@@ -18,7 +18,6 @@ const envConfigs = {
       region: 'us-east-1',
     },
     context: {
-      imageId: 'ami-0b6d9d3d33ba97d99',
       instanceType: 't3.micro',
       eipAllocationId: '',
       vpcCidr: '10.0.0.0/16',
@@ -34,7 +33,6 @@ const envConfigs = {
       region: 'ap-northeast-1',
     },
     context: {
-      imageId: 'ami-0126975fb247bf2e7',
       instanceType: 't3.small',
       eipAllocationId: '',
       vpcCidr: '10.1.0.0/16',

@@ -6,7 +6,7 @@
     "watch": "echo \"No watch configured for JavaScript ESM\"",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --coverage --collectCoverage --verbose",
     "lint": "eslint",
-    "predeploy": "npm run lint",
+    "bootstrap": "ENV=${ENV:-dev} && cdk bootstrap --context env=$ENV",
     "synth": "ENV=${ENV:-dev} && cdk synth --context env=$ENV",
     "diff": "ENV=${ENV:-dev} && cdk diff --context env=$ENV",
     "deploy": "ENV=${ENV:-dev} && cdk deploy --context env=$ENV",
