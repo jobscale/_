@@ -1,12 +1,7 @@
 import * as cdk from 'aws-cdk-lib/core';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { logger } from '@jobscale/create-logger';
 import { ec2Bastion } from '../lib/cdk/ec2-bastion.js';
-
-const logger = new Proxy(console, {
-  get(target, prop) {
-    return target[prop];
-  },
-});
 
 export class AppStack extends cdk.Stack {
   constructor(scope, id, props = {}) {
@@ -36,15 +31,6 @@ export class AppStack extends cdk.Stack {
       subnetConfiguration: [],
     });
 
-    const publicRouteTable = new ec2.CfnRouteTable(this, 'PublicRouteTable', {
-      vpcId: context.vpc.vpcId,
-      tags: [{ key: 'Name', value: `${this.stackName}-public-route-table` }],
-    });
-    const privateRouteTable = new ec2.CfnRouteTable(this, 'PrivateRouteTable', {
-      vpcId: context.vpc.vpcId,
-      tags: [{ key: 'Name', value: `${this.stackName}-private-route-table` }],
-    });
-
     const internetGateway = new ec2.CfnInternetGateway(this, 'InternetGateway');
     const attachGateway = new ec2.CfnVPCGatewayAttachment(this, 'AttachGateway', {
       vpcId: context.vpc.vpcId,
@@ -56,17 +42,16 @@ export class AppStack extends cdk.Stack {
       availabilityMode: 'regional',
       connectivityType: 'public',
     });
+    natGateway.addResourceDependency(attachGateway);
 
-    new ec2.CfnRoute(this, 'PublicRoute', {
-      routeTableId: publicRouteTable.ref,
-      destinationCidrBlock: '0.0.0.0/0',
-      gatewayId: internetGateway.ref,
-    }).addResourceDependency(attachGateway);
-    new ec2.CfnRoute(this, 'PrivateRoute', {
-      routeTableId: privateRouteTable.ref,
-      destinationCidrBlock: '0.0.0.0/0',
-      natGatewayId: natGateway.ref,
-    }).addResourceDependency(natGateway);
+    const publicRouteTable = new ec2.CfnRouteTable(this, 'PublicRouteTable', {
+      vpcId: context.vpc.vpcId,
+      tags: [{ key: 'Name', value: `${this.stackName}-public-route-table` }],
+    });
+    const privateRouteTable = new ec2.CfnRouteTable(this, 'PrivateRouteTable', {
+      vpcId: context.vpc.vpcId,
+      tags: [{ key: 'Name', value: `${this.stackName}-private-route-table` }],
+    });
 
     new ec2.CfnVPCEndpoint(this, 'S3Endpoint', {
       vpcId: context.vpc.vpcId,
@@ -86,6 +71,17 @@ export class AppStack extends cdk.Stack {
         privateRouteTable.ref,
       ],
     });
+
+    new ec2.CfnRoute(this, 'PublicRoute', {
+      routeTableId: publicRouteTable.ref,
+      destinationCidrBlock: '0.0.0.0/0',
+      gatewayId: internetGateway.ref,
+    }).addResourceDependency(attachGateway);
+    new ec2.CfnRoute(this, 'PrivateRoute', {
+      routeTableId: privateRouteTable.ref,
+      destinationCidrBlock: '0.0.0.0/0',
+      natGatewayId: natGateway.ref,
+    }).addResourceDependency(natGateway);
 
     context.publicSubnet1 = new ec2.CfnSubnet(this, 'PublicSubnet1', {
       vpcId: context.vpc.vpcId,

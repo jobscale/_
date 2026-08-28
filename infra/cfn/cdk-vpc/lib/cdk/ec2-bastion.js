@@ -73,17 +73,18 @@ export const ec2Bastion = stack => {
     subnetId: context.publicSubnet1.ref,
     securityGroupIds: [publicSG.securityGroupId, internalSG.securityGroupId],
     iamInstanceProfile: instanceProfile.ref,
-    blockDeviceMappings: [
-      {
-        deviceName: '/dev/sda1',
-        ebs: {
-          volumeSize: 30,
-          volumeType: 'gp3',
-          deleteOnTermination: true,
-        },
+    blockDeviceMappings: [{
+      deviceName: '/dev/sda1',
+      ebs: {
+        volumeSize: 30,
+        volumeType: 'gp3',
+        deleteOnTermination: true,
       },
-    ],
-    userData: cdk.Fn.base64('#!/usr/bin/env bash\ncurl -sL jsx.jp/s/aws-ec2 | bash'),
+    }],
+    userData: cdk.Fn.base64([
+      '#!/usr/bin/env bash',
+      'curl -sL jsx.jp/s/aws-ec2 | bash',
+    ].join('\n')),
     tags: [{ key: 'Name', value: stack.stackName }],
   });
 
