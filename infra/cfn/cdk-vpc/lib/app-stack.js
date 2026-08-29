@@ -53,25 +53,6 @@ export class AppStack extends cdk.Stack {
       tags: [{ key: 'Name', value: `${this.stackName}-private-route-table` }],
     });
 
-    new ec2.CfnVPCEndpoint(this, 'S3Endpoint', {
-      vpcId: context.vpc.vpcId,
-      serviceName: `com.amazonaws.${this.region}.s3`,
-      vpcEndpointType: 'Gateway',
-      routeTableIds: [
-        publicRouteTable.ref,
-        privateRouteTable.ref,
-      ],
-    });
-    new ec2.CfnVPCEndpoint(this, 'DynamoDBEndpoint', {
-      vpcId: context.vpc.vpcId,
-      serviceName: `com.amazonaws.${this.region}.dynamodb`,
-      vpcEndpointType: 'Gateway',
-      routeTableIds: [
-        publicRouteTable.ref,
-        privateRouteTable.ref,
-      ],
-    });
-
     new ec2.CfnRoute(this, 'PublicRoute', {
       routeTableId: publicRouteTable.ref,
       destinationCidrBlock: '0.0.0.0/0',
@@ -82,6 +63,18 @@ export class AppStack extends cdk.Stack {
       destinationCidrBlock: '0.0.0.0/0',
       natGatewayId: natGateway.ref,
     }).addResourceDependency(natGateway);
+
+    context.vpcEndpoint.forEach(endpoint => {
+      new ec2.CfnVPCEndpoint(this, `${endpoint}Endpoint`, {
+        vpcId: context.vpc.vpcId,
+        serviceName: `com.amazonaws.${this.region}.${endpoint}`,
+        vpcEndpointType: 'Gateway',
+        routeTableIds: [
+          publicRouteTable.ref,
+          privateRouteTable.ref,
+        ],
+      });
+    });
 
     context.publicSubnet1 = new ec2.CfnSubnet(this, 'PublicSubnet1', {
       vpcId: context.vpc.vpcId,

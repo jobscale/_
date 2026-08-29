@@ -20,6 +20,7 @@ const envConfigs = {
       privateSubnet1Cidr: '10.0.2.0/24',
       publicSubnet2Cidr: '10.0.3.0/24',
       privateSubnet2Cidr: '10.0.4.0/24',
+      vpcEndpoint: ['s3', 'dynamodb'],
     },
   },
   stg: {
@@ -35,6 +36,7 @@ const envConfigs = {
       privateSubnet1Cidr: '10.1.2.0/24',
       publicSubnet2Cidr: '10.1.3.0/24',
       privateSubnet2Cidr: '10.1.4.0/24',
+      vpcEndpoint: ['s3', 'dynamodb'],
     },
   },
   pink: {
@@ -50,6 +52,23 @@ const envConfigs = {
       privateSubnet1Cidr: '10.1.2.0/24',
       publicSubnet2Cidr: '10.1.3.0/24',
       privateSubnet2Cidr: '10.1.4.0/24',
+      vpcEndpoint: ['s3', 'dynamodb'],
+    },
+  },
+  yellow: {
+    env: {
+      account: '393035998684',
+      region: 'ap-northeast-1',
+    },
+    context: {
+      instanceType: 't3.small',
+      eipAllocationId: '',
+      vpcCidr: '10.1.0.0/16',
+      publicSubnet1Cidr: '10.1.1.0/24',
+      privateSubnet1Cidr: '10.1.2.0/24',
+      publicSubnet2Cidr: '10.1.3.0/24',
+      privateSubnet2Cidr: '10.1.4.0/24',
+      vpcEndpoint: ['s3', 'dynamodb'],
     },
   },
 };
