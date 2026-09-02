@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eu
+
+LEFT=0
+TOP=24
+RIGHT=1454
+BOTTOM=328
+
+WIDTH=$(( RIGHT - LEFT ))
+HEIGHT=$(( BOTTOM - TOP ))
+
+mkdir -p logs
+F_NAME="logs/sc-image-${1:-$(date +%s)}.png"
+
+import -window root -crop ${WIDTH}x${HEIGHT}+${LEFT}+${TOP} +repage "${F_NAME}"

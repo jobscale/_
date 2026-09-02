@@ -10,3 +10,4 @@ cert.*
 *.csr
 *.cert
 .vscode/
+logs/
