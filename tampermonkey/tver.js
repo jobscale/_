@@ -203,9 +203,7 @@ div[class^="FavoriteList"] > div {
       const el = document.createElement('button');
       el.classList.add('btn-button');
       el.textContent = 'キャプションを非表示';
-      el.addEventListener('click', async event => {
-        event.preventDefault();
-        await app.loading();
+      const action = async () => {
         [...document.querySelectorAll('div[class^="Caption_caption"]')]
         .forEach(content => {
           const parent = content.parentElement;
@@ -213,7 +211,10 @@ div[class^="FavoriteList"] > div {
           const { childElementCount } = parent.querySelector('section > ul');
           if (!childElementCount) parent.remove();
         });
-        app.loading(false);
+      };
+      el.addEventListener('click', async event => {
+        event.preventDefault();
+        app.loading(action());
       });
       areaMenu.append(el);
     },
@@ -222,16 +223,17 @@ div[class^="FavoriteList"] > div {
       const el = document.createElement('button');
       el.classList.add('btn-button');
       el.textContent = '再放送を非表示';
-      el.addEventListener('click', async event => {
-        event.preventDefault();
-        await app.loading();
+      const action = async () => {
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
         .filter(wrapper => {
           if (wrapper.textContent.match(/年放送/)) return true;
           return false;
         })
         .forEach(content => content.remove());
-        app.loading(false);
+      };
+      el.addEventListener('click', async event => {
+        event.preventDefault();
+        app.loading(action());
       });
       areaMenu.append(el);
     },
@@ -240,9 +242,7 @@ div[class^="FavoriteList"] > div {
       const el = document.createElement('button');
       el.classList.add('btn-button');
       el.textContent = '既読を非表示';
-      el.addEventListener('click', async event => {
-        event.preventDefault();
-        await app.loading();
+      const action = async () => {
         const start = Date.now();
         const list = await app.fetchData();
         const rendering = Date.now();
@@ -262,7 +262,10 @@ div[class^="FavoriteList"] > div {
           rendering: `${Date.now() - rendering} ms`,
           benchmark: `${Date.now() - start} ms`,
         });
-        app.loading(false);
+      };
+      el.addEventListener('click', async event => {
+        event.preventDefault();
+        app.loading(action());
       });
       areaMenu.append(el);
     },
@@ -270,6 +273,8 @@ div[class^="FavoriteList"] > div {
     setContentEvent() {
       const areaMenu = document.querySelector('[class^="Tabs_list_"]');
       if (!areaMenu) return;
+      app.loadImage = 'https://dev-front.jsx.jp/v1/img/loading.svg';
+      areaMenu.querySelector('div').style.backgroundImage = `url(${app.loadImage})`;
       app.setMenu1(areaMenu);
       app.setMenu2(areaMenu);
       app.setMenu3(areaMenu);
@@ -320,6 +325,7 @@ div[class^="FavoriteList"] > div {
     },
 
     setEvent(anchor, content, wrapper) {
+      if (content.querySelector('.btn-close')) return;
       const el = document.createElement('div');
       el.classList.add('btn-close');
       el.textContent = '🍺';
@@ -335,29 +341,29 @@ div[class^="FavoriteList"] > div {
       content.append(el);
     },
 
-    async loading(show = true) {
-      if (!show) {
-        app.loadingEl?.remove();
-        delete app.loadingEl;
-        return;
-      }
+    async loading(pending) {
       if (app.loadingEl) return;
       app.loadingEl = document.createElement('div');
-      app.loadingEl.style = `position: fixed;
-      display: flex;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 101;
-      align-items: center;
-      justify-content: center;`;
-      const img = document.createElement('img');
-      img.src = 'https://dev-front.jsx.jp/v1/img/loading.svg';
-      img.style = `width: 25%;
-      height: auto;`;
-      app.loadingEl.append(img);
+      Object.assign(app.loadingEl.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        zIndex: '101',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundImage: `url(${app.loadImage})`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '25% auto',
+      });
       document.body.append(app.loadingEl);
-      await new Promise(resolve => { setTimeout(resolve, 500); });
+      await Promise.all([
+        pending,
+        new Promise(resolve => { setTimeout(resolve, 500); }),
+      ]);
+      app.loadingEl.remove();
+      delete app.loadingEl;
     },
 
     main() {
