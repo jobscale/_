@@ -12,9 +12,12 @@ pipe-wire() {
 }
 
 check-audio() {
-  sleep 40
+  sleep 36
   $HOME/bin/wait-of-busy
+
+  sleep 36
   pipe-wire
+  sleep 36
 }
 
 main() {

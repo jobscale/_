@@ -7,20 +7,23 @@ adjust-window() {
 }
 
 check-audio() {
-  sleep 40
+  sleep 36
   $HOME/bin/wait-of-busy
+
+  which pactl || { return 0; }
   local count=10
   while [[ $(pactl list sources short | grep -ci input) -lt 1 ]]; do
     post-slack "audio input device not found"
     if [[ $count -lt 1 ]]; then
-      break
       cinnamon-settings sound
+      return
     fi
     count=$(( count - 1 ))
     sleep 12
   done
-  sleep 30
+  sleep 36
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
+  sleep 36
 }
 
 main() {

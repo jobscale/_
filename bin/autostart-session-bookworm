@@ -7,11 +7,10 @@ adjust-window() {
 }
 
 check-audio() {
-  sleep 40
+  sleep 36
   $HOME/bin/wait-of-busy
-  which pactl || {
-    return 0
-  }
+
+  which pactl || { return 0; }
   local count=10
   while [[ $(pactl list sources short | grep -ci input) -lt 1 ]]; do
     post-slack "audio input device not found"
@@ -22,29 +21,28 @@ check-audio() {
     count=$(( count - 1 ))
     sleep 12
   done
-  sleep 6
+  sleep 36
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
-  sleep 26
+  sleep 36
 }
 
-worktime() {
+work-time() {
   sleep 6
-  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://teams.microsoft.com' &"
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://teams.cloud.microsoft' &"
   adjust-window
 }
 
 office() {
-  sleep 6
+  sleep 36
   $HOME/bin/wait-of-busy
   google-chrome --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo
   adjust-window 68
-  # google-chrome --app-id=faolnafnngnfdaknnbpnkhgohbobgegn
   google-chrome --app-id=eoficlgicibekocmfdomjbfnjmehnhcd
   adjust-window 68
 }
 
 main() {
-  worktime
+  work-time
   check-audio
   office
 }
