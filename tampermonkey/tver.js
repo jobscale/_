@@ -4,7 +4,8 @@
 // @version      2026-03-10
 // @description  try to take over the world!
 // @author       jobscale
-// @match        https://tver.jp/*/*
+// @match        https://tver.jp
+// @match        https://tver.jp/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tver.jp
 // @grant        none
 // ==/UserScript==
@@ -202,8 +203,9 @@ div[class^="FavoriteList"] > div {
       const el = document.createElement('button');
       el.classList.add('btn-button');
       el.textContent = 'キャプションを非表示';
-      el.addEventListener('click', event => {
+      el.addEventListener('click', async event => {
         event.preventDefault();
+        await app.loading();
         [...document.querySelectorAll('div[class^="Caption_caption"]')]
         .forEach(content => {
           const parent = content.parentElement;
@@ -211,6 +213,7 @@ div[class^="FavoriteList"] > div {
           const { childElementCount } = parent.querySelector('section > ul');
           if (!childElementCount) parent.remove();
         });
+        app.loading(false);
       });
       areaMenu.append(el);
     },
@@ -221,12 +224,14 @@ div[class^="FavoriteList"] > div {
       el.textContent = '再放送を非表示';
       el.addEventListener('click', async event => {
         event.preventDefault();
+        await app.loading();
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
         .filter(wrapper => {
           if (wrapper.textContent.match(/年放送/)) return true;
           return false;
         })
         .forEach(content => content.remove());
+        app.loading(false);
       });
       areaMenu.append(el);
     },
@@ -237,9 +242,10 @@ div[class^="FavoriteList"] > div {
       el.textContent = '既読を非表示';
       el.addEventListener('click', async event => {
         event.preventDefault();
+        await app.loading();
         const start = Date.now();
         const list = await app.fetchData();
-        const loading = Date.now();
+        const rendering = Date.now();
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
         .filter(wrapper => {
           const exist = list.find(data => data.href === wrapper.querySelector('a').href);
@@ -253,10 +259,10 @@ div[class^="FavoriteList"] > div {
         logger.info({
           count: list.length,
           size: `${JSON.stringify(list).length / 1000} KB`,
-          loading: `${loading - start} ms`,
-          rendering: `${Date.now() - loading} ms`,
+          rendering: `${Date.now() - rendering} ms`,
           benchmark: `${Date.now() - start} ms`,
         });
+        app.loading(false);
       });
       areaMenu.append(el);
     },
@@ -327,6 +333,31 @@ div[class^="FavoriteList"] > div {
         wrapper.remove();
       });
       content.append(el);
+    },
+
+    async loading(show = true) {
+      if (!show) {
+        app.loadingEl?.remove();
+        delete app.loadingEl;
+        return;
+      }
+      if (app.loadingEl) return;
+      app.loadingEl = document.createElement('div');
+      app.loadingEl.style = `position: fixed;
+      display: flex;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 101;
+      align-items: center;
+      justify-content: center;`;
+      const img = document.createElement('img');
+      img.src = 'https://dev-front.jsx.jp/v1/img/loading.svg';
+      img.style = `width: 25%;
+      height: auto;`;
+      app.loadingEl.append(img);
+      document.body.append(app.loadingEl);
+      await new Promise(resolve => { setTimeout(resolve, 500); });
     },
 
     main() {
