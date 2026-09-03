@@ -187,6 +187,8 @@ div[class^="FavoriteList"] > div {
 }
 `,
 
+    loadingModule: import('https://esm.sh/@jobscale/loading'),
+
     changeStyle() {
       const style = document.createElement('style');
       style.innerHTML = app.css;
@@ -214,7 +216,8 @@ div[class^="FavoriteList"] > div {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        app.loading(action());
+        const { loading } = await app.loadingModule;
+        loading(action());
       });
       areaMenu.append(el);
     },
@@ -233,7 +236,8 @@ div[class^="FavoriteList"] > div {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        app.loading(action());
+        const { loading } = await app.loadingModule;
+        loading(action());
       });
       areaMenu.append(el);
     },
@@ -265,7 +269,8 @@ div[class^="FavoriteList"] > div {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        app.loading(action());
+        const { loading } = await app.loadingModule;
+        loading(action());
       });
       areaMenu.append(el);
     },
@@ -339,31 +344,6 @@ div[class^="FavoriteList"] > div {
         wrapper.remove();
       });
       content.append(el);
-    },
-
-    async loading(pending) {
-      if (app.loadingEl) return;
-      app.loadingEl = document.createElement('div');
-      Object.assign(app.loadingEl.style, {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
-        zIndex: '101',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        backgroundImage: `url(${app.loadImage})`,
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: '25% auto',
-      });
-      document.body.append(app.loadingEl);
-      await Promise.all([
-        pending,
-        new Promise(resolve => { setTimeout(resolve, 500); }),
-      ]);
-      app.loadingEl.remove();
-      delete app.loadingEl;
     },
 
     main() {
