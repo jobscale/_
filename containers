@@ -159,14 +159,14 @@ webtop() {
   # lscr.io/linuxserver/webtop:debian-xfce
 }
 
-llm-gemma-3() {
-  # docker pull ghcr.io/jobscale/llama.cpp:gemma-3-4B-Q3
-  docker rm -f llm.gemma-3
-  docker run --name llm.gemma-3 \
+llm-gemma-4() {
+  # docker pull ghcr.io/jobscale/llama.cpp:gemma-4-E4B-Q4
+  docker rm -f llm.gemma-4
+  docker run --name llm.gemma-4 \
   --memory 8g \
   --shm-size 8g \
   -p 2880:8080 \
-  -d ghcr.io/jobscale/llama.cpp:gemma-3-4B-Q3
+  -d ghcr.io/jobscale/llama.cpp:gemma-4-E4B-Q4
 }
 
 ls-logs() {
