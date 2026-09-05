@@ -22,6 +22,7 @@ check-audio() {
     sleep 12
   done
   sleep 36
+  $HOME/bin/wait-of-busy
   dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
   sleep 36
 }

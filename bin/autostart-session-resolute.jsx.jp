@@ -16,6 +16,7 @@ check-audio() {
   $HOME/bin/wait-of-busy
 
   sleep 36
+  $HOME/bin/wait-of-busy
   pipe-wire
   sleep 36
 }
