@@ -6,27 +6,6 @@ adjust-window() {
   ~/_/x-window/adjust-window $@
 }
 
-check-audio() {
-  sleep 36
-  $HOME/bin/wait-of-busy
-
-  which pactl || { return 0; }
-  local count=10
-  while [[ $(pactl list sources short | grep -ci input) -lt 1 ]]; do
-    post-slack "audio input device not found"
-    if [[ $count -lt 1 ]]; then
-      cinnamon-settings sound
-      return
-    fi
-    count=$(( count - 1 ))
-    sleep 12
-  done
-  sleep 36
-  $HOME/bin/wait-of-busy
-  dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.1 -t 30 ~/_/mp3/butterfly.mp3 &"
-  sleep 36
-}
-
 work-time() {
   sleep 6
   dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://teams.cloud.microsoft' &"
@@ -40,6 +19,12 @@ office() {
   adjust-window 68
   google-chrome --app-id=eoficlgicibekocmfdomjbfnjmehnhcd
   adjust-window 68
+}
+
+check-audio() {
+  sleep 36
+  $HOME/bin/wait-of-busy
+  . ~/bin/autostart-session-check-audio
 }
 
 main() {

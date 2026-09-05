@@ -12,6 +12,7 @@ set -e
   nvm install $LATEST
   nvm alias default $LATEST
   nvm use $LATEST
+  echo 'eval "$(npm completion)"' | tee -a $HOME/.bashrc
   node --version
   npm --version
   id
