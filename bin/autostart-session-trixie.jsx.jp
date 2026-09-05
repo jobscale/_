@@ -13,6 +13,7 @@ check-audio() {
 }
 
 main() {
+  (cd $HOME/_ && git pull)
   check-audio
 }
 
