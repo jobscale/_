@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-04-24
+// @version      2026-09-08
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -20,7 +20,7 @@
 (() => {
   const logger = console;
 
-  const customStorage = {
+  const indexStore = {
     enc: new TextEncoder(),
     dec: new TextDecoder(),
     DATABASE: 'SecureDB',
@@ -28,7 +28,7 @@
     PASSWORD: '<secret>',
 
     async secretProvider() {
-      customStorage.PASSWORD = `2026:${location.hostname.split('.').reverse().join('.')}:custom-storage`;
+      indexStore.PASSWORD = `2026:${location.hostname.split('.').reverse().join('.')}:custom-storage`;
     },
 
     async gzip(data) {
@@ -49,7 +49,7 @@
 
     async deriveKey(password, salt) {
       const keyMaterial = await crypto.subtle.importKey(
-        'raw', customStorage.enc.encode(password), 'PBKDF2', false, ['deriveKey'],
+        'raw', indexStore.enc.encode(password), 'PBKDF2', false, ['deriveKey'],
       );
       return crypto.subtle.deriveKey({
         name: 'PBKDF2', salt, iterations: 10_000, hash: 'SHA-256',
@@ -57,12 +57,12 @@
     },
 
     async encrypt(value) {
-      const data = customStorage.enc.encode(JSON.stringify(value));
-      const compressed = new Uint8Array(await customStorage.gzip(data));
+      const data = indexStore.enc.encode(JSON.stringify(value));
+      const compressed = new Uint8Array(await indexStore.gzip(data));
       const salt = crypto.getRandomValues(new Uint8Array(16));
       const iv = crypto.getRandomValues(new Uint8Array(12));
-      if (customStorage.PASSWORD === '<secret>') await customStorage.secretProvider();
-      const key = await customStorage.deriveKey(customStorage.PASSWORD, salt);
+      if (indexStore.PASSWORD === '<secret>') await indexStore.secretProvider();
+      const key = await indexStore.deriveKey(indexStore.PASSWORD, salt);
       const encrypted = await crypto.subtle.encrypt(
         { name: 'AES-GCM', iv }, key, compressed,
       );
@@ -76,41 +76,38 @@
       const iv = combined.subarray(16, 16 + 12);
       const data = combined.subarray(16 + 12);
       const salt = new Uint8Array(obfuscatedSalt.map((v, i) => v ^ (i + 0xb) % 0xdb));
-      if (customStorage.PASSWORD === '<secret>') await customStorage.secretProvider(false);
-      const key = await customStorage.deriveKey(customStorage.PASSWORD, salt);
+      if (indexStore.PASSWORD === '<secret>') await indexStore.secretProvider(false);
+      const key = await indexStore.deriveKey(indexStore.PASSWORD, salt);
       const decrypted = await crypto.subtle.decrypt(
         { name: 'AES-GCM', iv }, key, data,
       );
-      const value = await customStorage.gunzip(new Uint8Array(decrypted));
-      return JSON.parse(customStorage.dec.decode(value));
+      const value = await indexStore.gunzip(new Uint8Array(decrypted));
+      return JSON.parse(indexStore.dec.decode(value));
     },
 
     async init() {
-      if (customStorage.db) return customStorage.db;
-      customStorage.db = new Promise((resolve, reject) => {
-        const req = indexedDB.open(customStorage.DATABASE, 1);
+      if (indexStore.db) return indexStore.db;
+      indexStore.db = new Promise((resolve, reject) => {
+        const req = indexedDB.open(indexStore.DATABASE, 1);
         req.onupgradeneeded = () => {
           const db = req.result;
-          if (!db.objectStoreNames.contains(customStorage.TABLE)) {
-            db.createObjectStore(customStorage.TABLE);
+          if (!db.objectStoreNames.contains(indexStore.TABLE)) {
+            db.createObjectStore(indexStore.TABLE);
           }
         };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
       });
-      return customStorage.db;
+      return indexStore.db;
     },
 
     async setItem(key, value) {
-      if (location.protocol.endsWith('http:')) {
-        localStorage.setItem(key, JSON.stringify(value));
-        return undefined;
-      }
-      const db = await customStorage.init();
-      const encrypted = await customStorage.encrypt(value);
+      const insecure = location.protocol.endsWith('http:');
+      const db = await indexStore.init();
+      const encrypted = insecure ? JSON.stringify(value) : await indexStore.encrypt(value);
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(customStorage.TABLE, 'readwrite');
-        const store = tx.objectStore(customStorage.TABLE);
+        const tx = db.transaction(indexStore.TABLE, 'readwrite');
+        const store = tx.objectStore(indexStore.TABLE);
         const req = store.put(encrypted, key);
         req.onsuccess = () => resolve(true);
         req.onerror = () => reject(req.error);
@@ -118,20 +115,17 @@
     },
 
     async getItem(key) {
+      const insecure = location.protocol.endsWith('http:');
       return Promise.resolve().then(async () => {
-        if (location.protocol.endsWith('http:')) {
-          const raw = localStorage.getItem(key);
-          if (raw === null) return undefined;
-          return JSON.parse(raw);
-        }
         const decode = encrypted => {
           if (!encrypted) return undefined;
-          return customStorage.decrypt(encrypted).catch(() => undefined);
+          if (insecure) return JSON.parse(encrypted);
+          return indexStore.decrypt(encrypted).catch(() => undefined);
         };
-        const db = await customStorage.init();
+        const db = await indexStore.init();
         return new Promise((resolve, reject) => {
-          const tx = db.transaction(customStorage.TABLE, 'readonly');
-          const store = tx.objectStore(customStorage.TABLE);
+          const tx = db.transaction(indexStore.TABLE, 'readonly');
+          const store = tx.objectStore(indexStore.TABLE);
           const req = store.get(key);
           req.onsuccess = () => resolve(decode(req.result));
           req.onerror = () => reject(req.error);
@@ -141,14 +135,10 @@
     },
 
     async removeItem(key) {
-      if (location.protocol.endsWith('http:')) {
-        localStorage.removeItem(key);
-        return undefined;
-      }
-      const db = await customStorage.init();
+      const db = await indexStore.init();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(customStorage.TABLE, 'readwrite');
-        const store = tx.objectStore(customStorage.TABLE);
+        const tx = db.transaction(indexStore.TABLE, 'readwrite');
+        const store = tx.objectStore(indexStore.TABLE);
         const req = store.delete(key);
         req.onsuccess = () => resolve(true);
         req.onerror = () => reject(req.error);
@@ -156,14 +146,10 @@
     },
 
     async clear() {
-      if (location.protocol.endsWith('http:')) {
-        localStorage.clear();
-        return undefined;
-      }
-      const db = await customStorage.init();
+      const db = await indexStore.init();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(customStorage.TABLE, 'readwrite');
-        const store = tx.objectStore(customStorage.TABLE);
+        const tx = db.transaction(indexStore.TABLE, 'readwrite');
+        const store = tx.objectStore(indexStore.TABLE);
         const req = store.clear();
         req.onsuccess = () => resolve(true);
         req.onerror = () => reject(req.error);
@@ -340,21 +326,21 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
       style.textContent = app[`css${no}`];
       style.id = `custom-css-${no}`;
       document.head.append(style);
-      const list = await customStorage.getItem('custom-css');
+      const list = await indexStore.getItem('custom-css');
       const customCss = list ?? [];
       customCss.push(no);
-      await customStorage.setItem('custom-css', customCss);
+      await indexStore.setItem('custom-css', customCss);
       elm.textContent = `*${elm.textContent}*`;
     },
 
     async toggle(no) {
       const elm = document.querySelector(`.btn-custom-css-${no}`);
       const exist = document.querySelector(`#custom-css-${no}`);
-      const list = await customStorage.getItem('custom-css');
+      const list = await indexStore.getItem('custom-css');
       const customCss = list ?? [];
       if (customCss.includes(no)) {
         if (exist) exist.remove();
-        await customStorage.setItem('custom-css', customCss.filter(v => v !== no));
+        await indexStore.setItem('custom-css', customCss.filter(v => v !== no));
         elm.textContent = no;
       } else if (!exist) {
         await app.add(no);
@@ -458,7 +444,7 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
 
     async mounted() {
       const div = app.btnSetting();
-      const list = await customStorage.getItem('custom-css');
+      const list = await indexStore.getItem('custom-css');
       const customCss = list ?? [];
       if (location.href.match(/^(https?:\/\/)?(teams\.)?microsoft\.com\//)) {
         await app.update('Fast', true);
