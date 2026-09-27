@@ -13,16 +13,7 @@
 (async () => {
   const { logger } = await import('https://esm.sh/@jobscale/create-logger');
   const { indexStore } = await import('https://esm.sh/@jobscale/web-storage');
-
-  const formatTimestamp = (ts = new Date()) => new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Paris', // CET/CEST
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(ts);
+  const { formatTimestamp } = await import('https://esm.sh/@jobscale/timestamp');
 
   const chunkByUnit = (arr, size) => arr.reduce((acc, _, i) => {
     if (i % size === 0) acc.push(arr.slice(i, i + size));
@@ -353,7 +344,7 @@
       app.refreshTime = new Date();
       app.refreshTime.setMinutes(app.refreshTime.getMinutes() + NEXT_TICK);
       logger.info(formatTimestamp(), JSON.stringify({
-        refreshTime: formatTimestamp(app.refreshTime),
+        refreshTime: formatTimestamp({ ts: app.refreshTime }),
       }, null, 2));
       await app.onlineUsers(3);
       setInterval(() => {
@@ -361,7 +352,7 @@
           location.reload();
         }
         logger.info(formatTimestamp(), JSON.stringify({
-          refreshTime: formatTimestamp(app.refreshTime),
+          refreshTime: formatTimestamp({ ts: app.refreshTime }),
           left: `${Math.round((app.refreshTime.getTime() - Date.now()) / 600) / 100}m`,
         }, null, 2));
       }, 60_000);
