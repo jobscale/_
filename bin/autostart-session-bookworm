@@ -29,7 +29,6 @@ check-audio() {
 
 main() {
   work-time
-  (cd $HOME/_ && git pull)
   check-audio
   office
 }

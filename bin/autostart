@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 set -eu
 
+worker() {
+  while ! (dig +short github.com && dig +short github.io); do
+    echo "$(TZ=Asia/Tokyo date -Iseconds) wait resolver service"
+    sleep 1
+  done
+  (cd $HOME/_ && git stash && git pull && git stash pop)
+  dash -c "exec >/dev/null 2>&1; setsid $HOME/bin/autostart-worker &"
+}
+
 {
   tmux new-session -d
   tmux new-window
   tmux select-window -t 0
-  tmux send-keys 'dash -c "exec >/dev/null 2>&1; setsid $HOME/bin/autostart-worker &"' C-m
+  WORKER=$(type worker | tail -n +3)
+  tmux send-keys "${WORKER}" C-m
 }
