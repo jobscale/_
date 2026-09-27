@@ -6,14 +6,14 @@ adjust-window() {
   ~/_/x-window/adjust-window $@
 }
 
-check-audio() {
-  sleep 36
+work-time() {
   $HOME/bin/wait-of-busy
-  . ~/bin/autostart-session-check-audio
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://jsx.jp' &"
+  adjust-window
 }
 
 main() {
-  check-audio
+  work-time
 }
 
 main
