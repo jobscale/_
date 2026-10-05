@@ -13,7 +13,9 @@
 (async () => {
   const { logger } = await import('https://esm.sh/@jobscale/create-logger');
   const { indexStore } = await import('https://esm.sh/@jobscale/web-storage');
-  const { formatTimestamp } = await import('https://esm.sh/@jobscale/timestamp');
+  const { createTimezone, formatDuration } = await import('https://esm.sh/@jobscale/timestamp');
+
+  const formatTimestamp = createTimezone({ timeZone: 'Europe/Paris' });
 
   const chunkByUnit = (arr, size) => arr.reduce((acc, _, i) => {
     if (i % size === 0) acc.push(arr.slice(i, i + size));
@@ -79,7 +81,7 @@
       document.body.append(div);
 
       const loop = () => {
-        [, div.textContent] = formatTimestamp().split(' ');
+        [, div.textContent] = formatTimestamp({ tz: false }).split(' ');
         setTimeout(loop, 1000 - Date.now() % 1000);
       };
       loop();
@@ -351,11 +353,16 @@
         if (app.refreshTime < new Date()) {
           location.reload();
         }
-        logger.info(formatTimestamp(), JSON.stringify({
-          refreshTime: formatTimestamp({ ts: app.refreshTime }),
-          left: `${Math.round((app.refreshTime.getTime() - Date.now()) / 600) / 100}m`,
-        }, null, 2));
-      }, 60_000);
+        const duration = formatDuration(app.refreshTime);
+        if (!app.duration) {
+          app.duration = document.createElement('span');
+          app.duration.classList.add('time');
+          app.duration.classList.add('outlined-text');
+          app.duration.style.bottom = '3em';
+          document.body.append(app.duration);
+        }
+        app.duration.textContent = `${duration} refresh`;
+      }, 1_000);
     },
 
     isTypingContext(target) {

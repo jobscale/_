@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eu
+
+main() {
+  cd /home/docker/edge-unified-gateway
+  scripts/domain
+}
+
+main

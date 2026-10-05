@@ -38,7 +38,7 @@ const loop = async (seconds, step, useSound) => {
 };
 
 const main = argv => {
-  const timer = argv.filter(arg => arg !== '--silent');
+  const timer = argv.filter(arg => !['--silent', '-s'].includes(arg));
   const useSound = !argv.filter(arg => ['--silent', '-s'].includes(arg)).length;
   const [secondsArg, stepArg] = timer;
   const step = Math.min(20, Number.parseInt(stepArg, 10) || 1);
