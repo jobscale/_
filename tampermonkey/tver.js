@@ -135,7 +135,7 @@ div[class^="FavoriteList"] > div {
       app.setMenu3(areaMenu);
     },
 
-    setVideo () {
+    setVideo() {
       let idVideo;
       const who = document.querySelector('video');
       if (!who) {
@@ -145,8 +145,8 @@ div[class^="FavoriteList"] > div {
       clearTimeout(idVideo);
       document.body.style = 'margin-top: 100vh';
       document.querySelector('div[class^="Episode_companionAd"] div')?.remove();
-      const player = document.querySelector('div[class^="player_aspectRatioWrapper"]')
-      || document.querySelector('div[class^="PlayerLayout_jail"]');
+      const player = document.querySelector('[class^="PlayerLayout"]:has(video)')
+      || document.querySelector('div[class^="PlayerLayout_jail"]:has(video)');
       player.style = 'position: fixed; width: 100vw; height: auto; left: 0; top: 0; z-index: 99999;';
     },
 
@@ -160,7 +160,7 @@ div[class^="FavoriteList"] > div {
       }
       clearTimeout(idClick);
       document.body.append(who);
-      who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;';
+      who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;color:rgba(52,128,128,0.5)';
       who.onclick = () => setTimeout(() => app.setVideo(), 500);
     },
 
