@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Microsoft Auto Login
 // @namespace    http://tampermonkey.net/
-// @version      2026-04-24
+// @version      2026-10-07
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://login.microsoftonline.com/common/*
@@ -33,10 +33,8 @@
     },
 
     handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 500);
-      });
+      clearTimeout(provider.id);
+      provider.id = setTimeout(provider.action, 500);
     },
 
     async start() {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Custom Style
 // @namespace    http://tampermonkey.net/
-// @version      2026-09-08
+// @version      2026-10-07
 // @description  try to take over the world!
 // @author       jobscale
 // @match        *://*/*
@@ -164,7 +164,7 @@
 
     cssDark: `/* Custom Scheme */
 :root { color-scheme: light dark !important; }
-:root, * {
+:root, :root * {
   background-image: initial !important;
   background-color: #111 !important;
   color: #ddd !important;
@@ -185,9 +185,9 @@ video, img { filter: invert(1); }
     cssDeep: `/* Custom Scheme */
 :root {
   color-scheme: light dark !important;
-  background-color: black !important;
+  background-color: rgba(12, 12, 12, 0.6) !important;
   color: #ddb !important;
-  border-color: #ddb !important;
+  border-color: #678 !important;
 }
 body {
   margin: 0; height: 100vh;
@@ -219,13 +219,15 @@ body {
 
     cssFast: `/* Custom Scheme */
 :root {
-  color-scheme: light dark !important;
+  color-scheme: dark light !important;
+  background-color: initial;
 }
 body {
   margin: 0; height: 100vh;
 }
-body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
+body, body * {
   background-color: transparent !important;
+  color: rgba(210, 210, 210, 0.7) !important;
 }
 `,
 
@@ -414,6 +416,8 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
     },
 
     btnVideo(div) {
+      const media = document.querySelector('video') ?? document.querySelector('media');
+      if (!media) return;
       const el = document.createElement('button');
       el.type = 'button';
       el.textContent = 'video';
@@ -511,12 +515,12 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
       app.main = () => {
         logger.info({ 'Already running': new Error().stack.split('\n') });
       };
-      app.init.unset();
-      const video = document.querySelector('video');
+      const media = document.querySelector('video') ?? document.querySelector('media');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       logger.info(`desktop prefers-color-scheme: ${prefersDark ? 'dark' : 'light'}`);
 
-      if (!video && app.judgeDarkMode()) {
+      app.init.unset();
+      if (!media && app.judgeDarkMode()) {
         return;
       }
 
@@ -554,10 +558,8 @@ body, [role="progressbar"], [data-tid="pre-core-title-bar"] {
     },
 
     handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 500);
-      });
+      clearTimeout(provider.id);
+      provider.id = setTimeout(provider.action, 500);
     },
 
     async start() {

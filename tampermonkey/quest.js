@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Navy Quest
 // @namespace    http://tampermonkey.net/
-// @version      2026-09-08
+// @version      2026-10-07
 // @description  try to take over the world!
-// @author       You
+// @author       jobscale
 // @match        http://127.0.0.1:3000/*
 // @match        https://navy.quest/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=navy.quest
@@ -458,10 +458,8 @@
     },
 
     handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 500);
-      });
+      clearTimeout(provider.id);
+      provider.id = setTimeout(provider.action, 500);
     },
 
     async start() {

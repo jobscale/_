@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         e-timeCard
 // @namespace    http://tampermonkey.net/
-// @version      2026-03-10
+// @version      2026-10-07
 // @description  try to take over the world!
-// @author       You
+// @author       jobscale
 // @match        https://e-timecard.ne.jp/s/EPSINP*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=www.tempstaff.co.jp
 // @grant        none
@@ -35,10 +35,8 @@
     },
 
     handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 500);
-      });
+      clearTimeout(provider.id);
+      provider.id = setTimeout(provider.action, 500);
     },
 
     async start() {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MFA AWS Azure GitHub
 // @namespace    http://tampermonkey.net/
-// @version      2026-03-10
+// @version      2026-10-07
 // @description  try to take over the world!
 // @author       jobscale
 // @match        http://127.0.0.1:3000/*
@@ -418,10 +418,8 @@ input {
     },
 
     handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 500);
-      });
+      clearTimeout(provider.id);
+      provider.id = setTimeout(provider.action, 500);
     },
 
     async start() {

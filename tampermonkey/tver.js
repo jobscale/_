@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      2026-09-08
+// @version      2026-10-07
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp
@@ -13,6 +13,7 @@
 (async () => {
   const { logger } = await import('https://esm.sh/@jobscale/create-logger');
   const { indexStore } = await import('https://esm.sh/@jobscale/web-storage');
+  const loadingModule = import('https://esm.sh/@jobscale/loading');
 
   const app = {
     css: `
@@ -29,15 +30,12 @@ div[class^="FavoriteList"] > div {
   cursor: cell;
 }
 .btn-button {
-  width: 15em;
   cursor: pointer;
   border-radius: 1em;
-  margin: auto;
-  color: #777;
+  margin: auto auto auto 1em;
+  color: rgba(200, 200, 200, 0.5);
 }
 `,
-
-    loadingModule: import('https://esm.sh/@jobscale/loading'),
 
     changeStyle() {
       const style = document.createElement('style');
@@ -51,9 +49,9 @@ div[class^="FavoriteList"] > div {
       if (episodeAd) episodeAd.remove();
     },
 
-    setMenu1(areaMenu) {
+    setMenu1(areaMenu, classList) {
       const el = document.createElement('button');
-      el.classList.add('btn-button');
+      classList.forEach(className => { el.classList.add(className); });
       el.textContent = 'キャプションを非表示';
       const action = async () => {
         [...document.querySelectorAll('div[class^="Caption_caption"]')]
@@ -66,15 +64,15 @@ div[class^="FavoriteList"] > div {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        const { loading } = await app.loadingModule;
+        const { loading } = await loadingModule;
         loading(action());
       });
       areaMenu.append(el);
     },
 
-    setMenu2(areaMenu) {
+    setMenu2(areaMenu, classList) {
       const el = document.createElement('button');
-      el.classList.add('btn-button');
+      classList.forEach(className => { el.classList.add(className); });
       el.textContent = '再放送を非表示';
       const action = async () => {
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
@@ -86,15 +84,15 @@ div[class^="FavoriteList"] > div {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        const { loading } = await app.loadingModule;
+        const { loading } = await loadingModule;
         loading(action());
       });
       areaMenu.append(el);
     },
 
-    setMenu3(areaMenu) {
+    setMenu3(areaMenu, classList) {
       const el = document.createElement('button');
-      el.classList.add('btn-button');
+      classList.forEach(className => { el.classList.add(className); });
       el.textContent = '既読を非表示';
       const action = async () => {
         const start = Date.now();
@@ -119,20 +117,22 @@ div[class^="FavoriteList"] > div {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        const { loading } = await app.loadingModule;
+        const { loading } = await loadingModule;
         loading(action());
       });
       areaMenu.append(el);
     },
 
     setContentEvent() {
-      const areaMenu = document.querySelector('[class^="Tabs_list_"]');
+      const areaList = document.querySelector('[class^="Tabs_list_"]');
+      const areaMenu = areaList.querySelector('[class^="Tabs_track_"]') ?? areaList;
       if (!areaMenu) return;
-      app.loadImage = 'https://dev-front.jsx.jp/v1/img/loading.svg';
-      areaMenu.querySelector('div').style.backgroundImage = `url(${app.loadImage})`;
-      app.setMenu1(areaMenu);
-      app.setMenu2(areaMenu);
-      app.setMenu3(areaMenu);
+      const classList = ['btn-button'];
+      const defButton = areaMenu.querySelector('button');
+      defButton.classList.forEach(className => { classList.push(className); });
+      app.setMenu1(areaMenu, classList);
+      app.setMenu2(areaMenu, classList);
+      app.setMenu3(areaMenu, classList);
     },
 
     setVideo() {
@@ -196,7 +196,7 @@ div[class^="FavoriteList"] > div {
       content.append(el);
     },
 
-    main() {
+    async main() {
       setTimeout(() => app.setClick(), 500);
       setTimeout(() => app.setContentEvent(), 1000);
       setTimeout(() => app.changeStyle(), 1500);
@@ -212,10 +212,8 @@ div[class^="FavoriteList"] > div {
     },
 
     handler() {
-      requestAnimationFrame(() => {
-        clearTimeout(provider.id);
-        provider.id = setTimeout(provider.action, 500);
-      });
+      clearTimeout(provider.id);
+      provider.id = setTimeout(provider.action, 500);
     },
 
     async start() {
@@ -228,4 +226,6 @@ div[class^="FavoriteList"] > div {
   };
 
   setTimeout(() => provider.start(), 500);
+  const { loading } = await loadingModule;
+  loading(new Promise(resolve => { setTimeout(resolve, 3000); }));
 })();
