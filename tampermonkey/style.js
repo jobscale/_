@@ -400,16 +400,16 @@ body, body * {
       el.textContent = 'meta';
       el.addEventListener('click', event => {
         event.preventDefault();
-        const id = 'custom-scheme';
-        const scheme = document.querySelector(`#${id}`);
+        const tagId = 'custom-color-scheme';
+        const scheme = document.querySelector(`#${tagId}`);
         if (scheme) {
           scheme.remove();
           return;
         }
         const meta = document.createElement('meta');
-        meta.id = id;
+        meta.id = tagId;
         meta.name = 'color-scheme';
-        meta.content = 'light dark';
+        meta.content = 'dark';
         document.head.prepend(meta);
       });
       div.prepend(el);
@@ -493,7 +493,8 @@ body, body * {
         logger.info(`color-scheme: ${colorScheme} supported`);
         return true;
       }
-      if (document.querySelector('meta[name="color-scheme"]')) {
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta && meta.id !== 'custom-color-scheme') {
         logger.info('meta color-scheme supported');
         return true;
       }
