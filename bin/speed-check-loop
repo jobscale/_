@@ -12,7 +12,8 @@ while loop; do
   cd ~/_/mp3
   ffplay -nodisp -autoexit -ss 0.0 ~/_/mp3/alert.mp3 2> /dev/null
   TZ=Asia/Tokyo date -Iseconds
+  loop.js 120 -s
   get-ip
   echo
-  loop.js 600 -s
+  loop.js 300 -s
 done

@@ -1,0 +1,39 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [
+        {
+          "header": "Content-Security-Policy",
+          "operation": "remove"
+        },
+        {
+          "header": "Content-Security-Policy-Report-Only",
+          "operation": "remove"
+        }
+      ]
+    },
+    "condition": {
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame",
+        "script",
+        "xmlhttprequest",
+        "fetch",
+        "stylesheet",
+        "font",
+        "image",
+        "media",
+        "websocket"
+      ],
+      "requestDomains": [
+        "cloud.microsoft",
+        "microsoft.com",
+        "office.com",
+        "microsoftonline.com"
+      ]
+    }
+  }
+]
