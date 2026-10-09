@@ -158,9 +158,10 @@
   };
 
   const app = {
-    cssList: [
-      'Dark', 'Invert', 'Image', 'Deep', 'Simple', 'Fast',
-    ],
+    get listCss() {
+      return Object.keys(app).filter(key => key.startsWith('css'))
+      .map(key => key.replace('css', ''));
+    },
 
     cssDark: `/* Custom Scheme */
 :root { color-scheme: light dark !important; }
@@ -328,9 +329,8 @@ body, body * {
       style.textContent = app[`css${no}`];
       style.id = `custom-css-${no}`;
       document.head.append(style);
-      const list = await indexStore.getItem('custom-css');
-      const customCss = list ?? [];
-      customCss.push(no);
+      const customCss = await indexStore.getItem('custom-css') ?? [];
+      if (!customCss.includes(no)) customCss.push(no);
       await indexStore.setItem('custom-css', customCss);
       elm.textContent = `*${elm.textContent}*`;
     },
@@ -338,8 +338,7 @@ body, body * {
     async toggle(no) {
       const elm = document.querySelector(`.btn-custom-css-${no}`);
       const exist = document.querySelector(`#custom-css-${no}`);
-      const list = await indexStore.getItem('custom-css');
-      const customCss = list ?? [];
+      const customCss = await indexStore.getItem('custom-css') ?? [];
       if (customCss.includes(no)) {
         if (exist) exist.remove();
         await indexStore.setItem('custom-css', customCss.filter(v => v !== no));
@@ -376,7 +375,7 @@ body, body * {
         });
         div.append(elm);
       };
-      app.cssList.forEach(no => createButton(no));
+      app.listCss.forEach(no => createButton(no));
 
       document.body.append(div);
 
@@ -446,23 +445,30 @@ body, body * {
       div.append(el);
     },
 
-    async mounted() {
-      const div = app.btnSetting();
-      const list = await indexStore.getItem('custom-css');
-      const customCss = list ?? [];
+    async forceAllow({ customCss }) {
+      // login via incognito
+      if (location.href.match(/^(https?:\/\/)?(teams\.)?cloud\.microsoft\//)) {
+        customCss.push('Fast');
+      }
       if (location.href.match(/^(https?:\/\/)?(teams\.)?microsoft\.com\//)) {
-        await app.update('Fast', true);
+        customCss.push('Fast');
       }
       if (location.href.match(/^(https?:\/\/)?(login\.)?microsoftonline\.com\//)) {
-        await app.update('Simple', true);
+        customCss.push('Simple');
       }
-      for (const no of app.cssList) {
-        if (customCss.includes(no)) await app.update(no, true);
-      }
+    },
 
+    async mounted() {
+      const div = app.btnSetting();
       app.btnScheme(div);
       app.btnHide(div);
       app.btnVideo(div);
+
+      const customCss = await indexStore.getItem('custom-css') ?? [];
+      if (!customCss.length) await app.forceAllow({ customCss });
+      for (const no of app.listCss) {
+        if (customCss.includes(no)) await app.update(no, true);
+      }
     },
 
     computedColor(element) {
