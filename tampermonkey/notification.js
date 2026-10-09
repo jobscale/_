@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Notification Message
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-07
+// @version      2026-10-09
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://teams.microsoft.com/v2/*
@@ -91,5 +91,5 @@
     },
   };
 
-  setTimeout(() => provider.start(), 500);
+  setTimeout(() => provider.start(), 0);
 })();

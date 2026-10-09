@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         e-timeCard
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-07
+// @version      2026-10-09
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://e-timecard.ne.jp/s/EPSINP*
@@ -40,12 +40,11 @@
     },
 
     async start() {
-      await new Promise(resolve => { setTimeout(resolve, 500); });
       provider.id = setTimeout(provider.handler, 500);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
-  setTimeout(() => provider.start(), 500);
+  setTimeout(() => provider.start(), 0);
 })();

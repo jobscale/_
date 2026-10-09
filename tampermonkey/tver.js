@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tver style
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-07
+// @version      2026-10-09
 // @description  try to take over the world!
 // @author       jobscale
 // @match        https://tver.jp
@@ -217,15 +217,13 @@ div[class^="FavoriteList"] > div {
     },
 
     async start() {
-      logger.info('provider start');
-      await new Promise(resolve => { setTimeout(resolve, 500); });
       provider.id = setTimeout(provider.handler, 500);
       provider.observer = new MutationObserver(provider.handler);
       provider.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
     },
   };
 
-  setTimeout(() => provider.start(), 500);
+  setTimeout(() => provider.start(), 0);
   const { loading } = await loadingModule;
   loading(new Promise(resolve => { setTimeout(resolve, 3000); }));
 })();
