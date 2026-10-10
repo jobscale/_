@@ -233,6 +233,9 @@ body, body * {
 `,
 
     customVideoWide: `/* Custom Video Wide */
+body {
+  margin-top: 100vh;
+}
 .custom-video-wide {
   position: fixed !important;
   top: 0 !important;
@@ -433,14 +436,16 @@ body, body * {
         if (!video) return;
         video.classList.add('custom-video-wide');
         if (!app.videoStyle) {
-          app.videoStyle = document.head.append(Object.assign(document.createElement('style'), { textContent: app.customVideoWide }));
+          app.videoStyle = Object.assign(document.createElement('style'), { textContent: app.customVideoWide });
           document.head.append(app.videoStyle);
+        } else {
+          app.videoStyle.remove();
+          delete app.videoStyle;
         }
         const noise = [
           'header, .header, .main-header, .op-video__credit',
         ];
         [...video.querySelectorAll(noise)].forEach(item => item.remove());
-        [...document.querySelectorAll(noise)].forEach(item => { item.style.marginTop = '100vh'; });
       });
       div.append(el);
     },
