@@ -8,8 +8,8 @@ adjust-window() {
 
 work-time() {
   $HOME/bin/wait-of-busy
-  dash -c "exec >/dev/null 2>&1; setsid google-chrome --incognito 'https://jsx.jp' &"
-  adjust-window
+  dash -c "exec >/dev/null 2>&1; setsid google-chrome --app-id=ccglkieocgphcfpkkgdklmkpbdolkphj &"
+  adjust-window 68
 }
 
 main() {
