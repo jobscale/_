@@ -60,3 +60,7 @@ tls-nodejs() {
   -p 80:3000 -p 443:3443 \
   -d ghcr.io/jobscale/tls-nodejs
 }
+
+{
+  grep ^[a-z] standard
+}
