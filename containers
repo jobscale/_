@@ -33,6 +33,9 @@ edge-unified-gateway() {
     MEMORY=512m
     BIND=172.16.6.77
   fi
+  if [[ $(hostname) == dev-net ]]; then
+    MEMORY=128m
+  fi
   if [[ $(hostname) == os-bastion ]]; then
     PORT=443
     if [[ -z ${TMUX:-} ]]; then return 1; fi
