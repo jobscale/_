@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 network() {
   if ! (docker network ls | grep standard); then
     docker network create standard
@@ -8,28 +10,36 @@ partner() {
   docker pull ghcr.io/jobscale/partner
   docker rm -f partner.credentials.svc.cluster.local
   docker run --name partner.credentials.svc.cluster.local --restart always \
-  --network standard -d ghcr.io/jobscale/partner
+  --network standard \
+  --memory 128m --shm-size 128m \
+  -d ghcr.io/jobscale/partner
 }
 
 jsxjp() {
   docker pull ghcr.io/jobscale/jsxjp
   docker rm -f jsxjp.jsxjp.svc.cluster.local
   docker run --name jsxjp.jsxjp.svc.cluster.local --restart always \
-  --network standard -d ghcr.io/jobscale/jsxjp
+  --network standard \
+  --memory 128m --shm-size 128m \
+  -d ghcr.io/jobscale/jsxjp
 }
 
 mqtt() {
   docker pull ghcr.io/jobscale/mqtt-c-pub-sub
   docker rm -f mqtt.standard.svc.cluster.local
   docker run --name mqtt.standard.svc.cluster.local --restart always \
-  --network standard -d ghcr.io/jobscale/mqtt-c-pub-sub
+  --network standard \
+  --memory 128m --shm-size 128m \
+  -d ghcr.io/jobscale/mqtt-c-pub-sub
 }
 
 tanpo() {
   docker pull ghcr.io/jobscale/tanpo
   docker rm -f tanpo.standard.svc.cluster.local
   docker run --name tanpo.standard.svc.cluster.local --restart always \
-  --network standard -d ghcr.io/jobscale/tanpo
+  --network standard \
+  --memory 128m --shm-size 128m \
+  -d ghcr.io/jobscale/tanpo
 }
 
 wetty() {
@@ -37,7 +47,9 @@ wetty() {
   docker pull ghcr.io/jobscale/wetty:dind
   docker rm -f wetty.standard.svc.cluster.local
   docker run --name wetty.standard.svc.cluster.local --restart always \
-  --network standard --privileged -v /var/lib/wetty:/var/lib/docker \
+  --network standard \
+  --memory 128m --shm-size 128m \
+  --privileged -v /var/lib/wetty:/var/lib/docker \
   -d ghcr.io/jobscale/wetty:dind
 }
 
@@ -46,6 +58,7 @@ web() {
   docker rm -f web
   docker run --name web --restart always \
   --network standard \
+  --memory 128m --shm-size 128m \
   -p 80:80 -p 443:443 \
   -d ghcr.io/jobscale/web
 }
@@ -55,6 +68,7 @@ tls-nodejs() {
   docker rm -f tls-nodejs
   docker run --name tls-nodejs --restart always \
   --network standard \
+  --memory 128m --shm-size 128m \
   -v /home/docker/partner/certs:/home/node/certs \
   -v /home/docker/partner/reverse:/home/node/reverse \
   -p 80:3000 -p 443:3443 \
@@ -62,5 +76,6 @@ tls-nodejs() {
 }
 
 {
-  grep ^[a-z] standard
+  THIS=${0##*/}
+  grep ^[a-z] standard | awk -F'(' '{print $1}'
 }

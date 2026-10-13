@@ -3,7 +3,7 @@ set -eu
 
 main() {
   cd /home/docker/edge-unified-gateway
-  scripts/domain
+  scripts/domain $@
 }
 
-main
+main $@
