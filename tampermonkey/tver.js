@@ -35,18 +35,31 @@ div[class^="FavoriteList"] > div {
   margin: auto auto auto 1em;
   color: rgba(200, 200, 200, 0.5);
 }
+[class^="Footer_copyright"] {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  cursor: pointer;
+  color: rgba(52,128,128,0.5);
+}
+body:has(.custom-wide-video) {
+  margin-top: 100vh;
+}
+.custom-wide-video {
+  position: fixed;
+  width: 100vw;
+  height: auto;
+  left: 0;
+  top: 0;
+  z-index: 99;
+}
 `,
 
     changeStyle() {
       const style = document.createElement('style');
       style.innerHTML = app.css;
       document.head.append(style);
-      const el1 = document.querySelector('[class^="mypage-page-main_tabList"]');
-      if (el1) el1.style.visibility = 'hidden';
-      const el2 = document.querySelector('div[class^="companion-ad-slot"]');
-      if (el2) el2.style.visibility = 'hidden';
-      const episodeAd = document.querySelector('[class^="Episode_companionAd"]');
-      if (episodeAd) episodeAd.remove();
+      document.querySelector('[class^="Episode_companionAd"]')?.remove();
     },
 
     setMenu1(areaMenu, classList) {
@@ -135,33 +148,21 @@ div[class^="FavoriteList"] > div {
       app.setMenu3(areaMenu, classList);
     },
 
-    setVideo() {
-      let idVideo;
-      const who = document.querySelector('video');
-      if (!who) {
-        idVideo = setTimeout(() => app.setVideo(), 1000);
-        return;
-      }
-      clearTimeout(idVideo);
-      document.body.style = 'margin-top: 100vh';
-      document.querySelector('div[class^="Episode_companionAd"] div')?.remove();
-      const player = document.querySelector('[class^="PlayerLayout"]:has(video)')
-      || document.querySelector('div[class^="PlayerLayout_jail"]:has(video)');
-      player.style = 'position: fixed; width: 100vw; height: auto; left: 0; top: 0; z-index: 99999;';
-    },
-
-    setClick() {
+    setFooterEvent() {
       let idClick;
       const who = document.querySelector('[class^="Footer_copyright"]');
       if (!who) {
         logger.info('Footer_copyright not found');
-        idClick = setTimeout(() => app.setClick(), 500);
+        idClick = setTimeout(() => app.setFooterEvent(), 500);
         return;
       }
       clearTimeout(idClick);
       document.body.append(who);
-      who.style = 'position:fixed;left:0;bottom:0;cursor:pointer;color:rgba(52,128,128,0.5)';
-      who.onclick = () => setTimeout(() => app.setVideo(), 500);
+      who.addEventListener('click', event => {
+        event.preventDefault();
+        document.querySelector('[class^="PlayerLayout"]:has(video)')
+        ?.classList.toggle('custom-wide-video');
+      });
     },
 
     async fetchData() {
@@ -197,9 +198,9 @@ div[class^="FavoriteList"] > div {
     },
 
     async main() {
-      setTimeout(() => app.setClick(), 500);
-      setTimeout(() => app.setContentEvent(), 1000);
-      setTimeout(() => app.changeStyle(), 1500);
+      setTimeout(() => app.changeStyle(), 400);
+      setTimeout(() => app.setContentEvent(), 500);
+      setTimeout(() => app.setFooterEvent(), 600);
     },
   };
 
