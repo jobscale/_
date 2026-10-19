@@ -2,18 +2,16 @@
 set -eu
 
 loop() {
-  while (speedtest); do
+  while (SOUND=~/_/mp3/alert.mp3 speedtest); do
     loop.js 300 -s
   done
 }
 
 while loop; do
   echo
-  cd ~/_/mp3
-  ffplay -nodisp -autoexit -ss 0.0 ~/_/mp3/alert.mp3 2> /dev/null
+  loop.js 90 -s
   TZ=Asia/Tokyo date -Iseconds
-  loop.js 120 -s
   get-ip
   echo
-  loop.js 300 -s
+  loop.js 360 -s
 done
