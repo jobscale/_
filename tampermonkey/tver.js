@@ -45,6 +45,9 @@ div[class^="FavoriteList"] > div {
 body:has(.custom-wide-video) {
   margin-top: 100vh;
 }
+body:has(.custom-wide-video) [class^="AppLayout_app"] header {
+  visibility: hidden;
+}
 .custom-wide-video {
   position: fixed;
   width: 100vw;

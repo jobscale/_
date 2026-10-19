@@ -391,9 +391,19 @@ body {
       el.textContent = 'hide';
       el.addEventListener('click', event => {
         event.preventDefault();
-        div.remove();
+        const hidden = el.textContent === 'hide';
+        [...div.children].forEach(sibling => {
+          if (sibling !== el) sibling.hidden = hidden;
+        });
+        if (hidden) {
+          el.textContent = 's';
+          el.style.opacity = '0.3';
+        } else {
+          el.textContent = 'hide';
+          el.style.opacity = '';
+        }
       });
-      div.prepend(el);
+      div.append(el);
     },
 
     btnScheme(div) {
@@ -418,8 +428,6 @@ body {
     },
 
     btnVideo(div) {
-      const media = document.querySelector('video') ?? document.querySelector('media');
-      if (!media) return;
       const el = document.createElement('button');
       el.type = 'button';
       el.textContent = 'video';
@@ -427,7 +435,6 @@ body {
         event.preventDefault();
         const video = document.querySelector('#video-player-bg')
           || document.querySelector('.japaNews24-movie-area')
-          || document.querySelector('.player-block')
           || document.querySelector('div:has(> video-js)')
           || document.querySelector('div:has(> video)')
           || document.querySelector('div:has(> * > video)')
@@ -466,8 +473,8 @@ body {
     async mounted() {
       const div = app.btnSetting();
       app.btnScheme(div);
-      app.btnHide(div);
       app.btnVideo(div);
+      app.btnHide(div);
 
       const customCss = await indexStore.getItem('custom-css') ?? [];
       if (!customCss.length) await app.forceAllow({ customCss });

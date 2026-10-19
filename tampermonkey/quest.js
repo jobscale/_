@@ -305,7 +305,7 @@
       }
       const NEXT_TICK = 1; // interval minutes
       setTimeout(() => {
-        location.href = 'https://navy.quest/ally.php?b=58';
+        location.href = 'https://navy.quest/ally.php?b=21';
       }, NEXT_TICK * 60 * 1000);
       return true;
     },
@@ -340,7 +340,7 @@
       }
       if (!location.href.includes('ally')) return;
       app.refactor();
-      const url = 'https://navy.quest/ally.php?b=58';
+      const url = 'https://navy.quest/ally.php?b=21';
       if (location.href !== url) return;
       const NEXT_TICK = 6; // interval minutes
       app.refreshTime = new Date();
