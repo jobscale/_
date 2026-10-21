@@ -2,8 +2,32 @@
 set -eu
 
 connect() {
+  local target="$1"
+  local profile_name=""
+
+  # 1. 登録されているすべての Wi-Fi プロファイル名を取得
+  # (タイプが 802-11-wireless のものだけを1行ずつ抽出)
+  while IFS=: read -r name type; do
+    if [[ "$type" == "802-11-wireless" ]]; then
+      # 2. 各プロファイルの実際の SSID 設定値を取得し、引数と完全一致するかチェック
+      local current_ssid
+      current_ssid=$(nmcli -g 802-11-wireless.ssid connection show "$name" 2>/dev/null || true)
+
+      if [[ "$current_ssid" == "$target" ]]; then
+        profile_name="$name"
+        break
+      fi
+    fi
+  done < <(nmcli -t -f NAME,TYPE connection show)
+
+  # 3. フォールバック
+  if [[ -z "${profile_name}" ]]; then
+    profile_name="$target"
+  fi
+
+  echo "connection up '${profile_name}' ..."
+  nmcli connection up "${profile_name}"
   nmcli device wifi list
-  nmcli device wifi connect "$1"
 }
 
 if [[ -z "${1:-}" ]]; then
