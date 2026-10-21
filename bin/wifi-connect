@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eu
+
+connect() {
+  nmcli device wifi list
+  nmcli device wifi connect "$1"
+}
+
+if [[ -z "${1:-}" ]]; then
+  echo 'Usage: wifi-connect "<ssid>"'
+  exit 1
+fi
+connect "$1"
