@@ -22,6 +22,12 @@ const self = {
       type: 'get-router-title', address,
     });
     if (response?.error) throw new Error(response.error);
+    if (response?.status === 401) {
+      if (typeof response.realm === 'string' && response.realm.trim()) {
+        return { address, title: response.realm.trim() };
+      }
+      throw new Error('Basic authentication required; no realm was provided.');
+    }
     if (typeof response?.data !== 'string') throw new Error('Router response was empty.');
     const title = new DOMParser()
     .parseFromString(response.data, 'text/html')
@@ -41,7 +47,13 @@ const self = {
       });
       if (memo.router) break;
     }
-    if (!memo.router) throw new AggregateError(errors, 'Could not get the router.');
+    if (!memo.router) {
+      throw new AggregateError(errors, 'Could not get the router.', {
+        cause: {
+          message: errors.map(e => e.cause?.message ?? e.cause ?? e.message).join('; '),
+        },
+      });
+    }
     return memo.router;
   },
 
