@@ -3,6 +3,7 @@ set -eu
 
 loop() {
   while (SOUND=~/_/mp3/alert.mp3 speedtest); do
+    nmcli connection show --active | grep wifi
     loop.js 300 -s
   done
 }
