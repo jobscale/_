@@ -18,24 +18,29 @@ trap cleanup EXIT
 care() {
   echo "care of repeater"
   # ip neigh | grep apcli0
-  # ip link set apcli0 down && ip link set apcli0 up
+  # ip link set apcli0 down && ip link set apcli0 up && date
   # /etc/init.d/repeater restart && date
   # wifi down && wifi up && date
+  sleep 90
 }
 
 main() {
-  local attempt=6
+  local attempt=5
 
   while (( attempt > 0 )); do
-    if result=$(curl -fsS --connect-timeout 3 --max-time 3 inet-ip.info/ip) &&
-    [[ -n "$result" ]]; then
-      echo "$(TZ=GMT-9 date -Iseconds) OK GlobalIp $result"
+    gateway=$(ip r | awk '/default via .* dev apcli0/ {print $3}')
+    gip=$(curl -fsS --connect-timeout 2 --max-time 2 inet-ip.info/ip)
+    if [[ -n "$gip" ]]; then
+      echo "$(TZ=GMT-9 date -Iseconds) OK GlobalIp $gip"
+      return 0
+    elif [[ -n "$gateway" ]] && ping -c 1 -W 2 "$gateway" >/dev/null; then
+      echo "$(TZ=GMT-9 date -Iseconds) Repeater Healthy"
       return 0
     else
       attempt=$((attempt - 1))
       echo "$(TZ=GMT-9 date -Iseconds) NG retry $attempt"
       if (( attempt > 0 )); then
-        sleep 5
+        sleep 2
       fi
     fi
   done

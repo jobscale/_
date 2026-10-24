@@ -19,9 +19,10 @@ copyCmd() {
 }
 
 cloneVim() {
-  [ -s "$HOME/.vim/bundle/Vundle.vim" ] && return
-  git clone --depth 1 https://github.com/VundleVim/Vundle.vim.git "$HOME/.vim/bundle/Vundle.vim"
-  vim +PluginInstall +qall
+  [ -s "$HOME/.vim/autoload/plug.vim" ] && return
+  curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
+  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  vim +PlugInstall +qall
 }
 
 main () {
