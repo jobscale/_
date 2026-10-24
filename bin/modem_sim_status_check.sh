@@ -17,11 +17,12 @@ trap cleanup EXIT
 
 care() {
   echo "care of repeater"
-  # ip neigh | grep apcli0
-  # ip link set apcli0 down && ip link set apcli0 up && date
-  # /etc/init.d/repeater restart && date
-  # wifi down && wifi up && date
-  sleep 90
+  ip n
+  ip r
+  iw dev apcli0 link
+  wifi restart && echo "$(TZ=GMT-9 date -Iseconds) restart complete" || echo "$(TZ=GMT-9 date -Iseconds) restart failed"
+  sleep 60 && echo "$(TZ=GMT-9 date -Iseconds) after n seconds"
+  echo "$(TZ=GMT-9 date -Iseconds) GlobalIp $(curl -fsS --connect-timeout 2 --max-time 2 inet-ip.info/ip)"
 }
 
 main() {
@@ -46,7 +47,7 @@ main() {
   done
 
   echo "$(TZ=GMT-9 date -Iseconds) Network Error" >&2
-  care
+  care 2>&1
   return 1
 }
 
