@@ -17,16 +17,19 @@ trap cleanup EXIT
 
 care() {
   echo "care of repeater"
+  iw dev apcli0 link
   ip n
   ip r
-  iw dev apcli0 link
-  wifi restart && echo "$(TZ=GMT-9 date -Iseconds) restart complete" || echo "$(TZ=GMT-9 date -Iseconds) restart failed"
-  sleep 60 && echo "$(TZ=GMT-9 date -Iseconds) after n seconds"
-  echo "$(TZ=GMT-9 date -Iseconds) GlobalIp $(curl -fsS --connect-timeout 2 --max-time 2 inet-ip.info/ip)"
+  ip -4 -o a
+  echo "$(TZ=GMT-9 date -Iseconds) wifi restart"
+  wifi restart >/dev/null && echo "$(TZ=GMT-9 date -Iseconds) restart complete" || echo "$(TZ=GMT-9 date -Iseconds) restart failed"
+  sleep 60
+  echo "$(TZ=GMT-9 date -Iseconds) after n seconds GlobalIp $(curl -fsS --connect-timeout 2 --max-time 2 inet-ip.info/ip)"
+  echo "end of care"
 }
 
 main() {
-  local attempt=5
+  local attempt=7
 
   while (( attempt > 0 )); do
     gateway=$(ip r | awk '/default via .* dev apcli0/ {print $3}')
@@ -41,7 +44,7 @@ main() {
       attempt=$((attempt - 1))
       echo "$(TZ=GMT-9 date -Iseconds) NG retry $attempt"
       if (( attempt > 0 )); then
-        sleep 2
+        sleep 3
       fi
     fi
   done
