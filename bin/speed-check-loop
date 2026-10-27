@@ -8,11 +8,14 @@ loop() {
   done
 }
 
+broken() {
+  echo
+  loop.js 50 -s
+  echo "$(TZ=Asia/Tokyo date -Iseconds) $(get-ip | xargs)"
+  echo
+  loop.js 120 -s
+}
+
 while loop; do
-  echo
-  loop.js 90 -s
-  TZ=Asia/Tokyo date -Iseconds
-  get-ip
-  echo
-  loop.js 360 -s
+  broken
 done

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shell dependency GNU bash 5.1.x
+# scp jobscale@dark.jsx.jp:bin/modem_sim_status_check.sh /usr/bin/modem_sim_status_check.sh
 
 LOCK=/tmp/modem_sim.lock
 LOG=/var/log/modem_sim.log
@@ -21,15 +22,14 @@ care() {
   ip n
   ip r
   ip -4 -o a
-  echo "$(TZ=GMT-9 date -Iseconds) wifi restart"
-  wifi restart >/dev/null && echo "$(TZ=GMT-9 date -Iseconds) restart complete" || echo "$(TZ=GMT-9 date -Iseconds) restart failed"
+  echo "$(TZ=GMT-9 date -Iseconds) wifi restart $(wifi restart >/dev/null 2>&1)"
   sleep 60
   echo "$(TZ=GMT-9 date -Iseconds) after n seconds GlobalIp $(curl -fsS --connect-timeout 2 --max-time 2 inet-ip.info/ip)"
   echo "end of care"
 }
 
 main() {
-  local attempt=7
+  local attempt=20
 
   while (( attempt > 0 )); do
     gateway=$(ip r | awk '/default via .* dev apcli0/ {print $3}')
