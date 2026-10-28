@@ -1,0 +1,5 @@
+* * * * * sleep 47 && /usr/bin/modem_sim_status_check.sh
+* * * * * sleep 36 && /usr/bin/modem_sim_status_check.sh
+* * * * * sleep 25 && /usr/bin/modem_sim_status_check.sh
+* * * * * sleep 14 && /usr/bin/modem_sim_status_check.sh
+* * * * * sleep 3 && /usr/bin/modem_sim_status_check.sh

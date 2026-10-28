@@ -32,10 +32,13 @@ main() {
   local attempt=20
 
   while (( attempt > 0 )); do
+    start=$(awk '{print $1}' /proc/uptime)
     gateway=$(ip r | awk '/default via .* dev apcli0/ {print $3}')
     gip=$(curl -fsS --connect-timeout 2 --max-time 2 inet-ip.info/ip)
+    end=$(awk '{print $1}' /proc/uptime)
+    latency=$(awk "BEGIN {print ($end - $start) * 1000}")
     if [[ -n "$gip" ]]; then
-      echo "$(TZ=GMT-9 date -Iseconds) OK GlobalIp $gip"
+      echo "$(TZ=GMT-9 date -Iseconds) OK GlobalIp $gip ($latency ms)"
       return 0
     elif [[ -n "$gateway" ]] && ping -c 1 -W 2 "$gateway" >/dev/null; then
       echo "$(TZ=GMT-9 date -Iseconds) Repeater Healthy"
