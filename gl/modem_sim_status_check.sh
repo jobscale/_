@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # shell dependency GNU bash 5.1.x
-# scp jobscale@dark.jsx.jp:bin/modem_sim_status_check.sh /usr/bin/modem_sim_status_check.sh
+# scp jobscale@172.16.6.77:_/gl/modem_sim_status_check.sh /usr/bin/modem_sim_status_check.sh
+# scp jobscale@172.16.6.77:_/gl/modem_sim_status_monitor /etc/gl_crontabs/crontabs.d/modem_sim_status_monitor
 
 LOCK=/tmp/modem_sim.lock
 LOG=/var/log/modem_sim.log
