@@ -3,13 +3,14 @@ set -eu
 
 loop() {
   while (SOUND=~/_/mp3/alert.mp3 speedtest); do
-    nmcli connection show --active | grep wifi
+    echo "$(TZ=Asia/Tokyo date -Iseconds) $(curl -s inet-ip.info/ip) $(nmcli connection show --active | grep wifi)"
     loop.js 300 -s
   done
 }
 
 broken() {
   echo
+  dash -c "exec >/dev/null 2>&1; setsid ffplay -nodisp -autoexit -ss 0.0 ~/_/mp3/important-slow.mp3 &"
   loop.js 50 -s
   echo "$(TZ=Asia/Tokyo date -Iseconds) $(get-ip | xargs)"
   echo
