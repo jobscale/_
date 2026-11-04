@@ -16,6 +16,8 @@
   const { createTimezone, formatDuration } = await import('https://esm.sh/@jobscale/timestamp');
 
   const formatTimestamp = createTimezone({ timeZone: 'Europe/Paris' });
+  const Alliance = 'https://navy.quest/ally.php?b=21';
+  const IntervalMinute = 6; // interval minutes
 
   const chunkByUnit = (arr, size) => arr.reduce((acc, _, i) => {
     if (i % size === 0) acc.push(arr.slice(i, i + size));
@@ -38,43 +40,46 @@
   };
 
   const app = {
+    style: `/* Custom Style */
+.time {
+  position: fixed;
+  right: 1em;
+  bottom: 1em;
+  padding: 0.3em;
+  z-index: 1000001;
+  font-family: Tahoma;
+  font-size: 2.2rem;
+  pointer-events: none;
+}
+.outlined-text {
+  color: white;
+  font-weight: bold;
+  -webkit-text-stroke: 1px black;
+  text-shadow:
+    0 0 2px black,
+    1px 1px 2px black,
+  -1px 1px 2px black,
+    1px -1px 2px black,
+  -1px -1px 2px black;
+}
+#custom-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  pointer-events: none;
+  z-index: 100;
+}
+.honeycomb-white {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+`,
+
     createTime() {
       const style = document.createElement('style');
-      style.innerText = `
-  .time {
-    position: fixed;
-    right: 1em;
-    bottom: 1em;
-    padding: 0.3em;
-    z-index: 1000001;
-    font-family: Tahoma;
-    font-size: 2.2rem;
-    pointer-events: none;
-  }
-  .outlined-text {
-    color: white;
-    font-weight: bold;
-    -webkit-text-stroke: 1px black;
-    text-shadow:
-      0 0 2px black,
-      1px 1px 2px black,
-    -1px 1px 2px black,
-      1px -1px 2px black,
-    -1px -1px 2px black;
-  }
-  #custom-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: transparent;
-    pointer-events: none;
-    z-index: 100;
-  }
-  .honeycomb-white {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-  }
-  `;
+      style.innerText = app.style;
       document.head.append(style);
+
       const div = document.createElement('div');
       div.classList.add('time');
       div.classList.add('outlined-text');
@@ -82,7 +87,7 @@
 
       const loop = () => {
         [, div.textContent] = formatTimestamp({ tz: false }).split(' ');
-        setTimeout(loop, 1000 - Date.now() % 1000);
+        setTimeout(loop, 1_000 - Date.now() % 1_000);
       };
       loop();
     },
@@ -93,7 +98,7 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         app.drawCanvas(canvas);
-      }, 1000);
+      }, 1_000);
     },
 
     drawCanvas(canvas) {
@@ -181,7 +186,7 @@
         logger.warn(e.cause, e.message);
         if (!opt.amount) throw e;
         opt.amount--;
-        return new Promise(resolve => { setTimeout(resolve, 16000); })
+        return new Promise(resolve => { setTimeout(resolve, 16_000); })
         .then(() => app.postSlack(body, opt));
       });
     },
@@ -195,11 +200,7 @@
     async checkEnemy(item) {
       const before = JSON.parse(await indexStore.getItem('player') || '{}');
       await indexStore.setItem('player', JSON.stringify({ ...before, ...item }));
-      if (before.point && before.point > item.point) {
-        setTimeout(() => {
-          location.href = 'https://navy.quest/gold?go=report';
-        }, 1000);
-      }
+      return before.point && before.point > item.point;
     },
 
     async onlineUsers(interval = 10) {
@@ -222,7 +223,11 @@
         return item;
       }).slice(1);
       const player = data.find(item => !item.mail);
-      await app.checkEnemy(player);
+      const emergency = await app.checkEnemy(player);
+      if (emergency) {
+        location.href = 'https://navy.quest/gold?go=report';
+        return;
+      }
       const users = data.filter(item => {
         if (!item.mail) return false;
         if (item.point < 35000) return false;
@@ -303,33 +308,20 @@
           blocks: [block],
         }).catch(e => logger.warn(e.message));
       }
-      const NEXT_TICK = 1; // interval minutes
-      setTimeout(() => {
-        location.href = 'https://navy.quest/ally.php?b=21';
-      }, NEXT_TICK * 60 * 1000);
+      setTimeout(() => { location.href = Alliance; }, 120_000);
       return true;
     },
 
-    async refactor() {
+    async highlight() {
       const ally = document.querySelector('table td:nth-child(2) table');
       if (!ally) return;
-      const cells = [...ally.querySelectorAll('tr td')];
-      const begin = cells.findIndex(v => v.textContent.includes('Co-Leader'));
-      if (begin < 0) return;
-      cells.splice(0, begin + 1);
-      const end = cells.findIndex(v => v.textContent === '');
-      if (end < 0) return;
-      cells.splice(end);
-      const coLeaders = cells.filter(v => v.textContent !== 'On' && !v.textContent.includes('>'));
-      const names = coLeaders.map(v => v.textContent);
+      logger.info('Highlighting leader co-leaders...');
       const member = document.querySelector('table table');
-      const user = [...member.querySelectorAll('tr td')];
-      let match = 0;
-      user.forEach(v => {
-        if (names.includes(v.textContent)) match = 6;
-        if (!match) return;
-        match--;
-        v.style.backgroundColor = '#500';
+      const users = [...member.querySelectorAll('tr')].map(tr => [tr, ...tr.querySelectorAll('td')]);
+      users.forEach(v => {
+        const leader = /leader|co-leader/i.test(v[10]?.textContent) || /leader|co-leader/i.test(v[8]?.textContent);
+        if (!leader) return;
+        v[0].style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
       });
     },
 
@@ -339,30 +331,26 @@
         return;
       }
       if (!location.href.includes('ally')) return;
-      app.refactor();
-      const url = 'https://navy.quest/ally.php?b=21';
-      if (location.href !== url) return;
-      const NEXT_TICK = 6; // interval minutes
+      app.highlight();
+      if (location.href !== Alliance) return;
       app.refreshTime = new Date();
-      app.refreshTime.setMinutes(app.refreshTime.getMinutes() + NEXT_TICK);
-      logger.info(formatTimestamp(), JSON.stringify({
-        refreshTime: formatTimestamp({ ts: app.refreshTime }),
-      }, null, 2));
+      app.refreshTime.setMinutes(app.refreshTime.getMinutes() + IntervalMinute);
       await app.onlineUsers(3);
-      setInterval(() => {
-        if (app.refreshTime < new Date()) {
-          location.reload();
-        }
+
+      const span = document.createElement('span');
+      span.classList.add('time');
+      span.classList.add('outlined-text');
+      span.style.bottom = '3em';
+      document.body.append(span);
+
+      const countDown = () => {
+        if (app.refreshTime < new Date()) location.reload();
         const duration = formatDuration(app.refreshTime);
-        if (!app.duration) {
-          app.duration = document.createElement('span');
-          app.duration.classList.add('time');
-          app.duration.classList.add('outlined-text');
-          app.duration.style.bottom = '3em';
-          document.body.append(app.duration);
-        }
-        app.duration.textContent = `${duration} refresh`;
-      }, 1_000);
+        if (app.refreshTime % 60_000 === 0) logger.info(`Next refresh in ${duration}`);
+        span.textContent = `${duration} refresh`;
+        setTimeout(() => countDown(), 1_000 - Date.now() % 1_000);
+      };
+      countDown();
     },
 
     isTypingContext(target) {
