@@ -40,9 +40,17 @@ VBoxManage() {
     return
   fi
   if [[ $@ == "controlvm" ]]; then
+    echo "NAT"
     echo VBoxManage controlvm jammy natpf1 "ssh,tcp,0.0.0.0,2022,,22"
     echo VBoxManage controlvm jammy natpf1 delete ssh
-    command VBoxManage "$@"
+    return
+  fi
+  if [[ $@ == "natnetwork" ]]; then
+    echo "NAT Network"
+    echo "VBoxManage natnetwork modify --netname 'NatNetwork' --port-forward-4 'ssh-4:tcp:[0.0.0.0]:2204:[10.0.2.4]:22'"
+    echo "VBoxManage natnetwork modify --netname 'NatNetwork' --port-forward-4 'ssh-15:tcp:[0.0.0.0]:2215:[10.0.2.15]:22'"
+    echo "VBoxManage natnetwork list"
+    echo "VBoxManage natnetwork modify --netname 'NatNetwork' --port-forward-4 delete ssh-4"
     return
   fi
   command VBoxManage "$@"
@@ -133,7 +141,7 @@ less_with_unbuffer () {
 code() {
   $(which code) $@
   ~/_/bin/loop.js --silent 3
-  ~/_/x-window/adjust-window 28
+  ~/_/x-window/adjust-window 32
 }
 
 . ~/_/home/loop
