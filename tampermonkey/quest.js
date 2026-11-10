@@ -319,7 +319,7 @@
       const member = document.querySelector('table table');
       const users = [...member.querySelectorAll('tr')].map(tr => [tr, ...tr.querySelectorAll('td')]);
       users.forEach(v => {
-        const leader = /leader|co-leader/i.test(v[10]?.textContent) || /leader|co-leader/i.test(v[8]?.textContent);
+        const leader = [8, 9, 10].find(num => /leader|co-leader/i.test(v[num]?.textContent));
         if (!leader) return;
         v[0].style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
       });

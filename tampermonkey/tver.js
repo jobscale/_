@@ -37,8 +37,8 @@ div[class^="FavoriteList"] > div {
 }
 [class^="Footer_copyright"] {
   position: fixed;
-  left: 0;
-  bottom: 0;
+  left: 8px;
+  bottom: 8px;
   cursor: pointer;
   color: rgba(52,128,128,0.5);
 }
