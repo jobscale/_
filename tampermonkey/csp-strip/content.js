@@ -94,6 +94,18 @@ const self = {
     meta.content = 'dark';
     document.head.prepend(meta);
     logger.info(`Inserted custom color scheme meta tag ${formatTimestamp()}`);
+    const cleaning = () => {
+      const exists = document.querySelector(`#${tagId}`);
+      if (exists === meta) {
+        meta.remove();
+        logger.info(`color scheme meta tag cleaned up myself ${formatTimestamp()}`);
+      } else if (exists) {
+        logger.info(`color scheme meta tag still exists ${formatTimestamp()}`);
+      } else {
+        logger.warn(`color scheme meta tag not found ${formatTimestamp()}`);
+      }
+    };
+    setTimeout(cleaning, 10_000);
   },
 
   async start() {
