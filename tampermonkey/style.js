@@ -11,7 +11,6 @@
 // @exclude      https://*.console.aws.amazon.com/*
 // @exclude      https://outlook.office.com/mail/*
 // @exclude      https://webshell.suite.office.com/*
-// @exclude      https://outlook.cloud.microsoft/*
 // @exclude      https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=yumyumcolor.com
 // @grant        none
@@ -556,7 +555,7 @@ body {
 
     init() {
       const style = document.createElement('style');
-      style.textContent = app.cssDark;
+      style.textContent = app.cssFast;
       document.head.append(style);
       app.init.unset = () => { style.remove(); };
 

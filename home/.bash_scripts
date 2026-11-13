@@ -141,7 +141,7 @@ less_with_unbuffer () {
 code() {
   $(which code) $@
   ~/_/bin/loop.js --silent 3
-  ~/_/x-window/adjust-window 32
+  ~/_/x-window/adjust-window 70
 }
 
 . ~/_/home/loop
