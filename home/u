@@ -19,9 +19,12 @@ update() {
 
 upgrade() {
   update
-  sudo apt-get clean && sudo rm -fr /var/lib/apt/lists/*
+  if [[ "${1:-}" == "-c" ]]; then
+    sudo apt-get clean && sudo rm -fr /var/lib/apt/lists/*
+    echo "cleaned"
+  fi
 }
 
 {
-  time upgrade
+  time upgrade $@
 } 2>&1 | tee -a $HOME/.work/apt-upgrade.log
