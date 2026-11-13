@@ -326,28 +326,48 @@ body {
 `,
 
     async add(no) {
-      const elm = document.querySelector(`.btn-custom-css-${no}`);
+      const btn = document.querySelector(`.btn-custom-css-${no}`);
       const style = document.createElement('style');
       style.textContent = app[`css${no}`];
       style.id = `custom-css-${no}`;
       document.head.append(style);
       const customCss = await indexStore.getItem('custom-css') ?? [];
-      if (!customCss.includes(no)) customCss.push(no);
-      await indexStore.setItem('custom-css', customCss);
-      elm.textContent = `*${elm.textContent}*`;
+      if (!customCss.includes(no)) {
+        await indexStore.setItem('custom-css', [...customCss, no]);
+      }
+      btn.textContent = `*${btn.textContent}*`;
     },
 
     async toggle(no) {
-      const elm = document.querySelector(`.btn-custom-css-${no}`);
+      const exclusive = ['Deep', 'Simple', 'Fast'];
+      if (exclusive.includes(no)) {
+        await app.toggleExclusive(exclusive, no);
+        return;
+      }
+      const btn = document.querySelector(`.btn-custom-css-${no}`);
       const exist = document.querySelector(`#custom-css-${no}`);
       const customCss = await indexStore.getItem('custom-css') ?? [];
       if (customCss.includes(no)) {
         if (exist) exist.remove();
         await indexStore.setItem('custom-css', customCss.filter(v => v !== no));
-        elm.textContent = no;
+        btn.textContent = no;
       } else if (!exist) {
         await app.add(no);
       }
+    },
+
+    async toggleExclusive(exclusive, no) {
+      const customCss = await indexStore.getItem('custom-css') ?? [];
+      const toActive = !customCss.includes(no);
+      await indexStore.setItem('custom-css', [
+        ...customCss.filter(v => !exclusive.includes(v)), toActive && no,
+      ].filter(Boolean));
+      exclusive.forEach(vacancy => {
+        document.querySelector(`#custom-css-${vacancy}`)?.remove();
+        const btn = document.querySelector(`.btn-custom-css-${vacancy}`);
+        if (btn) btn.textContent = vacancy;
+      });
+      if (toActive) await app.add(no);
     },
 
     async update(no, force) {
