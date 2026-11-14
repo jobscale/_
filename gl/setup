@@ -1,0 +1,2 @@
+ln -sfn /root/_/gl/modem_sim_status_check.sh /usr/bin/modem_sim_status_check.sh
+ln -sfn /root/_/gl/modem_sim_status_monitor /etc/gl_crontabs/crontabs.d/modem_sim_status_monitor
