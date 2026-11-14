@@ -1,0 +1,8 @@
+echo
+set -x
+iwinfo apcli0 assoclist
+ip neigh show
+cat /tmp/dhcp.leases
+cat /proc/net/arp
+set +x
+echo "static vi /etc/config/dhcp"

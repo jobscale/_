@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -x
+
+connect() {
+  echo "$(TZ=GMT-9 date -Iseconds) BEFORE"
+  uci show repeater | grep -E 'selected|ssid'
+
+  # Rakuten-5268
+  uci set repeater.@network[0].selected='1'
+  # yellow
+  uci set repeater.@network[1].selected='0'
+
+  echo "$(TZ=GMT-9 date -Iseconds) wifi restart $(wifi restart >/dev/null 2>&1)"
+
+  echo "$(TZ=GMT-9 date -Iseconds) AFTER $(sleep 40)"
+  uci show repeater | grep -E 'selected|ssid'
+  echo "$(TZ=GMT-9 date -Iseconds) AFTER $(sleep 10)"
+  uci show repeater | grep -E 'selected|ssid'
+  echo "$(TZ=GMT-9 date -Iseconds) AFTER $(sleep 10)"
+  uci show repeater | grep -E 'selected|ssid'
+
+  iw dev apcli0 link
+  iwinfo apcli0 info
+  ip -4 -o a
+  uci show wireless | grep -E 'sta.ssid|sta.macaddr|sta.ifname|sta.device'
+}
+
+connect | tee -a log-connect.log
