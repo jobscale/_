@@ -325,57 +325,37 @@ body {
 }
 `,
 
-    async add(no) {
-      const btn = document.querySelector(`.btn-custom-css-${no}`);
-      const style = document.createElement('style');
-      style.textContent = app[`css${no}`];
-      style.id = `custom-css-${no}`;
-      document.head.append(style);
-      const customCss = await indexStore.getItem('custom-css') ?? [];
-      if (!customCss.includes(no)) {
-        await indexStore.setItem('custom-css', [...customCss, no]);
+    renderCss(no, isActive) {
+      const styleId = `custom-css-${no}`;
+      const exist = document.querySelector(`#${styleId}`);
+      if (Boolean(exist) === isActive) return;
+      if (isActive) {
+        const style = Object.assign(document.createElement('style'), {
+          id: styleId,
+          textContent: app[`css${no}`],
+        });
+        document.head.append(style);
+      } else {
+        exist.remove();
       }
-      btn.textContent = `*${btn.textContent}*`;
+      const btn = document.querySelector(`.btn-custom-css-${no}`);
+      if (btn) btn.textContent = isActive ? `*${no}*` : no;
+    },
+
+    async apply(no, isActive = true) {
+      const exclusive = ['Deep', 'Simple', 'Fast'];
+      const list = await indexStore.getItem('custom-css') ?? [];
+      const targets = exclusive.includes(no) ? exclusive : [no];
+      targets.forEach(id => app.renderCss(id, id === no && isActive));
+      const filtered = list.filter(v => !targets.includes(v));
+      const customCss = isActive ? [...filtered, no] : filtered;
+      logger.info(`Custom CSS: ${customCss.join(', ')}`);
+      await indexStore.setItem('custom-css', customCss);
     },
 
     async toggle(no) {
-      const exclusive = ['Deep', 'Simple', 'Fast'];
-      if (exclusive.includes(no)) {
-        await app.toggleExclusive(exclusive, no);
-        return;
-      }
-      const btn = document.querySelector(`.btn-custom-css-${no}`);
-      const exist = document.querySelector(`#custom-css-${no}`);
-      const customCss = await indexStore.getItem('custom-css') ?? [];
-      if (customCss.includes(no)) {
-        if (exist) exist.remove();
-        await indexStore.setItem('custom-css', customCss.filter(v => v !== no));
-        btn.textContent = no;
-      } else if (!exist) {
-        await app.add(no);
-      }
-    },
-
-    async toggleExclusive(exclusive, no) {
-      const customCss = await indexStore.getItem('custom-css') ?? [];
-      const toActive = !customCss.includes(no);
-      await indexStore.setItem('custom-css', [
-        ...customCss.filter(v => !exclusive.includes(v)), toActive && no,
-      ].filter(Boolean));
-      exclusive.forEach(vacancy => {
-        document.querySelector(`#custom-css-${vacancy}`)?.remove();
-        const btn = document.querySelector(`.btn-custom-css-${vacancy}`);
-        if (btn) btn.textContent = vacancy;
-      });
-      if (toActive) await app.add(no);
-    },
-
-    async update(no, force) {
-      if (force) {
-        await app.add(no);
-        return;
-      }
-      await app.toggle(no);
+      const list = await indexStore.getItem('custom-css') ?? [];
+      await app.apply(no, !list.includes(no));
     },
 
     btnSetting() {
@@ -393,7 +373,7 @@ body {
         elm.classList.add(`btn-custom-css-${no}`);
         elm.addEventListener('click', event => {
           event.preventDefault();
-          app.update(no, undefined);
+          app.toggle(no);
         });
         div.append(elm);
       };
@@ -453,7 +433,6 @@ body {
       el.addEventListener('click', event => {
         event.preventDefault();
         const video = document.querySelector('#video-player-bg')
-          || document.querySelector('.japaNews24-movie-area')
           || document.querySelector('div:has(> video-js)')
           || document.querySelector('div:has(> video)')
           || document.querySelector('div:has(> * > video)')
@@ -498,7 +477,7 @@ body {
       const customCss = await indexStore.getItem('custom-css') ?? [];
       if (!customCss.length) await app.forceAllow({ customCss });
       for (const no of app.listCss) {
-        if (customCss.includes(no)) await app.update(no, true);
+        if (customCss.includes(no)) await app.apply(no);
       }
     },
 
