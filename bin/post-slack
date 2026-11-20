@@ -6,10 +6,11 @@ if [[ -z "$DATA" ]]; then
   echo "Usage: [env::CHANNEL] [env::TIMEOUT] $0 <message>"
   exit 1
 fi
-ENDPOINT=https://jsx.jp/api/slack
 GIP="$(hostname) - $(curl -s https://inet-ip.info/ip)"
 OPTION=
 [[ "${TIMEOUT:-}" != "" ]] && OPTION="-m ${TIMEOUT}"
+
+ENDPOINT=https://jsx.jp/api/slack
 
 postSlack() {
   PAYLOAD="{\"icon_emoji\":\":anchor:\",\"username\":\"$(hostname)\",\"text\":\"$DATA\\n$GIP\""

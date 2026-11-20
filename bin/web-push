@@ -13,7 +13,13 @@ if [[ -z "$TITLE" ]]; then
   TITLE="$(id -un)"
 fi
 
-curl -X POST https://jsx.jp/api/webPush -H "Content-Type: application/json" -d "{
-  \"title\": \"$TITLE - $(hostname)\",
-  \"body\": \"$BODY\"
-}"
+ENDPOINT=https://jsx.jp/api/webPush
+
+webPush() {
+  curl -X POST "$ENDPOINT" -H "Content-Type: application/json" -d "{
+    \"title\": \"$TITLE - $(hostname)\",
+    \"body\": \"$BODY\"
+  }"
+}
+
+webPush
