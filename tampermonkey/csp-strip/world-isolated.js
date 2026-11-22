@@ -1,5 +1,6 @@
 /* global chrome, Temporal */
 const logger = { ...console };
+
 const formatTimestamp = (opts = {}) => {
   const {
     ts = Date.now(), iso = false, ms = false, tz = true,
@@ -24,6 +25,7 @@ const self = {
     if (response?.error) throw new Error(response.error);
     if (response?.status === 401) {
       if (typeof response.realm === 'string' && response.realm.trim()) {
+        logger.info('[world ISOLATED]', `Found router at ${address} with title: ${response.realm.trim()}`);
         return { address, title: response.realm.trim() };
       }
       throw new Error('Basic authentication required; no realm was provided.');
@@ -50,70 +52,72 @@ const self = {
     if (!memo.router) {
       throw new AggregateError(errors, 'Could not get the router.', {
         cause: {
-          message: errors.map(e => e.cause?.message ?? e.cause ?? e.message).join('; '),
+          message: errors.map(e => e.cause?.message ?? e.message).join('; '),
         },
       });
     }
     return memo.router;
   },
 
-  eventListen() {
-    logger.info({ exists: window.getRouterTitle ?? 'notfound' });
-    window.contentContext = { iam: 'content' };
-    addEventListener('message', async event => {
-      if (event.source !== window || event.origin !== location.origin) return;
-      const request = event.data;
-      if (request?.channel !== 'csp-strip'
-        || request.type !== 'get-router-title'
-        || typeof request.requestId !== 'string') return;
+  onMessage(event) {
+    if (event.source !== window || event.origin !== location.origin) return;
+    const request = event.data;
+    if (request?.channel !== 'csp-strip'
+      || request.type !== 'get-router-title'
+      || typeof request.requestId !== 'string') return;
 
-      await self.findRouter().then(router => {
-        postMessage({
-          channel: 'csp-strip',
-          type: 'router-title-result',
-          requestId: request.requestId,
-          title: router.title,
-        }, location.origin);
-      }).catch(e => {
-        postMessage({
-          channel: 'csp-strip',
-          type: 'router-title-result',
-          requestId: request.requestId,
-          error: e.cause?.message ?? e.cause ?? e.message,
-        }, location.origin);
-      });
+    self.findRouter().then(router => {
+      postMessage({
+        channel: 'csp-strip',
+        type: 'router-title-result',
+        requestId: request.requestId,
+        title: router.title,
+      }, location.origin);
+    }).catch(e => {
+      postMessage({
+        channel: 'csp-strip',
+        type: 'router-title-result',
+        requestId: request.requestId,
+        error: e.cause?.message ?? e.message,
+      }, location.origin);
     });
   },
 
   async setScheme() {
     const tagId = 'custom-color-scheme';
     if (document.querySelector(`#${tagId}`)) return;
-    const meta = document.createElement('meta');
-    meta.id = tagId;
-    meta.name = 'color-scheme';
-    meta.content = 'dark';
+    const meta = Object.assign(document.createElement('meta'), {
+      id: tagId, name: 'color-scheme', content: 'dark',
+    });
     document.head.prepend(meta);
-    logger.info(`Inserted custom color scheme meta tag ${formatTimestamp()}`);
+    logger.info('[world ISOLATED]', 'Inserted custom color scheme meta tag', formatTimestamp());
     const cleaning = () => {
       const exists = document.querySelector(`#${tagId}`);
       if (exists === meta) {
         meta.remove();
-        logger.info(`color scheme meta tag cleaned up myself ${formatTimestamp()}`);
+        logger.info('[world ISOLATED]', 'color scheme meta tag cleaned up myself', formatTimestamp());
       } else if (exists) {
-        logger.info(`color scheme meta tag still exists ${formatTimestamp()}`);
+        logger.info('[world ISOLATED]', 'color scheme meta tag still exists', formatTimestamp());
       } else {
-        logger.warn(`color scheme meta tag not found ${formatTimestamp()}`);
+        logger.warn('[world ISOLATED]', 'color scheme meta tag not found', formatTimestamp());
       }
     };
     setTimeout(cleaning, 10_000);
   },
 
   async start() {
+    logger.table({
+      'Main thread': 'window(A)',
+      'world MAIN (world-main.js)': 'window(A), window(A).postMessage',
+      'world ISOLATED (content.js)': 'window(B).postMessage, chrome.runtime.sendMessage, sendResponse',
+      'service-worker (background.js)': 'chrome.runtime.sendMessage, sendResponse',
+    });
+    logger.info('[world ISOLATED]', 'Starting content script', formatTimestamp());
     if (!document.head) return false;
     if (self.once) return true;
     self.once = true;
 
-    self.eventListen();
+    addEventListener('message', self.onMessage);
     self.setScheme();
 
     return true;
@@ -121,7 +125,7 @@ const self = {
 };
 
 const observer = new MutationObserver(async () => {
-  logger.info('Via MutationObserver');
+  logger.info('[world ISOLATED]', 'Via MutationObserver', formatTimestamp());
   if (await self.start()) observer.disconnect();
 });
 observer.observe(document.documentElement, { childList: true });

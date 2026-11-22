@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Cloud Microsoft CSP Strip",
+  "name": "Cloud TLS CSP Strip",
   "version": "1.0.0",
-  "description": "Remove CSP headers from cloud.microsoft responses.",
+  "description": "Remove CSP headers from Cloud TLS responses.",
   "icons": {
     "16": "favicon.png",
     "32": "favicon.png",
@@ -11,8 +11,9 @@
   },
   "content_scripts": [{
     "matches": ["*://*/*"],
-    "js": ["content.js"],
-    "run_at": "document_start"
+    "js": ["world-isolated.js"],
+    "run_at": "document_start",
+    "world": "ISOLATED"
   }, {
     "matches": ["*://*/*"],
     "js": ["world-main.js"],
