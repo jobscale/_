@@ -51,7 +51,7 @@
 
     main() {
       const span = 60_000;
-      store.teams = [...document.querySelectorAll('.fui-Badge')];
+      store.teams = [...document.querySelectorAll('.f1s438gw')];
       store.outlook = [...document.querySelectorAll('.WIYG1.Mt2TB')];
       store.categories = [...document.querySelectorAll('div.C2IG3.z6Kje:has(.WIYG1.Mt2TB)')]
       .map(el => el.querySelector('span').textContent).join(', ');
