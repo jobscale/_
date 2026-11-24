@@ -14,6 +14,7 @@
 // @match        https://www.npmjs.com/login/otp?next=*
 // @match        https://www.npmjs.com/escalate/otp?next=*
 // @match        https://bitflyer.com/*/ex/twofactorauth
+// @match        https://apps.nulab.com/signin/mfa
 // @match        https://accounts.google.com/v3/signin/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=docs.github.com
 // @grant        GM_setValue
@@ -237,6 +238,7 @@
       || document.querySelector('#totpPin') // Google
       || document.querySelector('#login_otp') // npm
       || document.querySelector('form[class="auth-area"]') // jsxjp
+      || document.querySelector('#authCode') // nulab
       || document.querySelector('#otpCode'); // bitflyer
     },
 

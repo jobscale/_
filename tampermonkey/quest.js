@@ -390,11 +390,11 @@
         else if (key.toggle.includes(event.key)) opts.current = (opts.current + 1) % opts.setup.length;
       } else if (key.move.includes(event.key)) {
         // Hint:
-        // (CF = Rh * OM - Ql - 1400),
-        // (LM = Tr * PT - Sx - 400),
-        // Pv = 1
+        // (Qa = VR * Vg - Tw - 1400),
+        // (Dx = Ph * Wi - OE - 400),
+        // Jr = 1,
 
-        const mini = { x: 'CF', y: 'LM', dirty: 'Pv' };
+        const mini = { x: 'Qa', y: 'Dx', dirty: 'Jr' };
         if (!globalThis[mini.x] || !globalThis[mini.y]) {
           logger.warn('Mini position not found');
           return;

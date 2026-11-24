@@ -66,9 +66,10 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
     },
 
     setMenu1(areaMenu, classList) {
-      const el = document.createElement('button');
+      const el = Object.assign(document.createElement('button'), {
+        textContent: 'キャプションを非表示',
+      });
       classList.forEach(className => { el.classList.add(className); });
-      el.textContent = 'キャプションを非表示';
       const action = async () => {
         [...document.querySelectorAll('div[class^="Caption_caption"]')]
         .forEach(content => {
@@ -87,9 +88,10 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
     },
 
     setMenu2(areaMenu, classList) {
-      const el = document.createElement('button');
+      const el = Object.assign(document.createElement('button'), {
+        textContent: '再放送を非表示',
+      });
       classList.forEach(className => { el.classList.add(className); });
-      el.textContent = '再放送を非表示';
       const action = async () => {
         [...document.querySelectorAll('li:has([href^="/episodes/"])')]
         .filter(wrapper => {
@@ -100,16 +102,17 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        const { loading } = await loadingModule;
-        loading(action());
+        el.disabled = true;
+        app.startObserve(action);
       });
       areaMenu.append(el);
     },
 
     setMenu3(areaMenu, classList) {
-      const el = document.createElement('button');
+      const el = Object.assign(document.createElement('button'), {
+        textContent: '既読を非表示',
+      });
       classList.forEach(className => { el.classList.add(className); });
-      el.textContent = '既読を非表示';
       const action = async () => {
         const start = Date.now();
         const list = await app.fetchData();
@@ -133,10 +136,43 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        const { loading } = await loadingModule;
-        loading(action());
+        el.disabled = true;
+        app.startObserve(action);
       });
       areaMenu.append(el);
+    },
+
+    listHandler: [],
+    async handler() {
+      const delayHandler = async () => {
+        for (const action of app.listHandler) {
+          await action();
+        }
+        if (app.skipScroll) {
+          delete app.skipScroll;
+          return;
+        }
+        setTimeout(() => {
+          const listTop = document.documentElement;
+          listTop.scrollTo({ top: listTop.scrollHeight, behavior: 'smooth' });
+        }, 0);
+      };
+      clearTimeout(app.id);
+      app.id = setTimeout(delayHandler, 200);
+    },
+
+    startObserve(action) {
+      if (!app.listHandler.find(a => a === action)) {
+        app.listHandler.push(action);
+      }
+      if (!app.observer) {
+        const listTop = document.querySelector('ul[class^="ContentList"]');
+        if (listTop) {
+          app.observer = new MutationObserver(app.handler);
+          app.observer.observe(listTop, { childList: true, subtree: true });
+        }
+      }
+      app.handler();
     },
 
     setContentEvent() {
@@ -185,9 +221,10 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
 
     setEvent(anchor, content, wrapper) {
       if (content.querySelector('.btn-close')) return;
-      const el = document.createElement('div');
-      el.classList.add('btn-close');
-      el.textContent = '🍺';
+      const el = Object.assign(document.createElement('div'), {
+        classList: ['btn-close'],
+        textContent: '🍺',
+      });
       el.addEventListener('click', async event => {
         event.preventDefault();
         const data = {
@@ -195,6 +232,7 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
           ts: new Date().toISOString(),
         };
         await app.appendData(data);
+        app.skipScroll = true;
         wrapper.remove();
       });
       content.append(el);
@@ -217,7 +255,7 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
 
     handler() {
       clearTimeout(provider.id);
-      provider.id = setTimeout(provider.action, 500);
+      provider.id = setTimeout(provider.action, 1500);
     },
 
     async start() {
