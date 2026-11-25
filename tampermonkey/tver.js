@@ -67,16 +67,14 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
 
     setMenu1(areaMenu, classList) {
       const el = Object.assign(document.createElement('button'), {
-        textContent: 'キャプションを非表示',
+        textContent: 'キャプション ON/OFF',
       });
       classList.forEach(className => { el.classList.add(className); });
       const action = async () => {
-        [...document.querySelectorAll('div[class^="Caption_caption"]')]
+        action.display = action.display === 'none' ? '' : 'none';
+        [...document.querySelectorAll('div[class^="FavoriteGroupRail_header"]')]
         .forEach(content => {
-          const parent = content.parentElement;
-          [...content.childNodes].reverse().forEach(child => child.remove());
-          const { childElementCount } = parent.querySelector('section > ul');
-          if (!childElementCount) parent.remove();
+          content.style.display = action.display;
         });
       };
       el.addEventListener('click', async event => {
@@ -102,7 +100,6 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        el.disabled = true;
         app.startObserve(action);
       });
       areaMenu.append(el);
@@ -136,7 +133,6 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
       };
       el.addEventListener('click', async event => {
         event.preventDefault();
-        el.disabled = true;
         app.startObserve(action);
       });
       areaMenu.append(el);
@@ -172,6 +168,7 @@ body:has(.custom-wide-video) [class^="AppLayout_app"] header {
           app.observer.observe(listTop, { childList: true, subtree: true });
         }
       }
+      app.skipScroll = true;
       app.handler();
     },
 

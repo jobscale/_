@@ -16,7 +16,8 @@
   const { createTimezone, formatDuration } = await import('https://esm.sh/@jobscale/timestamp');
 
   const formatTimestamp = createTimezone({ timeZone: 'Europe/Paris' });
-  const Alliance = 'https://navy.quest/ally.php?b=21';
+  const AllianceId = '21';
+  const Alliance = `https://navy.quest/ally.php?b=${AllianceId}`;
   const IntervalMinute = 6; // interval minutes
 
   const chunkByUnit = (arr, size) => arr.reduce((acc, _, i) => {
@@ -194,7 +195,7 @@
     async questReport() {
       const query = new URLSearchParams(location.search);
       if (query.get('go') !== 'report') return;
-      document.querySelector('a[href^="gold?b=3&o3="]')?.click();
+      document.querySelector('a[href^="gold?b=3&"]')?.click();
     },
 
     async checkEnemy(item) {
@@ -278,7 +279,7 @@
         return false;
       }
       const name = 'BLACKD';
-      const url = new RegExp(`https://navy.quest/gold\\?b=3&o3=[0-9a-f]+${name}`);
+      const url = new RegExp(`https://navy.quest/gold\\?b=3&[t=0-9&]*o3=[0-9a-f]+${name}`);
       if (!location.href.match(url)) return false;
       const reportList = [...document.querySelectorAll('table table tr:nth-child(1) td')]
       .map(el => el.textContent.trim()).filter(Boolean).reverse();
@@ -286,7 +287,7 @@
       if (!report) {
         logger.warn('Battle report not found, retrying...');
         setTimeout(() => {
-          document.querySelector('a[href^="gold?b=3&o3="]')?.click();
+          document.querySelector('a[href^="gold?b=3&"]')?.click();
         }, 10_000);
         return false;
       }
@@ -332,7 +333,8 @@
       }
       if (!location.href.includes('ally')) return;
       app.highlight();
-      if (location.href !== Alliance) return;
+      const search = new URLSearchParams(location.search);
+      if (search.get('b') !== AllianceId) return;
       app.refreshTime = new Date();
       app.refreshTime.setMinutes(app.refreshTime.getMinutes() + IntervalMinute);
       await app.onlineUsers(3);
