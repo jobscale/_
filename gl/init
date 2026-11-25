@@ -1,0 +1,1 @@
+opkg update && opkg install git curl htop vim tmux bash openssh-keygen
