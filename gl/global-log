@@ -1,0 +1,12 @@
+awk '/GlobalIp/ {
+  if ($4 != prev_ip && prev_ip != "") {
+    print last_ts, prev_ip, cnt
+    cnt = 0
+  }
+  prev_ip = $4
+  last_ts = $1
+  cnt++
+}
+END {
+  if (prev_ip != "") print last_ts, prev_ip, cnt
+}' /var/log/modem_sim.log
